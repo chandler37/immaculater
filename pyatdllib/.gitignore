@@ -1,0 +1,7 @@
+.coverage
+htmlcov
+*.pyc
+*~
+protoc_middleman
+.DS_Store
+TAGS

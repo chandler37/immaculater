@@ -1,0 +1,115 @@
+package pyatdl;
+
+// The value for our Django cookie.
+message VisitorInfo0 {
+  // If we deserialize and find an invalid sanity_check, then, er, insanity.
+  optional int32 sanity_check = 1;
+  optional int64 cwc_uid = 7;  // CurrentWorkingContainer, see 'help cd'
+  optional string view = 3;  // See 'help view'
+  optional string sort = 5 [default = "alpha"];  // See 'help sort'
+  optional bytes username_hash = 6;
+  extensions 20000 to max;
+}
+
+// When we serialize ToDoList, we do so using ChecksumAndData. This way we can
+// detect data corruption.
+message ChecksumAndData {
+  required int64 payload_length = 1;  // in bytes
+  optional string sha1_checksum = 2;
+  optional bool payload_is_zlib_compressed = 3;
+  required bytes payload = 10123;
+  extensions 20000 to max;
+}
+
+message Timestamp {
+  optional int64 ctime = 1;
+  optional int64 dtime = 2;
+  optional int64 mtime = 3;
+}
+
+// A better name might be "Description":
+message Metadata {
+  optional string name = 1;
+  optional string note = 2;
+  extensions 20000 to max;
+}
+
+// Fields common to Action, Project, Context, etc.
+message Common {
+  // UID = "Unique IDentifier". Two things that have the same name are
+  // distinguished by uid. We use small positive (nonzero) integers.
+  optional int64 uid = 4;
+  optional bool is_deleted = 1;
+  optional Timestamp timestamp = 2;
+  optional Metadata metadata = 3;
+  extensions 20000 to max;
+}
+
+message Context {
+  optional Common common = 1;
+  optional bool is_active = 2;
+  extensions 20000 to max;
+}
+
+message Action {
+  optional Common common = 1;
+  optional bool is_complete = 3;
+
+  optional Context ctx = 4;  // We just use the ID from Common.uid.
+  // TODO(chandler): Deprecate ctx=4 and use the following, ctx_uid. Then
+  // _JsonForOneItem will be cleaner and the save file will be a few bytes
+  // smaller:
+  //
+  // optional int64 ctx_uid = 5;  
+
+  extensions 20000 to max;
+}
+
+message Project {
+  optional Common common = 1;
+  optional bool is_complete = 2;
+  optional bool is_active = 3;
+  repeated Action actions = 4;
+  optional float max_seconds_before_review = 5;
+  optional float last_review_epoch_seconds = 6;  // seconds since the epoch
+
+  // 0 means no default. uid=0 conventionally refers to Actions Without Context:
+  optional int64 default_context_uid = 7 [default = 0];
+
+  extensions 20000 to max;
+}
+
+message Note {
+  // Names matching the regexp r'^:__.*' are reserved for the Django UI. Names
+  // must be unique.
+  optional string name = 1;
+  optional string note = 2;
+  extensions 20000 to max;
+}
+
+message NoteList {
+  repeated Note notes = 2;
+  extensions 20000 to max;
+}
+
+message ContextList {
+  optional Common common = 1;
+  repeated Context contexts = 2;
+  extensions 20000 to max;
+}
+
+message Folder {
+  optional Common common = 1;
+  repeated Folder folders = 2;
+  repeated Project projects = 3;
+  extensions 20000 to max;
+}
+
+message ToDoList {
+  optional Project inbox = 1;
+  optional Folder root = 2;
+  optional ContextList ctx_list = 3;
+  optional bool has_never_purged_deleted = 4 [default = true];
+  optional NoteList note_list = 5;
+  extensions 20000 to max;
+}

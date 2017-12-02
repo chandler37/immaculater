@@ -1,0 +1,56 @@
+<div class="row">
+  <div class="col-sm-12">
+<h1>{{Title}}</h1>
+
+    Your data is only your data if you can access it. This page gives you that
+    access, useful for backing up.<br><br>
+
+    You can restore your data locally and use <a
+    href="https://github.com/chandler37/immaculater/blob/master/pyatdllib/ui/immaculater.py">immaculater.py</a>
+    as a command-line interface via <a
+    href="https://github.com/chandler37/immaculater/blob/master/pyatdllib/runme.sh">runme.sh
+    interactive --database_filename &lt;your file&gt;</a>. It's complicated but
+    doable; see the <a
+    href="https://github.com/chandler37/immaculater">README</a>.<br><br>
+
+    We don't currently support restoration.<br><br>
+
+    {# TODO(chandler): Support restoration. #}
+
+    You may also use the following to export your data in TaskPaper format
+    which is readable by both TaskPaper and OmniFocus.<br><br>
+
+    To truly delete deleted items, use the 'Purge Deleted Items' button
+    below. To wipe out all of your data, use the command-line interface (see
+    'help reset').<br><br>
+
+    {# TODO(chandler): An 'archive' function that moves completed items to the trash #}
+
+<form action="cli" method="post">
+{% csrf_token %}
+<input type="hidden" name="command" value="purgedeleted">
+<input type="submit" value="Purge Deleted Items" class="btn btn-primary">
+</form>
+
+<form action="txt" method="get">
+<input type="submit" value="Export To TaskPaper" class="btn btn-primary">
+</form>
+
+<form action="cli" method="post">
+{% csrf_token %}
+<input type="hidden" name="command" value="ls -R -v all_even_deleted /">
+<input type="submit" value="View Most Of Your Data" class="btn btn-primary">
+</form>
+
+<form action="cli" method="post">
+{% csrf_token %}
+<input type="hidden" name="command" value="dumpprotobuf">
+<input type="submit" value="View All Your Data" class="btn btn-primary">
+</form>
+
+<form action="dl" method="post">
+{% csrf_token %}
+<input type="submit" value="Download Your Data" class="btn btn-primary">
+</form>
+  </div>
+</div>

@@ -1,0 +1,241 @@
+{% if Flash != "" %}
+<div class="row" id="alertRow">
+<div class="col-sm-12">
+<div class="alert alert-success alert-dismissable" role="alert">
+<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+<span aria-hidden="true">&times;</span>
+</button>
+{{Flash|safe}}
+</div>
+</div>
+</div>
+{% endif %}
+
+<div class="row">
+<div class="col-sm-12">
+<h1 id="title"></h1>
+</div>
+</div>
+
+<div class="row">
+<div class="col-sm-12">
+<p id="name">
+</div>
+</div>
+
+<div class="row">
+<div class="col-sm-12">
+<form id="rename" class="i-pjax-form" action="{{UID}}" method="post">
+{% csrf_token %}
+<div class="input-group">
+<input type="hidden" name="cmd" value="rename" class="form-control">
+<input type="text" name="new_name" value="" class="form-control">
+<span class="input-group-btn">
+<input type="submit" value="Rename" class="btn btn-primary">
+</span>
+</div>
+</form>
+</div>
+</div>
+
+<div class="row" id="completeCheckbox">
+</div>
+
+<div class="row">
+<div class="col-sm-12" id="deleted">
+</div>
+</div>
+
+<div class="row">
+<div class="col-sm-12">
+<p id="context">
+</div>
+</div>
+
+<div class="row">
+<div class="col-sm-12">
+<p id="project">
+</div>
+</div>
+
+
+<div class="row" id="timestamp">
+</div>
+
+<div class="row" id="converter">
+</div>
+
+
+<div class="row">
+<div class="col-sm-12">
+<form id="note" class="i-pjax-form" action="{{UID}}" method="post">
+{% csrf_token %}
+<div class="input-group block-display">
+<textarea id="textarea0" name="noteText"></textarea>
+<input type="hidden" name="cmd" value="note" class="form-control">
+<input type="submit" value="Save Note" class="btn btn-primary">
+</div>
+</form>
+
+  </div>
+</div>
+
+<script>
+"use strict";
+$(document).ready(function () {
+document.title = "{{Title}} \u2014 {{Brand}}";
+var simplemde = new SimpleMDE({ spellChecker: false, element: $("#textarea0")[0] });
+var note_value = "{{Note|escapejs}}".replace(/\u005cn/g, "\n");
+simplemde.value(note_value);
+var lsact = JSON.parse("{{LsactJSON|escapejs}}");
+document.getElementById("name").innerHTML =
+    "<b>Name: " + HTMLescape(lsact.name) + "</b>";
+if (lsact.is_deleted) {
+    var f = document.getElementById("rename");
+    if (f) {
+        f.parentNode.removeChild(f);
+    }
+}
+document.getElementById("title").innerHTML =
+    "{{Title}} &lsquo;" + HTMLescape(lsact.name) + "&rsquo;";
+
+if (lsact.is_deleted) {
+    var f = document.getElementById("completeCheckbox");
+    if (f) {
+        f.parentNode.removeChild(f);
+    }
+} else {
+    document.getElementById("completeCheckbox").innerHTML =
+        `<div class="col-sm-12">
+           <form class="form-inline i-pjax-form"
+                 action="${lsact.uid.toString()}"
+                 method="post">
+             {% csrf_token %}
+             <div class="form-group">
+               <input class="i-submits-when-changed"
+                      type="checkbox"
+                      name="checkbox000"
+                      id="checkbox000"
+                      autocomplete="off"
+                      value=""${lsact.is_complete ? " checked" :""}>
+               <div class="btn-group">
+                 <label for="checkbox000" class="btn">
+                    <span class="fa fa-check-square-o fa-fw fa-lg"></span>
+                    <span class="fa fa-square-o fa-fw fa-lg"></span>
+                 </label>
+                 <label for="checkbox000" class="btn btn-default active">
+                   <strong>Completed</strong>
+                 </label>
+               </div>
+             </div>
+             <input type="hidden" name="cmd"
+                    value="${lsact.is_complete ? "uncomplete" : "complete"}">
+           </form>
+         </div>`;
+}
+
+document.getElementById("deleted").innerHTML =
+    `<form class="form-inline i-pjax-form" action="#{lsact.uid.toString()}"
+           method="post">
+       {% csrf_token %}
+       <div data-toggle="tooltip" data-placement="top"
+            title="Show under \'Truly all, even deleted\' view filter? Deleted items remain until purged on the Download Your Data page."
+            class="checkbox${lsact.is_deleted ? " disabled" : ""}">
+         <div class="form-group">
+           <input class="i-submits-when-changed" type="checkbox"
+                  name="checkbox001" id="checkbox001" autocomplete="off"
+                  value=""${lsact.is_deleted ? " checked disabled" :""}>
+           <div class="btn-group">
+             <label for="checkbox001" class="btn">
+                <span class="fa fa-check-square-o fa-fw fa-lg"></span>
+                <span class="fa fa-square-o fa-fw fa-lg"></span>
+             </label>
+             <label for="checkbox001" class="btn btn-default active">
+               <strong>Deleted</strong>
+             </label>
+           </div>
+         </div>
+       </div>
+       ${lsact.is_deleted ? '' : '<input type="hidden" name="cmd" value="rmact">'}
+     </form>`;
+
+var undeletedContexts = JSON.parse("{{UndeletedLsctxJSON|escapejs}}");
+var allContextOptions = "";
+var i;
+for (i = 0; i < undeletedContexts.length; i++) {
+  var s = (lsact.in_context_uid === undeletedContexts[i].uid) ? ' selected="selected"' : '';
+  allContextOptions += '<option value="' + undeletedContexts[i].uid + '"' + s +
+    '>' + HTMLescape(undeletedContexts[i].name) + '</option>';
+}
+var chctxButton = createButton(
+    lsact.uid.toString(),
+    "{% csrf_token %}",
+    lsact.uid,
+    '<input type="hidden" name="cmd" value="chctx">\
+<select name="new_uid" class="form-control i-submits-when-changed">' +
+allContextOptions +
+'</select>',
+    "Change Context");
+
+var viewContextButton = "<a href=\"/todo/context/" + ((lsact.in_context_uid ===
+    null) ? "0" : lsact.in_context_uid.toString()) + "\"><b>Context: " +
+    HTMLescape(lsact.in_context) + "</b></a>";
+
+document.getElementById("context").innerHTML = viewContextButton +
+    ((allContextOptions === "" || lsact.is_deleted) ? "" : chctxButton);
+
+var viewProjectButton = "<a href=\"/todo/project/" +
+    lsact.project_uid.toString() + "\"><b>Project: " +
+    HTMLescape(lsact.display_project_path) + "</b></a>";
+
+var undeletedProjects = JSON.parse("{{UndeletedLsprjJSON|escapejs}}");
+var allProjectOptions = "";
+var i;
+for (i = 0; i < undeletedProjects.length; i++) {
+    var s = (lsact.project_uid === undeletedProjects[i].uid) ? ' selected="selected"' : '';
+    allProjectOptions += '<option value="' + undeletedProjects[i].uid + '"' + s
+      + '>' + HTMLescape(undeletedProjects[i].name) + '</option>';
+}
+
+var mvButton = createButton(
+    lsact.uid.toString(),
+    "{% csrf_token %}",
+    lsact.uid,
+    '<input type="hidden" name="cmd" value="mv">\
+<select name="new_uid" class="form-control i-submits-when-changed">' +
+allProjectOptions +
+'</select>',
+    "Change Project");
+
+document.getElementById("project").innerHTML = viewProjectButton +
+((allProjectOptions === "" || lsact.is_deleted) ? "" : mvButton);
+
+var created = new Date(0);
+created.setUTCSeconds(lsact.ctime);
+document.getElementById("timestamp").innerHTML =
+    `<div class="col-sm-12">
+         Created on ${created}
+     </div>`;
+
+if (lsact.is_deleted || lsact.is_complete || note_value != "") {
+    var f = document.getElementById("converter");
+    if (f) {
+        f.parentNode.removeChild(f);
+    }
+} else {
+    document.getElementById("converter").innerHTML = `
+<div class="col-sm-12">
+<form class="i-pjax-form" action="#{lsact.uid.toString()}" method="post">
+{% csrf_token %}
+<input type="hidden" name="cmd" value="prjify">
+<input type="submit" value="Convert this Action into a Project" class="btn btn-primary">
+</form>
+</div>`;
+}
+
+pjaxifyForms();
+
+installTooltips();
+
+});
+</script>

@@ -1,0 +1,9 @@
+{% extends "registration/base.html" %}
+
+{% block title %}{{ title }} | {{ site_title|default:_('Django site admin') }}{% endblock %}
+
+{% block branding %}
+<h1 id="site-name"><a href="/">{{ site_header|default:_('Immaculater') }}</a></h1>
+{% endblock %}
+
+{% block nav-global %}{% endblock %}

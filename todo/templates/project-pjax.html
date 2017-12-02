@@ -1,0 +1,411 @@
+{% if Flash != "" %}
+<div class="row" id="alertRow">
+<div class="col-sm-12">
+<div class="alert alert-success alert-dismissable" role="alert">
+<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+<span aria-hidden="true">&times;</span>
+</button>
+{{Flash|safe}}
+</div>
+</div>
+</div>
+{% endif %}
+
+<div class="row">
+<div class="col-sm-6">
+    <div id="verticalActionButtonGroup">
+    </div>
+</div>
+<div class="col-sm-6">
+
+<div class="row">
+<div class="col-sm-12">
+<h1 id="title"></h1>
+</div>
+</div>
+
+<div class="row">
+<div class="col-sm-12">
+<p id="viewFilter">
+</div>
+</div>
+
+<div class="row" id="create">
+<div class="col-sm-12">
+<form class="i-pjax-form" action="{{UID}}" method="post">
+{% csrf_token %}
+<div class="input-group">
+<input type="text" name="new_action" value="" class="form-control">
+<span class="input-group-btn">
+<input type="submit" value="Create Action" class="btn btn-primary">
+</span>
+</div>
+</form>
+</div>
+</div>
+
+<div class="row">
+<div class="col-sm-12">
+<p id="name">
+</div>
+</div>
+
+
+<div class="row" id="rename">
+<div class="col-sm-12">
+{% comment %}
+TODO(chandler): DRY up this form; it's used in action-pjax.html and
+context-pjax.html as well.
+{% endcomment %}
+<form class="i-pjax-form" action="{{UID}}" method="post">
+{% csrf_token %}
+<div class="input-group">
+<input type="hidden" name="cmd" value="rename" class="form-control">
+<input type="text" name="new_name" value="" class="form-control">
+<span class="input-group-btn">
+<input type="submit" value="Rename" class="btn btn-primary">
+</span>
+</div>
+</form>
+</div>
+</div>
+
+<div class="row" id="complete">
+</div>
+
+<div class="row" id="active">
+</div>
+
+<div class="row" id="reviewed">
+</div>
+
+<div class="row" id="deleted">
+</div>
+
+<div class="row" id="defaultctx">
+</div>
+
+<div class="row" id="timestamp">
+</div>
+
+<div class="row">
+<div class="col-sm-12">
+<form id="note" class="i-pjax-form" action="{{UID}}" method="post">
+{% csrf_token %}
+<div class="input-group block-display">
+<textarea id="textarea0" name="noteText"></textarea>
+<input type="hidden" name="cmd" value="note" class="form-control">
+<input type="submit" value="Save Note" class="btn btn-primary">
+</div>
+</form>
+</div>
+</div>
+
+</div>
+</div>
+
+<script>
+"use strict";
+$(document).ready(function () {
+var lsprj = JSON.parse("{{LsprjJSON|escapejs}}");
+var inprj = JSON.parse("{{InprjJSON|escapejs}}");
+var buttonDiv = document.getElementById("verticalActionButtonGroup");
+buttonDiv.innerHTML = "";
+var i;
+for (i = 0; i < inprj.length; i++) {
+    var node = document.createElement("div");
+    node.setAttribute("class", "row spaced-row");
+    node.innerHTML = `
+<div class="col-2 left-side">
+<form class="form-inline i-pjax-form float-right"
+      action="${lsprj.uid.toString()}"
+      method="post">
+  {% csrf_token %}
+  <input type="hidden" name="cmd"
+         value="${inprj[i].is_deleted
+                  ? "undeleteandmarkincomplete"
+                  : (inprj[i].is_complete ? "toggleincomplete" : "togglecomplete")}">
+  <input type="hidden" name="target_uid" value="${inprj[i].uid.toString()}">
+  <div class="form-group">
+    <input class="i-submits-when-changed"
+           type="checkbox"
+           name="completed"
+           id="completed${inprj[i].uid.toString()}"
+           autocomplete="off"
+           value=""${inprj[i].is_deleted
+                     ? " checked disabled"
+                     : (inprj[i].is_complete ? " checked" : "")}>
+    <div class="btn-group">
+      <label for="completed${inprj[i].uid.toString()}" class="btn">
+        <span class="fa fa-check-square-o fa-fw fa-lg"></span>
+        <span class="fa fa-square-o fa-fw fa-lg"></span>
+      </label>
+    </div>
+  </div>
+</form>
+</div>
+<div class="col-10 right-side">
+  <a href="/todo/action/${inprj[i].uid.toString()}"
+     role="button"
+     class="btn btn-info btn-md btn-block text-left"
+     style="white-space: normal;">
+  ${(inprj[i].is_complete || inprj[i].is_deleted)
+    ? "<s>" + HTMLescape(inprj[i].name) + "</s>"
+    : HTMLescape(inprj[i].name)}
+  </a>
+</div>`;
+    buttonDiv.appendChild(node);
+}
+if (!inprj.length) {
+    if ("{{ViewFilter}}" == "all") {
+	buttonDiv.innerHTML = "<p class=\"text-center\">No actions are visible under the current view filter. Set View Filter to 'Truly all, even deleted' to see everything.</p>";
+    } else if ("{{ViewFilter}}" == "all_even_deleted") {
+	buttonDiv.innerHTML = "<p class=\"text-center\">You have not yet created actions for this project. You may do so using the 'Create Action' button.</p>";
+    } else {
+	buttonDiv.innerHTML = "<p class=\"text-center\">No actions are visible under the current view filter. Set View Filter to 'All' to see all but deleted actions.</p>";
+    }
+}
+document.getElementById("name").innerHTML =
+    "<b>Name: " + HTMLescape(lsprj.name) + "</b>";
+if (lsprj.uid === 1) {
+    document.title = "Inbox \u2014 {{Brand}}";
+} else {
+    document.title = "{{Title}} \u2014 {{Brand}}";
+}
+if (lsprj.uid === 1 || lsprj.is_deleted) {
+    var f = document.getElementById("rename");
+    if (f) {
+        f.parentNode.removeChild(f);
+    }
+}
+
+var simplemde = new SimpleMDE({ spellChecker: false, element: $("#textarea0")[0] });
+var note_value = "{{Note|escapejs}}".replace(/\u005cn/g, "\n");
+if (note_value === "" && lsprj.uid === 1) {
+    note_value = `Welcome to your *Inbox*.
+
+Your *Inbox* is a place to capture your thoughts.
+During your *Weekly Review* you will clear your
+*Inbox* and turn vague responsibilities into
+projects and next actions.
+
+For example, if you write "taxes!" here, later
+you might turn that into several projects, one
+for finding a tax preparer, one for making
+charitable donations before the calendar year
+ends, and one for tax planning for next year.
+
+During your *Weekly Review* you would create
+those projects and come up with a next action
+for each.
+
+--
+
+Use this note space for anything you like.
+
+If you put to-do items here, process this space
+during your *Weekly Review*.
+
+If you put links here, click the preview button
+(it looks like an eye) and you can click them.
+
+If you prefer to see a blank space here, enter
+a space or a blank line.
+
+Remember to press the **Save Note** button.
+`;
+}
+simplemde.value(note_value);
+
+document.getElementById("title").innerHTML =
+    (lsprj.uid === 1) ? "Inbox" : ("{{Title}} &lsquo;" + HTMLescape(lsprj.name) + "&rsquo;");
+
+if (lsprj.is_deleted || lsprj.uid === 1) {
+    var f = document.getElementById("active");
+    if (f) {
+        f.parentNode.removeChild(f);
+    }
+} else {
+    document.getElementById("active").innerHTML = `
+<div class="col-sm-12">
+<form class="form-inline i-pjax-form" action="{{UID}}" method="post">
+{% csrf_token %}
+<div data-toggle="tooltip" data-placement="top"
+     title="Show under \'Actionable\' view filter?"
+     class="checkbox">
+<div class="form-group">
+<input type="checkbox" class="i-submits-when-changed"
+       name="checkbox004" id="checkbox004" autocomplete="off"
+       value=""${lsprj.is_active ? " checked" :""}>
+<div class="btn-group">
+             <label for="checkbox004" class="btn">
+                <span class="fa fa-check-square-o fa-fw fa-lg"></span>
+                <span class="fa fa-square-o fa-fw fa-lg"></span>
+             </label>
+             <label for="checkbox004" class="btn btn-default active">
+               <strong>Active</strong>
+             </label>
+</div>
+</div>
+</div>
+<input type="hidden" name="cmd"
+       value="${lsprj.is_active ? "deactivateprj" : "activateprj"}">
+</form>
+</div>`;
+}
+
+if (lsprj.is_deleted || lsprj.uid === 1) {
+    var f = document.getElementById("complete");
+    if (f) {
+        f.parentNode.removeChild(f);
+    }
+} else {
+    document.getElementById("complete").innerHTML = `
+<div class="col-sm-12">
+<form class="form-inline i-pjax-form" action="#{lsprj.uid.toString()}"
+      method="post">
+{% csrf_token %}
+<div class="checkbox">
+<div class="form-group">
+<input type="checkbox" class="i-submits-when-changed"
+       name="checkbox005" id="checkbox005" autocomplete="off"
+       value=""${lsprj.is_complete ? " checked" :""}>
+<div class="btn-group">
+             <label for="checkbox005" class="btn">
+                <span class="fa fa-check-square-o fa-fw fa-lg"></span>
+                <span class="fa fa-square-o fa-fw fa-lg"></span>
+             </label>
+             <label for="checkbox005" class="btn btn-default active">
+               <strong>Completed</strong>
+             </label>
+</div>
+</div>
+</div>
+<input type="hidden" name="cmd"
+       value="${lsprj.is_complete ? "uncomplete" : "complete"}">
+</form>
+</div>`;
+}
+
+if (lsprj.uid === 1) {
+    var f = document.getElementById("deleted");
+    if (f) {
+        f.parentNode.removeChild(f);
+    }
+} else {
+    document.getElementById("deleted").innerHTML = `
+<div class="col-sm-12">
+<form class="form-inline i-pjax-form" action="${lsprj.uid.toString()}"
+      method="post">
+{% csrf_token %}
+<div data-toggle="tooltip" data-placement="top"
+     title="Show under \'Truly all, even deleted\' view filter? Deleted items remain until purged on the Download Your Data page."
+     class="checkbox${lsprj.is_deleted ? " disabled" : ""}">
+<div class="form-group">
+<input type="checkbox" class="i-submits-when-changed"
+       name="checkbox006" id="checkbox006" autocomplete="off"
+       value=""${lsprj.is_deleted ? " checked disabled" :""}>
+<div class="btn-group">
+             <label for="checkbox006" class="btn">
+                <span class="fa fa-check-square-o fa-fw fa-lg"></span>
+                <span class="fa fa-square-o fa-fw fa-lg"></span>
+             </label>
+             <label for="checkbox006" class="btn btn-default active">
+               <strong>Deleted</strong>
+             </label>
+</div>
+</div>
+</div>
+${lsprj.is_deleted ? '' : '<input type="hidden" name="cmd" value="rmprj">'}
+</form>
+</div>`;
+}
+
+if (lsprj.uid === 1) {
+    var f = document.getElementById("defaultctx");
+    if (f) {
+        f.parentNode.removeChild(f);
+    }
+} else {
+    var undeletedContexts = JSON.parse("{{UndeletedLsctxJSON|escapejs}}");
+    var allContextOptions = "";
+    var i;
+    for (i = 0; i < undeletedContexts.length; i++) {
+      var s = (lsprj.default_context_uid === undeletedContexts[i].uid) ? ' selected="selected"' : '';
+      allContextOptions += `<option value="${undeletedContexts[i].uid}"${s}>` +
+          HTMLescape(undeletedContexts[i].name) + '</option>';
+    }
+    document.getElementById("defaultctx").innerHTML =
+	'<div class="col-sm-12">' +
+        createButton(
+            lsprj.uid.toString(),
+            "{% csrf_token %}",
+            lsprj.uid,
+            `<input type="hidden" name="cmd" value="chdefaultctx">
+             <select name="new_default_uid" class="form-control i-submits-when-changed">` +
+            allContextOptions + '</select>',
+            "Change Default Context") +
+        '</div>';
+}
+
+if (lsprj.is_deleted) {
+    var f = document.getElementById("reviewed");
+    if (f) {
+        f.parentNode.removeChild(f);
+    }
+} else {
+    document.getElementById("reviewed").innerHTML = `
+<div class="col-sm-12">
+<form class="form-inline i-pjax-form" action="${lsprj.uid.toString()}"
+      method="post">
+{% csrf_token %}
+<div data-toggle="tooltip" data-placement="top"
+     title="Show under \'Needing review\' view filter? See the Weekly Review page."
+     class="checkbox">
+<div class="form-group">
+<input type="checkbox" class="i-submits-when-changed"
+       name="checkbox007" id="checkbox007" autocomplete="off"
+       value=""${lsprj.needsreview ? "" : " checked"}>
+<div class="btn-group">
+             <label for="checkbox007" class="btn">
+                <span class="fa fa-check-square-o fa-fw fa-lg"></span>
+                <span class="fa fa-square-o fa-fw fa-lg"></span>
+             </label>
+             <label for="checkbox007" class="btn btn-default active">
+               <strong>Reviewed</strong>
+             </label>
+</div>
+</div>
+</div>
+${lsprj.needsreview ? '<input type="hidden" name="cmd" value="completereview">'
+                    : '<input type="hidden" name="cmd" value="clearreview">'}
+<input type="hidden" name="prj" value="uid=${lsprj.uid.toString()}">
+</form>
+</div>`;
+}
+
+{% comment %}
+  TODO(chandler): Support 'configurereview'.
+{% endcomment %}
+document.getElementById("viewFilter").innerHTML = viewFilterHTML(
+    "{{UID}}", "{% csrf_token %}", "{{UID}}", "{{ViewFilter}}");
+if (lsprj.is_deleted || lsprj.is_complete) {
+    var f = document.getElementById("create");
+    if (f) {
+        f.parentNode.removeChild(f);
+    }
+}
+
+var created = new Date(0);
+created.setUTCSeconds(lsprj.ctime);
+document.getElementById("timestamp").innerHTML =
+    `<div class="col-sm-12">
+         Created on ${created}
+     </div>`;
+
+pjaxifyForms();
+
+installTooltips();
+
+});
+</script>

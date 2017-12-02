@@ -1,0 +1,195 @@
+"""
+Django settings for immaculater project on Heroku. For more info, see:
+https://github.com/heroku/heroku-django-template
+
+For more information on this file, see
+https://docs.djangoproject.com/en/1.10/topics/settings/
+
+For the full list of settings and their values, see
+https://docs.djangoproject.com/en/1.10/ref/settings/
+"""
+
+import os
+import dj_database_url
+
+from django.core.urlresolvers import reverse_lazy
+
+# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
+
+
+# Quick-start development settings - unsuitable for production
+# See https://docs.djangoproject.com/en/1.10/howto/deployment/checklist/ TODO(chandler)
+
+# SECURITY WARNING: keep the secret key used in production secret!
+# Create a line DJANGO_SECRET_KEY=mysecretkey in your ../.env file for 'heroku local web' to see this. Use 'heroku config:set DJANGO_SECRET_KEY=secretkey' to affect it in production.
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY',
+                            "9!41(_jh5evq2br6^&w6rx+-8g((c-a!p%1s9uk_usu8nq&&a7")
+
+# SECURITY WARNING: don't run with debug turned on in production!
+# Using 'heroku local web'? Create a file ../.env with a line 'DJANGO_DEBUG="True"'.
+DEBUG = os.environ.get('DJANGO_DEBUG') == "True"
+
+# Application definition
+
+INSTALLED_APPS = [
+    'todo.apps.TodoConfig',
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    # Disable Django's own staticfiles handling in favour of WhiteNoise, for
+    # greater consistency between gunicorn and `./manage.py runserver`. See:
+    # http://whitenoise.evans.io/en/stable/django.html#using-whitenoise-in-development
+    'whitenoise.runserver_nostatic',
+    'django.contrib.staticfiles',
+    'django_slack_oauth',
+]
+
+MIDDLEWARE = [
+    'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.common.CommonMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+]
+
+ROOT_URLCONF = 'immaculater.urls'
+
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+            ],
+            'debug': DEBUG,
+        },
+    },
+]
+
+WSGI_APPLICATION = 'immaculater.wsgi.application'
+
+
+# Database
+# https://docs.djangoproject.com/en/1.10/ref/settings/#databases
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+    }
+}
+
+AUTH_PASSWORD_VALIDATORS = [
+    {
+        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+    },
+]
+
+# Internationalization
+# https://docs.djangoproject.com/en/1.10/topics/i18n/
+
+LANGUAGE_CODE = 'en-us'
+TIME_ZONE = 'UTC'
+USE_I18N = True
+USE_L10N = True
+USE_TZ = True
+
+# Update database configuration with $DATABASE_URL.
+db_from_env = dj_database_url.config(conn_max_age=500)
+DATABASES['default'].update(db_from_env)
+
+# Honor the 'X-Forwarded-Proto' header for request.is_secure()
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+SECURE_CONTENT_TYPE_NOSNIFF = True
+SECURE_BROWSER_XSS_FILTER = True
+if not DEBUG:
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_SSL_REDIRECT = True
+X_FRAME_OPTIONS = "DENY"
+
+# Allow all host headers
+ALLOWED_HOSTS = ['*']
+
+# Static files (CSS, JavaScript, Images)
+# https://docs.djangoproject.com/en/1.10/howto/static-files/
+
+STATIC_ROOT = os.path.join(PROJECT_ROOT, 'staticfiles')
+STATIC_URL = '/static/'
+
+# Extra places for collectstatic to find static files.
+STATICFILES_DIRS = [
+    os.path.join(PROJECT_ROOT, 'static'),
+]
+
+# Simplified static file serving.
+# https://warehouse.python.org/project/whitenoise/
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+LOGOUT_REDIRECT_URL = '/todo'
+
+SLACK_CLIENT_ID = os.environ.get('SLACK_CLIENT_ID')
+SLACK_CLIENT_SECRET = os.environ.get('SLACK_CLIENT_SECRET')
+SLACK_SCOPE = 'identify'
+SLACK_SUCCESS_REDIRECT_URL = reverse_lazy('home')
+SLACK_PIPELINES = [
+#    'todo.pipelines.debug_oauth_request',
+    'todo.pipelines.register_user',
+]
+
+LOGIN_URL = '/todo/login'
+
+if os.environ.get('MEMCACHEDCLOUD_SERVERS'):
+    CACHES = {
+        'default': {
+            'BACKEND': 'django_bmemcached.memcached.BMemcached',
+            'LOCATION': os.environ.get('MEMCACHEDCLOUD_SERVERS').split(','),
+            'OPTIONS': {
+                'username': os.environ.get('MEMCACHEDCLOUD_USERNAME'),
+                'password': os.environ.get('MEMCACHEDCLOUD_PASSWORD')
+            }
+        }
+    }
+else:
+    if not DEBUG and SLACK_CLIENT_ID is not None:
+        raise Exception('You must use memcached/redis or the Slack OAuth integration will break (deny sign ups/sign ins) because its state machine uses the django cache.')
+
+if DEBUG:
+    LOGGING = {
+        'version': 1,
+        'handlers': {
+            'console':{
+                'level':'DEBUG',
+                'class':'logging.StreamHandler',
+            },
+        },
+        'loggers': {
+            'django.request': {
+                'handlers':['console'],
+                'propagate': True,
+                'level':'DEBUG',
+            }
+        },
+    }

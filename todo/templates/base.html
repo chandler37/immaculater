@@ -1,0 +1,175 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>{{Title}} &ndash; {{Brand}}</title>
+  {% load static %}
+
+  <script src="https://use.fontawesome.com/2396930064.js"></script>
+
+  <link rel="shortcut icon" type="image/png" href="{% static Favicon %}">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.css" crossorigin="anonymous">
+
+  <script src="https://code.jquery.com/jquery-3.2.1.min.js" crossorigin="anonymous"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js" integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh" crossorigin="anonymous"></script>
+
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js" integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ" crossorigin="anonymous"></script>
+
+  <script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js" crossorigin="anonymous"></script>
+
+  <script src="{% static "jquery.pjax.js" %}"></script>
+
+  <script src="{% static "mousetrap/mousetrap.min.js" %}"></script>
+
+  <script src="{% static "immaculater/immaculater.js" %}"></script>
+<style>
+.left-side {
+  padding-right: 0px;
+  margin-right: 0px;
+}
+.right-side {
+  padding-left: 0px;
+  margin-left: 0px;
+}
+.spaced-row {
+  margin-top: 4px;
+  margin-bottom: 4px;
+}
+.i-pjax-form .input-group {
+    width: 100%;
+}
+.block-display { display: block; }
+.CodeMirror {
+    height: 100px;
+}
+.form-group input[type="checkbox"] {
+    display: none;
+}
+
+.form-group input[type="checkbox"] + .btn-group > label span:first-child {
+    display: none;
+}
+.form-group input[type="checkbox"] + .btn-group > label span:last-child {
+    display: inline-block;   
+}
+
+.form-group input[type="checkbox"]:checked + .btn-group > label span:first-child {
+    display: inline-block;
+}
+.form-group input[type="checkbox"]:checked + .btn-group > label span:last-child {
+    display: none;   
+}
+</style>
+</head>
+
+<body>
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <a class="navbar-brand" href="/todo/"><img src="{% static Logo %}" width=202
+height=50 alt="{{Brand}}"></a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  <div class="collapse navbar-collapse" id="navbarSupportedContent">
+    <ul class="navbar-nav mr-auto">
+      <li class="nav-item">{# TODO(chandler): use 'active' class when on the projects page #}
+        <a class="nav-link" href="/todo/projects">Projects (p)</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/todo/contexts">Contexts (c)</a>
+      </li>
+      <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          Other
+        </a>
+        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+	  <a class="dropdown-item" href="/todo/project/1">Inbox (i)</a>
+          <a class="dropdown-item" href="/todo/weekly_review">Weekly Review (w)</a>
+          <a class="dropdown-item" href="/todo/account">Your Account</a>
+          <a class="dropdown-item" href="/todo/dl">Download Your Data (d)</a>
+	  <a class="dropdown-item" href="/todo/share">Share Your Data</a>
+	  <a class="dropdown-item" href="/todo/cli">Command-Line Interface (!)</a>
+	  <a class="dropdown-item" href="/todo/text">View As Text (T)</a>
+          <a class="dropdown-item" href="/todo/help">Help</a>
+          <a class="dropdown-item" href="/todo/about">About</a>
+          <div class="dropdown-divider"></div>
+          <a class="dropdown-item" href="{{LogoutUrl}}">Sign Out</a>
+        </div>
+      </li>
+    </ul>
+    <form id="i-quick-capture-form" action="/todo/home" method="post" class="form-inline my-2 my-lg-0 i-pjax-pushy-form">
+      {% csrf_token %}
+      <input class="form-control mr-sm-2" type="text" placeholder="walk the dog @home" aria-label="Capture" name="new_action">
+      <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Capture</button>
+    </form>
+  </div>
+</nav>
+
+<div class="container-fluid">
+  <section id="main">
+    {% block body %}{% endblock %}
+    {% block script %}{% endblock %}
+  </section>
+</div>
+
+<script>
+"use strict";
+$(document).ready(function() {
+$(document).pjax('a', '#main', {cache: false});
+
+    Mousetrap.bind("?", function() {
+        $.pjax({url: '/todo/shortcuts', container: '#main'});
+    });
+    Mousetrap.bind("h", function() {
+        $.pjax({url: '/todo/', container: '#main'});
+    });
+    Mousetrap.bind("i", function() {
+        $.pjax({url: '/todo/project/1', container: '#main'});
+    });
+    Mousetrap.bind("p", function() {
+        $.pjax({url: '/todo/projects', container: '#main'});
+    });
+    Mousetrap.bind("c", function() {
+        $.pjax({url: '/todo/contexts', container: '#main'});
+    });
+    Mousetrap.bind("C", function() {
+        $.pjax({url: '/todo/context/0', container: '#main'});
+    });
+    Mousetrap.bind("!", function() {
+        $.pjax({url: '/todo/cli', container: '#main'});
+    });
+    Mousetrap.bind("w", function() {
+        $.pjax({url: '/todo/weekly_review', container: '#main'});
+    });
+    Mousetrap.bind("r", function() {
+        $.pjax({url: '/todo/weekly_review', container: '#main'});
+    });
+    Mousetrap.bind("t", function() {
+        window.location.href = '/todo/txt';
+    });
+    Mousetrap.bind("T", function() {
+        $.pjax({url: '/todo/text', container: '#main'});
+    });
+    Mousetrap.bind("I", function() {
+        window.location.href = '/todo/txt.incomplete';
+    });
+    Mousetrap.bind("d", function() {
+        $.pjax({url: '/todo/dl', container: '#main'});
+    });
+    Mousetrap.bind("/", function() {
+        $("input:text:visible:first").focus();
+        return false;
+    });
+
+    $('.i-pjax-pushy-form').submit(function(event) {
+        $.pjax.submit(event, '#main', {type: "POST", push: true, cache: false});
+    });
+});
+</script>
+</body>
+</html>

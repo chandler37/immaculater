@@ -1,0 +1,78 @@
+{% if Flash != "" %}
+<div class="row" id="alertRow">
+<div class="col-sm-12">
+<div class="alert alert-success alert-dismissable" role="alert">
+<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+<span aria-hidden="true">&times;</span>
+</button>
+{{Flash|safe}}
+</div>
+</div>
+</div>
+{% endif %}
+
+<div class="row">
+  <div class="col-sm-6">
+    <div id="verticalContextButtonGroup" class="btn-group-vertical btn-block">
+    </div>
+  </div>
+  <div class="col-sm-6">
+
+<div class="row">
+<div class="col-sm-12">
+<h1>{{Title}}</h1>
+</div>
+</div>
+
+<div class="row">
+<div class="col-sm-12">
+<p id="viewFilter">
+</div>
+</div>
+
+<div class="row">
+<div class="col-sm-12">
+<form class="i-pjax-form" action="contexts" method="post">
+{% csrf_token %}
+<div class="input-group">
+<input type="text" name="new_ctx" value="" class="form-control">
+<span class="input-group-btn">
+<input type="submit" value="Create Context" class="btn btn-primary">
+</span>
+</div>
+</form>
+</div>
+</div>
+
+</div>
+</div>
+
+<script>
+"use strict";
+$(document).ready(function () {
+document.title = "{{Title}} \u2014 {{Brand}}";
+var ctxs = JSON.parse("{{ContextsJSON|escapejs}}");
+var i;
+var buttonDiv = document.getElementById("verticalContextButtonGroup");
+buttonDiv.innerHTML = "";
+function addButton(nameText, num, uid) {
+    var node = document.createElement("a");
+    node.setAttribute("href", "context/" + uid.toString());
+    node.setAttribute("class", "btn btn-info btn-md col-lg-12");
+    node.setAttribute("style", "margin-bottom:4px;white-space: normal;");
+    var text = document.createTextNode(nameText + " (" + num.toString() + ")");
+    node.appendChild(text);
+    buttonDiv.appendChild(node);
+}
+for (i = 0; i < ctxs.length; i++) {
+    addButton(ctxs[i].name, ctxs[i].number_of_items, ctxs[i].uid);
+}
+document.getElementById("viewFilter").innerHTML = viewFilterHTML(
+    "contexts", "{% csrf_token %}", undefined, "{{ViewFilter}}");
+
+pjaxifyForms();
+
+installTooltips();
+
+});
+</script>

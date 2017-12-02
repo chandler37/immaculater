@@ -1,0 +1,318 @@
+{% if Flash != "" %}
+<div class="row" id="alertRow">
+<div class="col-sm-12">
+<div class="alert alert-success alert-dismissable" role="alert">
+<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+<span aria-hidden="true">&times;</span>
+</button>
+{{Flash|safe}}
+</div>
+</div>
+</div>
+{% endif %}
+
+<div class="row">
+
+<div class="col-sm-6">
+    <div id="verticalContextButtonGroup">
+    </div>
+</div>
+
+<div class="col-sm-6">
+
+<div class="row">
+<div class="col-sm-12">
+<h1 id="title"></h1>
+</div>
+</div>
+
+<div class="row">
+<div class="col-sm-12">
+<p id="viewFilter">
+</div>
+</div>
+
+<div class="row" id="create">
+<div class="col-sm-12">
+<form class="i-pjax-form" action="{{UID}}" method="post">
+{% csrf_token %}
+<input type="hidden" name="uid" value="{{UID}}">
+<div class="input-group">
+<input type="text" name="new_action" value="" class="form-control">
+<span class="input-group-btn">
+<input type="submit" value="Create Action In Inbox" class="btn btn-primary">
+</span>
+</div>
+</form>
+</div>
+</div>
+
+<div class="row">
+<div class="col-sm-12">
+<p id="name">
+</div>
+</div>
+
+<div class="row" id="rename">
+<div class="col-sm-12">
+<form class="i-pjax-form" action="{{UID}}" method="post">
+{% csrf_token %}
+<div class="input-group">
+<input type="hidden" name="cmd" value="rename" class="form-control">
+<input type="text" name="new_name" value="" class="form-control">
+<span class="input-group-btn">
+<input type="submit" value="Rename" class="btn btn-primary">
+</span>
+</div>
+</form>
+</div>
+</div>
+
+<div class="row" id="active">
+</div>
+
+<div class="row" id="deleted">
+</div>
+
+<div class="row" id="timestamp">
+</div>
+
+<div class="row" id="note">
+<div class="col-sm-12">
+<form class="i-pjax-form" action="{{UID}}" method="post">
+{% csrf_token %}
+<div class="input-group block-display">
+<textarea id="textarea0" name="noteText"></textarea>
+<input type="hidden" name="cmd" value="note" class="form-control">
+<input type="submit" value="Save Note" class="btn btn-primary">
+</div>
+</form>
+</div>
+</div>
+
+</div>
+</div>
+
+<script>
+"use strict";
+$(document).ready(function() {
+document.title = "{{Title}} \u2014 {{Brand}}";
+var lsctx = JSON.parse("{{LsctxJSON|escapejs}}");
+var simplemde = new SimpleMDE({ spellChecker: false, element: $("#textarea0")[0] });
+var note_value = "{{Note|escapejs}}".replace(/\u005cn/g, "\n");
+if (!lsctx.uid && note_value === "") {
+    note_value = `This is a special context because it's not
+really a context at all. Instead, you'll find here
+all the actions that don't yet have a context.
+See the *Weekly Review* page to learn why it's
+important to assign each action a context.`
+}
+if ((lsctx.name.startsWith("@someday/maybe") || lsctx.name.startsWith("@maybe")) && note_value === "") {
+    note_value = `This is a special context for items you might
+want to do or definitely want to do, but not soon.
+
+This context is marked inactive, which affects the
+view filter. When you're ready to achieve, you set
+the view filter to *Actionable* and all the
+actions in this context are hidden from you.`;
+}
+if (lsctx.name.startsWith("@wait") && note_value === "") {
+    note_value = `This is a special context for things you
+are waiting for.
+
+This context is marked inactive, which affects the
+view filter. When you're ready to achieve, you set
+the view filter to *Actionable* and all the
+actions in this context are hidden from you.
+
+It's a good practice to say who you're waiting on
+and, for what, and for how long.`;
+}
+simplemde.value(note_value);
+if (!lsctx.uid || lsctx.is_deleted) {
+    var f = document.getElementById("rename");
+    if (f) {
+        f.parentNode.removeChild(f);
+    }
+}
+if (lsctx.is_deleted) {
+    var f = document.getElementById("create");
+    if (f) {
+        f.parentNode.removeChild(f);
+    }
+}
+var inctx = JSON.parse("{{InctxJSON|escapejs}}");
+if (!lsctx.uid) {
+    var f = document.getElementById("name");
+    if (f) {
+        f.parentNode.removeChild(f);
+    }
+} else {
+    document.getElementById("name").innerHTML =
+        "<b>Name: " + HTMLescape(lsctx.name) + "</b>";
+}
+document.getElementById("title").innerHTML =
+    ((lsctx.uid)
+     ? "{{Title}} &lsquo;" + HTMLescape(lsctx.name) + "&rsquo;"
+     : "Actions Without Context");
+
+if (!lsctx.uid || lsctx.is_deleted) {
+    var f = document.getElementById("active");
+    if (f) {
+        f.parentNode.removeChild(f);
+    }
+} else {
+    document.getElementById("active").innerHTML = `
+<div class="col-sm-12">
+<form class="i-pjax-form form-inline"
+      action="{{UID}}"
+      method="post">
+{% csrf_token %}
+<div data-toggle="tooltip" data-placement="top"
+     title="Show actions in this context under the \'Actionable\' view filter?"
+     class="checkbox">
+<div class="form-group">
+<input type="checkbox" class="i-submits-when-changed"
+       name="checkbox003" id="checkbox003" autocomplete="off"
+       value=""${lsctx.is_active ? " checked" :""}>
+<div class="btn-group">
+             <label for="checkbox003" class="btn">
+                <span class="fa fa-check-square-o fa-fw fa-lg"></span>
+                <span class="fa fa-square-o fa-fw fa-lg"></span>
+             </label>
+             <label for="checkbox003" class="btn btn-default active">
+               <strong>Active</strong>
+             </label>
+</div>
+</div>
+</div>
+<input type="hidden" name="cmd" value="${lsctx.is_active ? "deactivatectx" : "activatectx"}">
+</form>
+</div>`;
+}
+
+if (!lsctx.uid) {
+    var f = document.getElementById("deleted");
+    if (f) {
+        f.parentNode.removeChild(f);
+    }
+} else {
+    document.getElementById("deleted").innerHTML = `
+<div class="col-sm-12">
+<form class="i-pjax-form form-inline"
+      action="${lsctx.uid.toString()}"
+      method="post">
+{% csrf_token %}
+<div data-toggle="tooltip" data-placement="top"
+     title="Show under \'Truly all, even deleted\' view filter? Deleted items remain until purged on the Download Your Data page."
+     class="checkbox${lsctx.is_deleted ? " disabled" : ""}">
+<div class="form-group">
+<input type="checkbox" class="i-submits-when-changed"
+       name="checkbox002" id="checkbox002" autocomplete="off"
+       value=""${lsctx.is_deleted ? " checked disabled" :""}>
+<div class="btn-group">
+             <label for="checkbox002" class="btn">
+                <span class="fa fa-check-square-o fa-fw fa-lg"></span>
+                <span class="fa fa-square-o fa-fw fa-lg"></span>
+             </label>
+             <label for="checkbox002" class="btn btn-default active">
+               <strong>Deleted</strong>
+             </label>
+</div>
+</div>
+</div>
+${lsctx.is_deleted ? '' : '<input type="hidden" name="cmd" value="rmctx">'}
+</form>
+</div>`;
+}
+
+var i;
+var buttonDiv = document.getElementById("verticalContextButtonGroup");
+buttonDiv.innerHTML = "";
+for (i = 0; i < inctx.length; i++) {
+    var nameText = inctx[i].name + " \u2014 " + inctx[i].in_prj;
+    var node = document.createElement("div");
+    node.setAttribute("class", "row spaced-row");
+    node.innerHTML = `
+<div class="col-2 left-side">
+<form class="form-inline i-pjax-form float-right"
+      action="${lsctx.uid.toString()}"
+      method="post">
+  {% csrf_token %}
+  <input type="hidden" name="cmd"
+         value="${inctx[i].is_deleted
+                  ? "undeleteandmarkincomplete"
+                  : (inctx[i].is_complete ? "toggleincomplete" : "togglecomplete")}">
+  <input type="hidden" name="target_uid" value="${inctx[i].uid.toString()}">
+  <div class="form-group">
+    <input class="i-submits-when-changed"
+           type="checkbox"
+           name="completed"
+           id="completed${inctx[i].uid.toString()}"
+           autocomplete="off"
+           value=""${inctx[i].is_deleted
+                     ? " checked disabled"
+                     : (inctx[i].is_complete ? " checked" : "")}>
+    <div class="btn-group">
+      <label for="completed${inctx[i].uid.toString()}" class="btn">
+        <span class="fa fa-check-square-o fa-fw fa-lg"></span>
+        <span class="fa fa-square-o fa-fw fa-lg"></span>
+      </label>
+    </div>
+  </div>
+</form>
+</div>
+<div class="col-10 right-side">
+<a href="/todo/action/${inctx[i].uid.toString()}"
+   role="button"
+   class="btn btn-info btn-md btn-block text-left"
+   style="white-space: normal;">
+${(inctx[i].is_complete || inctx[i].is_deleted)
+  ? "<s>" + HTMLescape(nameText) + "</s>"
+  : HTMLescape(nameText)}
+</a>
+</div>`;
+    buttonDiv.appendChild(node);
+}
+if (!inctx.length) {
+    if ("{{ViewFilter}}" == "all") {
+	buttonDiv.innerHTML = "<p class=\"text-center\">No actions are visible under the current view filter. Set View Filter to 'Truly all, even deleted' to see everything.</p>";
+    } else if ("{{ViewFilter}}" == "all_even_deleted") {
+	buttonDiv.innerHTML = "<p class=\"text-center\">You have not yet created actions in this context. You may do so using the 'Create Action in Inbox' button.</p>";
+    } else {
+	buttonDiv.innerHTML = "<p class=\"text-center\">No actions are visible under the current view filter. Set View Filter to 'All' to see all but deleted actions.</p>";
+    }
+}
+
+{% comment %}
+  TODO(MiniMnM): The deleted context naming convention needs an
+  upgrade.
+
+  TODO(MiniMnM): Create "settings" so user can choose to view
+  all timestamps. We already show creation time, but show review timestamps and
+  deletion time.
+{% endcomment %}
+
+document.getElementById("viewFilter").innerHTML = viewFilterHTML(
+    "{{UID}}", "{% csrf_token %}", "{{UID}}", "{{ViewFilter}}");
+
+if (!lsctx.uid) {
+    var f = document.getElementById("timestamp");
+    if (f) {
+        f.parentNode.removeChild(f);
+    }
+} else {
+    var created = new Date(0);
+    created.setUTCSeconds(lsctx.ctime);
+    document.getElementById("timestamp").innerHTML =
+        `<div class="col-sm-12">
+             Created on ${created}
+        </div>`;
+}
+
+pjaxifyForms();
+
+installTooltips();
+
+});
+</script>

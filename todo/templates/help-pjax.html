@@ -1,0 +1,95 @@
+<div class="row">
+<div class="col-sm-12">
+
+  <h1>Help</h1>
+
+  <p>Welcome to {{Brand}}, a free, open-source to-do list. Don't be afraid to
+  click around and try it out. If you make mistakes you can always delete
+  them.</p>
+
+  <p>A great way to get started is by watching the <a
+  href="{{Screencast}}">screencast</a>, a video demonstrating how you might use
+  this new tool.</p>
+
+  <p>Let's start with a few definitions.</p>
+
+  <p>An &quot;action&quot; is something like &quot;buy soymilk @the
+  store&quot;.</p>
+
+  <p>A <a href="/todo/projects">&quot;project&quot;</a> is something like
+  &quot;learn immaculater&quot; that requires two or more actions.</p>
+
+  <p>A <a href="/todo/contexts">&quot;context&quot;</a> is something like
+  &quot;@the store&quot; that describes where you need to be or what resource
+  you need to have (a computer, for example) to complete an action.</p>
+
+  <p>An &quot;inbox&quot; is a temporary place for actions without a
+  project. During a <a href="/todo/weekly_review">&quot;weekly
+  review&quot;</a>, you'll assign a project to each action, thereby moving it
+  out of your inbox. Or you'll convert an action into its own
+  project. {{Brand}} has an inbox called <a
+  href="/todo/project/1">&quot;Inbox&quot;</a> that is found with your <a
+  href="/todo/projects">projects</a>, always at the top of the list. It is a
+  special project because it is where all the actions go that you quickly
+  capture. For example, if you are on the page for the &quot;@the store&quot;
+  context, there's a box to quickly capture an action to do at the
+  store. Actions you create there will we found in your Inbox. When you use the
+  &quot;Capture&quot; button on the top navigation bar, an action is created in
+  your <a href="/todo/project/1">Inbox</a>. On the <a href="/todo/">home page,
+  the &quot;Capture Your Thoughts&quot; page</a>, there's another box to create
+  an action in your <a href="/todo/project/1">Inbox</a>.</p>
+
+  <p>The <a href="/todo/weekly_review">Weekly Review page</a> uses the term
+  &quot;inbox&quot; more generally to refer to the place where you put your
+  snail mail at home, your e-mail inbox, your voicemail, etc.</p>
+
+  <p>A text box appears on many pages next to a "Save Note" button. You can use
+  these text boxes for anything you like, but remember to press the "Save Note"
+  button. If you capture your thoughts in one of these boxes, you've just
+  created a new inbox, and you'll want to process it during your <a
+  href="/todo/weekly_review">Weekly Review</a>.</p>
+
+  <p>Now that you're familiar with these concepts, get a better sense of what
+  we mean by reading the instructions on the <a
+  href="/todo/weekly_review">Weekly Review</a> page. Click the button
+  &quot;Click for Instructions&quot;.</p>
+
+  <p>Contexts and projects can both be active or inactive, which affects the
+  &quot;View Filter&quot;. An inactive item won't get in your way when you're
+  using the &quot;Actionable&quot; view filter. You can't take action when
+  you've delegated something, for example, so the &quot;@waiting for&quot;
+  context is inactive. If you're not sure if you want to do something, put it
+  in the inactive &quot;@someday/maybe&quot; context.</p>
+
+  <p>An example of an inactive project might be your packing checklist. You
+  don't want to see &quot;Pack Socks&quot; in your &quot;@home&quot; context
+  when you're looking for something actionable.</p>
+
+  <p>When you're done packing, by the way, mark the project complete. When you
+  mark it incomplete, you'll see that &quot;Pack Socks&quot; and the rest of
+  the actions are back in their incomplete state.</p>
+
+  <p>A packing checklist is also a prime candidate to use the &quot;default
+  context&quot; feature of a project where you can set assign all actions to
+  the &quot;@home&quot; context with the touch of a drop-down.</p>
+
+  <p>To really dive in, set aside a good chunk of time to watch the <a
+  href="{{Screencast}}">screencast</a>.</p>
+
+  <p>Last, learn the <a href="/todo/shortcuts">keyboard shortcuts</a>.</p>
+
+  <p>For support, email <a href="mailto:{{SupportEmail}}">{{SupportEmail}}</a>.</p>
+
+</div>
+</div>
+
+<script>
+"use strict";
+$(document).ready(function() {
+
+pjaxifyForms();
+
+installTooltips();
+
+});
+</script>

@@ -1,0 +1,91 @@
+{% if Flash != "" %}
+<div class="row" id="alertRow">
+<div class="col-sm-12">
+<div class="alert alert-success alert-dismissable" role="alert">
+<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+<span aria-hidden="true">&times;</span>
+</button>
+{{Flash|safe}}
+</div>
+</div>
+</div>
+{% endif %}
+
+<div class="row">
+<div class="col-sm-12">
+<h1>{{Title}}</h1>
+</div>
+</div>
+
+<div class="row">
+<div class="col-sm-12">
+    <p>Here you can enable or disable read-only sharing of your to-do list.</p>
+
+    <p>If you share your to-do list, you share every part of it except deleted
+    items. Completed items and inactive items are shared. At the moment,
+    contexts are only shared if they are in use, but this may change in the
+    future, so assume that all (except deleted) contexts will be shared.</p>
+
+    <p><em>Anyone with the link</em> can see your to-do list. You are trusting
+    the people you share with to safeguard the link. You do have the option of
+    disabling sharing at any time.</p>
+
+    <p>You are sharing <em>a live view</em> of your to-do list, not a
+    snapshot. Any changes you make will be reflected.</p>
+
+    <p>To enable or disable sharing, use the button below.</p>
+
+    <p>To share your to-do list, simply copy and paste the link. The recipient
+    does not need to be a user of {{Brand}} to view your to-do list.</p>
+</div>
+</div>
+
+<div class="row">
+<div class="col-sm-12">
+    <p id="current"></p>
+</div>
+</div>
+
+<div class="row">
+<div class="col-sm-12">
+    <p id="enabledisable"></p>
+</div>
+</div>
+
+<script>
+"use strict";
+$(document).ready(function () {
+document.title = "{{Title}} \u2014 {{Brand}}";
+
+{% if CurrentLink != "" %}
+document.getElementById("current").innerHTML = `
+Currently, sharing is enabled via the following link:
+<code>{{CurrentLink|safe}}</code>
+`;
+{# TODO(chandler): copy to clipboard button #}
+{% else %}
+document.getElementById("current").innerHTML = `
+Currently, sharing is disabled.
+`;
+{% endif %}
+
+{% if CurrentLink != "" %}
+const buttonText = "Disable Sharing";
+{% else %}
+const buttonText = "Enable Sharing";
+{% endif %}
+
+document.getElementById("enabledisable").innerHTML =
+`<form class="i-pjax-form" action="share" method="post">
+{% csrf_token %}
+<input type="submit" value="${buttonText}" class="btn btn-primary">
+</form>
+`
+
+pjaxifyForms();
+
+installTooltips();
+
+});
+</script>
+

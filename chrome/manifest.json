@@ -1,0 +1,16 @@
+{
+  "manifest_version": 2,
+
+  "name": "Immaculater Quick Capture",
+  "description": "This extension allows you to add an item to your to-do list.",
+  "version": "0.1",
+  "background":{
+    "scripts": ["bg.js"]
+  },
+  "browser_action": {
+    "default_icon": "immaculater_128x128.png",
+    "default_title": "Capture a thought"
+  },
+  "permissions": [
+  ]
+}

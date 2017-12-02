@@ -1,0 +1,68 @@
+<div class="row">
+  <div class="col-sm-12">
+<h1>{{Title}}</h1>
+
+<a href="#preamble" class="btn btn-info" data-toggle="collapse">Help</a>
+
+<div id="preamble" class="collapse">    
+<p>Type <code>help</code> to get started.</p>
+
+<p>The following command uses the view filter <code>{{View}}</code>; see <code>help
+view</code>.</p>
+
+<p>It takes place in the Folder/Project <code>{{Cwd}}</code>. To change this,
+see <code>help cd</code>.</p>
+
+<p>Multiple commands may be executed on one line when separated by
+<code>&amp;&amp;</code>. Errors stop execution. E.g., <code>cd /inbxo && mkact
+"buy soymilk"</code> has a typo for <code>/inbox</code> and therefore will
+not run the <code>mkact</code> command.</p>
+
+<p>For a proper standalone command-line interface, see
+<a href="https://github.com/chandler37/immaculater/blob/master/cli/">the
+<code>todo.py</code> Python script</a>.</p>
+
+<p>An example command to display actionable items you can do when you're at home
+is <code>view actionable && inctx @home</code>.</p>
+</div>
+
+</div>
+</div>
+
+<div class="row">
+<div class="col-sm-12">
+<form action="cli" method="post">
+{% csrf_token %}
+<div class="input-group input-group-lg">
+<input id="commandline" type="text" name="command" value="" class="form-control" autocorrect="off" autocapitalize="none" spellcheck="false">
+<span class="input-group-btn">
+<input type="submit" value="Execute Command Line" class="btn btn-primary">
+</span>
+</div>
+</form>
+</div>
+</div>
+
+<div class="row">
+<div class="col-sm-12">
+<pre>{{ToDoListPre|escape}}</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+<script>
+"use strict";
+$(document).ready(function() {
+
+document.title = "{{Title}} \u2014 {{Brand}}";
+
+document.getElementById("commandline").defaultValue = "cd '{{Cwd|escapejs}}' && view {{View|escapejs}} && ";
+
+pjaxifyForms();
+
+installTooltips();
+
+});
+</script>

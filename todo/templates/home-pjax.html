@@ -1,0 +1,173 @@
+<div class="col-sm-12">
+
+{% if Flash != "" %}
+<div class="row" id="alertRow">
+<div class="col-sm-12">
+<div class="alert alert-success alert-dismissable" role="alert">
+<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+<span aria-hidden="true">&times;</span>
+</button>
+{{Flash|safe}}
+</div>
+</div>
+</div>
+{% endif %}
+
+<div class="row">
+<div class="col-sm-12">
+  <h1>Capture Your Thoughts</h1>
+</div>
+</div>
+
+<div class="row">
+<div class="col-sm-12">
+<form action="/todo/home" method="post" class="i-pjax-form">
+{% csrf_token %}
+<div class="input-group">
+<input type="text" name="new_action" placeholder="walk the dog @home" class="form-control">
+<span class="input-group-btn">
+<input type="submit" value="Create Action in Inbox" class="btn btn-primary">
+</span>
+</div>
+</form>
+</div>
+</div>
+
+<div class="row">
+<div class="col-sm-12">
+<form action="/todo/home" method="post" class="i-pjax-form">
+{% csrf_token %}
+<div class="input-group">
+<input type="text" name="new_project" placeholder="build a dog house" class="form-control">
+<span class="input-group-btn">
+<input type="submit" value="Create Project" class="btn btn-primary">
+</span>
+</div>
+</form>
+</div>
+</div>
+
+<div class="row">
+<div class="col-sm-12">
+<form id="note" class="i-pjax-form" action="/todo/home" method="post">
+{% csrf_token %}
+<div class="input-group block-display">
+<textarea id="textarea0" name="noteText"></textarea>
+<input type="hidden" name="cmd" value="note_for_home" class="form-control">
+<input type="submit" value="Save Note" class="btn btn-primary">
+</div>
+</form>
+</div>
+</div>
+
+</div>
+</div>
+
+<script>
+"use strict";
+$(document).ready(function() {
+
+document.title = "{{Title}} \u2014 {{Brand}}";
+
+{# We always redirect to /todo/home after using this form so we only need #}
+{# to reset it here: #}
+document.getElementById("i-quick-capture-form").reset();
+
+var simplemde = new SimpleMDE({ spellChecker: false, element: $("#textarea0")[0] });
+
+var note_value = "{{Note|escapejs}}".replace(/\u005cn/g, "\n");
+
+if (note_value === "") {
+   note_value = `Welcome to {{Brand|escapejs}}!
+
+{{Brand|escapejs}} is a to-do list.
+
+You will find a box like this one on
+many pages. You can edit this box as
+you like (remember to press the
+**Save Note** button), and it will
+only show up on this
+{{Title|escapejs}} page.
+
+While you get started, just leave
+this box as it is. Later you might
+decide to use it to capture a
+thought. If you do, remember to
+process that thought into actions
+and projects during your next weekly
+review.
+
+To learn about weekly reviews, use
+the top navigation bar to list
+"Other" pages and go to the "Weekly
+Review" page.
+
+Under "Other" pages you will find a
+"Help" page as well, featuring a
+thorough screencast video walking
+you through {{Brand|escapejs}}.
+
+The "Help" page will also tell you
+what we mean by "action", "project",
+"context", "weekly review", and
+"inbox". And it lists the email
+address you can use to share your
+feedback and ask for help.
+
+It would really mean a lot if
+you sent us an email at
+{{SupportEmail|escapejs}}!
+
+To use this page to capture your
+thoughts, you can capture an action
+either by pressing the "Capture"
+button on the top navigation bar
+or by using the "Create Action in
+Inbox" button above. These are two
+different ways of doing the exact
+same thing. If you're not
+sure if something is an action or
+a project, capture it as an action.
+You can always convert an action
+to a project later. But if you know
+something is a project, you can use
+the "Create Project" button.
+
+If you know the context of your new
+action, type it in. For example,
+"@waiting for David to lend the
+book". Or "walk the dog @home".
+
+There's another, similar
+convenience. If you know the project
+for your action, you can type it in
+followed by a colon and it will be
+automatically assigned if it already
+exists. For example, "Learn the
+tool: watch the screencast on the
+help page".
+
+But these are mere conveniences.
+The *Weekly Review* page will walk
+you through assigning projects and
+contexts to your actions.
+
+Give it a try now. When you add
+something, a colorful message will
+appear with a link to your new
+creation.
+
+> *"For every minute spent*
+> *organizing, an hour is earned."*
+> ~ Benjamin Franklin
+`;
+}
+
+simplemde.value(note_value);
+
+pjaxifyForms();
+
+installTooltips();
+
+});
+</script>

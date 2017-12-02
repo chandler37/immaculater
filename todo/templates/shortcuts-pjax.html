@@ -1,0 +1,62 @@
+<div class="row">
+<div class="col-sm-12">
+{% load static %}
+  <h1>{{Title}} &ndash; <a href="/todo"><img src="{% static Logo %}" alt="{{Brand}}" width=202 height=50></a></h1>
+
+  Welcome, {{Nickname}}! (<a href="{{LogoutUrl}}">sign out</a>)<br><br>
+
+  The following are keyboard shortcuts:
+
+  <ul>
+
+    <li>? &mdash; shows this page
+    </li>
+
+    <li>h &mdash; goes <a href="/todo">home</a>
+    </li>
+
+    <li>p &mdash; goes to <a href="/todo/projects">the list of Projects</a>
+    </li>
+
+    <li>i &mdash; goes to <a href="/todo/project/1">the Inbox</a>
+    </li>
+
+    <li>c &mdash; goes to <a href="/todo/contexts">the list of Contexts</a>
+    </li>
+    
+    <li>C &mdash; goes to <a href="/todo/context/0">Actions without a Context</a>
+    </li>
+    
+    <li>! &mdash; goes to <a href="/todo/cli">the command-line interface</a>
+    </li>
+
+    <li>w &mdash; goes to <a href="/todo/weekly_review">the weekly review</a>
+    </li>
+
+    <li>r &mdash; goes to <a href="/todo/weekly_review">the weekly review</a>
+    </li>
+
+    <li>d &mdash; goes to <a href="/todo/dl">Download Your Data</a>
+    </li>
+
+    <li>T &mdash; goes to <a href="/todo/text">a text-only view</a>
+    </li>
+
+    <li>t &mdash; goes to <a href="/todo/txt">a true text-only view of all but
+    deleted items</a>
+    </li>
+
+    <li>I &mdash; goes to <a href="/todo/txt">a true text-only view of
+    incomplete, even if inactive, items</a>
+    </li>
+
+    <li>/ &mdash; focuses on the first text box on the page</a>
+    </li>
+  </ul>
+
+  <p>Search the web to learn about your web browser's shortcuts for going back
+  and forward in your browser history. Perhaps command-left-arrow and
+  command-right-arrow (or alt if you have no command key).</p>
+
+</div>
+</div>

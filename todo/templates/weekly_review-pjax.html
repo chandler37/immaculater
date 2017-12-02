@@ -1,0 +1,198 @@
+{% if Flash != "" %}
+<div class="row" id="alertRow">
+<div class="col-sm-12">
+<div class="alert alert-success alert-dismissable" role="alert">
+<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+<span aria-hidden="true">&times;</span>
+</button>
+{{Flash|safe}}
+</div>
+</div>
+</div>
+{% endif %}
+
+<div class="row">
+<div class="col-sm-12">
+<h1>{{Title}}</h1>
+</div>
+</div>
+
+<div class="row">
+<div class="col-sm-12">
+<a href="#preamble" class="btn btn-info" data-toggle="collapse">Click for Instructions</a>
+
+<div id="preamble" class="collapse">    
+
+    <p>For a glossary of terms, see the <a href="/todo/help">Help page</a>. You
+    can find it by clicking on &quot;Other&quot; on the top navigation bar. It
+    also links to a video that walks you through a weekly review.</p>
+  
+    <p>To get the full benefits of this to-do list, you have to make it
+    comprehensive and keep it regularly reviewed. A proper review means turning
+    vague responsibilities into projects (that is, anything requiring two or
+    more actions) and next actions. "Get the car serviced" is a project, not an
+    action. The next action might be "do a web search for nearby dealerships
+    @phone" or "@home go through the mail for that oil change coupon with the
+    dealer's phone number on it" or "@waiting for David to recommend a
+    mechanic".</p>
+
+    <p>To make it comprehensive, you have to change your habits around using
+    e-mail and your other to-do lists. After a weekly review, your e-mail inbox
+    will be clear (and those labels and folders and tags you were using to hold
+    yourself and others accountable). Your old system will become another way
+    to capture items, to be cleared weekly. When someone asks you if your to-do
+    list has a voice interface, you can say, "Sort of -- I now trust myself to
+    use Siri, Google Home, Alexa, and all the rest of them to capture my
+    thoughts because I review and process those thoughts weekly."</p>
+
+    <p>During your first weekly review, you'll notice that the built-in projects
+    and actions that greeted you when you first logged in don't adhere to the
+    above principles. During a review, you break them down. Reading a book is a
+    project, not an action, for one thing. Obtaining the book in the first
+    place is a project. The next action there might be "@phone search Kindle
+    store for David Allen Getting Things Done" or "search Amazon for David
+    Allen GTD @computer".</p>
+</div>
+</div>
+</div>
+
+<div class="row">
+<div class="col-sm-12">
+    <p>With no further ado, let's take it step by step:</p>
+
+    <ul>
+
+      <li>Collect any pieces of paper from your desk, your physical inbox, your
+      wallet, etc. Capture any new projects or actions below. Don't worry about
+      processing at this point; just capture. If you're not sure if it's a
+      project (projects contain actions) or an action, make it an action and
+      you can always use the &quot;Convert this Action into a Project&quot;
+      button later. If it's only going to take a minute to do it, feel free to
+      do it now. You can create new projects and next actions later when you're
+      processing your inbox. Don't be afraid to say something as vague as
+      "retirement planning" for now.
+
+      <form class="i-pjax-form" action="weekly_review" method="post">
+      {% csrf_token %}
+      <div class="input-group">
+	<input type="text" name="new_action" value="" class="form-control">
+	<span class="input-group-btn">
+	  <input type="submit" value="Create Action in Inbox" class="btn btn-primary">
+	</span>
+      </div>
+      </form>
+
+      <form class="i-pjax-form" action="weekly_review" method="post">
+      {% csrf_token %}
+      <div class="input-group">
+	<input type="text" name="new_project" value="" class="form-control">
+	<span class="input-group-btn">
+	  <input type="submit" value="Create Project" class="btn btn-primary">
+	</span>
+      </div>
+      </form>
+      </li>
+
+      <li>Go through your digital inboxes, your email (not just your inbox, but
+      also whatever labels/tags you use to hold yourself or someone else
+      accountable), voicemail, text messages, Google Hangouts, Facebook
+      Messenger, Alexa to-dos, Apple Reminders, Google Inbox snoozed items,
+      mind maps, Notes, issue trackers, etc.</li>
+
+      <li>Do a mind sweep. Create any new projects and actions.</li>
+
+      <li>Look at your calendar for the past week and the next couple of weeks
+      to see if it triggers any to-dos.</li>
+
+      <li>Set the view filter to 'Needing review':
+      <p id="viewFilter"></li>
+
+      <li><a href="/todo/project/1">Clear your inbox</a> &mdash; assign each
+      action a project and context. Many items in your inbox deserve one or
+      more new projects to be created.</li>
+
+      <li>Look at <a href="/todo/context/0">actions without a context</a> and
+      assign each one a context. (Pro tip: If you include the context in the
+      name of the action when you're capturing it, it will be automatically
+      assigned. For example, "Find battery charger @home" or "@waiting for
+      David since Tuesday to send me an invite".)</li>
+
+      <li>Press this button to mark all projects as needing review:
+      <form class="i-pjax-form" action="weekly_review" method="post">
+      {% csrf_token %}
+      <input type="hidden" name="cmd" value="clearreview">
+      <input type="submit" value="Mark All Projects As Needing Review" class="btn btn-primary">
+      </form>
+      </li>
+
+      <li>Look at all your <a href="/todo/projects">projects</a> one by
+      one. Check the 'Reviewed' box when you see that there is a next
+      action present or something in the <i>@waiting for</i> context. You can
+      see next actions when you use the 'Actionable' view filter; inactive
+      contexts like <i>@someday/maybe</i> are invisible to that filter.</li>
+
+      <li>Once every few reviews, consider reviewing your inactive projects and
+      your <i>@someday/maybe</i> items. Change the view filter to <i>Inactive,
+      incomplete</i> to help do this.</li>
+
+      <li>Use the space below for notes you'd like to see next time you do a
+      review. Remember to press 'Save Note'.</li>
+
+      <li>Set the view filter to 'Actionable', navigate to the relevant
+      <a href="/todo/contexts">context or contexts</a>, and start achieving!</li>
+
+    </ul>
+</div>
+</div>
+
+<div class="row">
+<div class="col-sm-12">
+<form id="note" class="i-pjax-form" action="weekly_review" method="post">
+{% csrf_token %}
+<div class="input-group block-display">
+<textarea id="textarea0" name="noteText"></textarea>
+<input type="hidden" name="cmd" value="note_for_weekly_review" class="form-control">
+<input type="submit" value="Save Note" class="btn btn-primary">
+</div>
+</form>
+</div>
+</div>
+
+</div>
+</div>
+
+<script>
+"use strict";
+$(document).ready(function() {
+document.title = "{{Title}} \u2014 {{Brand}}";
+var simplemde = new SimpleMDE({ spellChecker: false, element: $("#textarea0")[0] });
+var note_value = "{{Note|escapejs}}".replace(/\u005cn/g, "\n");
+if (note_value === "") {
+    note_value = `Use this space for anything you like;
+it will be here during your next review.
+
+For example, you could make a list here of all the
+places where you capture your thoughts.
+
+If you put links here, click the preview button
+(it looks like an eye) and you can click them.
+
+Remember to press the **Save Note** button.
+
+> *"If you want to live a happy life, tie it*
+> *to a goal, not to people or objects."*
+> ~ Albert Einstein
+
+`;
+}
+simplemde.value(note_value);
+
+document.getElementById("viewFilter").innerHTML = viewFilterHTML(
+    "weekly_review", "{% csrf_token %}", undefined, "{{ViewFilter}}");
+
+pjaxifyForms();
+
+installTooltips();
+
+});
+</script>

@@ -1,0 +1,168 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>{{Title}} &ndash; {{Brand}}</title>
+  <script src="https://use.fontawesome.com/2396930064.js"></script>
+
+{% load static %}
+  <link rel="shortcut icon" type="image/png" href="{% static Favicon %}">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
+
+  <script src="https://code.jquery.com/jquery-3.2.1.min.js" crossorigin="anonymous"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js" integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh" crossorigin="anonymous"></script>
+
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js" integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ" crossorigin="anonymous"></script>
+
+<style>
+.panel-title { font-size: 200% }
+</style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div id="loginbox" style="margin-top:50px;" class="mainbox col-md-6 offset-md-3 col-sm-8 offset-sm-2">
+            <div class="panel panel-info" >
+                    <div class="panel-heading">
+                        <div class="panel-title">Sign In to <img src="{% static Logo %}" alt="{{Brand}}" width=202 height=50></div>
+                        <div style="float:right; font-size: 80%; position: relative; top:-10px"><a href="mailto:{{SupportEmail}}">Forgot password?</a></div>
+                    </div>
+
+                    <div style="padding-top:30px" class="panel-body" >
+
+                        <div style="display:none" id="login-alert" class="alert alert-danger col-sm-12"></div>
+
+                        <form id="loginform" method="post" action="/accounts/login/" class="form-horizontal">
+			{% csrf_token %}
+			<input type="hidden" name="next" value="/todo/">
+
+                            <div style="margin-bottom: 25px" class="input-group">
+                                        <span class="input-group-addon"><i class="fa fa-user"></i></span>
+                                        <input id="login-username" type="text" class="form-control" name="username" value="" placeholder="username or email">
+                                    </div>
+
+                            <div style="margin-bottom: 25px" class="input-group">
+                                        <span class="input-group-addon"><i class="fa fa-lock"></i></span>
+                                        <input id="login-password" type="password" class="form-control" name="password" placeholder="password">
+                                    </div>
+
+
+
+                                <div style="margin-top:10px" class="form-group">
+                                    <!-- Button -->
+
+                                    <div class="col-sm-12 controls">
+                                      <input type="submit" value="Sign In" class="btn btn-success">
+                                      <a id="btn-slacklogin" href="{% url 'slack_auth' %}" class="btn btn-primary"><i class="fa fa-slack"></i> Sign In With Slack</a>
+
+                                    </div>
+                                </div>
+
+
+                                <div class="form-group">
+                                    <div class="col-md-12 control">
+                                        <div style="border-top: 1px solid#888; padding-top:15px" >
+                                            Don't have an account!
+                                        <a href="#" onClick="$('#loginbox').hide(); $('#signupbox').show()">
+                                            Sign Up Here
+                                        </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+
+
+
+                        </div>
+                    </div>
+        </div>
+        <div id="signupbox" style="display:none; margin-top:50px" class="mainbox col-md-6 offset-md-3 col-sm-8 offset-sm-2">
+                    <div class="panel panel-info">
+                        <div class="panel-heading">
+                            <div class="panel-title">Sign Up</div>
+                            <div style="float:right; font-size: 85%; position: relative; top:-10px"><a id="signinlink" href="#" onclick="$('#signupbox').hide(); $('#loginbox').show()">Sign In</a></div>
+                        </div>
+                        <div class="panel-body" >
+			  <form id="signupform" class="form-horizontal" action="/todo/signup/" method="post">
+
+                                <div id="signupalert" style="display:none" class="alert alert-danger">
+                                    <p>Error:</p>
+                                    <span></span>
+                                </div>
+
+
+
+			  {% comment %}
+                                <div class="form-group">
+                                    <label for="email" class="col-md-3 control-label">Email</label>
+                                    <div class="col-md-9">
+                                        <input type="text" class="form-control" name="email" placeholder="Email Address">
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="firstname" class="col-md-3 control-label">First Name</label>
+                                    <div class="col-md-9">
+                                        <input type="text" class="form-control" name="firstname" placeholder="First Name">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="lastname" class="col-md-3 control-label">Last Name</label>
+                                    <div class="col-md-9">
+                                        <input type="text" class="form-control" name="lastname" placeholder="Last Name">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="password" class="col-md-3 control-label">Password</label>
+                                    <div class="col-md-9">
+                                        <input type="password" class="form-control" name="passwd" placeholder="Password">
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="icode" class="col-md-3 control-label">Invitation Code</label>
+                                    <div class="col-md-9">
+                                        <input type="text" class="form-control" name="icode" placeholder="">
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <!-- Button -->
+                                    <div class="offset-md-3 col-md-9">
+                                        <button type="submit" class="btn btn-success"><i class="fa fa-hand-spock-o"></i>Sign up</button>
+
+                                        <span style="margin-left:8px;">or</span>
+                                    </div>
+                                </div>
+                                <div style="border-top: 1px solid #999; padding-top:20px"  class="form-group">
+				{% endcomment %}
+
+                                <div style="padding-top:20px"  class="form-group">
+
+				<div class="offset-md-3 col-md-9">
+				  To sign up, <a href="mailto:{{SupportEmail}}">email {{SupportEmail}}</a> with a subject line "New Account"</a>
+
+                                </div>
+
+                                <div style="padding-top:20px"  class="form-group">
+
+                                    <div class="offset-md-3 col-md-9">
+                                        <a href='{% url 'slack_auth' %}' id="btn-slacksignup" class="btn btn-primary"><i class="fa fa-slack"></i> &nbsp; Sign Up with Slack</a>
+                                    </div>
+
+                                </div>
+
+
+				</form>
+                         </div>
+                    </div>
+
+
+
+
+         </div>
+    </div>
+</body>
+</html>

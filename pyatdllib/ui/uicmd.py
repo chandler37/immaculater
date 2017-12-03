@@ -2339,11 +2339,25 @@ class UICmdHelp(UICmd):
 
 
 class UICmdPurgedeleted(UICmd):
-  """Purges deleted items. That is, empties the trash."""
+  """Purges deleted items. That is, empties the trash.
+
+  See also deletecompleted.
+  """
   def Run(self, args):  # pylint: disable=missing-docstring,no-self-use
     state = FLAGS.pyatdl_internal_state
     self.RaiseIfAnyArgumentsGiven(args)
     state.ToDoList().PurgeDeleted()
+
+
+class UICmdDeletecompleted(UICmd):
+  """Deletes completed items. That is, moves them to the trash.
+
+  See also purgedeleted.
+  """
+  def Run(self, args):  # pylint: disable=missing-docstring,no-self-use
+    state = FLAGS.pyatdl_internal_state
+    self.RaiseIfAnyArgumentsGiven(args)
+    state.ToDoList().DeleteCompleted()
 
 
 class UICmdPrjify(UICmd):
@@ -2429,6 +2443,7 @@ def RegisterAppcommands(cloud_only, appcommands_namespace):  # pylint: disable=t
   appcommands_namespace.AddCmd('configurereview', UICmdConfigurereview)
   appcommands_namespace.AddCmd('deactivatectx', UICmdDeactivatectx)
   appcommands_namespace.AddCmd('deactivateprj', UICmdDeactivateprj)
+  appcommands_namespace.AddCmd('deletecompleted', UICmdDeletecompleted)
   appcommands_namespace.AddCmd('do', UICmdDo)
   appcommands_namespace.AddCmd('dump', UICmdDump)
   appcommands_namespace.AddCmd('dumpprotobuf', UICmdDumpprotobuf)

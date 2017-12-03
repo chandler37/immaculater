@@ -56,11 +56,34 @@ class Container(auditable_object.AuditableObject):
     else:
       self.items = items
 
+  @classmethod
+  def HasLiveDescendant(cls, item):
+    if hasattr(item, 'items'):
+      for subitem in item.items:
+        if not subitem.is_deleted:
+          return True
+    return False
+
   def PurgeDeleted(self):
-    self.items = [item for item in self.items if not item.is_deleted]
+    self.items = [item for item in self.items
+                  if not item.is_deleted or self.HasLiveDescendant(item)]
     for item in self.items:
       if hasattr(item, 'PurgeDeleted'):
         item.PurgeDeleted()
+
+  def DeleteCompleted(self):
+    for item in self.items:
+      if hasattr(item, 'is_complete') and item.is_complete:
+        incomplete_descendant = False
+        if hasattr(item, 'items'):
+          for subitem in item.items:
+            if hasattr(subitem, 'is_complete') and not subitem.is_complete and not subitem.is_deleted:
+              incomplete_descendant = True
+              break
+        if not incomplete_descendant:
+          item.is_deleted = True
+      if hasattr(item, 'DeleteCompleted'):
+        item.DeleteCompleted()
 
   def ContainersPreorder(self):
     """Yields all containers, including itself, in a preorder traversal (itself first).

@@ -30,6 +30,12 @@
 
 <form action="dl" method="post" class="i-pjax-form">
 {% csrf_token %}
+<input type="hidden" name="command" value="deletecompleted">
+<input type="submit" value="Delete Completed Items" class="btn btn-primary">
+</form>
+
+<form action="dl" method="post" class="i-pjax-form">
+{% csrf_token %}
 <input type="hidden" name="command" value="purgedeleted">
 <input type="submit" value="Purge Deleted Items" class="btn btn-primary">
 </form>

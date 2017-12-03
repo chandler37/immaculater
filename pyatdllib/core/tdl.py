@@ -130,6 +130,11 @@ class ToDoList(object):
     self.ctx_list.PurgeDeleted()
     self._has_never_purged_deleted = False
 
+  def DeleteCompleted(self):
+    self.inbox.DeleteCompleted()
+    self.root.DeleteCompleted()
+    self.ctx_list.DeleteCompleted()  # a nop for now; contexts cannot be completed
+
   def Projects(self):
     """Returns all projects, including the /inbox project.
 

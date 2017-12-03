@@ -3313,6 +3313,7 @@ r"""<todolist>
   * configurereview
   * deactivatectx
   * deactivateprj
+  * deletecompleted
   * do
   * dump
   * dumpprotobuf
@@ -5489,6 +5490,150 @@ r"""<todolist>
     ]
     self.helpTest(inputs, golden_printed)
 
+  def testDeletecompleted(self):
+    save_path = _CreateTmpFile('')
+    inputs = ['chclock 37',
+              'do foo',
+              'do bar',
+              'complete /inbox/bar',
+              'mkprj /p0',
+              'complete /p0',
+              'touch /p0/incompletedescendant', # See TODOs below
+              'mkprj /p1',
+              'mkprj /pcompletewithnoincompletedescendants',
+              'touch /pcompletewithnoincompletedescendants/deleted',
+              'rmact /pcompletewithnoincompletedescendants/deleted',
+              'touch /pcompletewithnoincompletedescendants/completed',
+              # TODO(chandler): this shouldn't require -f -- the incomplete
+              # descendant is deleted:
+              'complete -f /pcompletewithnoincompletedescendants',
+              'complete /pcompletewithnoincompletedescendants/completed',
+              'mkdir /a',
+              'echo error: you cannot complete a directory',
+              'complete /a',
+              'mkprj /a/b',
+              'touch /a/b/c',
+              'touch /a/b/completed',
+              'complete /a/b/completed',
+              'chclock 38',
+              'echo deletecompleted:',
+              'deletecompleted',
+              'echo ls after deletecompleted before save/load:',
+              'ls -R -v all_even_deleted /',
+              'save %s' % pipes.quote(save_path),
+              'load %s' % pipes.quote(save_path),
+              'echo ls after save/load:',
+              'ls -R -v all_even_deleted /',
+              'echo and is dtime set correctly?',
+              'ls -l -v all_even_deleted uid=1',
+             ]
+    subgolden = [
+      "--project-- --incomplete-- ---active--- inbox",
+      "--project-- ---COMPLETE--- ---active--- p0",
+      "--project-- --incomplete-- ---active--- p1",
+      "--project-- --DELETED-- ---COMPLETE--- ---active--- pcompletewithnoincompletedescendants",
+      "--folder--- a",
+      "",
+      "/inbox:",
+      "--action--- --incomplete-- foo --in-context-- '<none>'",
+      "--action--- --DELETED-- ---COMPLETE--- bar --in-context-- '<none>'",
+      "",
+      "/p0:",
+      "--action--- --incomplete-- incompletedescendant --in-context-- '<none>'",
+      "",
+      "/p1:",
+      "",
+      "/pcompletewithnoincompletedescendants:",
+      "--action--- --DELETED-- ---COMPLETE--- deleted --in-context-- '<none>'",
+      "--action--- --DELETED-- ---COMPLETE--- completed --in-context-- '<none>'",
+      "",
+      "/a:",
+      "--project-- --incomplete-- ---active--- b",
+      "",
+      "/a/b:",
+      "--action--- --incomplete-- c --in-context-- '<none>'",
+      "--action--- --DELETED-- ---COMPLETE--- completed --in-context-- '<none>'",
+    ]
+    golden_printed = [
+      "error: you cannot complete a directory",
+      "No such Project \"a\". Choices: p0 p1 pcompletewithnoincompletedescendants",
+      "deletecompleted:",
+      "ls after deletecompleted before save/load:"] + subgolden + [
+      "Save complete.",
+      "Load complete.",
+      "ls after save/load:"] + subgolden + [
+      "and is dtime set correctly?",
+      # TODO(chandler): Don't print dtime=-1 as a timestamp; say dtime=None or
+      # the like
+      "--action--- mtime=1969/12/31-19:00:38 ctime=1969/12/31-19:00:37 dtime=1969/12/31-18:59:59 --incomplete-- foo --in-context-- '<none>'",
+      "--action--- --DELETED-- mtime=1969/12/31-19:00:38 ctime=1969/12/31-19:00:37 dtime=1969/12/31-19:00:38 ---COMPLETE--- bar --in-context-- '<none>'",
+    ]
+    self.helpTest(inputs, golden_printed)
+
+  def testDeletecompleted2(self):
+    inputs = ['mkprj /p0',
+              'complete /p0',
+              # TODO(chandler): change touch so that it marks /p0 incomplete:
+              'touch /p0/incompletedescendant',
+              'deletecompleted',
+              'echo ls:',
+              'ls -R -v all_even_deleted /',
+              'purgedeleted',
+              'echo ls after purgedeleted:',
+              'ls -R -v all_even_deleted /',
+             ]
+    golden_printed = [
+      "ls:",
+      "--project-- --incomplete-- ---active--- inbox",
+      "--project-- ---COMPLETE--- ---active--- p0",
+      "",
+      "/inbox:",
+      "",
+      "/p0:",
+      "--action--- --incomplete-- incompletedescendant --in-context-- '<none>'",
+      "ls after purgedeleted:",
+      "--project-- --incomplete-- ---active--- inbox",
+      "--project-- ---COMPLETE--- ---active--- p0",
+      "",
+      "/inbox:",
+      "",
+      "/p0:",
+      "--action--- --incomplete-- incompletedescendant --in-context-- '<none>'",
+    ]
+    self.helpTest(inputs, golden_printed)
+
+  def testPurgedeletedWithNonDeletedDescendants(self):
+    inputs = ['mkprj /p0',
+              'complete /p0',
+              'rmprj /p0',
+              # TODO(chandler): change touch so that it marks /p0 undeleted and
+              # incomplete:
+              'touch /p0/incompletedescendant',
+              'echo ls before purgedeleted:',
+              'ls -R -v all_even_deleted /',
+              'purgedeleted',
+              'echo ls:',
+              'ls -R -v all_even_deleted /',
+             ]
+    golden_printed = [
+      "ls before purgedeleted:",
+      "--project-- --incomplete-- ---active--- inbox",
+      "--project-- --DELETED-- ---COMPLETE--- ---active--- p0",
+      "",
+      "/inbox:",
+      "",
+      "/p0:",
+      "--action--- --incomplete-- incompletedescendant --in-context-- '<none>'",
+      "ls:",
+      "--project-- --incomplete-- ---active--- inbox",
+      "--project-- --DELETED-- ---COMPLETE--- ---active--- p0",
+      "",
+      "/inbox:",
+      "",
+      "/p0:",
+      "--action--- --incomplete-- incompletedescendant --in-context-- '<none>'",
+    ]
+    self.helpTest(inputs, golden_printed)
 
 if __name__ == '__main__':
   unitjest.main()

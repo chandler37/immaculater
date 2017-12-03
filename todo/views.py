@@ -1119,7 +1119,7 @@ def dl(request):
           read_only=False)
       if not _using_pjax(request):  # https://en.wikipedia.org/wiki/Post/Redirect/Get
         return redirect('/todo/dl')  # TODO(chandler): Don't hard-code the link
-      flash = "Obliterated everything thas was deleted, including contexts, actions, and projects."  # and folders.
+      flash = "<strong>Are you sure?</strong> Just kidding! Already obliterated everything that was deleted, including contexts, actions, and projects."  # and folders.
     else:
       return _error_page(request, 'invalid command')
   return _render(request, "dl.html",

@@ -1026,8 +1026,8 @@ def _action_get(request, uid, template_dict):  # mutates template_dict
     template_dict)
 
 
-def _create_new_action(request, template_dict):
-  new_action = request.POST.get('new_action', '').strip()
+def _create_new_action(request, template_dict, var_name='new_action'):
+  new_action = request.POST.get(var_name, '').strip()
   if new_action:
     try:
        result = _apply_batch_of_commands(
@@ -1038,9 +1038,10 @@ def _create_new_action(request, template_dict):
        assert len(result['printed']) == 1, result['printed']
        uid = result['printed'][0].strip()
        template_dict['Flash'] = '<strong><a href="/todo/action/%s">Action %s created.</a></strong>' % (uid, uid)
+       return True, None
     except immaculater.Error as e:
-      return _error_page(request, unicode(e))
-  return None
+      return False, _error_page(request, unicode(e))
+  return False, None
 
 
 def _create_new_project(request, template_dict):
@@ -1065,7 +1066,20 @@ def _create_new_project(request, template_dict):
 @login_required
 def home(request):
   template_dict = {"Flash": ""}
-  error_page = _create_new_action(request, template_dict)
+  created, error_page = _create_new_action(request, template_dict, 'quick_capture')
+  if error_page is not None:
+    # TODO(chandler): show the error in the flash message? Test by quick
+    # capturing "uid=1".
+    return error_page
+  if created:
+    if not _using_pjax(request):  # https://en.wikipedia.org/wiki/Post/Redirect/Get
+      return redirect('home')
+    else:
+      assert template_dict["Flash"]
+      return _render(request,
+                     "flash.html",
+                     template_dict)
+  _, error_page = _create_new_action(request, template_dict)  # new_action var name
   if error_page is not None:
     return error_page
   error_page = _create_new_project(request, template_dict)
@@ -1159,7 +1173,7 @@ def account(request):
 @login_required
 def weekly_review(request):
   template_dict = {"Flash": ""}
-  error_page = _create_new_action(request, template_dict)
+  _, error_page = _create_new_action(request, template_dict)
   if error_page is not None:
     return error_page
   error_page = _create_new_project(request, template_dict)
@@ -1184,7 +1198,7 @@ def weekly_review(request):
 
 
 @djpjax.pjax()
-@never_cache  # TODO(chandler): cache this one?
+@never_cache
 @login_required
 def about(request):
   return _render(request, "about.html",
@@ -1203,7 +1217,7 @@ def login(request):
 
 
 @djpjax.pjax()
-@never_cache  # TODO(chandler): cache this one?
+@never_cache
 @login_required
 def shortcuts(request):
   return _render(request, "shortcuts.html",
@@ -1211,7 +1225,7 @@ def shortcuts(request):
 
 
 @djpjax.pjax()
-@never_cache  # TODO(chandler): cache this one?
+@never_cache
 @login_required
 def help(request):
   return _render(request, "help.html",

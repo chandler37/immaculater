@@ -102,9 +102,9 @@ height=50 alt="{{Brand}}"></a>
         </div>
       </li>
     </ul>
-    <form id="i-quick-capture-form" action="/todo/home" method="post" class="form-inline my-2 my-lg-0 i-pjax-pushy-form">
+    <form id="i-quick-capture-form" action="/todo/home" method="post" class="form-inline my-2 my-lg-0 i-pjax-quick-capture-form">
       {% csrf_token %}
-      <input class="form-control mr-sm-2" type="text" placeholder="walk the dog @home" aria-label="Capture" name="new_action">
+      <input class="form-control mr-sm-2" type="text" placeholder="walk the dog @home" aria-label="Capture" name="quick_capture">
       <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Capture</button>
     </form>
   </div>
@@ -166,8 +166,8 @@ $(document).pjax('a', '#main', {cache: false});
         return false;
     });
 
-    $('.i-pjax-pushy-form').submit(function(event) {
-        $.pjax.submit(event, '#main', {type: "POST", push: true, cache: false});
+    $('.i-pjax-quick-capture-form').submit(function(event) {
+        $.pjax.submit(event, '#flash', {type: "POST", push: false, cache: false});
     });
 });
 </script>

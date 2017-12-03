@@ -112,9 +112,14 @@ class Prj(container.Container):
     for item in self.items:
       if not show_action(item):
         continue
+      hypernote = u''
+      note_suffix = u''
       if item.note:
-        n = unicode(item.note).replace(u'\r', u'')
-        note_suffix = u'\tnote: ' + u'\t'.join(n.split(u'\n'))
+        n = unicode(item.note).replace(u'\r', u'').replace(u'\\n', u'\n').strip('\n')
+        if hypertext_prefix is None:
+          note_suffix = u'\tnote: ' + u'\t'.join(n.split(u'\n'))
+        else:
+          hypernote = u'<br>' + u'<br>'.join(Escaped(x) for x in n.split(u'\n'))
       else:
         note_suffix = u''
       if item.ctx:
@@ -139,8 +144,9 @@ class Prj(container.Container):
         lines.append(u'\t- %s' % action_text)
       else:
         lines.append(u'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
-                     u'- <a href="%s/action/%s">%s</a>'
-                     % (hypertext_prefix, item.uid, Escaped(action_text)))
+                     u'- <a href="%s/action/%s">%s%s</a>'
+                     % (hypertext_prefix, item.uid, Escaped(action_text),
+                        hypernote))
 
   def MarkAsNeedingReview(self):
     """Clears the reviewed status, if reviewed."""

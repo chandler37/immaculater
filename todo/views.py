@@ -1100,20 +1100,31 @@ def home(request):
                  template_dict)
 
 
-@djpjax.pjax()  # but we don't use pjax forms for this one
+@djpjax.pjax()  # but we don't always use pjax forms for this one
 @never_cache
 @login_required
 def dl(request):
-  if request.POST.get('csrfmiddlewaretoken'):
-    # They pressed the button.
-    response = HttpResponse(content_type='application/octet-stream')
-    response['Content-Disposition'] = 'attachment; filename="immaculater.dat"'
-    response.write(SerializationReader(request.user).read())
-    return response
-  else:
-    assert request.method == 'GET', request.method
-    return _render(request, "dl.html",
-                   {"Title": "Download Your Data"})
+  flash = ""
+  if request.method == 'POST':
+    if request.POST.get('command') == 'dl':
+      assert not _using_pjax(request)
+      response = HttpResponse(content_type='application/octet-stream')
+      response['Content-Disposition'] = 'attachment; filename="immaculater.dat"'
+      response.write(SerializationReader(request.user).read())
+      return response
+    elif request.POST.get('command') == 'purgedeleted':
+      _apply_batch_of_commands(  # will not throw an exception
+          request.user,
+          ['purgedeleted'],
+          read_only=False)
+      if not _using_pjax(request):  # https://en.wikipedia.org/wiki/Post/Redirect/Get
+        return redirect('/todo/dl')  # TODO(chandler): Don't hard-code the link
+      flash = "Obliterated everything thas was deleted, including contexts, actions, and projects."  # and folders.
+    else:
+      return _error_page(request, 'invalid command')
+  return _render(request, "dl.html",
+                 {"Title": "Download Your Data",
+                  "Flash": flash})
 
 
 @djpjax.pjax()

@@ -41,7 +41,8 @@ The remainder of this document is for you. To get started, watch this
 also a
 [screencast on unguessable base64 URL slugs and django modeling of a nascent sharing feature](https://youtu.be/CsueX84gJw0). And
 a
-[screencast on a jquery-pjax tweak related to flash messages and the quick capture box on the home page](https://youtu.be/bZAf5GWgoW8).
+[screencast on a jquery-pjax tweak related to flash messages and the quick capture box on the home page](https://youtu.be/bZAf5GWgoW8). And
+a [screencast coding up the "Delete Completed" feature](https://youtu.be/zQDLUs6IRGY).
 
 Next, forget about Heroku
 and Django and focus on the original command-line interface (as opposed to

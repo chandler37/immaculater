@@ -28,7 +28,7 @@
 
     {# TODO(chandler): An 'archive' function that moves completed items to the trash #}
 
-<form action="cli" method="post">
+<form action="dl" method="post" class="i-pjax-form">
 {% csrf_token %}
 <input type="hidden" name="command" value="purgedeleted">
 <input type="submit" value="Purge Deleted Items" class="btn btn-primary">
@@ -52,7 +52,10 @@
 
 <form action="dl" method="post">
 {% csrf_token %}
+<input type="hidden" name="command" value="dl">
 <input type="submit" value="Download Your Data" class="btn btn-primary">
 </form>
   </div>
 </div>
+
+{% include "minimal_script_tag.html" %}

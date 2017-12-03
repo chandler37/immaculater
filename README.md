@@ -36,10 +36,12 @@ interface that uses the same database as the website, see
 ## I'm a Developer
 
 The remainder of this document is for you. To get started, watch this
-[screencast](https://youtu.be/xMsniAbH6Yk). Then watch [this screencast
-on protocol buffers](https://youtu.be/zYSGmkwaB9A). There's also a
-[screencast on unguessable base64 URL slugs and django modeling of a nascent sharing
-feature](https://youtu.be/CsueX84gJw0).
+[screencast](https://youtu.be/xMsniAbH6Yk). Then watch
+[this screencast on protocol buffers](https://youtu.be/zYSGmkwaB9A). There's
+also a
+[screencast on unguessable base64 URL slugs and django modeling of a nascent sharing feature](https://youtu.be/CsueX84gJw0). And
+a
+[screencast on a jquery-pjax tweak related to flash messages and the quick capture box on the home page](https://youtu.be/bZAf5GWgoW8).
 
 Next, forget about Heroku
 and Django and focus on the original command-line interface (as opposed to

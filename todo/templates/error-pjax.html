@@ -1,3 +1,5 @@
+{% include "flash.html" %}
+
 <div class="row">
   <div class="col-sm-12">
     {% load static %}
@@ -11,3 +13,12 @@
     <pre>{{ErrorText|escape}}</pre>
   </div>
 </div>
+
+<script>
+"use strict";
+$(document).ready(function() {
+
+document.getElementById("i-quick-capture-form").reset();
+
+});
+</script>

@@ -888,7 +888,7 @@ dump""")))
               'cd /p2_in_dir0',
               'mv ./a0_in_p1 ../p1',
               'ls /p1',
-              'echo after ls /p1 after moving a0_in_p1 into it',
+              'echo after ls /p1 after trying to move a0_in_p1 into it',
               'cd /dir3',
               'mv . /dir0',
               'pwd',
@@ -1133,8 +1133,8 @@ dump""")))
       '',
       '/dir3:',
       'after mv a0_in_p1 /p2_in_dir0 and rmprj p1',
-      '--action--- uid=6 --incomplete-- a0_in_p1 --in-context-- \'<none>\'',
-      'after ls /p1 after moving a0_in_p1 into it',
+      'Cannot move an undeleted item into a deleted container.',
+      'after ls /p1 after trying to move a0_in_p1 into it',
       '/dir0/dir3',
       'AFTER pwd /dir0/dir3',
       'Save complete.',
@@ -1160,6 +1160,7 @@ dump""")))
       '/p2_in_dir0:',
       '--action--- uid=9 --incomplete-- a0_in_p2_in_dir0 --in-context-- \'<none>\'',
       '--action--- uid=10 --incomplete-- a1_in_p2_in_dir0 --in-context-- \'<none>\'',
+      '--action--- uid=6 --incomplete-- a0_in_p1 --in-context-- \'<none>\'', # DLC?
       '',
       '/dir1:',
       'AFTER moving dir2 into dir3',
@@ -5617,36 +5618,14 @@ r"""<todolist>
     ]
     self.helpTest(inputs, golden_printed)
 
-  def testPurgedeletedWithNonDeletedDescendants(self):
+  def testAddingUndeletedActionToDeletedProject(self):
     inputs = ['mkprj /p0',
               'complete /p0',
               'rmprj /p0',
-              # TODO(chandler): change touch so that it marks /p0 undeleted and
-              # incomplete:
               'touch /p0/incompletedescendant',
-              'echo ls before purgedeleted:',
-              'ls -R -v all_even_deleted /',
-              'purgedeleted',
-              'echo ls:',
-              'ls -R -v all_even_deleted /',
              ]
     golden_printed = [
-      "ls before purgedeleted:",
-      "--project-- --incomplete-- ---active--- inbox",
-      "--project-- --DELETED-- ---COMPLETE--- ---active--- p0",
-      "",
-      "/inbox:",
-      "",
-      "/p0:",
-      "--action--- --incomplete-- incompletedescendant --in-context-- '<none>'",
-      "ls:",
-      "--project-- --incomplete-- ---active--- inbox",
-      "--project-- --DELETED-- ---COMPLETE--- ---active--- p0",
-      "",
-      "/inbox:",
-      "",
-      "/p0:",
-      "--action--- --incomplete-- incompletedescendant --in-context-- '<none>'",
+      'Cannot add an Action to a deleted Project',
     ]
     self.helpTest(inputs, golden_printed)
 

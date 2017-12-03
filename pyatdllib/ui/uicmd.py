@@ -1876,8 +1876,10 @@ class UICmdTouch(UndoableUICmd):  # 'mkact', 'touch'
       context = _ContextFromActionName(state, basename)
     if FLAGS.autoprj:
       c, basename = _ContainerFromActionName(state, basename)
-      if c is not None:
+      if c is not None and not c.is_deleted:
         containr = c
+    if containr.is_deleted:
+      raise BadArgsError('Cannot add an Action to a deleted Project')
     try:
       a = action.Action(name=basename)
     except auditable_object.IllegalNameError as e:
@@ -1917,10 +1919,13 @@ def _Reparent(moving_item, new_container, todolist):
                        % FLAGS.pyatdl_separator)
   if moving_item.uid == new_container.uid:
     raise BadArgsError('Cannot move an item into itself.')
+  if not moving_item.is_deleted and new_container.is_deleted:
+    raise BadArgsError('Cannot move an undeleted item into a deleted container.')
   if old_parent.uid != new_container.uid:  # Don't change the order of items
     for i, item in enumerate(old_parent.items):
       if item.uid == moving_item.uid:
         del old_parent.items[i]
+        old_parent.NoteModification()
         break
     else:
       raise AssertionError('Cannot find the first arg within its old '

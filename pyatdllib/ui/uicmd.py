@@ -1214,9 +1214,10 @@ def _PerformComplete(state, item_name, mark_complete, force):
           if force:
             a.is_complete = True
           else:
-            raise BadArgsError(
-              'Cannot mark complete because a descendant action is incomplete: %s'
-              % str(a))
+            if not a.is_deleted:
+              raise BadArgsError(
+                'Cannot mark complete (without --force flag) because a descendant action is incomplete: %s'
+                % str(a))
   if not mark_complete and containing_prj is not None:
     containing_prj.is_complete = False
   item.is_complete = mark_complete

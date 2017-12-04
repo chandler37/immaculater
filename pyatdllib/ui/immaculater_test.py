@@ -2571,7 +2571,7 @@ r"""<todolist>
               ]
     golden_printed = [
       'b4',
-      'Cannot mark complete because a descendant action is incomplete: <action is_deleted="False" is_complete="False" name="Aincomplete" ctx=""/>',
+      'Cannot mark complete (without --force flag) because a descendant action is incomplete: <action is_deleted="False" is_complete="False" name="Aincomplete" ctx=""/>',
       'after',
       'dump:',
       r"""<todolist>

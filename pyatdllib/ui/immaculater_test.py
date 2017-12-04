@@ -5514,7 +5514,7 @@ r"""<todolist>
               'complete /inbox/bar',
               'mkprj /p0',
               'complete /p0',
-              'touch /p0/incompletedescendant', # See TODOs below
+              'touch /p0/incompletedescendant',
               'mkprj /p1',
               'mkprj /pcompletewithnoincompletedescendants',
               'touch /pcompletewithnoincompletedescendants/deleted',
@@ -5545,7 +5545,7 @@ r"""<todolist>
              ]
     subgolden = [
       "--project-- --incomplete-- ---active--- inbox",
-      "--project-- ---COMPLETE--- ---active--- p0",
+      "--project-- --incomplete-- ---active--- p0",
       "--project-- --incomplete-- ---active--- p1",
       "--project-- --DELETED-- ---COMPLETE--- ---active--- pcompletewithnoincompletedescendants",
       "--folder--- a",
@@ -5586,35 +5586,57 @@ r"""<todolist>
     ]
     self.helpTest(inputs, golden_printed)
 
-  def testDeletecompleted2(self):
-    inputs = ['mkprj /p0',
+  def testUncompletingProjectUponArrivalOfIncompleteAction(self):
+    inputs = ['do bar',
+              'rmact /inbox/bar',
+              'mkprj /p0',
               'complete /p0',
-              # TODO(chandler): change touch so that it marks /p0 incomplete:
+              'mv /inbox/bar /p0',
+              'echo ls / should show completed p0:',  # TODO(chandler): support ls -d /inbox
+              'ls /',
               'touch /p0/incompletedescendant',
+              'mkprj /p1',
+              'touch /p1/iamcomplete',
+              'complete -f /p1',
+              'do foo',
+              'mv /inbox/foo /p1',
               'deletecompleted',
-              'echo ls:',
+              'echo ls (iamcomplete still complete, p0 incomplete, p1 incomplete):',
               'ls -R -v all_even_deleted /',
               'purgedeleted',
               'echo ls after purgedeleted:',
               'ls -R -v all_even_deleted /',
              ]
     golden_printed = [
-      "ls:",
-      "--project-- --incomplete-- ---active--- inbox",
-      "--project-- ---COMPLETE--- ---active--- p0",
-      "",
-      "/inbox:",
-      "",
-      "/p0:",
-      "--action--- --incomplete-- incompletedescendant --in-context-- '<none>'",
-      "ls after purgedeleted:",
-      "--project-- --incomplete-- ---active--- inbox",
-      "--project-- ---COMPLETE--- ---active--- p0",
-      "",
-      "/inbox:",
-      "",
-      "/p0:",
-      "--action--- --incomplete-- incompletedescendant --in-context-- '<none>'",
+      'ls / should show completed p0:',
+      '--project-- --incomplete-- ---active--- inbox',
+      '--project-- ---COMPLETE--- ---active--- p0',
+      'ls (iamcomplete still complete, p0 incomplete, p1 incomplete):',
+      '--project-- --incomplete-- ---active--- inbox',
+      '--project-- --incomplete-- ---active--- p0',
+      '--project-- --incomplete-- ---active--- p1',
+      '',
+      '/inbox:',
+      '',
+      '/p0:',
+      '--action--- --DELETED-- --incomplete-- bar --in-context-- \'<none>\'',
+      '--action--- --incomplete-- incompletedescendant --in-context-- \'<none>\'',
+      '',
+      '/p1:',
+      '--action--- --DELETED-- ---COMPLETE--- iamcomplete --in-context-- \'<none>\'',
+      '--action--- --incomplete-- foo --in-context-- \'<none>\'',
+      'ls after purgedeleted:',
+      '--project-- --incomplete-- ---active--- inbox',
+      '--project-- --incomplete-- ---active--- p0',
+      '--project-- --incomplete-- ---active--- p1',
+      '',
+      '/inbox:',
+      '',
+      '/p0:',
+      '--action--- --incomplete-- incompletedescendant --in-context-- \'<none>\'',
+      '',
+      '/p1:',
+      '--action--- --incomplete-- foo --in-context-- \'<none>\'',
     ]
     self.helpTest(inputs, golden_printed)
 
@@ -5628,6 +5650,17 @@ r"""<todolist>
       'Cannot add an Action to a deleted Project',
     ]
     self.helpTest(inputs, golden_printed)
+
+  def testCompletingOrDeletingInbox(self):
+    inputs = ['complete /inbox',
+              'rmprj /inbox',
+             ]
+    golden_printed = [
+      'The project /inbox is special and cannot be marked complete.',
+      'The project /inbox is special; it cannot be removed.',
+    ]
+    self.helpTest(inputs, golden_printed)
+
 
 if __name__ == '__main__':
   unitjest.main()

@@ -746,7 +746,7 @@ def context(request, uid):
       assert saved_read is not None
       assert len(mkact['printed']) == 1, mkact['printed']
       new_uid = mkact['printed'][0].strip()
-      template_dict["Flash"] = '<strong><a href="/todo/action/%s">Action %s created.</a></strong>' % (new_uid, new_uid)
+      template_dict["Flash"] = '<strong><a href="/todo/action/%s">Action %s created.</a></strong> (Expecting to see it? Change your view filter.)' % (new_uid, new_uid)
     except immaculater.Error as e:
       return _error_page(request, unicode(e))
   if saved_read is not None and not _using_pjax(request):  # https://en.wikipedia.org/wiki/Post/Redirect/Get
@@ -893,7 +893,7 @@ def project(request, uid):
       assert saved_read is not None
       assert len(mkact['printed']) == 1, mkact['printed']
       new_uid = mkact['printed'][0]
-      template_dict["Flash"] = '<strong><a href="/todo/action/%s">Action %s created.</a></strong>' % (new_uid, new_uid)
+      template_dict["Flash"] = '<strong><a href="/todo/action/%s">Action %s created.</a></strong> (Expecting to see it? Change your view filter.)' % (new_uid, new_uid)
     except immaculater.Error as e:
       return _error_page(request, unicode(e))
   if saved_read is not None and not _using_pjax(request):  # https://en.wikipedia.org/wiki/Post/Redirect/Get
@@ -1037,7 +1037,7 @@ def _create_new_action(request, template_dict, var_name='new_action'):
            read_only=False)
        assert len(result['printed']) == 1, result['printed']
        uid = result['printed'][0].strip()
-       template_dict['Flash'] = '<strong><a href="/todo/action/%s">Action %s created.</a></strong>' % (uid, uid)
+       template_dict['Flash'] = '<a href="/todo/action/%s"><strong>Action %s created.</strong></a> (Expecting to see it? Refresh this page or change the view filter.)' % (uid, uid)
        return True, None
     except immaculater.Error as e:
       return False, _error_page(request, unicode(e))

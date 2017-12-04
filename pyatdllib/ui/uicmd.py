@@ -1890,6 +1890,8 @@ class UICmdTouch(UndoableUICmd):  # 'mkact', 'touch'
       a.ctx = default_context  # None if default_context_uid no longer exists
     containr.items.append(a)
     containr.NoteModification()
+    if containr.is_complete:
+      containr.is_complete = False
     if FLAGS.verbose:
       state.Print(a.uid)
 
@@ -1930,7 +1932,10 @@ def _Reparent(moving_item, new_container, todolist):
     else:
       raise AssertionError('Cannot find the first arg within its old '
                            'parent Container. arg=%s' % moving_item)
+    if not moving_item.is_deleted and hasattr(moving_item, 'is_complete') and not moving_item.is_complete:
+      new_container.is_complete = False
     new_container.items.append(moving_item)
+    new_container.NoteModification()
 
 
 class UICmdMv(UndoableUICmd):

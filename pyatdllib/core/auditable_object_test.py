@@ -8,8 +8,8 @@ from pyatdllib.core import unitjest
 class AuditableObjectTestCase(unitjest.TestCase):
 
   def testFloatingPointTimestamp(self):
-    self.assertAlmostEquals(
-      auditable_object._FloatingPointTimestamp(-1), -1e-6)
+    self.assertEqual(
+      auditable_object._FloatingPointTimestamp(-1), None)
     self.assertAlmostEquals(
       auditable_object._FloatingPointTimestamp(-1*10**6), -1)
     self.assertEqual(

@@ -11,13 +11,15 @@ flags.DEFINE_bool('pyatdl_show_uid', True,
 
 
 def _FloatingPointTimestamp(microseconds_since_the_epoch):
-  """Converts microseconds since the epoch to seconds since the epoch.
+  """Converts microseconds since the epoch to seconds since the epoch, or None for -1.
 
   Args:
     microseconds_since_the_epoch: int
   Returns:
-    float
+    float|None
   """
+  if microseconds_since_the_epoch == -1:
+    return None
   return microseconds_since_the_epoch / 10**6 + (microseconds_since_the_epoch % 10**6) / 1e6
 
 
@@ -30,7 +32,7 @@ def _Int64Timestamp(float_time):
     int  # -1 if float_time is None or a positive int otherwise
   """
   epsilon = 1e-5
-  if float_time is None or -1.0 - epsilon <= float_time <= 1.0 + epsilon:
+  if float_time is None or -1.0 - epsilon <= float_time <= -1.0 + epsilon:
     return -1
   assert float_time >= 0.0, float_time
   return int(float_time * 1e6)

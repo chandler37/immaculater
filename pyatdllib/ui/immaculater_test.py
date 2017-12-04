@@ -1160,7 +1160,7 @@ dump""")))
       '/p2_in_dir0:',
       '--action--- uid=9 --incomplete-- a0_in_p2_in_dir0 --in-context-- \'<none>\'',
       '--action--- uid=10 --incomplete-- a1_in_p2_in_dir0 --in-context-- \'<none>\'',
-      '--action--- uid=6 --incomplete-- a0_in_p1 --in-context-- \'<none>\'', # DLC?
+      '--action--- uid=6 --incomplete-- a0_in_p1 --in-context-- \'<none>\'',
       '',
       '/dir1:',
       'AFTER moving dir2 into dir3',

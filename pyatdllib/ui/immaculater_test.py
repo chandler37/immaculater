@@ -5432,7 +5432,7 @@ r"""<todolist>
       "Load complete.",
       "uid=15 reused for @higherstilluid:",
       "--context-- uid=0 mtime=1969/12/31-19:00:00 ctime=1969/12/31-19:00:00 ---active--- '<none>'",
-      "--context-- uid=14 mtime=1969/12/31-19:18:57 ctime=1969/12/31-19:18:57 dtime=1969/12/31-18:59:59 ---active--- @foobar",
+      "--context-- uid=14 mtime=1969/12/31-19:18:57 ctime=1969/12/31-19:18:57 ---active--- @foobar",
       "--context-- uid=15 mtime=1969/12/31-19:18:57 ctime=1969/12/31-19:18:57 ---active--- @higherstilluid",
     ]
     self.helpTest(inputs, golden_printed)
@@ -5580,9 +5580,7 @@ r"""<todolist>
       "Load complete.",
       "ls after save/load:"] + subgolden + [
       "and is dtime set correctly?",
-      # TODO(chandler): Don't print dtime=-1 as a timestamp; say dtime=None or
-      # the like
-      "--action--- mtime=1969/12/31-19:00:38 ctime=1969/12/31-19:00:37 dtime=1969/12/31-18:59:59 --incomplete-- foo --in-context-- '<none>'",
+      "--action--- mtime=1969/12/31-19:00:38 ctime=1969/12/31-19:00:37 --incomplete-- foo --in-context-- '<none>'",
       "--action--- --DELETED-- mtime=1969/12/31-19:00:38 ctime=1969/12/31-19:00:37 dtime=1969/12/31-19:00:38 ---COMPLETE--- bar --in-context-- '<none>'",
     ]
     self.helpTest(inputs, golden_printed)
@@ -5669,6 +5667,3 @@ if __name__ == '__main__':
 
 # TODO(chandler): Test working with future protobuf; verify that we pass along
 # any uninterpreted data
-
-# TODO(chandler): tests for complete -f but also for uncomplete of an action
-# marking incomplete the containing prj

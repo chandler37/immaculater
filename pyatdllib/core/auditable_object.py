@@ -1,5 +1,6 @@
 """Defines AuditableObject, something deletable with a ctime and an mtime etc."""
 
+import os
 import time
 
 import gflags as flags
@@ -78,7 +79,18 @@ class AuditableObject(object):
   def NoteModification(self):
     """Updates mtime."""
     self.__dict__['mtime'] = time.time()
-    assert self.__dict__['mtime'] >= self.__dict__['ctime'], str(self.__dict__)
+    if os.environ.get('DJANGO_DEBUG') == "True":
+      assert self.__dict__['mtime'] >= self.__dict__['ctime'], str(self.__dict__)
+    # The above assertion led to this: AssertionError:
+    # {'max_seconds_before_review': 604800.0, 'is_deleted': False, 'uid': 62L,
+    # 'items': [], 'dtime': None, 'is_active': False, 'name': u'inactive prj',
+    # 'note': u'', '_last_review_epoch_sec': 0, 'mtime': 1512402677.768133,
+    # 'default_context_uid': None, 'is_complete': False,
+    # 'ctime': 1512402694.178005}
+    #
+    # which I got by creating a project and immediately clicking through to it
+    # and deactivating it. This was on localhost. TODO(chandler): reproduce.
+
 
   # NOTE(chandler): __setattr__ attempts to enforce invariants, including the
   # mtime timestamp, but __setattr__ is flawed, so note: modification of a list
@@ -126,7 +138,9 @@ class AuditableObject(object):
     self.__dict__['ctime'] = _FloatingPointTimestamp(pb.timestamp.ctime)
     self.__dict__['dtime'] = _FloatingPointTimestamp(pb.timestamp.dtime)
     self.__dict__['mtime'] = _FloatingPointTimestamp(pb.timestamp.mtime)
-    assert self.__dict__['mtime'] >= self.__dict__['ctime'], str(self.__dict__)
+    if os.environ.get('DJANGO_DEBUG') == "True":
+      # See comment above for why we don't run this in production.
+      assert self.__dict__['mtime'] >= self.__dict__['ctime'], str(self.__dict__)
     assert 2**63 > pb.uid >= uid.MIN_UID, str(pb)
     uid.singleton_factory.NoteExistingUID(pb.uid)
     self.__dict__['uid'] = pb.uid

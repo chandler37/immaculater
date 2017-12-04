@@ -75,7 +75,14 @@ for (i = 0; i < prjs.length; i++) {
     node.setAttribute("href", "project/" + prjs[i].uid.toString());
     node.setAttribute("class", "btn btn-info btn-md col-lg-12");
     node.setAttribute("style", "margin-bottom:4px;white-space: normal;");
-    node.innerHTML = (prjs[i].is_complete) ? "<s>" + HTMLescape(nameText) + "</s>" : HTMLescape(nameText + " (" + prjs[i].number_of_items.toString() + ")");
+    if (prjs[i].is_complete) {
+        node.innerHTML = "<s>" + HTMLescape(nameText) + "</s>";
+    } else {
+        node.innerHTML = HTMLescape(nameText +
+                                    (prjs[i].is_active ? "" : " [inactive]") +
+                                    " (" + prjs[i].number_of_items.toString() +
+                                    ")");
+    }
     buttonDiv.appendChild(node);
 }
 document.getElementById("viewFilter").innerHTML = viewFilterHTML(

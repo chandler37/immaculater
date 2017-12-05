@@ -241,9 +241,16 @@ class ShowInactiveIncomplete(ViewFilter):
       not containing_project.is_active or (
         containing_context is not None and not containing_context.is_active))
 
+  def ProjectContainsShownAction(self, project):
+    for item in project.items:
+      if self.ShowAction(item):
+        return True
+    return False
+
   def ShowProject(self, project):
     return (self.not_finalized_viewfilter.ShowProject(project)
-            and not project.is_active)
+            and (not project.is_active
+                 or self.ProjectContainsShownAction(project)))
 
   def ShowFolder(self, a_folder):
     # TODO(chandler): Show it only if a descendant is inactive and incomplete?

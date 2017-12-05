@@ -5222,6 +5222,8 @@ r"""<todolist>
 
   def testInactiveViewFilter(self):
     inputs = ['chclock 37',
+              'mkprj /activeprj',
+              'touch /activeprj/x',
               'mkprj "/hang art"',
               'mkprj /inactiveproject',
               'deactivateprj /inactiveproject',
@@ -5254,7 +5256,11 @@ r"""<todolist>
               ]
     golden_printed = [
       "ls -v inactive_and_incomplete -R /:",
+      "--project-- --incomplete-- ---active--- 'hang art'",
       "--project-- --incomplete-- --INACTIVE-- inactiveproject",
+      "",
+      "/hang art:",
+      "--action--- --incomplete-- 'some other day' --in-context-- @someday/maybe",
       "",
       "/inactiveproject:",
       "--action--- --incomplete-- activeaction --in-context-- '<none>'",
@@ -5266,7 +5272,7 @@ r"""<todolist>
       "inactive_and_incomplete inprj inbox:",
       "[]",
       "all inprj inbox:",
-      '[{"ctime":37.0,"dtime":null,"in_context":"<none>","in_context_uid":null,"is_complete":false,"is_deleted":false,"mtime":37.0,"name":"active_and_incomplete_in_inbox","number_of_items":1,"uid":14}]',
+      '[{"ctime":37.0,"dtime":null,"in_context":"<none>","in_context_uid":null,"is_complete":false,"is_deleted":false,"mtime":37.0,"name":"active_and_incomplete_in_inbox","number_of_items":1,"uid":16}]',
     ]
     self.helpTest(inputs, golden_printed)
 

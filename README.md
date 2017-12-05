@@ -1,6 +1,6 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-# Immaculater, built atop pyatdl
+# Immaculater
 
 ![Logo](immaculater/static/immaculater/immaculater_logo_small.png)
 

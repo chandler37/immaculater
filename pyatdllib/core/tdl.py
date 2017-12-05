@@ -118,11 +118,11 @@ class ToDoList(object):
         prefix = u'@deleted ' + prefix
       if p.is_complete:
         prefix = u'@done ' + prefix
+      if not p.is_active:
+        prefix = u'@inactive ' + prefix
       p.AsTaskPaper(lines, context_name=ContextName, project_name_prefix=prefix,
                     show_action=show_action, hypertext_prefix=hypertext_prefix,
                     html_escaper=html_escaper)
-    # TODO(chandler): a placeholder project 'Think of things to do in the
-    # following contexts:' for contexts with no undeleted items?
 
   def PurgeDeleted(self):
     self.inbox.PurgeDeleted()

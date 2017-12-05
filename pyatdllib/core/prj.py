@@ -104,8 +104,11 @@ class Prj(container.Container):
     if hypertext_prefix is None:
       lines.append(full_name)
     else:
-      lines.append('<a href="%s/project/%s">%s</a>'
-                   % (hypertext_prefix, self.uid, Escaped(full_name)))
+      lines.append('<a href="%s/project/%s">%s%s%s</a>'
+                   % (hypertext_prefix, self.uid,
+                      '<s>' if self.is_complete or self.is_deleted else '',
+                      Escaped(full_name),
+                      '</s>' if self.is_complete or self.is_deleted else ''))
     if self.note:
       for line in self.note.replace(u'\r', u'').split(u'\n'):
         lines.append(Escaped(line))
@@ -144,9 +147,12 @@ class Prj(container.Container):
         lines.append(u'\t- %s' % action_text)
       else:
         lines.append(u'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
-                     u'- <a href="%s/action/%s">%s%s</a>'
-                     % (hypertext_prefix, item.uid, Escaped(action_text),
-                        hypernote))
+                     u'- <a href="%s/action/%s">%s%s%s%s</a>'
+                     % (hypertext_prefix, item.uid,
+                        '<s>' if item.is_complete or item.is_deleted else '',
+                        Escaped(action_text),
+                        hypernote,
+                        '</s>' if item.is_complete or item.is_deleted else ''))
 
   def MarkAsNeedingReview(self):
     """Clears the reviewed status, if reviewed."""

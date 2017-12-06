@@ -1,0 +1,30 @@
+{% include "flash.html" %}
+
+<div class="row">
+<div class="col-sm-12">
+  <h1>{{Title}}</h1>
+</div>
+</div>
+
+<div class="row">
+<div class="col-sm-12">
+    <form action="/todo/search" method="post" class="form-inline i-pjax-form">
+      {% csrf_token %}
+      <input class="form-control" type="text" placeholder="" aria-label="Search" name="q">
+      <button class="btn btn-primary" type="submit">Search Everything</button>
+    </form>
+</div>
+</div>
+
+<div class="row">
+<div class="col-sm-12">
+  {% if Hypertext %}
+    {{Hypertext|safe}}
+  {% else %}
+    <p>No results found even amongst deleted items. Note that contexts' names themselves
+    are not searched, but the actions within them are.</p>
+  {% endif %}
+</div>
+</div>
+
+{% include "minimal_script_tag.html" %}

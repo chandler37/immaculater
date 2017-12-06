@@ -97,7 +97,8 @@ height=50 alt="{{Brand}}"></a>
           <a class="dropdown-item" href="/todo/dl">Download Your Data (d)</a>
 	  <a class="dropdown-item" href="/todo/share">Share Your Data</a>
 	  <a class="dropdown-item" href="/todo/cli">Command-Line Interface (!)</a>
-	  <a class="dropdown-item" href="/todo/text">View or Search Text (T)</a>
+	  <a class="dropdown-item" href="/todo/text">View Text (T)</a>
+	  <a class="dropdown-item" href="/todo/search">Search (s)</a>
           <a class="dropdown-item" href="/todo/about">About</a>
           <div class="dropdown-divider"></div>
           <a class="dropdown-item" href="{{LogoutUrl}}">Sign Out</a>
@@ -156,6 +157,9 @@ $(document).pjax('a', '#main', {cache: false});
     });
     Mousetrap.bind("T", function() {
         $.pjax({url: '/todo/text', container: '#main'});
+    });
+    Mousetrap.bind("s", function() {
+        $.pjax({url: '/todo/search', container: '#main'});
     });
     Mousetrap.bind("I", function() {
         window.location.href = '/todo/txt.incomplete';

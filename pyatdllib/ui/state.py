@@ -119,7 +119,7 @@ class State(object):  # pylint: disable=too-many-instance-attributes,too-many-pu
     assert ui_name in State.AllSortingOptions(), ui_name
     self._sorting_ui_name = ui_name
 
-  def NewViewFilter(self, filter_cls=None):
+  def NewViewFilter(self, filter_cls=None, search_query=None):
     """Returns a view filter that holds an internal reference to the given todolist.
 
     Args:
@@ -145,6 +145,9 @@ class State(object):  # pylint: disable=too-many-instance-attributes,too-many-pu
         'No Context found for action "%s" even though that action has a context UID of "%s"'
          % (an_action.uid, an_action.ctx.common.uid))
 
+    if search_query:
+      assert filter_cls is None
+      return view_filter.SearchFilter(ActionToProject, ActionToContext, query=search_query)
     if filter_cls is None:
       filter_cls = view_filter.CLS_BY_UI_NAME['default']
     return filter_cls(ActionToProject, ActionToContext)
@@ -398,6 +401,14 @@ class State(object):  # pylint: disable=too-many-instance-attributes,too-many-pu
          common.Indented(
            '\n'.join(i.name for i in cwc.items
                      if isinstance(i, container.Container)))))
+
+  def SearchFilter(self, query):
+    """Creates a ViewFilter that searches.
+
+    Returns:
+      ViewFilter
+    """
+    return self.NewViewFilter(search_query=query)
 
   def ViewFilter(self):
     """Returns the current ViewFilter.

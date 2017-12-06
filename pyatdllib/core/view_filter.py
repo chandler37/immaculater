@@ -36,6 +36,20 @@ class ViewFilter(object):
     self.action_to_project = action_to_project
     self.action_to_context = action_to_context
 
+  def FolderContainsShownProject(self, a_folder):
+    for item in a_folder.items:
+      if isinstance(item, prj.Prj) and self.ShowProject(item):
+        return True
+      if isinstance(item, folder.Folder) and self.ShowFolder(item):
+        return True
+    return False
+    
+  def ProjectContainsShownAction(self, project):
+    for item in project.items:
+      if self.ShowAction(item):
+        return True
+    return False
+
   def Show(self, item):
     """Returns True iff item should be displayed.
 
@@ -57,7 +71,7 @@ class ViewFilter(object):
     """Returns True iff the Action should be displayed.
 
     Args:
-      item: Action
+      an_action: Action
     Returns:
       bool
     """
@@ -67,7 +81,7 @@ class ViewFilter(object):
     """Returns True iff the Prj should be displayed.
 
     Args:
-      item: Prj
+      project: Prj
     Returns:
       bool
     """
@@ -77,7 +91,7 @@ class ViewFilter(object):
     """Returns True iff the Folder should be displayed.
 
     Args:
-      item: Folder
+      a_folder: Folder
     Returns:
       bool
     """
@@ -87,11 +101,45 @@ class ViewFilter(object):
     """Returns True iff the Ctx should be displayed.
 
     Args:
-      item: Ctx
+      context: Ctx
     Returns:
       bool
     """
     raise NotImplementedError
+
+
+class SearchFilter(ViewFilter):
+  """Views only items matching the given search query or projects/folders
+  containing matched items.
+  """
+
+  @classmethod
+  def ViewFilterUINames(cls):
+    return tuple()
+
+  def __init__(self, action_to_project, action_to_context, query):
+    super(SearchFilter, self).__init__(action_to_project, action_to_context)
+    assert query
+    self.query = query
+
+  def ShowAction(self, an_action):
+    return self.query.lower() in an_action.name.lower() or (
+      an_action.note and self.query.lower() in an_action.note.lower())
+
+  def ShowProject(self, project):
+    return self.ProjectContainsShownAction(project) or self.query.lower() in project.name.lower() or (
+      project.note and self.query.lower() in project.note.lower())
+
+  def ShowFolder(self, a_folder):
+    return self.FolderContainsShownProject(a_folder) or self.query.lower() in folder.name.lower() or (
+      folder.note and self.query.lower() in folder.note.lower())
+
+  def ShowContext(self, context):
+    """Override. You could argue that we should show the context if any action
+    within it matches but that doesn't matter for our AsTaskPaper view of things.
+    """
+    return self.query.lower() in context.name.lower() or (
+      context.note and self.query.lower() in context.note.lower())
 
 
 class ShowAll(ViewFilter):
@@ -240,12 +288,6 @@ class ShowInactiveIncomplete(ViewFilter):
     return self.not_finalized_viewfilter.ShowAction(an_action) and (
       not containing_project.is_active or (
         containing_context is not None and not containing_context.is_active))
-
-  def ProjectContainsShownAction(self, project):
-    for item in project.items:
-      if self.ShowAction(item):
-        return True
-    return False
 
   def ShowProject(self, project):
     return (self.not_finalized_viewfilter.ShowProject(project)

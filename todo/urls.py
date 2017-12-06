@@ -24,4 +24,5 @@ urlpatterns = [
     url(r'^login$', views.login, name='login'),
     url(r'^txt(\.(?P<the_view_filter>.*)|)$', views.as_text, name='as_text'),
     url(r'^text$', views.as_text2, name='as_text2'),
+    url(r'^search$', views.search, name='search'),
 ]

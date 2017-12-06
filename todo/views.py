@@ -39,6 +39,7 @@ from django.shortcuts import render
 from django.template import RequestContext
 from django.template.response import TemplateResponse
 from django.utils.decorators import method_decorator
+from django.utils.encoding import escape_uri_path
 from django.utils.html import escape
 from django.views.decorators.cache import never_cache
 from django.views.decorators.clickjacking import xframe_options_sameorigin
@@ -641,6 +642,28 @@ def as_text2(request):
 @djpjax.pjax()
 @never_cache
 @login_required
+def search(request):
+  if request.method != 'GET' and request.method != 'POST':
+    raise Http404()
+  search_query = request.GET.get('q', '') or request.POST.get('q', '')
+  template_dict = {"Flash": ""}
+  try:
+    x = _apply_batch_of_commands(
+      request.user,
+      ["view all_even_deleted",
+       "sort alpha",
+       "hypertext --search_query %s /todo" % pipes.quote(search_query) if search_query else "hypertext /todo"],
+      read_only=True)
+    template_dict["Hypertext"] = u'\n'.join(x['printed'])
+  except immaculater.Error as e:
+    return _error_page(request, unicode(e))
+  response = _render(request, "search.html", template_dict)
+  return response
+
+
+@djpjax.pjax()
+@never_cache
+@login_required
 def update_todolist(request): # /todo/cli
   cookie_value = _cookie_value(request)
   command = request.POST.get('command', u'').replace(u'\u2014', '--')  # em dash
@@ -1066,6 +1089,16 @@ def _create_new_project(request, template_dict):
 @login_required
 def home(request):
   template_dict = {"Flash": ""}
+  quick_capture = request.POST.get('quick_capture', '').strip()
+  if quick_capture and quick_capture[0] == '/':
+    # a search query. TODO(chandler): create a separate search box in the
+    # navigation bar that actually navigates you to the /todo/search?q=query
+    # page. Or do some javascript magic to make the one-true-navbar-box able to
+    # navigate to the /todo/search page.
+    template_dict["Flash"] = '<a href="/todo/search?q=%s">Click here to search.</a>' % escape_uri_path(quick_capture[1:])
+    return _render(request,
+                   "flash.html",
+                   template_dict)
   created, error_page = _create_new_action(request, template_dict, 'quick_capture')
   if error_page is not None:
     # TODO(chandler): show the error in the flash message? Test by quick

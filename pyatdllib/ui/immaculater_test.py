@@ -491,7 +491,7 @@ dump""")))
       './miscellaneous:',
       '',
       './learn how to use this to-do list:',
-      '--action--- --incomplete-- \'Watch the video on the "Help" page -- on the top navigation bar, find it underneath the "Other" drop-down\' --in-context-- \'<none>\'',
+      '--action--- --incomplete-- \'Watch the video on the "Help" page -- find it on the top navigation bar\' --in-context-- \'<none>\'',
       '--action--- --incomplete-- \'Read the book "Getting Things Done" by David Allen\' --in-context-- \'<none>\'',
       '--action--- --incomplete-- \'After reading the book, try out a Weekly Review -- on the top navigation bar, find it underneath the "Other" drop-down\' --in-context-- \'<none>\'',
       ]
@@ -4096,7 +4096,7 @@ r"""<todolist>
       './miscellaneous:',
       '',
       './learn how to use this to-do list:',
-      '--action--- --incomplete-- \'Watch the video on the "Help" page -- on the top navigation bar, find it underneath the "Other" drop-down\' --in-context-- \'<none>\'',
+      '--action--- --incomplete-- \'Watch the video on the "Help" page -- find it on the top navigation bar\' --in-context-- \'<none>\'',
       '--action--- --incomplete-- \'Read the book "Getting Things Done" by David Allen\' --in-context-- \'<none>\'',
       '--action--- --incomplete-- \'After reading the book, try out a Weekly Review -- on the top navigation bar, find it underneath the "Other" drop-down\' --in-context-- \'<none>\'',
     ]
@@ -4132,7 +4132,7 @@ r"""<todolist>
       './miscellaneous:',
       '',
       './learn how to use this to-do list:',
-      '--action--- --incomplete-- \'Watch the video on the "Help" page -- on the top navigation bar, find it underneath the "Other" drop-down\' --in-context-- \'<none>\'',
+      '--action--- --incomplete-- \'Watch the video on the "Help" page -- find it on the top navigation bar\' --in-context-- \'<none>\'',
       '--action--- --incomplete-- \'Read the book "Getting Things Done" by David Allen\' --in-context-- \'<none>\'',
       '--action--- --incomplete-- \'After reading the book, try out a Weekly Review -- on the top navigation bar, find it underneath the "Other" drop-down\' --in-context-- \'<none>\'',
     ]
@@ -5521,6 +5521,40 @@ r"""<todolist>
       '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- <a href="/action/9">e&amp;nbsp;f</a><br>',
       '<br>',
       '<a href="/project/10">@inactive inactive:</a><br>',
+    ]
+    self.helpTest(inputs, golden_printed)
+
+  def testHypertext(self):
+    inputs = ['do foo bar/baz',
+              'mkdir /a',
+              'mkprj /a/b',
+              'touch /a/b/c',
+              'note /a/b/c "\\nline 1\\n\\nline 3\\n"',
+              'touch /a/b/completed',
+              'complete /a/b/completed',
+              'touch /a/b/e&nbsp;f',
+              'mkprj /inactive',
+              'deactivateprj /inactive',
+              'mkprj /pcomplete',
+              'complete /pcomplete',
+              'mkprj /pdeleted',
+              'rmprj /pdeleted',
+              'echo completed:',
+              'hypertext -q completed ""',
+              'echo line 3:',
+              'hypertext -q "line 3" ""',
+              'echo pdelete:',
+              'hypertext --search_query PDelete ""',
+             ]
+    golden_printed = [
+      "completed:",
+      "<a href=\"/project/6\">/a/b:</a><br>",
+      "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- <a href=\"/action/8\"><s>completed @done</s></a><br>",
+      "line 3:",
+      "<a href=\"/project/6\">/a/b:</a><br>",
+      "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- <a href=\"/action/7\">c<br>line 1<br><br>line 3</a><br>",
+      "pdelete:",
+      "<a href=\"/project/12\"><s>@deleted pdeleted:</s></a><br>",
     ]
     self.helpTest(inputs, golden_printed)
 

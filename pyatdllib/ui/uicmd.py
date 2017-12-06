@@ -1072,15 +1072,22 @@ class UICmdAsTaskPaper(UICmd):  # astaskpaper a.k.a. txt
         state.Print(line)
 
 
-class UICmdHypertext(UICmd):  # astaskpaper a.k.a. txt
+class UICmdHypertext(UICmd):
   """Prints a hypertext version of your to-do list."""
+  def __init__(self, name, flag_values, **kargs):
+    super(UICmdHypertext, self).__init__(name, flag_values, **kargs)
+    flags.DEFINE_string('search_query', None,
+                        'Search query, case-insensitive',
+                        short_name='q', flag_values=flag_values)
+
   def Run(self, args):  # pylint: disable=missing-docstring,no-self-use
     state = FLAGS.pyatdl_internal_state
     self.RaiseUnlessNArgumentsGiven(1, args)
     lines = []
+    the_view_filter = state.SearchFilter(FLAGS.search_query) if FLAGS.search_query else state.ViewFilter()
     state.ToDoList().AsTaskPaper(lines,
-                                 show_project=state.ViewFilter().ShowProject,
-                                 show_action=state.ViewFilter().ShowAction,
+                                 show_project=the_view_filter.ShowProject,
+                                 show_action=the_view_filter.ShowAction,
                                  hypertext_prefix=args[-1],
                                  html_escaper=state.HTMLEscaper())
     for i, line in enumerate(lines):
@@ -2167,8 +2174,8 @@ class UICmdSeed(UICmd):
     _RunCmd(UICmdMkprj, [FLAGS.pyatdl_separator + 'learn how to use this to-do list'])
     _RunCmd(UICmdTouch, [FLAGS.pyatdl_separator + 'learn how to use this to-do list' +
                          FLAGS.pyatdl_separator +
-                         'Watch the video on the "Help" page -- on the top '
-                         'navigation bar, find it underneath the "Other" drop-down'])
+                         'Watch the video on the "Help" page -- find it on the top '
+                         'navigation bar'])
     _RunCmd(UICmdTouch, [FLAGS.pyatdl_separator + 'learn how to use this to-do list' +
                          FLAGS.pyatdl_separator +
                          'Read the book "Getting Things Done" by David Allen'])

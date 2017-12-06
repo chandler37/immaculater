@@ -225,7 +225,6 @@ grep the code for TODOs using `grepme.sh`.
 
 Wouldn't it be nice if we had the following:
 
-- Search
 - A login page that doesn't change style upon an invalid login
 - [Docker support](https://docs.docker.com/compose/django/)
 - Voice integration with Alexa, Siri, Google Home, etc.

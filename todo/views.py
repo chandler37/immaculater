@@ -615,7 +615,7 @@ def as_text2(request):
     raise Http404()
   cookie_value = _cookie_value(request)
   template_dict = {"Flash": "",
-                   "Title": "View or Search Text"}
+                   "Title": "View Text"}
   saved_read, error_page = _execute_cmd(request, None, template_dict, cookie_value)
   template_dict["ViewFilter"] = cookie_value.view
   if error_page is not None:
@@ -646,7 +646,7 @@ def search(request):
   if request.method != 'GET' and request.method != 'POST':
     raise Http404()
   search_query = request.GET.get('q', '') or request.POST.get('q', '')
-  template_dict = {"Flash": ""}
+  template_dict = {"Flash": "", "Title": "Search"}
   try:
     x = _apply_batch_of_commands(
       request.user,

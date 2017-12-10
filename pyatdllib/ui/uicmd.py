@@ -1990,6 +1990,10 @@ class UICmdRename(UndoableUICmd):
     flags.DEFINE_boolean('allow_slashes', False,
                          'Do not treat directory separators as directory separators',
                          flag_values=flag_values)
+    flags.DEFINE_boolean('autoctx', False,
+                         'Change context if a context\'s name is found',
+                         flag_values=flag_values,
+                         short_name='a')
 
   def Run(self, args):  # pylint: disable=missing-docstring,no-self-use
     def Rename(state, container_of_item, item, new):
@@ -2013,6 +2017,10 @@ class UICmdRename(UndoableUICmd):
       except AssertionError:
         item.name = old
         raise BadArgsError('The new name, "%s", is not well-formed.' % new)
+      if isinstance(item, action.Action) and FLAGS.autoctx:
+        context = _ContextFromActionName(state, new)
+        if context is not None:
+          item.ctx = context
 
     def ContainerOfOld(state, old):
       dirname = state.DirName(old)

@@ -5710,6 +5710,40 @@ r"""<todolist>
     ]
     self.helpTest(inputs, golden_printed)
 
+  def testRenameChangingContext(self):
+    save_path = _CreateTmpFile('')
+    inputs = ['mkctx @home',
+              'mkctx @work',
+              'do foo',
+              'chctx @home /inbox/foo',
+              'echo ls:',
+              'ls /inbox',
+              'rename --noautoctx /inbox/foo "/inbox/foo @work"',
+              'echo ls still @home:',
+              'ls /inbox',
+              'rename --autoctx "/inbox/foo @work" /inbox/foo@work',
+              'echo ls with foo @work:',
+              'ls /inbox',
+              'renamectx @work @WorK',
+              'save %s' % pipes.quote(save_path),
+              'load %s' % pipes.quote(save_path),
+              'echo ls after save:',
+              'ls /inbox',
+             ]
+    golden_printed = [
+      "ls:",
+      "--action--- --incomplete-- foo --in-context-- @home",
+      "ls still @home:",
+      "--action--- --incomplete-- 'foo @work' --in-context-- @home",
+      "ls with foo @work:",
+      "--action--- --incomplete-- foo@work --in-context-- @work",
+      "Save complete.",
+      "Load complete.",
+      "ls after save:",
+      "--action--- --incomplete-- foo@work --in-context-- @WorK",
+    ]
+    self.helpTest(inputs, golden_printed)
+
 
 if __name__ == '__main__':
   unitjest.main()

@@ -349,7 +349,7 @@ def _execute_cmd(request, uid, template_dict, cookie_value=None):
       new_name = request.POST.get('new_name', '')
       if not new_name:
         return None, _error_page(request, 'Cannot rename to the empty string')
-      command_line = '%s --allow_slashes uid=%s %s' % (cmd, uid, pipes.quote(new_name))
+      command_line = '%s --allow_slashes --autoctx uid=%s %s' % (cmd, uid, pipes.quote(new_name))
       cmd_result = _apply_batch_of_commands(
           request.user,
           [command_line],

@@ -171,6 +171,21 @@ $(document).pjax('a', '#main', {cache: false});
         $("input:text:visible:first").focus();
         return false;
     });
+    // The following, "f", is motivated by using "/" to get to the quick
+    // capture box, then typing "/foo" to search, which pops up a flash. You
+    // then must press tab to move focus from the quick capture box to the
+    // quick capture button. You can then press "f" to navigate to the search
+    // results without using your mouse.
+    Mousetrap.bind("f", function() {
+        var a = $("#flash").find("a");
+        var href;
+        if (a !== undefined) {
+            href = a.attr("href");
+        }
+        if (href !== undefined) {
+            $.pjax({url: href, container: '#main'});
+        }
+    });
 
     $('.i-pjax-quick-capture-form').submit(function(event) {
         $.pjax.submit(event, '#flash', {type: "POST", push: false, cache: false});

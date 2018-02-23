@@ -203,6 +203,12 @@ a space or a blank line.
 
 Remember to press the **Save Note** button.
 `;
+} else if (note_value === "") {
+    note_value = `This is a place for notes about this project.
+
+To make notes about an action, click on that
+action.
+`;
 }
 simplemde.value(note_value);
 

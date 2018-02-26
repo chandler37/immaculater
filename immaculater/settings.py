@@ -221,4 +221,5 @@ if os.environ.get('SENDGRID_API_KEY'):
     SENDGRID_SANDBOX_MODE_IN_DEBUG = True
 else:
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-    ACCOUNT_EMAIL_VERIFICATION = "none"  # hence our EMAIL_BACKEND is fine.
+    ACCOUNT_EMAIL_VERIFICATION = 'none'  # hence our EMAIL_BACKEND is fine.
+DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'noreply@localhost')

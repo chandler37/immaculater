@@ -214,5 +214,11 @@ if DEBUG:
         },
     }
 
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend' # See django-sendgrid
-ACCOUNT_EMAIL_VERIFICATION = "none"  # hence our EMAIL_BACKEND is fine.
+if os.environ.get('SENDGRID_API_KEY'):
+    EMAIL_BACKEND = 'sendgrid_backend.SendgridBackend'
+    ACCOUNT_EMAIL_VERIFICATION = "optional"
+    SENDGRID_API_KEY = os.environ['SENDGRID_API_KEY']
+    SENDGRID_SANDBOX_MODE_IN_DEBUG = True
+else:
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+    ACCOUNT_EMAIL_VERIFICATION = "none"  # hence our EMAIL_BACKEND is fine.

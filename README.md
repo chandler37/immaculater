@@ -55,7 +55,10 @@ to start the original CLI.
 
 ## One-time Installation
 
- - Create a virtualenv with `virtualenv venv`
+ - Use [Homebrew](https://brew.sh/) to install python2 and python3. Its python2
+   will be more up to date than your mac's system python and will in other ways
+   better match the version of python you'll use on heroku.
+ - Create a virtualenv with `virtualenv -p python2 venv`
  - `source venv/bin/activate`
  - Install postgresql. On OS X, `brew install postgresql` after installing
    [Homebrew](https://brew.sh/). On Linux, `apt-get install postgresql postgresql-contrib`
@@ -67,7 +70,7 @@ to start the original CLI.
 
 ## One-Time Local Server Setup
 
-- `python manage.py migrate`
+ - `python manage.py migrate`
  - `python manage.py createsuperuser`
 
 ## One-Time Heroku Setup
@@ -93,8 +96,13 @@ to start the original CLI.
 
 > 'mVb2CBYEwFi4sc8B7jpeDiIesuk6L7k1d_DI0sLC7PU='
 
+> > Fernet.generate_key()
+
+> 'Orjuw_obnZGQIR96CUgDVqmvW0V3Ea3yq4uJon-RLT8='
+
  - `heroku config:set FERNET_PROTOBUF_KEY=cLlDneYkn69ZePyWcU9_mltFy4MwYf5pyqUnP-M8PxE=`
  - `heroku config:set FERNET_COOKIE_KEY=mVb2CBYEwFi4sc8B7jpeDiIesuk6L7k1d_DI0sLC7PU=`
+ - `heroku config:set DJANGO_SECRET_KEY=Orjuw_obnZGQIR96CUgDVqmvW0V3Ea3yq4uJon-RLT8=`
  - `heroku run python manage.py createsuperuser`
  - Log into https://<yourprj>.herokuapp.com/
  - Go to https://<yourprj>.herokuapp.com/admin to create additional user

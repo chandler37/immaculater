@@ -249,6 +249,7 @@ def _support_email():
   return os.environ.get('IMMACULATER_SUPPORT_EMAIL', '???')
 
 
+# DLC we now use a context processor so let's move these to context_processors.py and stop setting them everywhere
 def _brand():
   return os.environ.get('IMMACULATER_BRAND', 'My To-Do List')
 

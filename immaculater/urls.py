@@ -20,10 +20,9 @@ from django.views.generic import RedirectView
 from todo import views
 
 urlpatterns = [
-    url(r'^accounts/login/$', auth_views.LoginView.as_view(), name='login'),
-    url(r'^accounts/logout/$', views.LogoutView.as_view(), name='logout'),
     url(r'^todo/', include('todo.urls')),
     url(r'^$', RedirectView.as_view(url='/todo'), name='go-to-todo'),
     url(r'^admin/', admin.site.urls),
     url(r'^slack/', include('django_slack_oauth.urls')),
+    url(r'^accounts/', include('allauth.urls')),
 ]

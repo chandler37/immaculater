@@ -199,7 +199,7 @@ class SavedSerializationReader(object):
 
 
 class LogoutView(views.LogoutView):
-  """Clears _COOKIE_NAME cookie upon sign out.
+  """Clears _COOKIE_NAME cookie upon sign out. DLC now we must set ADAPTER = todo.allauth_adapter.CookieClearingAdapter which will be a subclass of allauth.account.adapter.DefaultAccountAdapter.
 
   django.contrib.auth.signals.user_logged_out has no
   access to the response so we have to subclass

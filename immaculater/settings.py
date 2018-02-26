@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'todo.apps.TodoConfig',
     'django.contrib.admin',
     'django.contrib.auth',
+    'django.contrib.sites',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
@@ -46,7 +47,16 @@ INSTALLED_APPS = [
     'whitenoise.runserver_nostatic',
     'django.contrib.staticfiles',
     'django_slack_oauth',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    # DLC remove the old slack auth?
+    # DLC also facebook
+    'allauth.socialaccount.providers.discord',
+    'allauth.socialaccount.providers.google',
 ]
+
+SITE_ID = 1
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -60,6 +70,14 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'immaculater.urls'
+
+AUTHENTICATION_BACKENDS = (
+    # Needed to login by username in Django admin, regardless of `allauth`
+    'django.contrib.auth.backends.ModelBackend',
+
+    # `allauth` specific authentication methods, such as login by e-mail
+    'allauth.account.auth_backends.AuthenticationBackend',
+)
 
 TEMPLATES = [
     {
@@ -159,7 +177,9 @@ SLACK_PIPELINES = [
     'todo.pipelines.register_user',
 ]
 
-LOGIN_URL = '/todo/login'
+ # DLC LOGIN_URL = '/todo/login'
+
+LOGIN_REDIRECT_URL = '/todo/'
 
 if os.environ.get('MEMCACHEDCLOUD_SERVERS'):
     CACHES = {
@@ -193,3 +213,6 @@ if DEBUG:
             }
         },
     }
+
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend' # See django-sendgrid
+ACCOUNT_EMAIL_VERIFICATION = "none"  # hence our EMAIL_BACKEND is fine.

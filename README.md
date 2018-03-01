@@ -206,6 +206,10 @@ to break into both places to read your data.
 
 The Django server is set up to require the use of SSL (HTTPS) at all times.
 
+## Security updates
+
+You might want to subscribe to https://groups.google.com/forum/#!forum/django-allauth-announce
+
 ## History
 
 This installation was built with the help of

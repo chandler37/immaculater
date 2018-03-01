@@ -1311,13 +1311,13 @@ def _authenticated_user_via_discord_bot_custom_auth(request):
   # value for a User that is_active.
   try:
     sa = allauth_models.SocialAccount.objects.get(
-        uid=json_data['discord_user'],
+        uid=str(json_data['discord_user']),
         provider='Discord')
     if not sa.user.is_active:
       raise PermissionDenied()
     return sa.user
   except ObjectDoesNotExist:
-    raise PermissionDenied("DLC they must first login via the website using Discord oauth")
+    raise PermissionDenied("FirstLoginRequired")
   raise PermissionDenied()
 
 

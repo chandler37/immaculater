@@ -28,6 +28,7 @@ from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth import views
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
+from django.core.exceptions import ObjectDoesNotExist
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
 from django.http import Http404
@@ -46,6 +47,7 @@ from django.views.decorators.clickjacking import xframe_options_sameorigin
 from django.views.decorators.csrf import csrf_exempt
 from cryptography.fernet import Fernet, InvalidToken
 from google.protobuf import message
+from allauth.socialaccount import models as allauth_models
 
 from . import models
 
@@ -1305,12 +1307,18 @@ def _authenticated_user_via_discord_bot_custom_auth(request):
     raise PermissionDenied()
   if not isinstance(json_data, dict) or 'discord_user' not in json_data:
     raise PermissionDenied()
-  # DLC todo use Social application model to get username
-  print('DLC TODO auth')
+  # Now we have discord_user=123 which had better match a SocialAccount.uid
+  # value for a User that is_active.
+  try:
+    sa = allauth_models.SocialAccount.objects.get(
+        uid=json_data['discord_user'],
+        provider='Discord')
+    if not sa.user.is_active:
+      raise PermissionDenied()
+    return sa.user
+  except ObjectDoesNotExist:
+    raise PermissionDenied()
   raise PermissionDenied()
-#  if not user.is_active:
-#    raise PermissionDenied()
-#  return user
 
 
 def _authenticated_user_via_basic_auth(request):

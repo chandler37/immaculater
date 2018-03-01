@@ -1317,7 +1317,7 @@ def _authenticated_user_via_discord_bot_custom_auth(request):
       raise PermissionDenied()
     return sa.user
   except ObjectDoesNotExist:
-    raise PermissionDenied()
+    raise PermissionDenied("DLC they must first login via the website using Discord oauth")
   raise PermissionDenied()
 
 

@@ -1311,8 +1311,8 @@ def _authenticated_user_via_discord_bot_custom_auth(request):
   # value for a User that is_active.
   try:
     sa = allauth_models.SocialAccount.objects.get(
-        uid=str(json_data['discord_user']),
-        provider='Discord')
+        uid=unicode(json_data['discord_user']),
+        provider='discord')
     if not sa.user.is_active:
       raise PermissionDenied()
     return sa.user

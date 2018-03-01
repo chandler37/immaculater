@@ -1287,6 +1287,31 @@ def help(request):
                   "Screencast2": os.environ.get("IMMACULATER_SCREENCAST2", '/todo/help')})
 
 
+def _authenticated_user_via_discord_bot_custom_auth(request):
+  auth = request.META.get('HTTP_AUTHORIZATION', '').split()
+  if not auth or auth[0].lower() != 'basic' or len(auth) != 2:
+    raise PermissionDenied()
+  try:
+    userid, password = base64.b64decode(auth[1]).decode('iso-8859-1').split(':', 1)
+  except (TypeError, UnicodeDecodeError, binascii.Error):
+    raise PermissionDenied()
+  if userid != os.environ['IMMACULATER_DISCORD_BOT_ID']:
+    raise PermissionDenied()
+  if password != os.environ['IMMACULATER_DISCORD_BOT_SECRET']:
+    raise PermissionDenied()
+  try:
+    json_data = json.loads(request.body)
+  except ValueError:
+    raise PermissionDenied()
+  if not isinstance(json_data, dict) or 'discord_user' not in json_data:
+    raise PermissionDenied()
+  # DLC todo use Social application model to get username
+  raise PermissionDenied()
+#  if not user.is_active:
+#    raise PermissionDenied()
+#  return user
+
+
 def _authenticated_user_via_basic_auth(request):
   auth = request.META.get('HTTP_AUTHORIZATION', '').split()
   if not auth or auth[0].lower() != 'basic' or len(auth) != 2:
@@ -1380,6 +1405,48 @@ def api(request):
         else:
           return JsonResponse({"error": "read_only must be True/False/'true'/'false'"},
                               status=422)
+  try:
+    results = _apply_batch_of_commands(user, cmd_list, read_only=read_only)
+    return JsonResponse({'pwd': results['pwd'],
+                         'printed': results['printed'],
+                         'view': results['view']})
+  except immaculater.Error as error:
+    return JsonResponse({'immaculater_error': unicode(error)}, status=422)
+
+
+@never_cache
+@csrf_exempt
+def discordapi(request):
+  """Like /api but only for use by the immaculater-discord-bot Discord bot."""
+  if request.method != 'POST':
+    raise Http404()
+  user = _authenticated_user_via_discord_bot_custom_auth(request)
+  assert user is not None
+  try:
+    json_data = json.loads(request.body)
+  except ValueError:
+    return HttpResponseBadRequest("Invalid JSON")
+  if not isinstance(json_data, dict) or 'commands' not in json_data:
+    return JsonResponse({"error": "Needed a dict containing the key 'commands'"},
+                        status=422)
+  if not isinstance(json_data['commands'], list):
+    return JsonResponse({"error": "commands must be an array of strings"},
+                        status=422)
+  for c in json_data['commands']:
+    if not isinstance(c, basestring):
+      return JsonResponse({"error": "commands must be an array of strings"},
+                          status=422)
+  cmd_list = json_data['commands']
+  read_only = False
+  if 'read_only' in json_data:
+    if json_data['read_only'] in (True, False):
+      read_only = json_data['read_only']
+    else:
+      if isinstance(json_data['read_only'], basestring):
+        read_only = json_data['read_only'].lower() == 'true'
+      else:
+        return JsonResponse({"error": "read_only must be True/False/'true'/'false'"},
+                            status=422)
   try:
     results = _apply_batch_of_commands(user, cmd_list, read_only=read_only)
     return JsonResponse({'pwd': results['pwd'],

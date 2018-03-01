@@ -19,6 +19,7 @@ urlpatterns = [
     url(r'^project/(?P<uid>\d+)$', views.project, name='project'),
     url(r'^projects$', views.projects, name='projects'),
     url(r'^api$', views.api, name='api'),
+    url(r'^discordapi$', views.discordapi, name='discordapi'),
     url(r'^slackapi$', views.slackapi, name='slackapi'),
     url(r'^help$', views.help, name='help'),
     url(r'^login$', views.login, name='login'),

@@ -1225,6 +1225,7 @@ def account(request):
 @never_cache
 @login_required
 def weekly_review(request):
+  print('DLC testing papertrail')
   template_dict = {"Flash": ""}
   _, error_page = _create_new_action(request, template_dict)
   if error_page is not None:
@@ -1418,7 +1419,9 @@ def api(request):
 @csrf_exempt
 def discordapi(request):
   """Like /api but only for use by the immaculater-discord-bot Discord bot."""
+  print('DLC discordapi')
   if request.method != 'POST':
+    print('DLC discordapi not POST')
     raise Http404()
   user = _authenticated_user_via_discord_bot_custom_auth(request)
   assert user is not None

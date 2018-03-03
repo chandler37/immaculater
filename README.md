@@ -152,7 +152,7 @@ can do a remote commit with the following:
  - Make your edits
  - `source venv/bin/activate`
  - `(cd pyatdllib && make test)`
- - Test using `heroku local web` or `DJANGO_DEBUG="True" python manage.py runserver 5000 `
+ - Test using `heroku local web` or `DJANGO_DEBUG=True python manage.py runserver 5000`
  - Navigate to [the local server](http://127.0.0.1:5000/) and log in
    as the superuser you created above under 'One-Time Local Server Setup'
  - `git status` to see any new files and confirm what branch you're on. If you

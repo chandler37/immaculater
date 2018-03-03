@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'allauth.account',
     'allauth.socialaccount',
     # DLC remove the old slack auth?
+    'allauth.socialaccount.providers.amazon',
     'allauth.socialaccount.providers.discord',
     'allauth.socialaccount.providers.facebook',
     'allauth.socialaccount.providers.google',

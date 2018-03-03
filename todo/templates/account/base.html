@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html>
-<!-- DLC me talk pretty one day github link -->
+<!-- DLC me talk pretty one day -->
   <head>
     <meta charset="utf-8">
     <title>{% block head_title %}{% endblock %} &ndash; {{Brand}}</title>
@@ -14,8 +14,11 @@
 <a href="https://github.com/chandler37/immaculater"><img src="{% static Logo %}" width=202 height=50 alt="{{Brand}}"></a>
   <hr/>
 <strong>What is this website:</strong>
-<ul><li>To learn more about this free, open-source to-do list, see the <a
-  href="https://github.com/chandler37/immaculater">github page</a></li></ul>
+<ul>
+<li>To learn more about {{BrandURL}}, a free, open-source to-do list, see the
+  <a href="https://github.com/chandler37/immaculater">github page</a></li>
+<li>View our privacy policy <a href="/todo/privacy.html">here</a>.</li>
+</ul>
   </div>
     {% block body %}
 

@@ -256,6 +256,10 @@ def _brand():
   return os.environ.get('IMMACULATER_BRAND', 'My To-Do List')
 
 
+def _brand_url():
+  return os.environ['IMMACULATER_BRAND_URL']
+
+
 def _favicon_relative_path():
   return os.environ.get('IMMMACULATER_FAVICON', 'favicon.ico')
 
@@ -265,6 +269,7 @@ def _render(request, template_name, options=None):
        "Favicon": _favicon_relative_path(),
        "LogoutUrl": _create_logout_url(),
        "Brand": _brand(),
+       "BrandURL": _brand_url(),
        "Logo": _logo(),
        "SupportEmail": _support_email()}
   if options:
@@ -608,6 +613,17 @@ def as_text(request, the_view_filter):
   except immaculater.Error as e:
     return _error_page(request, unicode(e))
   return response
+
+
+@xframe_options_sameorigin
+@never_cache
+def privacy(request):
+  if request.method != 'GET':
+    raise Http404()
+  return TemplateResponse(request,
+                          "privacy.html",
+                          {"Brand": _brand(),
+                           "BrandURL": _brand_url()})
 
 
 @djpjax.pjax()

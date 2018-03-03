@@ -26,7 +26,7 @@ Installation differs for users and developers.
 
 Unless you're a developer, use the following recipe:
 
-- `python setup.py install`
+- `python2 setup.py install` or, if python2 is not found, `python setup.py install`
 - Look for a line like `Installing todo script` to find the path where the
   script is installed. On OS X using [Homebrew](https://brew.sh/) (recommended on
   OS X to get the latest version of python 2.7) it might be
@@ -39,7 +39,7 @@ If you don't want to alter your system's `/usr` directory, or you get
 permissions errors when you try and don't want to use `sudo`, you may install
 in a [virtualenv](https://virtualenv.pypa.io/en/stable/) as follows:
 
-- `virtualenv venv`
+- `virtualenv -p python2 venv` or, if python2 from Homebrew is not found, `virtualenv venv`
 - `source venv/bin/activate`
 - `python setup.py install`
 - `deactivate`

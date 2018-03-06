@@ -262,7 +262,7 @@ Wouldn't it be nice if we had the following:
   second layer of encryption such that an attacker would have to break a
   user's password to see the user's data. Resetting passwords would erase
   all data.
-- Login with Google/Facebook/Discord/etc. [Work in Progress on the allauth0 branch]
+- Login with Amazon/Google/Facebook/Discord/etc. [Work in Progress on the allauth0 branch]
 
 ## Copyright
 

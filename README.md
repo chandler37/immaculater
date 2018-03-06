@@ -31,7 +31,7 @@ navigation bar, and there is a
 want to be a power user, try running `help` in the command-line interface on
 the website (it's a prominent button on the home page). For a real command-line
 interface that uses the same database as the website, see
-[`cli/README.md`](https://github.com/chandler37/immaculater/blob/master/cli/README.md).
+[immaculater-cli](https://github.com/chandler37/immaculater-cli).
 
 ## I'm a Developer
 
@@ -46,7 +46,7 @@ a [screencast coding up the "Delete Completed" feature](https://youtu.be/zQDLUs6
 
 Next, forget about Heroku
 and Django and focus on the original command-line interface (as opposed to
-`cli/todo.py` which requires the Django server). You'll find it in the
+<https://github.com/chandler37/immaculater-cli> which requires the Django server). You'll find it in the
 `pyatdllib` subdirectory -- see
 [`pyatdllib/README.md`](https://github.com/chandler37/immaculater/blob/master/pyatdllib/README.md). You
 will need to run `pip install -r requirements.txt ` inside a `virtualenv` (see
@@ -193,9 +193,14 @@ feature branch for the refactoring and another that builds on it.
 
 There are two CLIs, one which uses local files and one which uses secure HTTP
 to DJango running atop Heroku. The former is in `pyatdllib/ui/immaculater.py`;
-the latter is in `cli/todo.py`.
+the latter is in <https://github.com/chandler37/immaculater-cli>.
 
 Oops, and there's a third -- it's built into the Django UI, the `/todo/cli` endpoint.
+
+## Discord Bot
+
+See <https://github.com/chandler37/immaculater-discord-bot> for a wrapper
+around the CLI. You can go a long way with two CLI commands, 'todo' and 'do'.
 
 ## Encryption
 
@@ -238,8 +243,8 @@ Wouldn't it be nice if we had the following:
 - Voice integration with Alexa, Siri, Google Home, etc.
 - A better web app than the one found here, something slick
   like the 'mail.google.com' interface to GMail
-- Expanding the setup.py magic built around cli/todo.py into a proper PyPI
-  package listed publicly
+- Expanding the setup.py magic built around <https://github.com/chandler37/immaculater-cli>
+   into a proper PyPI package listed publicly
 - An iOS app
 - An Android app
     - Perhaps SL4A scripting layer for android
@@ -258,7 +263,7 @@ Wouldn't it be nice if we had the following:
   second layer of encryption such that an attacker would have to break a
   user's password to see the user's data. Resetting passwords would erase
   all data.
-- Login with Google/Facebook
+- Work in progress: Login with Amazon/Discord/Google/Facebook [see the allauth0 branch]
 
 ## Copyright
 

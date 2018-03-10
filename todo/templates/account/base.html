@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<!-- TODO(chandler37): beautify and use the official buttons for third party logins -->
+  <head>
+    <meta charset="utf-8">
+    <title>{% block head_title %}{% endblock %} &ndash; {{Brand}}</title>
+    {% load static %}
+    {% block extra_head %}
+    {% endblock %}
+    <link rel="shortcut icon" type="image/png" href="{% static Favicon %}">
+  </head>
+<body>
+<div>
+<a href="https://github.com/chandler37/immaculater"><img src="{% static Logo %}" width=202 height=50 alt="{{Brand}}"></a>
+  <hr/>
+<strong>What is this website:</strong>
+<ul>
+<li>To learn more about {{BrandURL}}, a free, open-source to-do list, see the
+  <a href="https://github.com/chandler37/immaculater">github page</a></li>
+<li>View our privacy policy <a href="/todo/privacy.html">here</a>.</li>
+</ul>
+  </div>
+    {% block body %}
+
+    {% if messages %}
+    <div>
+      <strong>Messages:</strong>
+      <ul>
+	{% for message in messages %}
+	<li>{{message}}</li>
+	{% endfor %}
+      </ul>
+    </div>
+    {% endif %}
+
+    <div>
+      <strong>Menu:</strong>
+      <ul>
+	{% if user.is_authenticated %}
+	<li><a href="{% url 'account_email' %}">Change E-mail</a></li>
+	<li><a href="{% url 'account_logout' %}">Sign Out</a></li>
+	{% else %}
+	<li><a href="{% url 'account_login' %}">Sign In</a></li>
+	<li><a href="{% url 'account_signup' %}">Sign Up</a></li>
+	{% endif %}
+      </ul>
+    </div>
+    {% block content %}
+    {% endblock %}
+    {% endblock %}
+    {% block extra_body %}
+    {% endblock %}
+  </body>
+</html>

@@ -13,6 +13,7 @@ Including another URLconf
     1. Import the include() function: from django.conf.urls import url, include
     2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
+from django.conf import settings
 from django.conf.urls import include, url
 from django.contrib import admin
 from django.contrib.auth import views as auth_views
@@ -20,10 +21,17 @@ from django.views.generic import RedirectView
 from todo import views
 
 urlpatterns = [
-    url(r'^accounts/login/$', auth_views.LoginView.as_view(), name='login'),
-    url(r'^accounts/logout/$', views.LogoutView.as_view(), name='logout'),
     url(r'^todo/', include('todo.urls')),
     url(r'^$', RedirectView.as_view(url='/todo'), name='go-to-todo'),
     url(r'^admin/', admin.site.urls),
     url(r'^slack/', include('django_slack_oauth.urls')),
 ]
+if settings.USE_ALLAUTH:
+    urlpatterns += [
+        url(r'^accounts/', include('allauth.urls')),
+        ]
+else:
+    urlpatterns += [
+        url(r'^accounts/login/$', auth_views.LoginView.as_view(), name='login'),
+        url(r'^accounts/logout/$', views.LogoutView.as_view(), name='logout'),
+        ]

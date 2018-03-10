@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'todo.apps.TodoConfig',
     'django.contrib.admin',
     'django.contrib.auth',
+    'django.contrib.sites',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
@@ -46,7 +47,23 @@ INSTALLED_APPS = [
     'whitenoise.runserver_nostatic',
     'django.contrib.staticfiles',
     'django_slack_oauth',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
 ]
+USE_ALLAUTH = os.environ.get("USE_ALLAUTH", "False") == "True"
+if USE_ALLAUTH:
+    INSTALLED_APPS += [
+        # TODO(chandler37): remove the old slack auth? Update the slash command
+        # to use the allauth socialaccount models to authenticate?
+        'allauth.socialaccount.providers.amazon',
+        'allauth.socialaccount.providers.discord',
+        'allauth.socialaccount.providers.facebook',
+        'allauth.socialaccount.providers.google',
+        'allauth.socialaccount.providers.slack',
+        ]
+
+SITE_ID = 1
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -61,6 +78,16 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'immaculater.urls'
 
+AUTHENTICATION_BACKENDS = (
+    # Needed to login by username in Django admin, regardless of `allauth`
+    'django.contrib.auth.backends.ModelBackend',
+    )
+if USE_ALLAUTH:
+    AUTHENTICATION_BACKENDS += (
+        # `allauth` specific authentication methods, such as login by e-mail
+        'allauth.account.auth_backends.AuthenticationBackend',
+        )
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -68,6 +95,7 @@ TEMPLATES = [
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
+                'todo.context_processors.basics',
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
@@ -159,7 +187,11 @@ SLACK_PIPELINES = [
     'todo.pipelines.register_user',
 ]
 
-LOGIN_URL = '/todo/login'
+if USE_ALLAUTH:
+    LOGIN_REDIRECT_URL = '/todo/'
+else:
+    LOGIN_URL = '/todo/login'
+
 
 if os.environ.get('MEMCACHEDCLOUD_SERVERS'):
     CACHES = {
@@ -193,3 +225,13 @@ if DEBUG:
             }
         },
     }
+
+if os.environ.get('SENDGRID_API_KEY'):
+    EMAIL_BACKEND = 'sendgrid_backend.SendgridBackend'
+    ACCOUNT_EMAIL_VERIFICATION = "optional"
+    SENDGRID_API_KEY = os.environ['SENDGRID_API_KEY']
+    SENDGRID_SANDBOX_MODE_IN_DEBUG = True
+else:
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+    ACCOUNT_EMAIL_VERIFICATION = 'none'  # hence our EMAIL_BACKEND is fine.
+DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'noreply@localhost')

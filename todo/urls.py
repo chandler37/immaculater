@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.conf.urls import url
 
 from . import views
@@ -27,3 +28,6 @@ urlpatterns = [
     url(r'^search$', views.search, name='search'),
     url(r'^privacy.html$', views.privacy, name='privacy'),
 ]
+
+if settings.USE_ALLAUTH:
+    urlpatterns.append(url(r'^discordapi$', views.discordapi, name='discordapi'))

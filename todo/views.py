@@ -28,6 +28,7 @@ from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth import views
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
+from django.core.exceptions import ObjectDoesNotExist
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
 from django.http import Http404
@@ -46,6 +47,7 @@ from django.views.decorators.clickjacking import xframe_options_sameorigin
 from django.views.decorators.csrf import csrf_exempt
 from cryptography.fernet import Fernet, InvalidToken
 from google.protobuf import message
+from allauth.socialaccount import models as allauth_models
 
 from . import models
 
@@ -65,11 +67,6 @@ _SANITY_CHECK = 37
 
 
 # TODO(chandler): Support redo/undo. Put the commands in the protobuf.
-
-
-def _logo():
-  # Add your_logo.png to ../immaculater/static.
-  return os.environ.get('BRAND_STATIC_FILE_LOGO_PATH', 'your_logo.png')
 
 
 def _encrypted_todolist_protobuf(some_bytes):
@@ -201,6 +198,12 @@ class SavedSerializationReader(object):
 class LogoutView(views.LogoutView):
   """Clears _COOKIE_NAME cookie upon sign out.
 
+  TODO(chandler37): when USE_ALLAUTH is True, now we must set ADAPTER =
+  todo.allauth_adapter.CookieClearingAdapter which will be a subclass of
+  allauth.account.adapter.DefaultAccountAdapter. But it's probably
+  better just to stop using our cookie and use the django session
+  instead.
+
   django.contrib.auth.signals.user_logged_out has no
   access to the response so we have to subclass
   django.contrib.auth.views.LogoutView.
@@ -232,10 +235,6 @@ def _get_uid(request, param_name):
   return None
 
 
-def _create_logout_url():
-  return '/accounts/logout/?next=/todo'
-
-
 def _nickname(user):
   if len(user.email):
     return u'%s (%s)' % (user.username, user.email)
@@ -245,30 +244,8 @@ def _nickname(user):
     return user.username
 
 
-def _support_email():
-  return os.environ.get('IMMACULATER_SUPPORT_EMAIL', '???')
-
-
-def _brand():
-  return os.environ.get('IMMACULATER_BRAND', 'My To-Do List')
-
-
-def _brand_url():
-  return os.environ['IMMACULATER_BRAND_URL']
-
-
-def _favicon_relative_path():
-  return os.environ.get('IMMMACULATER_FAVICON', 'favicon.ico')
-
-
 def _render(request, template_name, options=None):
-  d = {"Nickname": _nickname(request.user),
-       "Favicon": _favicon_relative_path(),
-       "LogoutUrl": _create_logout_url(),
-       "Brand": _brand(),
-       "BrandURL": _brand_url(),
-       "Logo": _logo(),
-       "SupportEmail": _support_email()}
+  d = {"Nickname": _nickname(request.user)}
   if options:
     d.update(options)
   return TemplateResponse(request, template_name, d)
@@ -617,10 +594,7 @@ def as_text(request, the_view_filter):
 def privacy(request):
   if request.method != 'GET':
     raise Http404()
-  return TemplateResponse(request,
-                          "privacy.html",
-                          {"Brand": _brand(),
-                           "BrandURL": _brand_url()})
+  return TemplateResponse(request, "privacy.html", {})
 
 
 @djpjax.pjax()
@@ -1276,11 +1250,7 @@ def about(request):
 @never_cache
 def login(request):
   logout(request)
-  d = {"Brand": _brand(),
-       "Logo": _logo(),
-       "SupportEmail": _support_email(),
-       "Favicon": _favicon_relative_path(),
-       "Title": "Login"}
+  d = {"Title": "Login"}
   return TemplateResponse(request, "login_with_slack.html", d)
 
 
@@ -1300,6 +1270,38 @@ def help(request):
                  {"Title": "Help",
                   "Screencast": os.environ.get("IMMACULATER_SCREENCAST", '/todo/help'),
                   "Screencast2": os.environ.get("IMMACULATER_SCREENCAST2", '/todo/help')})
+
+
+def _authenticated_user_via_discord_bot_custom_auth(request):
+  auth = request.META.get('HTTP_AUTHORIZATION', '').split()
+  if not auth or auth[0].lower() != 'basic' or len(auth) != 2:
+    raise PermissionDenied()
+  try:
+    userid, password = base64.b64decode(auth[1]).decode('iso-8859-1').split(':', 1)
+  except (TypeError, UnicodeDecodeError, binascii.Error):
+    raise PermissionDenied()
+  if userid != os.environ['IMMACULATER_DISCORD_BOT_ID']:
+    raise PermissionDenied()
+  if password != os.environ['IMMACULATER_DISCORD_BOT_SECRET']:
+    raise PermissionDenied()
+  try:
+    json_data = json.loads(request.body)
+  except ValueError:
+    raise PermissionDenied()
+  if not isinstance(json_data, dict) or 'discord_user' not in json_data:
+    raise PermissionDenied()
+  # Now we have discord_user=123 which had better match a SocialAccount.uid
+  # value for a User that is_active.
+  try:
+    sa = allauth_models.SocialAccount.objects.get(
+        uid=unicode(json_data['discord_user']),
+        provider='discord')
+    if not sa.user.is_active:
+      raise PermissionDenied()
+    return sa.user
+  except ObjectDoesNotExist:
+    raise PermissionDenied("FirstLoginRequired")
+  raise PermissionDenied()
 
 
 def _authenticated_user_via_basic_auth(request):
@@ -1395,6 +1397,48 @@ def api(request):
         else:
           return JsonResponse({"error": "read_only must be True/False/'true'/'false'"},
                               status=422)
+  try:
+    results = _apply_batch_of_commands(user, cmd_list, read_only=read_only)
+    return JsonResponse({'pwd': results['pwd'],
+                         'printed': results['printed'],
+                         'view': results['view']})
+  except immaculater.Error as error:
+    return JsonResponse({'immaculater_error': unicode(error)}, status=422)
+
+
+@never_cache
+@csrf_exempt
+def discordapi(request):
+  """Like /api but only for use by the immaculater-discord-bot Discord bot."""
+  if request.method != 'POST':
+    raise Http404()
+  user = _authenticated_user_via_discord_bot_custom_auth(request)
+  assert user is not None
+  try:
+    json_data = json.loads(request.body)
+  except ValueError:
+    return HttpResponseBadRequest("Invalid JSON")
+  if not isinstance(json_data, dict) or 'commands' not in json_data:
+    return JsonResponse({"error": "Needed a dict containing the key 'commands'"},
+                        status=422)
+  if not isinstance(json_data['commands'], list):
+    return JsonResponse({"error": "commands must be an array of strings"},
+                        status=422)
+  for c in json_data['commands']:
+    if not isinstance(c, basestring):
+      return JsonResponse({"error": "commands must be an array of strings"},
+                          status=422)
+  cmd_list = json_data['commands']
+  read_only = False
+  if 'read_only' in json_data:
+    if json_data['read_only'] in (True, False):
+      read_only = json_data['read_only']
+    else:
+      if isinstance(json_data['read_only'], basestring):
+        read_only = json_data['read_only'].lower() == 'true'
+      else:
+        return JsonResponse({"error": "read_only must be True/False/'true'/'false'"},
+                            status=422)
   try:
     results = _apply_batch_of_commands(user, cmd_list, read_only=read_only)
     return JsonResponse({'pwd': results['pwd'],

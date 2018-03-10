@@ -200,7 +200,11 @@ Oops, and there's a third -- it's built into the Django UI, the `/todo/cli` endp
 ## Discord Bot
 
 See <https://github.com/chandler37/immaculater-discord-bot> for a wrapper
-around the CLI. You can go a long way with two CLI commands, 'todo' and 'do'.
+around the CLI. You can go a long way with two CLI commands, 'todo' and
+'do'. To use the Discord bot you must set `USE_ALLAUTH` to `True`; see
+below. Users will have to sign in via Discord first on the Django website
+before the bot will work. TODO(chandler37): Investigate ways to connect a
+Discord account to an existing account.
 
 ## Encryption
 

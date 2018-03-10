@@ -69,11 +69,6 @@ _SANITY_CHECK = 37
 # TODO(chandler): Support redo/undo. Put the commands in the protobuf.
 
 
-def _logo():
-  # Add your_logo.png to ../immaculater/static.
-  return os.environ.get('BRAND_STATIC_FILE_LOGO_PATH', 'your_logo.png')
-
-
 def _encrypted_todolist_protobuf(some_bytes):
   return bytes(_protobuf_fernet().encrypt(some_bytes))
 
@@ -201,7 +196,13 @@ class SavedSerializationReader(object):
 
 
 class LogoutView(views.LogoutView):
-  """Clears _COOKIE_NAME cookie upon sign out. DLC now we must set ADAPTER = todo.allauth_adapter.CookieClearingAdapter which will be a subclass of allauth.account.adapter.DefaultAccountAdapter.
+  """Clears _COOKIE_NAME cookie upon sign out.
+
+  TODO(chandler37): when USE_ALLAUTH is True, now we must set ADAPTER =
+  todo.allauth_adapter.CookieClearingAdapter which will be a subclass of
+  allauth.account.adapter.DefaultAccountAdapter. But it's probably
+  better just to stop using our cookie and use the django session
+  instead.
 
   django.contrib.auth.signals.user_logged_out has no
   access to the response so we have to subclass
@@ -234,10 +235,6 @@ def _get_uid(request, param_name):
   return None
 
 
-def _create_logout_url():
-  return '/accounts/logout/?next=/todo'
-
-
 def _nickname(user):
   if len(user.email):
     return u'%s (%s)' % (user.username, user.email)
@@ -247,31 +244,8 @@ def _nickname(user):
     return user.username
 
 
-def _support_email():
-  return os.environ.get('IMMACULATER_SUPPORT_EMAIL', '???')
-
-
-# DLC we now use a context processor so let's move these to context_processors.py and stop setting them everywhere
-def _brand():
-  return os.environ.get('IMMACULATER_BRAND', 'My To-Do List')
-
-
-def _brand_url():
-  return os.environ['IMMACULATER_BRAND_URL']
-
-
-def _favicon_relative_path():
-  return os.environ.get('IMMMACULATER_FAVICON', 'favicon.ico')
-
-
 def _render(request, template_name, options=None):
-  d = {"Nickname": _nickname(request.user),
-       "Favicon": _favicon_relative_path(),
-       "LogoutUrl": _create_logout_url(),
-       "Brand": _brand(),
-       "BrandURL": _brand_url(),
-       "Logo": _logo(),
-       "SupportEmail": _support_email()}
+  d = {"Nickname": _nickname(request.user)}
   if options:
     d.update(options)
   return TemplateResponse(request, template_name, d)
@@ -620,10 +594,7 @@ def as_text(request, the_view_filter):
 def privacy(request):
   if request.method != 'GET':
     raise Http404()
-  return TemplateResponse(request,
-                          "privacy.html",
-                          {"Brand": _brand(),
-                           "BrandURL": _brand_url()})
+  return TemplateResponse(request, "privacy.html", {})
 
 
 @djpjax.pjax()
@@ -1279,11 +1250,7 @@ def about(request):
 @never_cache
 def login(request):
   logout(request)
-  d = {"Brand": _brand(),
-       "Logo": _logo(),
-       "SupportEmail": _support_email(),
-       "Favicon": _favicon_relative_path(),
-       "Title": "Login"}
+  d = {"Title": "Login"}
   return TemplateResponse(request, "login_with_slack.html", d)
 
 

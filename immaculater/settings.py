@@ -50,13 +50,18 @@ INSTALLED_APPS = [
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
-    # DLC remove the old slack auth?
-    'allauth.socialaccount.providers.amazon',
-    'allauth.socialaccount.providers.discord',
-    'allauth.socialaccount.providers.facebook',
-    'allauth.socialaccount.providers.google',
-    'allauth.socialaccount.providers.slack',
 ]
+USE_ALLAUTH = os.environ.get("USE_ALLAUTH", "False") == "True"
+if USE_ALLAUTH:
+    INSTALLED_APPS += [
+        # TODO(chandler37): remove the old slack auth? Update the slash command
+        # to use the allauth socialaccount models to authenticate?
+        'allauth.socialaccount.providers.amazon',
+        'allauth.socialaccount.providers.discord',
+        'allauth.socialaccount.providers.facebook',
+        'allauth.socialaccount.providers.google',
+        'allauth.socialaccount.providers.slack',
+        ]
 
 SITE_ID = 1
 
@@ -76,10 +81,12 @@ ROOT_URLCONF = 'immaculater.urls'
 AUTHENTICATION_BACKENDS = (
     # Needed to login by username in Django admin, regardless of `allauth`
     'django.contrib.auth.backends.ModelBackend',
-
-    # `allauth` specific authentication methods, such as login by e-mail
-    'allauth.account.auth_backends.AuthenticationBackend',
-)
+    )
+if USE_ALLAUTH:
+    AUTHENTICATION_BACKENDS += (
+        # `allauth` specific authentication methods, such as login by e-mail
+        'allauth.account.auth_backends.AuthenticationBackend',
+        )
 
 TEMPLATES = [
     {
@@ -180,9 +187,11 @@ SLACK_PIPELINES = [
     'todo.pipelines.register_user',
 ]
 
- # DLC LOGIN_URL = '/todo/login'
+if USE_ALLAUTH:
+    LOGIN_REDIRECT_URL = '/todo/'
+else:
+    LOGIN_URL = '/todo/login'
 
-LOGIN_REDIRECT_URL = '/todo/'
 
 if os.environ.get('MEMCACHEDCLOUD_SERVERS'):
     CACHES = {

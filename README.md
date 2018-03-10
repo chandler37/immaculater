@@ -211,9 +211,22 @@ to break into both places to read your data.
 
 The Django server is set up to require the use of SSL (HTTPS) at all times.
 
-## Security updates
+## Third-Party Login
 
-You might want to subscribe to https://groups.google.com/forum/#!forum/django-allauth-announce
+Just set the environment variable `USE_ALLAUTH` to `True` (see `heroku config:set`)
+if you want to support login via Slack, Google, Facebook, Discord, and
+Amazon. You must use the admin interface to enter your client ID and client
+secret for each service. Anyone will be able to sign up even without an email
+address (that's configurable) and password resets will be possible via email if
+you've signed up for the Sendgrid heroku addon. Set the environment variable
+`SENDGRID_API_KEY` appropriately.
+
+## Security Updates
+
+You might want to subscribe to
+https://groups.google.com/forum/#!forum/django-allauth-announce if you're
+setting `USE_ALLAUTH` to `True` and the django announce list. TODO: How to stay
+updated on Fernet bugs?
 
 ## History
 
@@ -267,7 +280,6 @@ Wouldn't it be nice if we had the following:
   second layer of encryption such that an attacker would have to break a
   user's password to see the user's data. Resetting passwords would erase
   all data.
-- Login with Amazon/Google/Facebook/Discord/etc. [Work in Progress on the allauth0 branch]
 
 ## Copyright
 

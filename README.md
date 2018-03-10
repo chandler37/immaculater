@@ -252,6 +252,8 @@ You'll find as dependencies the following:
 - https://github.com/google/python-gflags
 - https://github.com/abseil/abseil-py
 - https://github.com/google/protobuf
+- https://github.com/pennersr/django-allauth
+- https://github.com/sklarsa/django-sendgrid-v5
 
 ## Future Directions -- Help Wanted
 

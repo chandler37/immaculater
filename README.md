@@ -53,6 +53,10 @@ will need to run `pip install -r requirements.txt ` inside a `virtualenv` (see
 below) before `make test` will pass or the CLI will run. You can use `runme.sh`
 to start the original CLI.
 
+## Python 3 Support
+
+Yes, we support both 2.7 and 3.6.5 using the `six` library, but 3 is not yet the default in production.
+
 ## One-time Installation
 
  - Use [Homebrew](https://brew.sh/) to install python2 and python3. Its python2
@@ -176,13 +180,13 @@ can do a remote commit with the following:
     local branch with
 	`git checkout master && git pull && git branch -d your_feature_branch_goes_here`
 
-When done with your feature, ensure all tests pass (`(cd pyatdllib && make
-test)` and run pylint (`make pylint` after `pip install pylint` (inside an
-activated virtualenv)) and `flake8 .` (after `pip install flake8` (inside an
-activated virtualenv)).  The very best practice is to run `make cov` (first
-`pip install coverage` (inside an activated virtualenv)) and ensure that your
-change has optimal unittest code coverage. You get bonus points for installing
-pychecker and running `make pychecker`.
+When done with your feature, ensure all tests pass (`make test` and run pylint
+(`make pylint` after `pip install pylint` (inside an activated virtualenv)) and
+`flake8 .` (after `pip install flake8` (inside an activated virtualenv)).  The
+very best practice is to run `make cov` (first `pip install coverage` (inside
+an activated virtualenv)) and ensure that your change has optimal unittest code
+coverage. You get bonus points for installing pychecker and running `make
+pychecker`.
 
 The above practices give us the benefit of easy code reviews and ensure that
 your buggy works in progress doesn't interfere with other developers. Try to

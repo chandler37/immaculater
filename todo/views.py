@@ -1389,7 +1389,7 @@ def api(request):
       return JsonResponse({"error": "commands must be an array of strings"},
                           status=422)
     for c in json_data['commands']:
-      if not isinstance(c, basestring):
+      if not isinstance(c, six.string_types):
         return JsonResponse({"error": "commands must be an array of strings"},
                             status=422)
     cmd_list = json_data['commands']
@@ -1397,7 +1397,7 @@ def api(request):
       if json_data['read_only'] in (True, False):
         read_only = json_data['read_only']
       else:
-        if isinstance(json_data['read_only'], basestring):
+        if isinstance(json_data['read_only'], six.string_types):
           read_only = json_data['read_only'].lower() == 'true'
         else:
           return JsonResponse({"error": "read_only must be True/False/'true'/'false'"},
@@ -1430,7 +1430,7 @@ def discordapi(request):
     return JsonResponse({"error": "commands must be an array of strings"},
                         status=422)
   for c in json_data['commands']:
-    if not isinstance(c, basestring):
+    if not isinstance(c, six.string_types):
       return JsonResponse({"error": "commands must be an array of strings"},
                           status=422)
   cmd_list = json_data['commands']
@@ -1439,7 +1439,7 @@ def discordapi(request):
     if json_data['read_only'] in (True, False):
       read_only = json_data['read_only']
     else:
-      if isinstance(json_data['read_only'], basestring):
+      if isinstance(json_data['read_only'], six.string_types):
         read_only = json_data['read_only'].lower() == 'true'
       else:
         return JsonResponse({"error": "read_only must be True/False/'true'/'false'"},

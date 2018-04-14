@@ -27,6 +27,7 @@ import hashlib
 import os
 import random
 import six
+from six.moves import input
 from six.moves import xrange
 import tempfile
 
@@ -94,7 +95,7 @@ def _Print(s):
 
 def _Input(prompt):
   """For easy mocking in the unittest."""
-  return raw_input(prompt)
+  return input(prompt)
 
 
 def Base64RandomSlug(num_bits):

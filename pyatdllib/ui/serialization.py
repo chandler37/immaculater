@@ -217,9 +217,9 @@ def DeserializeToDoList(path, tdl_factory):
     str(todolist.AsProto())
     todolist.CheckIsWellFormed()
   except:
-    print ('Serialization error?  Reset by rerunning with the "reset_database" '
-           'command, i.e. deleting\n  %s\nHere is the exception:\n'
-           % FLAGS.database_filename)
+    print('Serialization error?  Reset by rerunning with the "reset_database" '
+          'command, i.e. deleting\n  %s\nHere is the exception:\n'
+          % FLAGS.database_filename)
     raise
   return todolist
 

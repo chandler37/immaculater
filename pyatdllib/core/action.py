@@ -2,6 +2,10 @@
 that can be checked off your list.
 """
 
+from __future__ import absolute_import
+from __future__ import unicode_literals
+from __future__ import print_function
+
 import gflags as flags
 
 from . import auditable_object
@@ -34,17 +38,14 @@ class Action(auditable_object.AuditableObject):
     self.note = note
     self.ctx = context
 
-  def __str__(self):
-    return unicode(self).encode('utf-8')
-
   def __unicode__(self):
-    uid_str = u'' if not FLAGS.pyatdl_show_uid else u' uid=%s' % self.uid
-    return u'<action%s is_deleted="%s" is_complete="%s" name="%s" ctx="%s"/>' % (
+    uid_str = '' if not FLAGS.pyatdl_show_uid else ' uid=%s' % self.uid
+    return '<action%s is_deleted="%s" is_complete="%s" name="%s" ctx="%s"/>' % (
       uid_str,
       self.is_deleted,
       self.is_complete,
-      u'' if self.name is None else self.name,
-      u'' if self.ctx is None else u'uid=%s' % self.ctx.uid)
+      '' if self.name is None else self.name,
+      '' if self.ctx is None else 'uid=%s' % self.ctx.uid)
 
   def __repr__(self):
     return '<action_proto>\n%s\n</action_proto>' % str(self.AsProto())

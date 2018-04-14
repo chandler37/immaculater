@@ -4,6 +4,12 @@ Specifically, this keeps track of the tdl.ToDoList, the current working
 Folder/Prj, and the desired view filter (e.g., 'all_even_deleted').
 """
 
+from __future__ import absolute_import
+from __future__ import unicode_literals
+from __future__ import print_function
+
+import six
+
 import gflags as flags  # https://code.google.com/p/python-gflags/
 
 from ..core import common
@@ -143,7 +149,7 @@ class State(object):  # pylint: disable=too-many-instance-attributes,too-many-pu
           return c
       raise ValueError(
         'No Context found for action "%s" even though that action has a context UID of "%s"'
-         % (an_action.uid, an_action.ctx.common.uid))
+        % (an_action.uid, an_action.ctx.common.uid))
 
     if search_query:
       assert filter_cls is None
@@ -189,12 +195,12 @@ class State(object):  # pylint: disable=too-many-instance-attributes,too-many-pu
     for f, path in self.ToDoList().ContainersPreorder():
       if f.uid == containr.uid:
         if f is self.ToDoList().root or f is self.ToDoList().inbox:
-          return u'%s%s' % (u'' if display else FLAGS.pyatdl_separator,
-                            Escaped(f.name))
+          return '%s%s' % ('' if display else FLAGS.pyatdl_separator,
+                           Escaped(f.name))
         z = FLAGS.pyatdl_separator.join(Escaped(x.name) for x in reversed(path))
-        r = u'%s%s%s' % (z,
-                         FLAGS.pyatdl_separator,
-                         Escaped(f.name))
+        r = '%s%s%s' % (z,
+                        FLAGS.pyatdl_separator,
+                        Escaped(f.name))
         return r.lstrip(FLAGS.pyatdl_separator) if display else r
 
   def CurrentWorkingContainerString(self):
@@ -246,7 +252,7 @@ class State(object):  # pylint: disable=too-many-instance-attributes,too-many-pu
     """
     x = path.rfind('%s%s' % (FLAGS.pyatdl_separator, FLAGS.pyatdl_separator))
     if x >= 0:
-      return State.CanonicalPath(path[x+1:])
+      return State.CanonicalPath(path[x + 1:])
     return path
 
   @staticmethod
@@ -398,9 +404,7 @@ class State(object):  # pylint: disable=too-many-instance-attributes,too-many-pu
       % (self.CurrentWorkingContainerString(),
          name,
          common.Indented('..'),
-         common.Indented(
-           '\n'.join(i.name for i in cwc.items
-                     if isinstance(i, container.Container)))))
+         common.Indented('\n'.join(i.name for i in cwc.items if isinstance(i, container.Container)))))
 
   def SearchFilter(self, query):
     """Creates a ViewFilter that searches.
@@ -434,7 +438,7 @@ class State(object):  # pylint: disable=too-many-instance-attributes,too-many-pu
     Returns:
       None
     """
-    self._printer(unicode(s))
+    self._printer(six.text_type(s))
 
   def RegisterUndoableCommand(self, undoable_cmd):
     """Notes the successful execution of an undoable command.

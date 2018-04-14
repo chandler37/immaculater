@@ -7,6 +7,9 @@ You must call RegisterAppcommands before using this module.
 # pylint: disable=super-on-old-class
 
 from __future__ import absolute_import
+from __future__ import unicode_literals
+from __future__ import print_function
+
 import base64
 import datetime
 import json
@@ -14,7 +17,9 @@ import pipes
 import pytz
 import random
 import re
-import time  # pylint: disable=wrong-import-order
+import six
+from six.moves import xrange
+import time  # pylint: disable=wrong-import-order DLC run pylint3
 
 import gflags as flags  # https://github.com/gflags/python-gflags now called abseil-py
 
@@ -129,9 +134,9 @@ def _ListingForOneItem(show_uid, show_timestamps, item, to_do_list, name_overrid
     str
   """
   by_type = {folder.Folder: '--folder--- ',
-             prj.Prj:       '--project-- ',
+             prj.Prj: '--project-- ',
              action.Action: '--action--- ',
-             ctx.Ctx:       '--context-- '}
+             ctx.Ctx: '--context-- '}
   deleted_str = _DeletedStr(item.is_deleted)
   type_str = by_type[type(item)]
   lead = '%s%s%s' % (
@@ -187,7 +192,7 @@ def _JsonForOneItem(item, to_do_list, number_of_items,
     'uid': 0 if item is None else item.uid,
     'name': name_override if name_override is not None else name,
     'number_of_items': number_of_items
-    }
+  }
   if in_prj is not None:
     rv['in_prj'] = in_prj
   if hasattr(item, 'NeedsReview'):
@@ -204,7 +209,7 @@ def _JsonForOneItem(item, to_do_list, number_of_items,
       else:
         raise AssertionError(
           "The protobuf has a bad Context association with an Action. item.ctx.uid=%s item.uid=%s"
-           % (item.ctx.uid, item.uid))
+          % (item.ctx.uid, item.uid))
     rv['in_context'] = in_context_override if in_context_override is not None else in_context
     rv['in_context_uid'] = item.ctx.uid if item.ctx is not None else None
   if item is None:
@@ -217,6 +222,7 @@ def _JsonForOneItem(item, to_do_list, number_of_items,
     if not rv['path']:
       rv['path'] = FLAGS.pyatdl_separator
   return rv
+
 
 def _TimestampStr(epoch_sec_or_none):  # pylint:disable=missing-docstring
   if epoch_sec_or_none is None:
@@ -550,7 +556,7 @@ class UICmdEcho(UICmd):
     p = ' '.join(x for x in args[1:])
     state = FLAGS.pyatdl_internal_state
     if FLAGS.stdout:
-      print p
+      print(p)
     else:
       state.Print(p)
 
@@ -593,10 +599,12 @@ class UICmdChclock(UICmd):
       raise BadArgsError('Minimum value is 0, a.k.a. 1970 CE.')
     if relative_not_absolute:
       old_time = time.time
+
       def NewTime():  # pylint: disable=missing-docstring
         return old_time() + a_float
       time.time = NewTime
     else:
+
       def AbsoluteNewTime():  # pylint: disable=missing-docstring
         return a_float
       time.time = AbsoluteNewTime
@@ -656,7 +664,7 @@ class UICmdLs(UICmd):
           if not basename and name != FLAGS.pyatdl_separator:
             raise BadArgsError(
               'Unexpected trailing "%s"; dirname=%s and basename=%s'
-               % (FLAGS.pyatdl_separator, dirname, basename))
+              % (FLAGS.pyatdl_separator, dirname, basename))
           obj = state.GetObjectFromPath(name)
         except state_module.InvalidPathError as e:
           raise BadArgsError(e)
@@ -790,8 +798,8 @@ class UICmdLsctx(UICmd):
           sum(1 for a, _ in state.ToDoList().ActionsInContext(context.uid)
               if state.ViewFilter().ShowAction(a)))
       else:
-        state.Print(_ListingForContext(FLAGS.pyatdl_show_uid,
-            FLAGS.show_timestamps, context))
+        state.Print(
+            _ListingForContext(FLAGS.pyatdl_show_uid, FLAGS.show_timestamps, context))
     else:
       if len(args) != 1:
         raise BadArgsError(
@@ -803,8 +811,8 @@ class UICmdLsctx(UICmd):
           sum(1 for a, _ in state.ToDoList().ActionsInContext(None)
               if state.ViewFilter().ShowAction(a))))
       else:
-        state.Print(_ListingForContext(FLAGS.pyatdl_show_uid,
-            FLAGS.show_timestamps, None))
+        state.Print(
+            _ListingForContext(FLAGS.pyatdl_show_uid, FLAGS.show_timestamps, None))
       sorted_contexts = list(state.ToDoList().ctx_list.items)
       if state.CurrentSorting() == 'alpha':
         sorted_contexts.sort(key=lambda c: c.name)
@@ -817,8 +825,8 @@ class UICmdLsctx(UICmd):
               sum(1 for a, _ in state.ToDoList().ActionsInContext(c.uid)
                   if state.ViewFilter().ShowAction(a))))
           else:
-            state.Print(_ListingForContext(FLAGS.pyatdl_show_uid,
-                FLAGS.show_timestamps, c))
+            state.Print(
+                _ListingForContext(FLAGS.pyatdl_show_uid, FLAGS.show_timestamps, c))
     if FLAGS.json:
       state.Print(json.dumps(to_be_json, sort_keys=True, separators=(',', ':')))
 
@@ -859,7 +867,7 @@ class UICmdLsprj(UICmd):
       to_be_json = []  # pylint: disable=redefined-variable-type
       sorted_projects = list(state.ToDoList().Projects())
       if state.CurrentSorting() == 'alpha':
-        sorted_projects.sort(key=lambda (p, path): '' if p.uid == 1 else p.name)
+        sorted_projects.sort(key=lambda p_path: '' if p_path[0].uid == 1 else p_path[0].name)
       for project, path_leaf_first in sorted_projects:
         if state.ViewFilter().ShowProject(project):
           if FLAGS.json:
@@ -882,7 +890,7 @@ class UICmdLoadtest(UICmd):
     flags.DEFINE_string('name', 'LoadTest', 'Name fragment',
                         flag_values=flag_values)
     flags.DEFINE_integer('n', None, 'Number of Actions and Projects etc.',
-                        flag_values=flag_values)
+                         flag_values=flag_values)
     flags.DEFINE_bool('deep', True,
                       'Makes a deeply nested Folder containing one Project and'
                       ' one Action',
@@ -1008,7 +1016,7 @@ class UICmdDo(UICmd):  # TODO(chandler): UndoableUICmd, correct?
     if len(args) == 2:
       action_name = args[-1]
     else:
-      action_name = u' '.join(pipes.quote(arg) for arg in args[1:])
+      action_name = ' '.join(pipes.quote(arg) for arg in args[1:])
     cwc = state.CurrentWorkingContainer()
     state.SetCurrentWorkingContainer(state.GetContainerFromPath('uid=1'))
     try:
@@ -1038,7 +1046,7 @@ class UICmdMaybe(UICmd):  # aspire, maybe TODO(chandler): UndoableUICmd, correct
     if len(args) == 2:
       action_name = args[-1]
     else:
-      action_name = u' '.join(pipes.quote(arg) for arg in args[1:])
+      action_name = ' '.join(pipes.quote(arg) for arg in args[1:])
     cwc = state.CurrentWorkingContainer()
     state.SetCurrentWorkingContainer(state.GetContainerFromPath('uid=1'))
     try:
@@ -1092,7 +1100,7 @@ class UICmdHypertext(UICmd):
                                  html_escaper=state.HTMLEscaper())
     for i, line in enumerate(lines):
       if i != 0 or line:  # skips blank first line
-        state.Print(u'%s<br>' % line)
+        state.Print('%s<br>' % line)
 
 
 class UICmdDumpprotobuf(UICmd):
@@ -1304,6 +1312,7 @@ class UICmdTodo(UICmd):
     flags.DEFINE_enum('view_filter', None, sorted(view_filter.CLS_BY_UI_NAME),
                       'View filter',
                       short_name='v', flag_values=flag_values)
+
   def Run(self, args):  # pylint: disable=missing-docstring,no-self-use
     state = FLAGS.pyatdl_internal_state
     if len(args) == 1:
@@ -1329,6 +1338,7 @@ class UICmdTodo(UICmd):
           state.Print(line)
     finally:
       _SetViewFilterByName(old_view_filter, state)
+
 
 class UICmdView(UICmd):
   """Displays or changes which folders, projects, actions, and contexts to display.
@@ -1385,7 +1395,7 @@ class UICmdInctx(UICmd):
           raise BadArgsError(e)
     action_prj_tuples = list(state.ToDoList().ActionsInContext(ctx_uid))
     if FLAGS.sort_by == 'uid':
-      action_prj_tuples.sort(key=lambda (a, p): a.uid)
+      action_prj_tuples.sort(key=lambda a_p: a_p[0].uid)
     to_be_json = []
     for a, p in action_prj_tuples:
       if state.ViewFilter().ShowAction(a):
@@ -1650,7 +1660,7 @@ class UICmdNote(UICmd):
     state = FLAGS.pyatdl_internal_state
     if len(args) == 2:
       if re.match(r'^:[a-zA-Z0-9_-]+$', args[-1]) is not None:
-        x = state.ToDoList().note_list.notes.get(args[-1], u'')
+        x = state.ToDoList().note_list.notes.get(args[-1], '')
         if x:
           state.Print(x)
         return
@@ -1658,7 +1668,7 @@ class UICmdNote(UICmd):
         auditable_object = state.GetObjectFromPath(args[-1],
                                                    include_contexts=True)
       except state_module.Error as e:
-        raise BadArgsError(unicode(e))
+        raise BadArgsError(six.text_type(e))
       if auditable_object.note:
         state.Print(auditable_object.note)
       return
@@ -1668,13 +1678,13 @@ class UICmdNote(UICmd):
       if FLAGS.replace:
         notes[args[-2]] = args[-1]
       else:
-        notes[args[-2]] = notes.get(args[-2], u'') + args[-1]
+        notes[args[-2]] = notes.get(args[-2], '') + args[-1]
       return
     try:
       auditable_object = state.GetObjectFromPath(args[-2],
                                                  include_contexts=True)
     except state_module.Error as e:
-      raise BadArgsError(unicode(e))
+      raise BadArgsError(six.text_type(e))
     if FLAGS.replace:
       auditable_object.note = args[-1]
     else:
@@ -1687,7 +1697,7 @@ class UICmdCat(UICmd):
     state = FLAGS.pyatdl_internal_state
     self.RaiseUnlessNArgumentsGiven(1, args)
     if re.match(r'^:[a-zA-Z0-9_-]+$', args[-1]) is not None:
-      x = state.ToDoList().note_list.notes.get(args[-1], u'')
+      x = state.ToDoList().note_list.notes.get(args[-1], '')
       if x:
         state.Print(x)
       return
@@ -1695,7 +1705,7 @@ class UICmdCat(UICmd):
       auditable_object = state.GetObjectFromPath(args[-1],
                                                  include_contexts=True)
     except state_module.Error as e:
-      raise BadArgsError(unicode(e))
+      raise BadArgsError(six.text_type(e))
     if auditable_object.note:
       state.Print(auditable_object.note)
 
@@ -1819,18 +1829,18 @@ CiAgICAgICAgICgnYCAgICBcCiAgICAgICAgICBgLS5fX18vCg=="""
 def _ContainerFromActionName(state, basename):
   """Handles +ProjectName and r'^Project Name:.*'"""
   basename_lower = basename.lower()
-  split_basename_lower = basename_lower.split(u' ')
-  split_basename = basename.split(u' ')
+  split_basename_lower = basename_lower.split(' ')
+  split_basename = basename.split(' ')
   for project, _ in state.ToDoList().Projects():
     if project.is_deleted or not project.name:
       continue
-    if basename_lower.startswith(project.name.lower() + u':'):
-      return project, basename[len(project.name)+1:].strip()
-    plus_form = u'+' + u''.join(project.name.strip().split(u' '))
+    if basename_lower.startswith(project.name.lower() + ':'):
+      return project, basename[len(project.name) + 1:].strip()
+    plus_form = '+' + ''.join(project.name.strip().split(' '))
     for i, split in enumerate(split_basename_lower):
       if split == plus_form:
         del split_basename[i]
-        return project, u' '.join(split_basename)
+        return project, ' '.join(split_basename)
   return None, basename
 
 
@@ -2167,7 +2177,6 @@ def _RunCmd(cmd, args):
 class UICmdSeed(UICmd):
   """Creates some contexts, actions, and projects to use as a starting point."""
   def Run(self, args):  # pylint: disable=missing-docstring,no-self-use
-    state = FLAGS.pyatdl_internal_state
     self.RaiseIfAnyArgumentsGiven(args)
     _RunCmd(UICmdMkctx, ['@computer'])
     _RunCmd(UICmdMkctx, ['@phone'])
@@ -2310,7 +2319,7 @@ class UICmdRoll(UICmd):
     if FLAGS.seed is not None:
       random.seed(FLAGS.seed)
     for k in xrange(num):
-      state.Print(unicode(random.randrange(1, sides + 1)))
+      state.Print(six.text_type(random.randrange(1, sides + 1)))
 
 
 class UICmdExit(UICmd):
@@ -2393,7 +2402,7 @@ class UICmdPrjify(UICmd):
     self.RaiseUnlessNArgumentsGiven(1, args)
     try:
       the_action, unused_project = _LookupAction(state, args[-1])
-    except NoSuchContainerError as e:
+    except NoSuchContainerError:
       raise BadArgsError('Action "%s" not found.' % args[-1])
     if the_action.note:
       # TODO(chandler): support this case.

@@ -1,5 +1,9 @@
 """Unittests for module 'state'."""
 
+from __future__ import absolute_import
+from __future__ import unicode_literals
+from __future__ import print_function
+
 import time
 
 import gflags as flags  # https://code.google.com/p/python-gflags/
@@ -134,7 +138,7 @@ class StateTestCase(unitjest.TestCase):
 
     gist_no_contexts = GenGist([
       '        ',
-      ])
+    ])
 
     self._the_state = NewStateInstance()
     AssertGistIs(gist_no_contexts)
@@ -149,7 +153,7 @@ class StateTestCase(unitjest.TestCase):
     TestNothingToRedo()
     gist0 = GenGist([
       '            <context uid=4 is_deleted="False" is_active="True" name="Context0"/>',
-      ])
+    ])
     AssertGistIs(gist0)
     self._the_state.Undo()
     AssertGistIs(gist_no_contexts)
@@ -167,7 +171,7 @@ class StateTestCase(unitjest.TestCase):
     ExecuteUndoableCommand(1)
     gist1 = GenGist([
       '            <context uid=4 is_deleted="False" is_active="True" name="Context1"/>',
-      ])
+    ])
     AssertGistIs(gist1)
     TestNothingToRedo()
 
@@ -185,7 +189,7 @@ class StateTestCase(unitjest.TestCase):
       gist01 = GenGist([
         '            <context uid=4 is_deleted="False" is_active="True" name="Context0"/>',
         '            <context uid=5 is_deleted="False" is_active="True" name="Context1"/>',
-        ])
+      ])
       AssertGistIs(gist01)
       self._the_state.Undo()
       AssertGistIs(gist0)
@@ -193,7 +197,7 @@ class StateTestCase(unitjest.TestCase):
       gist02 = GenGist([
         '            <context uid=4 is_deleted="False" is_active="True" name="Context0"/>',
         '            <context uid=5 is_deleted="False" is_active="True" name="Context2"/>',
-        ])
+      ])
       AssertGistIs(gist02)
       self._the_state.Undo()
       AssertGistIs(gist0)
@@ -268,13 +272,13 @@ class StateTestCase(unitjest.TestCase):
         '        </context_list>',
         '    </contexts>',
         '</todolist>',
-        ]
+      ]
       AssertGistIs(gist01with0deleted)
       self._the_state.Undo()
       gist01 = GenGist([
         '            <context uid=4 is_deleted="False" is_active="True" name="Context0"/>',
         '            <context uid=5 is_deleted="False" is_active="True" name="Context1"/>',
-        ])
+      ])
       AssertGistIs(gist01)
       self._the_state.Redo()
       AssertGistIs(gist01with0deleted)
@@ -300,25 +304,26 @@ class StateTestCase(unitjest.TestCase):
       del printed[:]
       self._the_state = NewStateInstance()
       try:
-        self._Exec(u'ls \u2014help')
+        self._Exec('ls \u2014help')
       except appcommandsutil.InvalidUsageError:
         pass
       else:
         assert False
       try:
-        self._Exec(u'reset --\u2014annihilate')
+        self._Exec('reset --\u2014annihilate')
       except appcommandsutil.InvalidUsageError:
         pass
       else:
         assert False
       try:
-        self._Exec(u'\u2014')
+        self._Exec('\u2014')
       except appcommandsutil.CmdNotFoundError:
         pass
       else:
         assert False
 
     TestUnicodeCommandLines()
+
 
 if __name__ == '__main__':
   unitjest.main()

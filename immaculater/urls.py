@@ -29,9 +29,9 @@ urlpatterns = [
 if settings.USE_ALLAUTH:
     urlpatterns += [
         url(r'^accounts/', include('allauth.urls')),
-        ]
+    ]
 else:
     urlpatterns += [
         url(r'^accounts/login/$', auth_views.LoginView.as_view(), name='login'),
         url(r'^accounts/logout/$', views.LogoutView.as_view(), name='logout'),
-        ]
+    ]

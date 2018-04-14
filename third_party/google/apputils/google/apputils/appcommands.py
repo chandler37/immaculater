@@ -118,8 +118,12 @@ Inner working:
 
 
 
+from __future__ import unicode_literals
+from __future__ import print_function
+
 import os
 import pdb
+import six
 import sys
 import traceback
 
@@ -296,7 +300,7 @@ class Cmd(object):
         else:
           assert isinstance(ret, int)
         return ret
-      except app.UsageError, error:
+      except app.UsageError as error:
         app.usage(shorthelp=1, detailed_error=error, exitcode=error.exitcode)
       except:
         if FLAGS.pdb_post_mortem:
@@ -424,7 +428,7 @@ def _AddCmdInstance(command_name, cmd, command_aliases=None, **_):
 
 
 def _CheckCmdName(name_or_alias):
-  """Only allow strings for command names and aliases (reject unicode as well).
+  """Only allow strings for command names and aliases (TODO(chandler37): why did they reject unicode as well?).
 
   Args:
     name_or_alias: properly formatted string name or alias.
@@ -438,7 +442,7 @@ def _CheckCmdName(name_or_alias):
   if name_or_alias in GetCommandAliasList():
     raise AppCommandsError("Command or Alias '%s' already defined" %
                            name_or_alias)
-  if not isinstance(name_or_alias, str) or len(name_or_alias) <= 1:
+  if not isinstance(name_or_alias, six.text_type) or len(name_or_alias) <= 1:
     raise AppCommandsError("Command '%s' not a string or too short"
                            % str(name_or_alias))
   if not name_or_alias[0].isalpha():
@@ -643,7 +647,7 @@ def AppcommandsUsage(shorthelp=0, writeto_stdout=0, detailed_error=None,
     try:
       cmd_help = command.CommandGetHelp(GetCommandArgv(), cmd_names=cmd_names)
     except Exception as error:  # pylint: disable=broad-except
-      cmd_help = "Internal error for command '%s': %s." % (name, str(error))
+      cmd_help = "Internal error for command '%s': %s." % (name, six.text_type(error))
     cmd_help = cmd_help.strip()
     all_names = ', '.join(
         [command.CommandGetName()] + (command.CommandGetAliases() or []))
@@ -703,7 +707,7 @@ def ParseFlagsWithUsage(argv):
   try:
     _cmd_argv = FLAGS(argv)
     return _cmd_argv
-  except flags.FlagsError, error:
+  except flags.FlagsError as error:
     ShortHelpAndExit('FATAL Flags parsing error: %s' % error)
 
 
@@ -758,9 +762,9 @@ def _CommandsStart(unused_argv):
   try:
     sys.modules['__main__'].main(GetCommandArgv())
   # If sys.exit was called, return with error code.
-  except SystemExit, e:
+  except SystemExit as e:
     sys.exit(e.code)
-  except Exception, error:
+  except Exception as error:
     traceback.print_exc()  # Print a backtrace to stderr.
     ShortHelpAndExit('\nFATAL error in main: %s' % error)
 

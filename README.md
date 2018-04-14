@@ -178,6 +178,7 @@ can do a remote commit with the following:
 
 When done with your feature, ensure all tests pass (`(cd pyatdllib && make
 test)` and run pylint (`make pylint` after `pip install pylint` (inside an
+activated virtualenv)) and `flake8 .` (after `pip install flake8` (inside an
 activated virtualenv)).  The very best practice is to run `make cov` (first
 `pip install coverage` (inside an activated virtualenv)) and ensure that your
 change has optimal unittest code coverage. You get bonus points for installing

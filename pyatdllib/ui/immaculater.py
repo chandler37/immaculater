@@ -18,10 +18,16 @@ command-line interface, adding new commands if necessary.
 After importing this file, you must call RegisterUICmds.
 """
 
+from __future__ import absolute_import
+from __future__ import unicode_literals
+from __future__ import print_function
+
 import base64
 import hashlib
 import os
 import random
+import six
+from six.moves import xrange
 import tempfile
 
 import gflags as flags  # https://code.google.com/p/python-gflags/ now called abseil-py
@@ -36,17 +42,19 @@ from . import uicmd
 
 FLAGS = flags.FLAGS
 
+
 def _SingletonDatabasePath():  # pylint: disable=missing-docstring
   # If there are two versions of pyatdl installed, this must vary between the two:
   pyatld_installation_path = os.path.dirname(os.path.abspath(__file__))
   try:
     return os.path.join(
       tempfile.gettempdir(),
-      hashlib.md5(pyatld_installation_path).hexdigest(),
+      hashlib.md5(pyatld_installation_path.encode('utf-8')).hexdigest(),
       'saves',
       'pyatdl_ToDoList_singleton.protobuf')
   except NotImplementedError:  # google_appengine only provides TemporaryFile
     return None
+
 
 flags.DEFINE_string(
     'database_filename',
@@ -78,7 +86,10 @@ class BadArgsForCommandError(Error):
 
 def _Print(s):
   """For easy mocking in the unittest."""
-  print str(s)
+  if six.PY2:
+    print(str(s))
+  else:
+    print(s)
 
 
 def _Input(prompt):
@@ -96,8 +107,10 @@ def Base64RandomSlug(num_bits):
   """
   if num_bits % 8:
     raise ValueError("The sole argument needs to be a multiple of 8")
-  array_of_str = (chr(random.getrandbits(8)) for x in xrange(num_bits // 8))
-  return base64.urlsafe_b64encode(''.join(array_of_str)).rstrip('=')
+  array = bytearray(random.getrandbits(8) for x in xrange(num_bits // 8))
+  b = base64.urlsafe_b64encode(six.binary_type(array))
+  return b.decode('utf-8').rstrip('=')
+# DLC use 2to3 utility
 
 
 def MutateToDoListLoop(lst, printer=None, writer=None, html_escaper=None):
@@ -123,7 +136,7 @@ def MutateToDoListLoop(lst, printer=None, writer=None, html_escaper=None):
         try:
           uicmd.ParsePyatdlPromptAndExecute(the_state, ri)
         except uicmd.BadArgsError as e:
-          printer(unicode(e))
+          printer(six.text_type(e))
           continue
         try:
           if FLAGS.database_filename is None:
@@ -272,7 +285,7 @@ class ResetDatabase(Cmd):  # pylint: disable=too-few-public-methods
       raise app.UsageError('Too many args: %s' % repr(argv))
     if os.path.exists(FLAGS.database_filename):
       os.remove(FLAGS.database_filename)
-    print 'Database successfully reset.'
+    print('Database successfully reset.')
 
 
 class DumpRawProtobuf(Cmd):  # pylint: disable=too-few-public-methods
@@ -286,7 +299,7 @@ class DumpRawProtobuf(Cmd):  # pylint: disable=too-few-public-methods
     if len(argv) != 1:
       raise app.UsageError('Too many args: %s' % repr(argv))
     pb = serialization.GetRawProtobuf(FLAGS.database_filename)
-    print text_format.MessageToString(pb)
+    print(text_format.MessageToString(pb))
 
 
 def main(_):

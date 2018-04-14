@@ -1,5 +1,6 @@
 db.sqlite3
 clivenv
+venv3
 venv
 venv_host_os
 staticfiles
@@ -15,6 +16,7 @@ __pycache__/
 /.*
 !/.gitignore
 !/.gitmodules
+!/.flake8
 
 # C extensions
 *.so

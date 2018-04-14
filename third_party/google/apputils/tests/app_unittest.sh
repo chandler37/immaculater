@@ -131,7 +131,7 @@ import sys
 def main(argv):
   print 'FAIL'
 doc = []
-for i in xrange(10):
+for i in range(10):
   doc.append(str(i))
   doc.append('12345678 ')
   sys.modules['__main__'].__doc__ = ''.join(doc)
@@ -145,7 +145,7 @@ import sys
 def main(argv):
   print 'FAIL'
 doc = []
-for i in xrange(10):
+for i in range(10):
   doc.append(str(i))
   doc.append('12345678 ')
   sys.modules['__main__'].__doc__ = ''.join(doc)

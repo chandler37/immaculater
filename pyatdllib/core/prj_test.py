@@ -40,8 +40,8 @@ class PrjTestCase(unitjest.TestCase):
       self.assertEqual(pb.common.metadata.name, 'myname')
       # pylint: disable=line-too-long
       self._AssertEqualWithDiff(
-        str(pb),
-        r"""common {
+        [str(pb)],
+        [r"""common {
   is_deleted: false
   timestamp {
     ctime: 373737373000000
@@ -90,7 +90,7 @@ actions {
     }
   }
 }
-""")
+"""])
     finally:
       time.time = saved_time
 

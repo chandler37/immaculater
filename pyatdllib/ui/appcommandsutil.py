@@ -1,4 +1,4 @@
-"""Extensions to google.apputils.appcommands.
+"""Extensions to third_party.google.apputils.google.apputils.appcommands.
 
 The authors of that code didn't expect we'd need various "namespaces"
 for appcommands. We use appcommands in a plain vanilla fashion in
@@ -10,8 +10,8 @@ import time
 
 import gflags as flags
 
-from google.apputils import app
-from google.apputils import appcommands  # https://code.google.com/p/google-apputils-python/
+from third_party.google.apputils.google.apputils import app
+from third_party.google.apputils.google.apputils import appcommands
 
 from . import undoutil
 

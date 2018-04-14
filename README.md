@@ -159,7 +159,7 @@ can do a remote commit with the following:
    see `pyatdllib/core/pyatdl_pb2.py` in the diff but you didn't edit
    `pyatdl.proto`, that's because of differences in the version of the
    [protocol buffer]((https://developers.google.com/protocol-buffers/))
-   compiler. You can revert with `git checkout -- pyatdllib/core/pyatdl_pb2.py`
+   compiler (we use version 3.5.1). You can revert with `git checkout -- pyatdllib/core/pyatdl_pb2.py`
  - `git diff`
  - `git add X Y Z` for any new files X Y and Z
  - `git commit --all`

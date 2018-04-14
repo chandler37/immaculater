@@ -18,9 +18,9 @@ _sym_db = _symbol_database.Default()
 DESCRIPTOR = _descriptor.FileDescriptor(
   name='core/pyatdl.proto',
   package='pyatdl',
+  syntax='proto2',
   serialized_pb=_b('\n\x11\x63ore/pyatdl.proto\x12\x06pyatdl\"{\n\x0cVisitorInfo0\x12\x14\n\x0csanity_check\x18\x01 \x01(\x05\x12\x0f\n\x07\x63wc_uid\x18\x07 \x01(\x03\x12\x0c\n\x04view\x18\x03 \x01(\t\x12\x13\n\x04sort\x18\x05 \x01(\t:\x05\x61lpha\x12\x15\n\rusername_hash\x18\x06 \x01(\x0c*\n\x08\xa0\x9c\x01\x10\x80\x80\x80\x80\x02\"\x82\x01\n\x0f\x43hecksumAndData\x12\x16\n\x0epayload_length\x18\x01 \x02(\x03\x12\x15\n\rsha1_checksum\x18\x02 \x01(\t\x12\"\n\x1apayload_is_zlib_compressed\x18\x03 \x01(\x08\x12\x10\n\x07payload\x18\x8bO \x02(\x0c*\n\x08\xa0\x9c\x01\x10\x80\x80\x80\x80\x02\"8\n\tTimestamp\x12\r\n\x05\x63time\x18\x01 \x01(\x03\x12\r\n\x05\x64time\x18\x02 \x01(\x03\x12\r\n\x05mtime\x18\x03 \x01(\x03\"2\n\x08Metadata\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x0c\n\x04note\x18\x02 \x01(\t*\n\x08\xa0\x9c\x01\x10\x80\x80\x80\x80\x02\"\x7f\n\x06\x43ommon\x12\x0b\n\x03uid\x18\x04 \x01(\x03\x12\x12\n\nis_deleted\x18\x01 \x01(\x08\x12$\n\ttimestamp\x18\x02 \x01(\x0b\x32\x11.pyatdl.Timestamp\x12\"\n\x08metadata\x18\x03 \x01(\x0b\x32\x10.pyatdl.Metadata*\n\x08\xa0\x9c\x01\x10\x80\x80\x80\x80\x02\"H\n\x07\x43ontext\x12\x1e\n\x06\x63ommon\x18\x01 \x01(\x0b\x32\x0e.pyatdl.Common\x12\x11\n\tis_active\x18\x02 \x01(\x08*\n\x08\xa0\x9c\x01\x10\x80\x80\x80\x80\x02\"g\n\x06\x41\x63tion\x12\x1e\n\x06\x63ommon\x18\x01 \x01(\x0b\x32\x0e.pyatdl.Common\x12\x13\n\x0bis_complete\x18\x03 \x01(\x08\x12\x1c\n\x03\x63tx\x18\x04 \x01(\x0b\x32\x0f.pyatdl.Context*\n\x08\xa0\x9c\x01\x10\x80\x80\x80\x80\x02\"\xe4\x01\n\x07Project\x12\x1e\n\x06\x63ommon\x18\x01 \x01(\x0b\x32\x0e.pyatdl.Common\x12\x13\n\x0bis_complete\x18\x02 \x01(\x08\x12\x11\n\tis_active\x18\x03 \x01(\x08\x12\x1f\n\x07\x61\x63tions\x18\x04 \x03(\x0b\x32\x0e.pyatdl.Action\x12!\n\x19max_seconds_before_review\x18\x05 \x01(\x02\x12!\n\x19last_review_epoch_seconds\x18\x06 \x01(\x02\x12\x1e\n\x13\x64\x65\x66\x61ult_context_uid\x18\x07 \x01(\x03:\x01\x30*\n\x08\xa0\x9c\x01\x10\x80\x80\x80\x80\x02\".\n\x04Note\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x0c\n\x04note\x18\x02 \x01(\t*\n\x08\xa0\x9c\x01\x10\x80\x80\x80\x80\x02\"3\n\x08NoteList\x12\x1b\n\x05notes\x18\x02 \x03(\x0b\x32\x0c.pyatdl.Note*\n\x08\xa0\x9c\x01\x10\x80\x80\x80\x80\x02\"\\\n\x0b\x43ontextList\x12\x1e\n\x06\x63ommon\x18\x01 \x01(\x0b\x32\x0e.pyatdl.Common\x12!\n\x08\x63ontexts\x18\x02 \x03(\x0b\x32\x0f.pyatdl.Context*\n\x08\xa0\x9c\x01\x10\x80\x80\x80\x80\x02\"x\n\x06\x46older\x12\x1e\n\x06\x63ommon\x18\x01 \x01(\x0b\x32\x0e.pyatdl.Common\x12\x1f\n\x07\x66olders\x18\x02 \x03(\x0b\x32\x0e.pyatdl.Folder\x12!\n\x08projects\x18\x03 \x03(\x0b\x32\x0f.pyatdl.Project*\n\x08\xa0\x9c\x01\x10\x80\x80\x80\x80\x02\"\xc8\x01\n\x08ToDoList\x12\x1e\n\x05inbox\x18\x01 \x01(\x0b\x32\x0f.pyatdl.Project\x12\x1c\n\x04root\x18\x02 \x01(\x0b\x32\x0e.pyatdl.Folder\x12%\n\x08\x63tx_list\x18\x03 \x01(\x0b\x32\x13.pyatdl.ContextList\x12&\n\x18has_never_purged_deleted\x18\x04 \x01(\x08:\x04true\x12#\n\tnote_list\x18\x05 \x01(\x0b\x32\x10.pyatdl.NoteList*\n\x08\xa0\x9c\x01\x10\x80\x80\x80\x80\x02')
 )
-_sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
 
 
@@ -38,35 +38,35 @@ _VISITORINFO0 = _descriptor.Descriptor(
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      options=None),
+      options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
       name='cwc_uid', full_name='pyatdl.VisitorInfo0.cwc_uid', index=1,
       number=7, type=3, cpp_type=2, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      options=None),
+      options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
       name='view', full_name='pyatdl.VisitorInfo0.view', index=2,
       number=3, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      options=None),
+      options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
       name='sort', full_name='pyatdl.VisitorInfo0.sort', index=3,
       number=5, type=9, cpp_type=9, label=1,
       has_default_value=True, default_value=_b("alpha").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      options=None),
+      options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
       name='username_hash', full_name='pyatdl.VisitorInfo0.username_hash', index=4,
       number=6, type=12, cpp_type=9, label=1,
       has_default_value=False, default_value=_b(""),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      options=None),
+      options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
@@ -75,6 +75,7 @@ _VISITORINFO0 = _descriptor.Descriptor(
   ],
   options=None,
   is_extendable=True,
+  syntax='proto2',
   extension_ranges=[(20000, 536870912), ],
   oneofs=[
   ],
@@ -96,28 +97,28 @@ _CHECKSUMANDDATA = _descriptor.Descriptor(
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      options=None),
+      options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
       name='sha1_checksum', full_name='pyatdl.ChecksumAndData.sha1_checksum', index=1,
       number=2, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      options=None),
+      options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
       name='payload_is_zlib_compressed', full_name='pyatdl.ChecksumAndData.payload_is_zlib_compressed', index=2,
       number=3, type=8, cpp_type=7, label=1,
       has_default_value=False, default_value=False,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      options=None),
+      options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
       name='payload', full_name='pyatdl.ChecksumAndData.payload', index=3,
       number=10123, type=12, cpp_type=9, label=2,
       has_default_value=False, default_value=_b(""),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      options=None),
+      options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
@@ -126,6 +127,7 @@ _CHECKSUMANDDATA = _descriptor.Descriptor(
   ],
   options=None,
   is_extendable=True,
+  syntax='proto2',
   extension_ranges=[(20000, 536870912), ],
   oneofs=[
   ],
@@ -147,21 +149,21 @@ _TIMESTAMP = _descriptor.Descriptor(
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      options=None),
+      options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
       name='dtime', full_name='pyatdl.Timestamp.dtime', index=1,
       number=2, type=3, cpp_type=2, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      options=None),
+      options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
       name='mtime', full_name='pyatdl.Timestamp.mtime', index=2,
       number=3, type=3, cpp_type=2, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      options=None),
+      options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
@@ -170,6 +172,7 @@ _TIMESTAMP = _descriptor.Descriptor(
   ],
   options=None,
   is_extendable=False,
+  syntax='proto2',
   extension_ranges=[],
   oneofs=[
   ],
@@ -191,14 +194,14 @@ _METADATA = _descriptor.Descriptor(
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      options=None),
+      options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
       name='note', full_name='pyatdl.Metadata.note', index=1,
       number=2, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      options=None),
+      options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
@@ -207,6 +210,7 @@ _METADATA = _descriptor.Descriptor(
   ],
   options=None,
   is_extendable=True,
+  syntax='proto2',
   extension_ranges=[(20000, 536870912), ],
   oneofs=[
   ],
@@ -228,28 +232,28 @@ _COMMON = _descriptor.Descriptor(
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      options=None),
+      options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
       name='is_deleted', full_name='pyatdl.Common.is_deleted', index=1,
       number=1, type=8, cpp_type=7, label=1,
       has_default_value=False, default_value=False,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      options=None),
+      options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
       name='timestamp', full_name='pyatdl.Common.timestamp', index=2,
       number=2, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      options=None),
+      options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
       name='metadata', full_name='pyatdl.Common.metadata', index=3,
       number=3, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      options=None),
+      options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
@@ -258,6 +262,7 @@ _COMMON = _descriptor.Descriptor(
   ],
   options=None,
   is_extendable=True,
+  syntax='proto2',
   extension_ranges=[(20000, 536870912), ],
   oneofs=[
   ],
@@ -279,14 +284,14 @@ _CONTEXT = _descriptor.Descriptor(
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      options=None),
+      options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
       name='is_active', full_name='pyatdl.Context.is_active', index=1,
       number=2, type=8, cpp_type=7, label=1,
       has_default_value=False, default_value=False,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      options=None),
+      options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
@@ -295,6 +300,7 @@ _CONTEXT = _descriptor.Descriptor(
   ],
   options=None,
   is_extendable=True,
+  syntax='proto2',
   extension_ranges=[(20000, 536870912), ],
   oneofs=[
   ],
@@ -316,21 +322,21 @@ _ACTION = _descriptor.Descriptor(
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      options=None),
+      options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
       name='is_complete', full_name='pyatdl.Action.is_complete', index=1,
       number=3, type=8, cpp_type=7, label=1,
       has_default_value=False, default_value=False,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      options=None),
+      options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
       name='ctx', full_name='pyatdl.Action.ctx', index=2,
       number=4, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      options=None),
+      options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
@@ -339,6 +345,7 @@ _ACTION = _descriptor.Descriptor(
   ],
   options=None,
   is_extendable=True,
+  syntax='proto2',
   extension_ranges=[(20000, 536870912), ],
   oneofs=[
   ],
@@ -360,49 +367,49 @@ _PROJECT = _descriptor.Descriptor(
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      options=None),
+      options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
       name='is_complete', full_name='pyatdl.Project.is_complete', index=1,
       number=2, type=8, cpp_type=7, label=1,
       has_default_value=False, default_value=False,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      options=None),
+      options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
       name='is_active', full_name='pyatdl.Project.is_active', index=2,
       number=3, type=8, cpp_type=7, label=1,
       has_default_value=False, default_value=False,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      options=None),
+      options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
       name='actions', full_name='pyatdl.Project.actions', index=3,
       number=4, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      options=None),
+      options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
       name='max_seconds_before_review', full_name='pyatdl.Project.max_seconds_before_review', index=4,
       number=5, type=2, cpp_type=6, label=1,
-      has_default_value=False, default_value=0,
+      has_default_value=False, default_value=float(0),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      options=None),
+      options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
       name='last_review_epoch_seconds', full_name='pyatdl.Project.last_review_epoch_seconds', index=5,
       number=6, type=2, cpp_type=6, label=1,
-      has_default_value=False, default_value=0,
+      has_default_value=False, default_value=float(0),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      options=None),
+      options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
       name='default_context_uid', full_name='pyatdl.Project.default_context_uid', index=6,
       number=7, type=3, cpp_type=2, label=1,
       has_default_value=True, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      options=None),
+      options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
@@ -411,6 +418,7 @@ _PROJECT = _descriptor.Descriptor(
   ],
   options=None,
   is_extendable=True,
+  syntax='proto2',
   extension_ranges=[(20000, 536870912), ],
   oneofs=[
   ],
@@ -432,14 +440,14 @@ _NOTE = _descriptor.Descriptor(
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      options=None),
+      options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
       name='note', full_name='pyatdl.Note.note', index=1,
       number=2, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      options=None),
+      options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
@@ -448,6 +456,7 @@ _NOTE = _descriptor.Descriptor(
   ],
   options=None,
   is_extendable=True,
+  syntax='proto2',
   extension_ranges=[(20000, 536870912), ],
   oneofs=[
   ],
@@ -469,7 +478,7 @@ _NOTELIST = _descriptor.Descriptor(
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      options=None),
+      options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
@@ -478,6 +487,7 @@ _NOTELIST = _descriptor.Descriptor(
   ],
   options=None,
   is_extendable=True,
+  syntax='proto2',
   extension_ranges=[(20000, 536870912), ],
   oneofs=[
   ],
@@ -499,14 +509,14 @@ _CONTEXTLIST = _descriptor.Descriptor(
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      options=None),
+      options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
       name='contexts', full_name='pyatdl.ContextList.contexts', index=1,
       number=2, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      options=None),
+      options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
@@ -515,6 +525,7 @@ _CONTEXTLIST = _descriptor.Descriptor(
   ],
   options=None,
   is_extendable=True,
+  syntax='proto2',
   extension_ranges=[(20000, 536870912), ],
   oneofs=[
   ],
@@ -536,21 +547,21 @@ _FOLDER = _descriptor.Descriptor(
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      options=None),
+      options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
       name='folders', full_name='pyatdl.Folder.folders', index=1,
       number=2, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      options=None),
+      options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
       name='projects', full_name='pyatdl.Folder.projects', index=2,
       number=3, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      options=None),
+      options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
@@ -559,6 +570,7 @@ _FOLDER = _descriptor.Descriptor(
   ],
   options=None,
   is_extendable=True,
+  syntax='proto2',
   extension_ranges=[(20000, 536870912), ],
   oneofs=[
   ],
@@ -580,35 +592,35 @@ _TODOLIST = _descriptor.Descriptor(
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      options=None),
+      options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
       name='root', full_name='pyatdl.ToDoList.root', index=1,
       number=2, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      options=None),
+      options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
       name='ctx_list', full_name='pyatdl.ToDoList.ctx_list', index=2,
       number=3, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      options=None),
+      options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
       name='has_never_purged_deleted', full_name='pyatdl.ToDoList.has_never_purged_deleted', index=3,
       number=4, type=8, cpp_type=7, label=1,
       has_default_value=True, default_value=True,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      options=None),
+      options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
       name='note_list', full_name='pyatdl.ToDoList.note_list', index=4,
       number=5, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      options=None),
+      options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
@@ -617,6 +629,7 @@ _TODOLIST = _descriptor.Descriptor(
   ],
   options=None,
   is_extendable=True,
+  syntax='proto2',
   extension_ranges=[(20000, 536870912), ],
   oneofs=[
   ],
@@ -654,6 +667,7 @@ DESCRIPTOR.message_types_by_name['NoteList'] = _NOTELIST
 DESCRIPTOR.message_types_by_name['ContextList'] = _CONTEXTLIST
 DESCRIPTOR.message_types_by_name['Folder'] = _FOLDER
 DESCRIPTOR.message_types_by_name['ToDoList'] = _TODOLIST
+_sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
 VisitorInfo0 = _reflection.GeneratedProtocolMessageType('VisitorInfo0', (_message.Message,), dict(
   DESCRIPTOR = _VISITORINFO0,

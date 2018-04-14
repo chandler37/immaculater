@@ -24,10 +24,10 @@ import os
 import random
 import tempfile
 
-import gflags as flags  # https://code.google.com/p/python-gflags/
+import gflags as flags  # https://code.google.com/p/python-gflags/ now called abseil-py
 
-from google.apputils import app
-from google.apputils import appcommands  # https://code.google.com/p/google-apputils-python/
+from third_party.google.apputils.google.apputils import app
+from third_party.google.apputils.google.apputils import appcommands
 from google.protobuf import text_format
 
 from . import serialization

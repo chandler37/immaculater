@@ -16,10 +16,10 @@ import random
 import re
 import time  # pylint: disable=wrong-import-order
 
-import gflags as flags  # https://github.com/gflags/python-gflags
+import gflags as flags  # https://github.com/gflags/python-gflags now called abseil-py
 
-from google.apputils import app
-from google.apputils import appcommands  # https://github.com/google/google-apputils
+from third_party.google.apputils.google.apputils import app
+from third_party.google.apputils.google.apputils import appcommands
 from google.protobuf import text_format
 
 from ..core import action

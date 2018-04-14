@@ -1468,7 +1468,7 @@ def _slackapi(request):
   try:
     results = _apply_batch_of_commands(user, [cmd], read_only=False)
     _debug_log('we have a batch')
-    return HttpResponse(u"\n".join(results['printed']) if results['printed'] else 'Command succeeded.',
+    return HttpResponse("\n".join(results['printed']) if results['printed'] else 'Command succeeded.',
                         content_type="text/plain")
   except immaculater.Error as error:
     _debug_log('we have an error')

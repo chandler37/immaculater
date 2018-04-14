@@ -121,7 +121,7 @@ class CtxList(container.Container):
     ctx_strs = []
     for c in self.items:
       ctx_strs.append(six.text_type(c))
-    return u"""
+    return """
 <context_list%s is_deleted="%s" name="%s">
 %s
 </context_list>

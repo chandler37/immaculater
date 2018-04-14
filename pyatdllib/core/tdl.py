@@ -74,7 +74,7 @@ class ToDoList(object):
   def __unicode__(self):
     inbox_uid_str = '' if not FLAGS.pyatdl_show_uid else ' uid=%s' % self.inbox.uid
     todos_uid_str = '' if not FLAGS.pyatdl_show_uid else ' uid=%s' % self.root.uid
-    t = u"""
+    t = """
 <todolist%s>
     <inbox%s>
 %s

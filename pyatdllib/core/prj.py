@@ -70,7 +70,7 @@ class Prj(container.Container):
     maxstr = ''
     if self.max_seconds_before_review != DEFAULT_MAX_SECONDS_BEFORE_REVIEW:
       maxstr = ' max_seconds_before_review="%s"' % self.max_seconds_before_review
-    return u"""
+    return """
 <project%s is_deleted="%s" is_complete="%s" is_active="%s"%s name="%s">
 %s
 </project>

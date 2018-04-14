@@ -47,7 +47,7 @@ class Folder(container.Container):
 
   def __unicode__(self):
     uid_str = '' if not FLAGS.pyatdl_show_uid else ' uid=%s' % self.uid
-    return u"""
+    return """
 <folder%s is_deleted="%s" name="%s">
 %s
 </folder>

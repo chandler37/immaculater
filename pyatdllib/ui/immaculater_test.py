@@ -5057,7 +5057,7 @@ it and use this view filter. Note: this is ignored in --show_all mode""",
               'ls /inbox',
               ]
     golden_printed = [
-      u"--action--- --incomplete-- 'bake bread\u2014 @waiting_for' --in-context-- @waiting_For",
+      "--action--- --incomplete-- 'bake bread\u2014 @waiting_for' --in-context-- @waiting_For",
       "--action--- --incomplete-- 'copy keys @Home Depot' --in-context-- '@Home Depot'",
       "--action--- --incomplete-- 'copy keys2 @Home_Depot' --in-context-- '@Home Depot'",
       "--action--- --incomplete-- 'copy keys3 @Home-Depot' --in-context-- '@Home Depot'",

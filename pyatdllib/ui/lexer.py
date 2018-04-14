@@ -70,10 +70,10 @@ def SplitCommandLineIntoArgv(space_delimited_argv, posix=True):
   """
   try:
     if six.PY2:
-      return map(lambda s: s.decode('utf-8'),
-                 shlex.split(space_delimited_argv.encode('utf-8'),
-                             comments=FLAGS.pyatdl_allow_command_line_comments,
-                             posix=posix))
+      return [s.decode('utf-8') for s in shlex.split(
+          space_delimited_argv.encode('utf-8'),
+          comments=FLAGS.pyatdl_allow_command_line_comments,
+          posix=posix)]
     else:
       return shlex.split(space_delimited_argv,
                          comments=FLAGS.pyatdl_allow_command_line_comments,

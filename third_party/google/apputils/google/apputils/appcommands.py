@@ -180,7 +180,7 @@ def GetCommandAliasList():
 def GetFullCommandList():
   """Return list of registered commands, including aliases."""
   all_cmds = dict(GetCommandList())
-  for cmd_alias, cmd_name in GetCommandAliasList().iteritems():
+  for cmd_alias, cmd_name in GetCommandAliasList().items():
     all_cmds[cmd_alias] = all_cmds.get(cmd_name)
   return all_cmds
 
@@ -627,8 +627,7 @@ def AppcommandsUsage(shorthelp=0, writeto_stdout=0, detailed_error=None,
   else:
     # Show list of commands
     if show_cmd is None or show_cmd == 'help':
-      cmd_names = GetCommandList().keys()
-      cmd_names.sort()
+      cmd_names = sorted(GetCommandList().keys())
       stdfile.write('Any of the following commands:\n')
       doc = ', '.join(cmd_names)
       stdfile.write(flags.TextWrap(doc, flags.GetHelpWidth(), '  '))
@@ -639,8 +638,7 @@ def AppcommandsUsage(shorthelp=0, writeto_stdout=0, detailed_error=None,
     elif FLAGS.help or FLAGS.helpshort or shorthelp:
       cmd_names = []
     else:
-      cmd_names = GetCommandList().keys()  # show all commands
-      cmd_names.sort()
+      cmd_names = sorted(GetCommandList().keys())  # show all commands
   # Show the command help (none, one specific, or all)
   for name in cmd_names:
     command = GetCommandByName(name)

@@ -111,7 +111,6 @@ def Base64RandomSlug(num_bits):
   array = bytearray(random.getrandbits(8) for x in xrange(num_bits // 8))
   b = base64.urlsafe_b64encode(six.binary_type(array))
   return b.decode('utf-8').rstrip('=')
-# DLC use 2to3 utility
 
 
 def MutateToDoListLoop(lst, printer=None, writer=None, html_escaper=None):

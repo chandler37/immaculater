@@ -19,7 +19,7 @@ import random
 import re
 import six
 from six.moves import xrange
-import time  # pylint: disable=wrong-import-order DLC run pylint3
+import time  # pylint: disable=wrong-import-order
 
 import gflags as flags  # https://github.com/gflags/python-gflags now called abseil-py
 

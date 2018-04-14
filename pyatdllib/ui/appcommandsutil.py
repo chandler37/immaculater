@@ -69,7 +69,7 @@ def _GenAppcommandsUsage(cmd, printer):
     tmp_flags = flags.FlagValues()
     type(cmd)(show_cmd, tmp_flags)
     prefix = _UICMD_MODULE_NAME + ':\n'
-    flag_str = tmp_flags.ModuleHelp(str(_UICMD_MODULE_NAME) if six.PY2 else _UICMD_MODULE_NAME)  # DLC patch it
+    flag_str = tmp_flags.ModuleHelp(str(_UICMD_MODULE_NAME) if six.PY2 else _UICMD_MODULE_NAME)
     flag_str = flag_str.lstrip()
     if flag_str.startswith(prefix):
       flag_str = flag_str[len(prefix):]

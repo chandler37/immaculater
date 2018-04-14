@@ -128,7 +128,7 @@ def SerializeToDoList(todolist, path):
   dirname = os.path.dirname(tmp_path)
   if dirname and not os.path.exists(dirname):
     os.makedirs(os.path.dirname(tmp_path))
-  with open(tmp_path, 'wb') as tmp_file:  # DLC look at all open
+  with open(tmp_path, 'wb') as tmp_file:
     SerializeToDoList2(todolist, tmp_file)
   try:
     os.remove(path + '.bak')

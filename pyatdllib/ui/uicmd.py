@@ -1822,8 +1822,8 @@ ICAgICAgICApIF8uJ1wKICAgICAgICAgTCAgICBcKCdgICAgIFwgICAgICAgICAgICAgICAgICAo
 J2AgICAgXAogICAgICAgICAgKSBfLidcYC0uLi4uJyAgICAgICAgICAgICAgICAgICBgLS4uLi4n
 CiAgICAgICAgICgnYCAgICBcCiAgICAgICAgICBgLS5fX18vCg=="""
 
-    for line in base64.decodestring(data.strip()).splitlines():
-      state.Print(line)
+    for line in base64.decodestring(bytes(data.strip(), 'utf-8')).splitlines():
+      state.Print(str(line, 'utf-8'))
 
 
 def _ContainerFromActionName(state, basename):

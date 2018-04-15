@@ -55,7 +55,7 @@ to start the original CLI.
 
 ## Python 3 Support
 
-Yes, we support both 2.7 and 3.6.5 using the `six` library, but 3 is not yet the default in production.
+Yes, we support both 2.7 and 3.6.5 using the `six` library, and 3 is the default in production.
 
 ## One-time Installation
 

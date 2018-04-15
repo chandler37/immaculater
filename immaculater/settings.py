@@ -61,7 +61,7 @@ if USE_ALLAUTH:
         'allauth.socialaccount.providers.facebook',
         'allauth.socialaccount.providers.google',
         'allauth.socialaccount.providers.slack',
-        ]
+    ]
 
 SITE_ID = 1
 
@@ -81,12 +81,12 @@ ROOT_URLCONF = 'immaculater.urls'
 AUTHENTICATION_BACKENDS = (
     # Needed to login by username in Django admin, regardless of `allauth`
     'django.contrib.auth.backends.ModelBackend',
-    )
+)
 if USE_ALLAUTH:
     AUTHENTICATION_BACKENDS += (
         # `allauth` specific authentication methods, such as login by e-mail
         'allauth.account.auth_backends.AuthenticationBackend',
-        )
+    )
 
 TEMPLATES = [
     {
@@ -183,7 +183,7 @@ SLACK_CLIENT_SECRET = os.environ.get('SLACK_CLIENT_SECRET')
 SLACK_SCOPE = 'identify'
 SLACK_SUCCESS_REDIRECT_URL = reverse_lazy('home')
 SLACK_PIPELINES = [
-#    'todo.pipelines.debug_oauth_request',
+    # 'todo.pipelines.debug_oauth_request',
     'todo.pipelines.register_user',
 ]
 
@@ -212,16 +212,16 @@ if DEBUG:
     LOGGING = {
         'version': 1,
         'handlers': {
-            'console':{
-                'level':'DEBUG',
-                'class':'logging.StreamHandler',
+            'console': {
+                'level': 'DEBUG',
+                'class': 'logging.StreamHandler',
             },
         },
         'loggers': {
             'django.request': {
-                'handlers':['console'],
+                'handlers': ['console'],
                 'propagate': True,
-                'level':'DEBUG',
+                'level': 'DEBUG',
             }
         },
     }

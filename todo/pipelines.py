@@ -1,4 +1,8 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import
+from __future__ import unicode_literals
+from __future__ import print_function
+
 from django.contrib.auth.models import User
 from django.contrib.auth import login
 
@@ -14,7 +18,7 @@ def register_user(request, api_data):
     if api_data['ok']:
         user, _ = User.objects.get_or_create(
             # TODO(chandler): Share this code with views.py:
-            username=api_data['team_id']+u':'+api_data['user_id']
+            username=api_data['team_id'] + ':' + api_data['user_id']
         )
         if user.is_active:
             slacker, _ = SlackUser.objects.get_or_create(slacker=user)

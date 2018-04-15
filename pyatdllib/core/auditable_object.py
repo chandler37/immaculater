@@ -1,6 +1,11 @@
 """Defines AuditableObject, something deletable with a ctime and an mtime etc."""
 
+from __future__ import absolute_import
+from __future__ import unicode_literals
+from __future__ import print_function
+
 import os
+import six
 import time
 
 import gflags as flags
@@ -21,7 +26,7 @@ def _FloatingPointTimestamp(microseconds_since_the_epoch):
   """
   if microseconds_since_the_epoch == -1:
     return None
-  return microseconds_since_the_epoch / 10**6 + (microseconds_since_the_epoch % 10**6) / 1e6
+  return (microseconds_since_the_epoch // 10**6) + ((microseconds_since_the_epoch % 10**6) / 1e6)
 
 
 def _Int64Timestamp(float_time):
@@ -91,7 +96,6 @@ class AuditableObject(object):
     # which I got by creating a project and immediately clicking through to it
     # and deactivating it. This was on localhost. TODO(chandler): reproduce.
 
-
   # NOTE(chandler): __setattr__ attempts to enforce invariants, including the
   # mtime timestamp, but __setattr__ is flawed, so note: modification of a list
   # won't be caught. In such cases, we have to remember to change mtime
@@ -144,3 +148,6 @@ class AuditableObject(object):
     assert 2**63 > pb.uid >= uid.MIN_UID, str(pb)
     uid.singleton_factory.NoteExistingUID(pb.uid)
     self.__dict__['uid'] = pb.uid
+
+  def __str__(self):
+    return self.__unicode__().encode('utf-8') if six.PY2 else self.__unicode__()

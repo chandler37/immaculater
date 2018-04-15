@@ -1,9 +1,14 @@
 """Unittests for module 'immaculater'."""
 
+from __future__ import absolute_import
+from __future__ import unicode_literals
+from __future__ import print_function
+
 import copy
 import os
 import pipes
 import random
+import six
 import tempfile
 import time
 import zlib
@@ -36,7 +41,7 @@ def _CreateTmpFile(contents):
     prefix='tmppyatdluiimmaculater_test', delete=False) as tf:
     tempfilename = tf.name
   with open(tempfilename, 'wb') as f:
-    f.write(contents)
+    f.write(contents.encode('utf-8'))
   return tempfilename
 
 
@@ -48,7 +53,8 @@ class ImmaculaterTestCase(unitjest.TestCase):
     assert _helpers.GetHelpWidth
     _helpers.GetHelpWidth = lambda: 180
     uid.singleton_factory = uid.Factory()
-    # There is a glags.TextWrap glitch re: the line '-a,--[no]show_all:
+
+    # There is a gflags.TextWrap glitch re: the line '-a,--[no]show_all:
     # Additionally lists everything, even hidden objects, overriding the view
     # filter' so we replace TextWrap.
     def MyTextWrap(text, length=None, indent='', firstline_indent=None, tabs='    '):  # pylint: disable=unused-argument
@@ -108,7 +114,7 @@ class ImmaculaterTestCase(unitjest.TestCase):
     printed = []
 
     def MyPrint(s):
-      printed.append(unicode(s))
+      printed.append(six.text_type(s))
 
     immaculater._Input = MyRawInput  # pylint: disable=protected-access
     immaculater._Print = MyPrint  # pylint: disable=protected-access
@@ -145,7 +151,8 @@ class ImmaculaterTestCase(unitjest.TestCase):
       pwd
       echo after pwd; ls -a: # This is a POSIX-style comment
       ls -a"""
-    immaculater.ApplyBatchOfCommands(open(_CreateTmpFile(v0)), MyPrint)
+    with open(_CreateTmpFile(v0)) as f:
+      immaculater.ApplyBatchOfCommands(f, MyPrint)
     self.assertEqual(
       ['Reset complete.',
        "--context-- uid=0 ---active--- '<none>'",
@@ -161,7 +168,8 @@ class ImmaculaterTestCase(unitjest.TestCase):
       printed)
     del printed[:]
     FLAGS.pyatdl_allow_command_line_comments = True
-    immaculater.ApplyBatchOfCommands(open(_CreateTmpFile(v0)), MyPrint)
+    with open(_CreateTmpFile(v0)) as f:
+      immaculater.ApplyBatchOfCommands(f, MyPrint)
     self.assertEqual(
       ['Reset complete.',
        "--context-- uid=0 ---active--- '<none>'",
@@ -180,10 +188,11 @@ class ImmaculaterTestCase(unitjest.TestCase):
     # Now apply a different batch without resetting the DB.
     assert not printed
     uid.singleton_factory = uid.Factory()
-    immaculater.ApplyBatchOfCommands(open(_CreateTmpFile(r"""
-      mkprj Pbatch2
-      lsctx
-      ls -a""")), MyPrint)
+    with open(_CreateTmpFile(r"""
+        mkprj Pbatch2
+        lsctx
+        ls -a""")) as f:
+      immaculater.ApplyBatchOfCommands(f, MyPrint)
     self.assertEqual(
       ['--context-- uid=0 ---active--- \'<none>\'',
        '--context-- uid=6 ---active--- Cbatch0',
@@ -204,7 +213,7 @@ class ImmaculaterTestCase(unitjest.TestCase):
 
     immaculater._Print = MyPrint  # pylint: disable=protected-access
 
-    immaculater.ApplyBatchOfCommands(open(_CreateTmpFile(r"""
+    with open(_CreateTmpFile(r"""
 reset --annihilate
 mkdir F0
 cd F0
@@ -232,7 +241,8 @@ chctx C1 action1Ptop0
 cd /
 mkprj Ptop1
 configurereview --max_seconds_before_review=86401 Ptop1
-dump""")))
+dump""")) as f:
+      immaculater.ApplyBatchOfCommands(f)
 
     gold = r"""<todolist>
     <inbox>
@@ -270,7 +280,7 @@ dump""")))
     </contexts>
 </todolist>"""
 
-    self._AssertEqualWithDiff(gold, printed[-1])
+    self._AssertEqualWithDiff([gold], [printed[-1]])
 
     self.assertEqual(
       ['Reset complete.', gold],
@@ -280,8 +290,8 @@ dump""")))
     # Now apply a different batch without resetting the DB. Tests
     # deserialization.
     assert not printed
-    immaculater.ApplyBatchOfCommands(open(_CreateTmpFile(r"""
-      dump""")))
+    with open(_CreateTmpFile('dump')) as f:
+      immaculater.ApplyBatchOfCommands(f)
     self._AssertEqualWithDiff(
       [gold],
       printed)
@@ -296,9 +306,9 @@ dump""")))
 
     zlib.decompress = MyPoisonedDecompress
     try:
-      immaculater.ApplyBatchOfCommands(open(_CreateTmpFile(r"""
-        dump""")))
-    except message.DecodeError:
+      with open(_CreateTmpFile('dump')) as f:
+        immaculater.ApplyBatchOfCommands(f)
+    except (message.DecodeError, ValueError):
       pass
     else:
       raise AssertionError('Poisoning decompression did not cause a failure.')
@@ -306,8 +316,8 @@ dump""")))
     # Unpoison it.
     zlib.decompress = self.saved_decompress
     del printed[:]
-    immaculater.ApplyBatchOfCommands(open(_CreateTmpFile(r"""
-      dump""")))
+    with open(_CreateTmpFile('dump')) as f:
+      immaculater.ApplyBatchOfCommands(f)
     self._AssertEqualWithDiff(
       [gold],
       printed)
@@ -315,16 +325,16 @@ dump""")))
     # Now deserialize and then serialize without compression.
     FLAGS.pyatdl_zlib_compression_level = 0
     del printed[:]
-    immaculater.ApplyBatchOfCommands(open(_CreateTmpFile(r"""
-      dump""")))
+    with open(_CreateTmpFile('dump')) as f:
+      immaculater.ApplyBatchOfCommands(f)
     self._AssertEqualWithDiff(
       [gold],
       printed)
     # Now go back to compressing. Can we deserialize an uncompressed payload?
     FLAGS.pyatdl_zlib_compression_level = 6
     del printed[:]
-    immaculater.ApplyBatchOfCommands(open(_CreateTmpFile(r"""
-      dump""")))
+    with open(_CreateTmpFile('dump')) as f:
+      immaculater.ApplyBatchOfCommands(f)
     self._AssertEqualWithDiff(
       [gold],
       printed)
@@ -356,7 +366,7 @@ dump""")))
       'PPa,b,c,,',
       ',',
       ',xx,yy',
-      ]
+    ]
     self.helpTest(inputs, golden_printed)
 
   def testLsContextOfActionAfterDeserialization(self):
@@ -383,7 +393,7 @@ dump""")))
       '',
       './inbox:',
       '--action--- --incomplete-- a --in-context-- @home',
-      ]
+    ]
     self.helpTest(inputs, golden_printed)
 
   def testSortingInctx(self):
@@ -393,7 +403,7 @@ dump""")))
               'mkact -c a /p/2',
               'mkact -c a /inbox/3',
               'echo sorting naturally:',
-              'inctx a',  
+              'inctx a',
               'echo sorting by uid:',
               'inctx --sort_by uid a',
               ]
@@ -406,7 +416,7 @@ dump""")))
       "--action--- --incomplete-- 1",
       "--action--- --incomplete-- 2",
       "--action--- --incomplete-- 3",
-      ]
+    ]
     self.helpTest(inputs, golden_printed)
 
   def testChctxRememberTheMilk(self):
@@ -422,7 +432,14 @@ dump""")))
       'Reset complete.',
       "--action--- --incomplete-- 'remember the milk' --in-context-- '<none>'",
       "--action--- --incomplete-- 'remember the milk' --in-context-- 652",
-      ]
+    ]
+    self.helpTest(inputs, golden_printed)
+
+  def testLsctxJsonUnicode(self):
+    inputs = ['lsctx --json \u2019til 1']
+    golden_printed = [
+      'Takes zero or one arguments; found these arguments: [u\'%stil\', u\'1\']' % ('\u2019' if six.PY3 else '\\u2019')
+    ]
     self.helpTest(inputs, golden_printed)
 
   def testLsctxJson(self):
@@ -441,7 +458,6 @@ dump""")))
               'lsctx --json',
               'echo after len==2',
               'lsctx --json 0 1',
-              u'lsctx --json \u2019til 1',
               'echo after too many args',
               'lsctx --json 653',
               'echo after --json 653',
@@ -461,7 +477,6 @@ dump""")))
       '[{"ctime":0,"dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":0,"name":"<none>","number_of_items":0,"uid":0},{"ctime":1137.0,"dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"653","number_of_items":0,"uid":4},{"ctime":1137.0,"dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"at 654}]","number_of_items":0,"uid":5}]',
       'after len==2',
       'Takes zero or one arguments; found these arguments: [u\'0\', u\'1\']',
-      'Takes zero or one arguments; found these arguments: [u\'\u2019til\', u\'1\']',
       'after too many args',
       '{"ctime":1137.0,"dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"653","number_of_items":0,"uid":4}',
       'after --json 653',
@@ -469,7 +484,7 @@ dump""")))
       'after 653',
       'No such Context "<none>"',
       'after --json <none>',
-      ]
+    ]
     self.helpTest(inputs, golden_printed)
 
   def testBuyOatmealAtTheStore(self):
@@ -494,7 +509,7 @@ dump""")))
       '--action--- --incomplete-- \'Watch the video on the "Help" page -- find it on the top navigation bar\' --in-context-- \'<none>\'',
       '--action--- --incomplete-- \'Read the book "Getting Things Done" by David Allen\' --in-context-- \'<none>\'',
       '--action--- --incomplete-- \'After reading the book, try out a Weekly Review -- on the top navigation bar, find it underneath the "Other" drop-down\' --in-context-- \'<none>\'',
-      ]
+    ]
     self.helpTest(inputs, golden_printed)
 
   def testLsactJson(self):
@@ -549,7 +564,7 @@ dump""")))
       'after --json uid=4 chctx c0 /D0/P0',
       '{"ctime":1137.0,"display_project_path":"D0/P0","dtime":null,"in_context":"c0","in_context_uid":5,"is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"a 0","number_of_items":1,"project_path":"/D0/P0","project_uid":7,"uid":4}',
       'after running from root',
-      ]
+    ]
     self.helpTest(inputs, golden_printed)
 
   def testMkactContext(self):
@@ -581,7 +596,7 @@ dump""")))
       '--action--- uid=4 --incomplete-- \'buy the milk\' --in-context-- \'<none>\'',
       '--action--- uid=6 --incomplete-- \'buy the milk\' --in-context-- c0',
       '--action--- uid=7 --incomplete-- \'buy eggs\' --in-context-- c0',
-      ]
+    ]
     self.helpTest(inputs, golden_printed)
 
   def testInctxJson(self):
@@ -612,7 +627,7 @@ dump""")))
       'after len==1',
       '[{"ctime":1137.0,"dtime":null,"in_context":"655","in_context_uid":4,"in_prj":"inbox","is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"a0_655","number_of_items":1,"uid":5},{"ctime":1137.0,"dtime":null,"in_context":"655","in_context_uid":4,"in_prj":"inbox","is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"a1_655","number_of_items":1,"uid":6}]',
       'after len==2',
-      ]
+    ]
     self.helpTest(inputs, golden_printed)
 
   def testLsprjJson(self):
@@ -670,7 +685,7 @@ dump""")))
       'after --json /inbox',
       '{"ctime":1137.0,"default_context_uid":0,"dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"max_seconds_before_review":604800.0,"mtime":1137.0,"name":"p2_in_dir0","needsreview":false,"number_of_items":0,"parent_path":"/dir0","uid":7}',
       'after --json p2_in_dir0',
-      ]
+    ]
     self.helpTest(inputs, golden_printed)
 
   def testChctxUid0(self):
@@ -688,7 +703,7 @@ dump""")))
       '--action--- --incomplete-- a --in-context-- @home',
       'ls now',
       '--action--- --incomplete-- a --in-context-- \'<none>\'',
-      ]
+    ]
     self.helpTest(inputs, golden_printed)
 
   def testInprjJson(self):
@@ -759,7 +774,7 @@ dump""")))
       '--action--- uid=9 --incomplete-- a0_in_p2_in_dir0 --in-context-- \'<none>\'',
       '--action--- uid=10 --incomplete-- a1_in_p2_in_dir0 --in-context-- \'<none>\'',
       'after uid=8 p2_in_dir0 --nojson',
-      ]
+    ]
     self.helpTest(inputs, golden_printed)
 
   def testInprjViewFilters(self):
@@ -791,7 +806,7 @@ dump""")))
       '--action--- --DELETED-- --incomplete-- deleted --in-context-- \'<none>\'',
       'inprj actionable',
       '--action--- --incomplete-- normal --in-context-- \'<none>\'',
-      ]
+    ]
     self.helpTest(inputs, golden_printed)
 
   def testMv(self):
@@ -1168,7 +1183,7 @@ dump""")))
     ..
     dir2""",
       'AFTER mv c0 /dir1',
-      ]
+    ]
     self.helpTest(inputs, golden_printed)
 
   def testMkprjInsideProjectNotFolder(self):
@@ -1183,7 +1198,7 @@ dump""")))
       'Reset complete.',
       'b4',
       'The parent directory must be a Folder, not a Project.',
-      ]
+    ]
     self.helpTest(inputs, golden_printed)
 
   def testRm(self):  # 'rm' is a mere alias of 'rmact'. See also test cases
@@ -1221,7 +1236,7 @@ dump""")))
       '[all_even_deleted] ls -R -l',
       '--action--- --DELETED-- mtime=1970/05/12-10:38:58 ctime=1970/05/12-10:38:57 dtime=1970/05/12-10:38:58 --incomplete-- foo --in-context-- \'<none>\'',
       '--action--- mtime=1970/05/12-10:38:57 ctime=1970/05/12-10:38:57 --incomplete-- bar --in-context-- \'<none>\'',
-      ]
+    ]
     self.helpTest(inputs, golden_printed)
 
   def testDuplicateContextNames(self):
@@ -1303,7 +1318,7 @@ dump""")))
       '--action--- --incomplete-- ACa --in-context-- \'<none>\'',
       '--action--- --incomplete-- ANoContext --in-context-- \'<none>\'',
       '--action--- --incomplete-- ACa2 --in-context-- \'<none>\'',
-      ]
+    ]
     self.helpTest(inputs, golden_printed)
 
   def testDumpprotobuf(self):
@@ -1394,7 +1409,7 @@ dump""")))
                       '  }\n'
                       '}\n'
                       'has_never_purged_deleted: true\n'
-      ]
+                      ]
     self.helpTest(inputs, golden_printed)
 
   def testCdinbox(self):
@@ -1416,7 +1431,7 @@ dump""")))
       '--action--- mtime=1969/12/31-19:00:38 ctime=1969/12/31-19:00:38 --incomplete-- ZZ --in-context-- \'<none>\'',
       'ls:',
       '--action--- --incomplete-- ZZ --in-context-- \'<none>\'',
-      ]
+    ]
     self.helpTest(inputs, golden_printed)
 
   def testLsWithArguments(self):
@@ -1463,9 +1478,9 @@ dump""")))
       # $ ls -R -1 /l/F0
       # F00
       # F01
-      # 
+      #
       # /l/F0/F00:
-      # 
+      #
       # /l/F0/F01:
 
       'ls / first time:',
@@ -1497,7 +1512,7 @@ dump""")))
       '--project-- --incomplete-- ---active--- inbox',
       '--folder--- F0',
       '--folder--- F1',
-      ]
+    ]
     self.helpTest(inputs, golden_printed)
 
   def testMkdirPathsWithSlashes(self):
@@ -1529,7 +1544,7 @@ dump""")))
       'Unexpected trailing "/"',
       'oofoof',
       'Unexpected trailing "/"',
-      ]
+    ]
     self.helpTest(inputs, golden_printed)
 
   def testPathsWithSlashes(self):
@@ -1704,7 +1719,7 @@ dump""")))
       '--project-- uid=1 --incomplete-- ---active--- inbox',
       '',
       './inbox:',
-      ]
+    ]
     self.helpTest(inputs, golden_printed)
 
   def testRenameActionProjectsFolders(self):
@@ -1777,7 +1792,7 @@ dump""")))
       '--folder--- wasaDir',
       'subdir ls:',
       '--project-- --incomplete-- ---active--- aPrj',
-      ]
+    ]
     self.helpTest(inputs, golden_printed)
 
   def testRenameContext(self):
@@ -1883,7 +1898,7 @@ dump""")))
       '    </contexts>',
       '</todolist>',
       'FINrenamectx',
-      ]
+    ]
     self.helpTest(inputs, golden_printed)
 
   def testArgProcessing(self):
@@ -1898,7 +1913,7 @@ dump""")))
               'ls -l',
               'echo 199j',
               'chclock 199j',
-              u'chclock \u0fff',
+              'chclock \u0fff',
               'echo Before too-many-args error',
               'chclock 200j, 100j',
               'echo Before too-many-args error take 2',
@@ -1916,7 +1931,7 @@ dump""")))
       '--action--- mtime=2014/09/02-22:54:07 ctime=2014/09/02-22:54:07 --incomplete-- E --in-context-- \'<none>\'',
       '199j',
       'Needs a numeric argument, seconds since the epoch (1970 CE). To move the clock relative to the old clock, prepend the argument with \'+\'. The argument: u\'199j\'',
-      u'Needs a numeric argument, seconds since the epoch (1970 CE). To move the clock relative to the old clock, prepend the argument with \'+\'. The argument: u\'\\u0fff\'',
+      'Needs a numeric argument, seconds since the epoch (1970 CE). To move the clock relative to the old clock, prepend the argument with \'+\'. The argument: u\'\\u0fff\'',
       'Before too-many-args error',
       'Needs a single positional argument; found these: [u\'200j,\', u\'100j\']',
       'Before too-many-args error take 2',
@@ -1949,7 +1964,7 @@ dump""")))
       'The incorrect usage is as follows:',
       '',
       '  Cannot parse arguments. If you have a leading hyphen in one of your arguments, preface that argument with a \'--\' argument, the syntax that makes all following arguments positional. Detailed error: Unknown command line flag \'9\'',
-      ]
+    ]
     self.helpTest(inputs, golden_printed)
 
   def testChclock(self):
@@ -1988,7 +2003,7 @@ dump""")))
       '--action--- mtime=1969/12/31-19:00:42 ctime=1969/12/31-19:00:42 --incomplete-- C --in-context-- \'<none>\'',
       '--action--- mtime=1969/12/31-19:00:45 ctime=1969/12/31-19:00:45 --incomplete-- D --in-context-- \'<none>\'',
       '--action--- mtime=2014/09/02-22:54:07 ctime=2014/09/02-22:54:07 --incomplete-- E --in-context-- \'<none>\'',
-      ]
+    ]
     self.helpTest(inputs, golden_printed)
 
   def testDeleteChildWithUndeletedGrandchildren(self):
@@ -2027,7 +2042,8 @@ dump""")))
       'Expect an error re: A1 is not yet deleted',
       'Cannot delete because a descendant is not deleted.  descendant=\n<action is_deleted="False" is_complete="False" name="A1" ctx=""/>',
       'dump:',
-r"""<todolist>
+      r"""
+<todolist>
     <inbox>
         <project is_deleted="False" is_complete="False" is_active="True" name="inbox">
         
@@ -2046,7 +2062,7 @@ r"""<todolist>
         
         </context_list>
     </contexts>
-</todolist>""",
+</todolist>""".lstrip(),
       'Err re: rmdir F0',
       'Cannot delete because a descendant is not deleted.  descendant=\n<project is_deleted="False" is_complete="False" is_active="True" name="P1">\n\n</project>',
       'dump2:',
@@ -2077,21 +2093,22 @@ r"""<todolist>
     self.helpTest(inputs, golden_printed)
 
   def testNamesAreNotUnique(self):
-    inputs = ['chclock 7666',
-              'cd /inbox',
-              'mkact aa',
-              'chclock +1',
-              'echo second mkact aa:',
-              'mkact aa',
-              'echo ls -l:',
-              'ls -l',
-              ]
+    inputs = [
+      'chclock 7666',
+      'cd /inbox',
+      'mkact aa',
+      'chclock +1',
+      'echo second mkact aa:',
+      'mkact aa',
+      'echo ls -l:',
+      'ls -l',
+    ]
     golden_printed = [
         'second mkact aa:',
         'ls -l:',
         '--action--- mtime=1969/12/31-21:07:46 ctime=1969/12/31-21:07:46 --incomplete-- aa --in-context-- \'<none>\'',
         '--action--- mtime=1969/12/31-21:07:47 ctime=1969/12/31-21:07:47 --incomplete-- aa --in-context-- \'<none>\'',
-      ]
+    ]
     self.helpTest(inputs, golden_printed)
 
   def testRmdirThenMkdirOfSameDir(self):
@@ -2119,7 +2136,7 @@ r"""<todolist>
       '--project-- mtime=1969/12/31-19:00:36 ctime=1969/12/31-19:00:36 --incomplete-- ---active--- inbox',
       '--folder--- --DELETED-- mtime=1969/12/31-19:00:37 ctime=1969/12/31-19:00:37 dtime=1969/12/31-19:00:37 D',
       'mkdir D:',
-      ]
+    ]
     self.helpTest(inputs, golden_printed)
 
   def testRmdirThenMkdirOfSameDir2(self):
@@ -2161,7 +2178,7 @@ r"""<todolist>
       '',
       './D/prj:',
       '--action--- --incomplete-- A --in-context-- \'<none>\'',
-      ]
+    ]
     self.helpTest(inputs, golden_printed)
 
   def testRmdirThenMkdirOfSameDir3(self):
@@ -2182,7 +2199,7 @@ r"""<todolist>
       './inbox:',
       '',
       './D:',
-      ]
+    ]
     self.helpTest(inputs, golden_printed)
 
   def testContextRemovalAndViews(self):
@@ -2217,7 +2234,7 @@ r"""<todolist>
       "--context-- mtime=1969/12/31-19:00:00 ctime=1969/12/31-19:00:00 ---active--- '<none>'",
       '--context-- --DELETED-- mtime=1969/12/31-22:25:46 ctime=1969/12/31-22:25:45 dtime=1969/12/31-22:25:46 ---active--- Ca-deleted-at-12346.0',
       '--context-- mtime=1969/12/31-22:25:45 ctime=1969/12/31-22:25:45 ---active--- Cb',
-      ]
+    ]
     self.helpTest(inputs, golden_printed)
 
   def testViews(self):
@@ -2396,7 +2413,7 @@ r"""<todolist>
       'after view no args again',
       'all',
       'after default is an alias',
-      ]
+    ]
     self.helpTest(inputs, golden_printed)
 
   def testViewNeedingReview(self):
@@ -2412,7 +2429,7 @@ r"""<todolist>
               'mkprj /pInactive',
               'deactivateprj /pInactive',
               'mkprj /pReviewed',
-              'chclock %d' % (123456 + 367*24*60*60),  # about a year later
+              'chclock %d' % (123456 + 367 * 24 * 60 * 60),  # about a year later
               'completereview /pReviewed',
               'needsreview',
               'echo after needsreview',
@@ -2464,7 +2481,7 @@ r"""<todolist>
       'after inbox reviewed',
       '/pDefault',
       'after lsprj',
-      ]
+    ]
     self.helpTest(inputs, golden_printed)
 
   def testViewActionable(self):
@@ -2501,7 +2518,7 @@ r"""<todolist>
       './p:',
       '--action--- --incomplete-- \'no context\' --in-context-- \'<none>\'',
       '--action--- --incomplete-- \'kiss my spouse\' --in-context-- @home',
-      ]
+    ]
     self.helpTest(inputs, golden_printed)
 
   def testClearreview(self):
@@ -2547,7 +2564,7 @@ r"""<todolist>
       '/a:',
       '',
       '/b:',
-      ]
+    ]
     self.helpTest(inputs, golden_printed)
 
   def testComplete(self):
@@ -2592,7 +2609,7 @@ r"""<todolist>
         </context_list>
     </contexts>
 </todolist>""",
-      ]
+    ]
     self.helpTest(inputs, golden_printed)
 
   def testEcho2(self):
@@ -2629,7 +2646,7 @@ r"""<todolist>
       '--2',
       '-2',
       '--2',
-      ]
+    ]
     self.helpTest(inputs, golden_printed)
 
   def testMisc37(self):
@@ -2645,7 +2662,7 @@ r"""<todolist>
     golden_printed = [
       '--action--- uid=4 --incomplete-- \'Remember the yogurt\'',
       'A Context named "X" already exists.',
-      ]
+    ]
     self.helpTest(inputs, golden_printed)
 
   def testBadArgs(self):
@@ -2798,7 +2815,7 @@ r"""<todolist>
     Pn
     F000""",
       'e32',
-      ]
+    ]
     self.helpTest(inputs, golden_printed)
 
   def testRmctx(self):
@@ -2951,7 +2968,7 @@ r"""<todolist>
         </context_list>
     </contexts>
 </todolist>""",
-      ]
+    ]
     self.helpTest(inputs, golden_printed)
 
   def testRmprj(self):
@@ -2962,12 +2979,12 @@ r"""<todolist>
       'rmprj .',
       'pwd',
       'ls -a /P',
-      ]
+    ]
     golden_printed = [
       '/P',
       '--project-- --DELETED-- --incomplete-- ---active--- .',
       '--folder--- ..',
-      ]
+    ]
     self.helpTest(inputs, golden_printed)
 
   def testRmdirAndViews(self):
@@ -2984,7 +3001,7 @@ r"""<todolist>
       'view actionable',
       'echo ls -l 3 actionable:',
       'ls -l',
-      ]
+    ]
     golden_printed = [
       'ls -l 1:',
       '--project-- mtime=1969/12/31-19:00:36 ctime=1969/12/31-19:00:36 --incomplete-- ---active--- inbox',
@@ -2994,7 +3011,7 @@ r"""<todolist>
       '--folder--- --DELETED-- mtime=1970/01/13-23:04:49 ctime=1970/01/13-23:04:48 dtime=1970/01/13-23:04:49 foo',
       'ls -l 3 actionable:',
       '--project-- mtime=1969/12/31-19:00:36 ctime=1969/12/31-19:00:36 --incomplete-- ---active--- inbox',
-      ]
+    ]
     self.helpTest(inputs, golden_printed)
 
   def testMvUid(self):
@@ -3008,7 +3025,7 @@ r"""<todolist>
       'mv uid=5 uid=4',
       'ls -R /',
       'echo after ls 2',
-      ]
+    ]
     golden_printed = [
       '--project-- uid=1 --incomplete-- ---active--- inbox',
       '--project-- uid=4 --incomplete-- ---active--- P0',
@@ -3026,7 +3043,7 @@ r"""<todolist>
       '/P0:',
       '--action--- uid=5 --incomplete-- i1 --in-context-- \'<none>\'',
       'after ls 2',
-      ]
+    ]
     self.helpTest(inputs, golden_printed)
 
   def testRenameUidInVariousDirectories(self):
@@ -3041,7 +3058,7 @@ r"""<todolist>
       'rename uid=4 foof',
       'echo ls2:',
       'ls -R',
-      ]
+    ]
     golden_printed = [
       'ls:',
       '--action--- uid=4 --incomplete-- foo --in-context-- \'<none>\'',
@@ -3050,7 +3067,7 @@ r"""<todolist>
       '',
       './inbox:',
       '--action--- uid=4 --incomplete-- foof --in-context-- \'<none>\'',
-      ]
+    ]
     self.helpTest(inputs, golden_printed)
 
   def testRenameCtxThenLsact(self):
@@ -3066,7 +3083,7 @@ r"""<todolist>
       'rename uid=4 C',
       'echo lsact:',
       'lsact --json uid=5',
-      ]
+    ]
     golden_printed = [
       'ls -R:',
       '--project-- uid=1 --incomplete-- ---active--- inbox',
@@ -3078,7 +3095,7 @@ r"""<todolist>
       '--context-- uid=4 ---active--- c',
       'lsact:',
       '{"ctime":1137008.0,"display_project_path":"inbox","dtime":null,"in_context":"C","in_context_uid":4,"is_complete":false,"is_deleted":false,"mtime":1137008.0,"name":"a","number_of_items":1,"project_path":"/inbox","project_uid":1,"uid":5}',
-      ]
+    ]
     self.helpTest(inputs, golden_printed)
 
   def testUidParsing(self):
@@ -3172,7 +3189,7 @@ r"""<todolist>
       'dump -m',
       'echo end gistEnd',
       'echo FIN',
-      ]
+    ]
     golden_printed = [
       'rmctx Error:',
       'No such context "uid=1".  Your choices: Ca',
@@ -3272,7 +3289,7 @@ r"""<todolist>
       '</todolist>',
       'end gistEnd',
       'FIN',
-      ]
+    ]
     self.helpTest(inputs, golden_printed)
 
   def testHelp(self):
@@ -3281,7 +3298,7 @@ r"""<todolist>
       '? pwd',
       '? nonexistentcmd',
       'help ls',
-      ]
+    ]
     golden_printed = [
       'Welcome!',
       '',
@@ -3392,7 +3409,7 @@ pyatdllib.ui.uicmd:
 (default: 'false')
 -v,--view_filter: <actionable|all|all_even_deleted|default|inactive_and_incomplete|incomplete|needing_review>: Instead of using the global view filter (see "help view"), override
 it and use this view filter. Note: this is ignored in --show_all mode""",
-      ]
+    ]
     self.helpTest(inputs, golden_printed)
 
   def testLsDashR(self):
@@ -3429,7 +3446,7 @@ it and use this view filter. Note: this is ignored in --show_all mode""",
       'cd /',
       'echo ls -R from /:',
       'ls -R',
-      ]
+    ]
     golden_printed = [
       'ls:',
       '--action--- --incomplete-- PnexttoD1a --in-context-- \'<none>\'',
@@ -3475,7 +3492,7 @@ it and use this view filter. Note: this is ignored in --show_all mode""",
       '',
       './D0/PnexttoD1:',
       '--action--- --incomplete-- PnexttoD1a --in-context-- \'<none>\'',
-      ]
+    ]
     self.helpTest(inputs, golden_printed)
 
   def testVarious2(self):
@@ -3526,7 +3543,7 @@ it and use this view filter. Note: this is ignored in --show_all mode""",
       'rmdir Fb',
       'echo dump:',
       'dump',
-      ]
+    ]
     golden_printed = [
       'ls default view:',
       '--project-- --incomplete-- ---active--- Pbb',
@@ -3550,7 +3567,8 @@ it and use this view filter. Note: this is ignored in --show_all mode""",
       '--project-- --incomplete-- ---active--- Pa',
       '--folder--- Fb',
       'dump:',
-r"""<todolist>
+      r"""
+<todolist>
     <inbox>
         <project is_deleted="False" is_complete="False" is_active="True" name="inbox">
         
@@ -3577,8 +3595,8 @@ r"""<todolist>
             <context is_deleted="False" is_active="True" name="Ca"/>
         </context_list>
     </contexts>
-</todolist>"""
-      ]
+</todolist>""".lstrip()
+    ]
     self.helpTest(inputs, golden_printed)
 
   def testinboxProjectIsHandledWellByAllCommands(self):
@@ -3639,7 +3657,7 @@ r"""<todolist>
       '--folder--- .',
       '--folder--- ..',
       '--project-- --incomplete-- ---active--- inbox',
-      ]
+    ]
     self.helpTest(inputs, golden_printed)
 
   def testVarious(self):
@@ -3756,37 +3774,37 @@ r"""<todolist>
                  ['--context-- ---active--- \'<none>\'',
                   '--context-- ---active--- Ca'])
     HelpHelpTest(['chctx Ca "/Fb/Fbb/Pbb/an action"', 'cd Fb', 'cd Fbb', 'cd Pbb', 'ls'],
-                  ['--action--- --incomplete-- \'an action\' --in-context-- Ca'])
+                 ['--action--- --incomplete-- \'an action\' --in-context-- Ca'])
     HelpHelpTest(['inctx <none>'],
-                  [])
+                 [])
     HelpHelpTest(['inctx Ca'],
-                  ['--action--- --incomplete-- \'an action\''])
+                 ['--action--- --incomplete-- \'an action\''])
     HelpHelpTest(['cd /', 'chctx <none> "Fb/Fbb/Pbb/an action"', 'cd Fb', 'cd Fbb', 'cd Pbb', 'ls'],
-                  ['--action--- --incomplete-- \'an action\' --in-context-- \'<none>\''])
+                 ['--action--- --incomplete-- \'an action\' --in-context-- \'<none>\''])
     HelpHelpTest(['cd /', 'cd Fb/Fbb', 'complete "Pbb/an action"', 'cd /Fb', 'cd Fbb', 'cd Pbb', 'ls'],
-                  ['--action--- ---COMPLETE--- \'an action\' --in-context-- \'<none>\''])
+                 ['--action--- ---COMPLETE--- \'an action\' --in-context-- \'<none>\''])
     HelpHelpTest(['uncomplete "/Fb/Fbb/Pbb/an action"', 'cd -R Pbb', 'ls'],
-                  ['--action--- --incomplete-- \'an action\' --in-context-- \'<none>\''])
+                 ['--action--- --incomplete-- \'an action\' --in-context-- \'<none>\''])
     HelpHelpTest(['inctx <none>'],
-                  ['--action--- --incomplete-- \'an action\''])
+                 ['--action--- --incomplete-- \'an action\''])
     HelpHelpTest(['inctx uid=0'],
-                  ['--action--- --incomplete-- \'an action\''])
+                 ['--action--- --incomplete-- \'an action\''])
     HelpHelpTest(['chclock 999999999', 'needsreview'],
-                  ['/inbox', '/Pa', '/Fb/Fbb/Pbb'])
+                 ['/inbox', '/Pa', '/Fb/Fbb/Pbb'])
     HelpHelpTest(['chclock 999999999', 'needsreview --json'],
-                  ['[{"ctime":36,"default_context_uid":0,"dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":36,"name":"inbox","needsreview":true,"number_of_items":0,"uid":1},{"ctime":111.0,"default_context_uid":0,"dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":111.0,"name":"Pa","needsreview":true,"number_of_items":0,"uid":4},{"ctime":111.0,"default_context_uid":0,"dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":111.0,"name":"Pbb","needsreview":true,"number_of_items":1,"uid":8}]'])
+                 ['[{"ctime":36,"default_context_uid":0,"dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":36,"name":"inbox","needsreview":true,"number_of_items":0,"uid":1},{"ctime":111.0,"default_context_uid":0,"dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":111.0,"name":"Pa","needsreview":true,"number_of_items":0,"uid":4},{"ctime":111.0,"default_context_uid":0,"dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":111.0,"name":"Pbb","needsreview":true,"number_of_items":1,"uid":8}]'])
     HelpHelpTest(['chclock 999999998', 'completereview /Fb/Fbb/Pbb'],
-                  [])
+                 [])
     # TODO(chandler): Should we treat the review of the inbox specially? You
     # might argue that the review is not complete until the inbox is empty.
     HelpHelpTest(['chclock 999999998', 'completereview inbox'],
-                  [])
+                 [])
     HelpHelpTest(['chclock 999999999', 'needsreview'],
-                  ['/Pa'])
+                 ['/Pa'])
     HelpHelpTest(['completereview /Pa'],
-                  [])
+                 [])
     HelpHelpTest(['needsreview'],
-                  [])
+                 [])
 
   def testLoadtest(self):
     FLAGS.pyatdl_show_uid = True
@@ -3838,7 +3856,7 @@ r"""<todolist>
       "--context-- uid=0 ---active--- '<none>'",
       '--context-- uid=4 ---active--- \'CN A M E0\'',
       '--context-- uid=8 ---active--- \'CN A M E1\'',
-      ]
+    ]
     self.helpTest(inputs, golden_printed)
 
   def testRmctxTwice(self):
@@ -3934,7 +3952,8 @@ r"""<todolist>
               'echo failure:',
               'redo',
               ]
-    final_gist = ['<todolist uid=2>',
+    final_gist = [
+      '<todolist uid=2>',
       '    <inbox uid=1>',
       '        <project uid=1 is_deleted="False" is_complete="False" is_active="True" name="inbox">',
       '        ',
@@ -3952,7 +3971,7 @@ r"""<todolist>
       '        </context_list>',
       '    </contexts>',
       '</todolist>',
-      ]
+    ]
     golden_printed = [
       'after construction',
       '<todolist uid=2>',
@@ -3975,7 +3994,7 @@ r"""<todolist>
       '</todolist>',
       'before rmctx C',
       'gist after rmctx:',
-      ] + final_gist + [
+    ] + final_gist + [
       'before undo',
       'after undo',
       '<todolist uid=2>',
@@ -3998,7 +4017,7 @@ r"""<todolist>
       '</todolist>',
       'before successful redo:',
       'after that redo the gist is:',
-      ] + final_gist + [
+    ] + final_gist + [
       'failure:',
       'Nothing left to redo',
     ]
@@ -4323,7 +4342,7 @@ r"""<todolist>
 
   def testUnicode(self):
     save_path = _CreateTmpFile('')
-    inputs = [u'mkact /inbox/\u02bctil',
+    inputs = ['mkact /inbox/\u02bctil',
               'ls -R /',
               'save %s' % pipes.quote(save_path),
               'load %s' % pipes.quote(save_path),
@@ -4334,14 +4353,14 @@ r"""<todolist>
       '--project-- --incomplete-- ---active--- inbox',
       '',
       '/inbox:',
-      u'--action--- --incomplete-- \'\u02bctil\' --in-context-- \'<none>\'',
+      '--action--- --incomplete-- \'\u02bctil\' --in-context-- \'<none>\'',
       'Save complete.',
       'Load complete.',
       'ls after save:',
       '--project-- --incomplete-- ---active--- inbox',
       '',
       '/inbox:',
-      u'--action--- --incomplete-- \'\u02bctil\' --in-context-- \'<none>\'',
+      '--action--- --incomplete-- \'\u02bctil\' --in-context-- \'<none>\'',
     ]
     self.helpTest(inputs, golden_printed)
 
@@ -4489,16 +4508,16 @@ r"""<todolist>
       'Reset complete.',
       'Needs argument like "1d6" or "21d20"',
       'Needs argument like "1d6" or "21d20"',
-      '5',
+      '5' if six.PY2 else '6',
       '3d1:',
       '1',
       '1',
       '1',
       '2d2:',
       '2',
-      '1',
+      '1' if six.PY2 else '2',
       '1d1000:',
-      '210',
+      '210'if six.PY2 else '215',
     ]
     self.helpTest(inputs, golden_printed)
 
@@ -4541,8 +4560,8 @@ r"""<todolist>
       """With current working Folder/Project "/", there is no such child "a".  Choices:
     ..
     p""",
-    # TODO(chandler): How can we move an action with slashes in it other than
-    # UID notation? See TODO in state._ChildObject.
+      # TODO(chandler): How can we move an action with slashes in it other than
+      # UID notation? See TODO in state._ChildObject.
     ]
     self.helpTest(inputs, golden_printed)
     
@@ -4638,7 +4657,7 @@ r"""<todolist>
               'note @c foo',
               'note @c bar',
               'echo foobar:',
-              'note -r @c', # -r does not matter in the one-arg case
+              'note -r @c',  # -r does not matter in the one-arg case
 
               'echo error:',
               'note /dir dirbaz',
@@ -4697,7 +4716,7 @@ r"""<todolist>
       'foobar:',
       'foobar',
       'error:',
-       """With current working Folder/Project "/", there is no such child "dir".  Choices:
+      r"""With current working Folder/Project "/", there is no such child "dir".  Choices:
     ..
 """,
       'baz:',
@@ -4865,7 +4884,7 @@ r"""<todolist>
     ]
     self.helpTest(inputs, golden_printed)
 
-  def testPurgeDeleted(self):
+  def testPurgeDeleted2(self):
     FLAGS.pyatdl_show_uid = True
     save_path = _CreateTmpFile('')
     inputs = ['mkact /inbox/alive',
@@ -4931,7 +4950,7 @@ r"""<todolist>
       '@done pdone:',
       '',
       '/dalive/subdir/deepprj:',
-      ]
+    ]
     golden_printed = ['originally:'] + subgolden + [
       'now serialization',
       'Save complete.',
@@ -4994,7 +5013,7 @@ r"""<todolist>
               'note -r :0- wow',
               'echo wow:',
               'cat :0-',
-              u'note :0- \u2014',
+              'note :0- \u2014',
               'echo with em dash unicode at the end:',
               'note :0-',
               'save %s' % pipes.quote(save_path),
@@ -5016,13 +5035,13 @@ r"""<todolist>
       'wow:',
       'wow',
       'with em dash unicode at the end:',
-      u'wow\u2014',
+      'wow\u2014',
       'Save complete.',
       'Load complete.',
       'foobar:',
       'foobar',
       'wow-em-dash:',
-      u'wow\u2014',
+      'wow\u2014',
       'nop:',
     ]
     self.helpTest(inputs, golden_printed)
@@ -5030,20 +5049,20 @@ r"""<todolist>
   def testCaseInsensitivityOfAutoassignment(self):
     inputs = ['mkctx @waiting_For',
               'mkctx "@Home Depot"',
-              u'mkact "/inbox/bake bread\u2014 @waiting_for"',
-              u'mkact "/inbox/copy keys @Home Depot"',
-              u'mkact "/inbox/copy keys2 @Home_Depot"',
-              u'mkact "/inbox/copy keys3 @Home-Depot"',
-              u'mkact "/inbox/copy keys4 @Homedepot"',
+              'mkact "/inbox/bake bread\u2014 @waiting_for"',
+              'mkact "/inbox/copy keys @Home Depot"',
+              'mkact "/inbox/copy keys2 @Home_Depot"',
+              'mkact "/inbox/copy keys3 @Home-Depot"',
+              'mkact "/inbox/copy keys4 @Homedepot"',
               'ls /inbox',
               ]
     golden_printed = [
-      u"--action--- --incomplete-- 'bake bread\u2014 @waiting_for' --in-context-- @waiting_For",
+      "--action--- --incomplete-- 'bake bread\u2014 @waiting_for' --in-context-- @waiting_For",
       "--action--- --incomplete-- 'copy keys @Home Depot' --in-context-- '@Home Depot'",
       "--action--- --incomplete-- 'copy keys2 @Home_Depot' --in-context-- '@Home Depot'",
       "--action--- --incomplete-- 'copy keys3 @Home-Depot' --in-context-- '@Home Depot'",
       "--action--- --incomplete-- 'copy keys4 @Homedepot' --in-context-- '@Home Depot'",
-      ]
+    ]
     self.helpTest(inputs, golden_printed)
 
   def testMarkingAProjectIncompleteMarksActionsIncomplete(self):
@@ -5345,7 +5364,7 @@ r"""<todolist>
               'mkact /p/afterdeserializiation',
               'echo ls -R /:',
               'ls -R /',
-              'renamectx @home @newname',  
+              'renamectx @home @newname',
               'mkact /p/afternewname',
               'chdefaultctx uid=0 uid=1',
               'do buy almond milk',
@@ -5460,7 +5479,7 @@ r"""<todolist>
               'do withanote',
               'note /inbox/withanote X',
               'prjify /inbox/withanote',
-             ]
+              ]
     golden_printed = [
       "5",
       "Save complete.",
@@ -5499,7 +5518,7 @@ r"""<todolist>
               'echo and now incomplete:',
               'view incomplete',
               'hypertext ""',
-             ]
+              ]
     golden_printed = [
       '<a href="/todo/project/1">inbox:</a><br>',
       '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- <a href="/todo/action/4">foo bar/baz</a><br>',
@@ -5524,7 +5543,7 @@ r"""<todolist>
     ]
     self.helpTest(inputs, golden_printed)
 
-  def testHypertext(self):
+  def testHypertext2(self):
     inputs = ['do foo bar/baz',
               'mkdir /a',
               'mkprj /a/b',
@@ -5545,7 +5564,7 @@ r"""<todolist>
               'hypertext -q "line 3" ""',
               'echo pdelete:',
               'hypertext --search_query PDelete ""',
-             ]
+              ]
     golden_printed = [
       "completed:",
       "<a href=\"/project/6\">/a/b:</a><br>",
@@ -5593,7 +5612,7 @@ r"""<todolist>
               'ls -R -v all_even_deleted /',
               'echo and is dtime set correctly?',
               'ls -l -v all_even_deleted uid=1',
-             ]
+              ]
     subgolden = [
       "--project-- --incomplete-- ---active--- inbox",
       "--project-- --incomplete-- ---active--- p0",
@@ -5655,7 +5674,7 @@ r"""<todolist>
               'purgedeleted',
               'echo ls after purgedeleted:',
               'ls -R -v all_even_deleted /',
-             ]
+              ]
     golden_printed = [
       'ls / should show completed p0:',
       '--project-- --incomplete-- ---active--- inbox',
@@ -5694,7 +5713,7 @@ r"""<todolist>
               'complete /p0',
               'rmprj /p0',
               'touch /p0/incompletedescendant',
-             ]
+              ]
     golden_printed = [
       'Cannot add an Action to a deleted Project',
     ]
@@ -5703,7 +5722,7 @@ r"""<todolist>
   def testCompletingOrDeletingInbox(self):
     inputs = ['complete /inbox',
               'rmprj /inbox',
-             ]
+              ]
     golden_printed = [
       'The project /inbox is special and cannot be marked complete.',
       'The project /inbox is special; it cannot be removed.',
@@ -5729,7 +5748,7 @@ r"""<todolist>
               'load %s' % pipes.quote(save_path),
               'echo ls after save:',
               'ls /inbox',
-             ]
+              ]
     golden_printed = [
       "ls:",
       "--action--- --incomplete-- foo --in-context-- @home",

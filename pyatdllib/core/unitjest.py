@@ -4,7 +4,12 @@ All our unittests inherit from this module's TestCase instead of
 unittest.TestCase directly.
 """
 
+from __future__ import absolute_import
+from __future__ import unicode_literals
+from __future__ import print_function
+
 import difflib
+import six
 import unittest
 
 import gflags as flags
@@ -33,14 +38,28 @@ def FullPrj():
 class TestCase(unittest.TestCase):
   """Even better than unittest.TestCase."""
 
+  def _Python3Munging(self, list_of_strings):
+    def Munge(string):
+      if six.PY3:
+        return string.replace("u'", "'")
+      return string
+    test_str = 'u\'\u2019til\', u\'1\''
+    assert len(test_str) == len('u\'.til\', u\'1\'')
+    if six.PY3:
+      assert Munge(test_str) == "'\u2019til', '1'", Munge(test_str)
+    else:
+      assert Munge(test_str) == test_str
+    return [Munge(s) for s in list_of_strings]
+
   def _AssertEqualWithDiff(self, gold, actual):
     """Calls assertEqual() with intelligible diffs so that you can easily
     understand and update the unittest.
 
     Args:
-      gold: str  # expected output
+      gold: [str]  # expected output
       actual: str
     """
+    gold = self._Python3Munging(gold)
     diffstr = '\n'.join(difflib.context_diff(gold, actual, n=5))
     try:
       self.assertEqual(
@@ -51,9 +70,9 @@ class TestCase(unittest.TestCase):
     except UnicodeEncodeError:
       self.assertEqual(
         gold, actual,
-        u'Diff with left=golden, right=actually-printed is as follows (len left=%s,'
-        u' len right=%s):\n%s'
-        % (len(gold), len(actual), unicode(diffstr)))
+        'Diff with left=golden, right=actually-printed is as follows (len left=%s,'
+        ' len right=%s):\n%s'
+        % (len(gold), len(actual), six.text_type(diffstr)))
       
 
 def main():

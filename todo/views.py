@@ -1,25 +1,24 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import
 from __future__ import unicode_literals
+from __future__ import print_function
 
 import base64
+import binascii
 import codecs
 import datetime
 import hashlib
 import json
+import io
 import os
 import pipes
-import random
 import re
-try:
-  import cStringIO as StringIO
-except ImportError:
-  import StringIO
+import six
 
 import gflags as flags  # https://code.google.com/p/python-gflags/
 
 from third_party.django_pjax import djpjax
 from pyatdllib.ui import immaculater
-immaculater.RegisterUICmds(cloud_only=True)
 from pyatdllib.core import pyatdl_pb2
 from pyatdllib.core import view_filter
 from django.contrib.auth import authenticate
@@ -36,8 +35,6 @@ from django.http import HttpResponse
 from django.http import HttpResponseBadRequest
 from django.http import JsonResponse
 from django.shortcuts import redirect
-from django.shortcuts import render
-from django.template import RequestContext
 from django.template.response import TemplateResponse
 from django.utils.decorators import method_decorator
 from django.utils.encoding import escape_uri_path
@@ -55,6 +52,8 @@ import sys
 if not hasattr(sys.stdout, 'isatty'):
   # TODO(chandler): Add isatty to class Tee. gflags uses sys.stdout.isatty().
   sys.stdout.isatty = lambda: False
+
+immaculater.RegisterUICmds(cloud_only=True)
 
 FLAGS = flags.FLAGS
 FLAGS.pyatdl_show_uid = True
@@ -97,6 +96,7 @@ class SerializationWriter(object):
     else:
       self._place_to_save_read = place_to_save_read
       self._place_to_save_read['saved_read'] = None
+
   def write(self, b):
     user_id = self._user.id
     email = self._user.email
@@ -114,23 +114,23 @@ class SerializationWriter(object):
                                   encrypted_contents2=None)
       # HACK why can't we set encrypted_contents2 to encrypted_contents above?
       # If we do, we get a TypeError:
-      # :   File "/app/todo/views.py", line 108, in write 
-      # :     new_model.save() 
-      # :   File "/app/.heroku/python/lib/python2.7/site-packages/django/db/models/base.py", line 806, in save 
-      # :     force_update=force_update, update_fields=update_fields) 
-      # :   File "/app/.heroku/python/lib/python2.7/site-packages/django/db/models/base.py", line 836, in save_base 
-      # :     updated = self._save_table(raw, cls, force_insert, force_update, using, update_fields) 
-      # :   File "/app/.heroku/python/lib/python2.7/site-packages/django/db/models/base.py", line 903, in _save_table 
-      # :     forced_update) 
-      # :   File "/app/.heroku/python/lib/python2.7/site-packages/django/db/models/base.py", line 953, in _do_update 
-      # :     return filtered._update(values) > 0 
-      # :   File "/app/.heroku/python/lib/python2.7/site-packages/django/db/models/query.py", line 662, in _update 
-      # :     return query.get_compiler(self.db).execute_sql(CURSOR) 
-      # :   File "/app/.heroku/python/lib/python2.7/site-packages/django/db/models/sql/compiler.py", line 1191, in execute_sql 
-      # :     cursor = super(SQLUpdateCompiler, self).execute_sql(result_type) 
-      # :   File "/app/.heroku/python/lib/python2.7/site-packages/django/db/models/sql/compiler.py", line 886, in execute_sql 
-      # :     raise original_exception 
-      # : TypeError: can't escape unicode to binary 
+      # :   File "/app/todo/views.py", line 108, in write
+      # :     new_model.save()
+      # :   File "/app/.heroku/python/lib/python2.7/site-packages/django/db/models/base.py", line 806, in save
+      # :     force_update=force_update, update_fields=update_fields)
+      # :   File "/app/.heroku/python/lib/python2.7/site-packages/django/db/models/base.py", line 836, in save_base
+      # :     updated = self._save_table(raw, cls, force_insert, force_update, using, update_fields)
+      # :   File "/app/.heroku/python/lib/python2.7/site-packages/django/db/models/base.py", line 903, in _save_table
+      # :     forced_update)
+      # :   File "/app/.heroku/python/lib/python2.7/site-packages/django/db/models/base.py", line 953, in _do_update
+      # :     return filtered._update(values) > 0
+      # :   File "/app/.heroku/python/lib/python2.7/site-packages/django/db/models/query.py", line 662, in _update
+      # :     return query.get_compiler(self.db).execute_sql(CURSOR)
+      # :   File "/app/.heroku/python/lib/python2.7/site-packages/django/db/models/sql/compiler.py", line 1191, in execute_sql
+      # :     cursor = super(SQLUpdateCompiler, self).execute_sql(result_type)
+      # :   File "/app/.heroku/python/lib/python2.7/site-packages/django/db/models/sql/compiler.py", line 886, in execute_sql
+      # :     raise original_exception
+      # : TypeError: can't escape unicode to binary
       new_model.save()
       new_model.encrypted_contents2 = encrypted_contents
       new_model.contents = b''
@@ -148,6 +148,7 @@ class SerializationNonWriter(object):
   """
   def __init__(self, place_to_save_read):
     self._place_to_save_read = place_to_save_read
+
   def write(self, b):
     self._place_to_save_read['saved_read'] = b
 
@@ -167,14 +168,15 @@ class SerializationReader(object):
     else:
       self._place_to_save_read = place_to_save_read
       self._place_to_save_read['saved_read'] = None
-    self.name = u'DB entity for %s' % user.email
+    self.name = 'DB entity for %s' % user.email
+
   def read(self):
     user_id = self._user.id
     x = models.ToDoList.objects.filter(user__id=user_id)
     if len(x) > 0:
       if x[0].encrypted_contents2:
         unencrypted_contents = _unencrypted_todolist_protobuf(
-          bytes(x[0].encrypted_contents2))
+          bytes(x[0].encrypted_contents2, 'utf-8') if six.PY3 else bytes(x[0].encrypted_contents2))
       else:
         _debug_log('reading old unencrypted contents')
         unencrypted_contents = x[0].contents
@@ -191,6 +193,7 @@ class SavedSerializationReader(object):
     self._saved_read = saved_read
     assert saved_read is not None
     self.name = 'Previous DB read'
+
   def read(self):
     return self._saved_read
 
@@ -237,7 +240,7 @@ def _get_uid(request, param_name):
 
 def _nickname(user):
   if len(user.email):
-    return u'%s (%s)' % (user.username, user.email)
+    return '%s (%s)' % (user.username, user.email)
   else:
     if re.match(r'^T.*:U.*', user.username):
         return 'Slacker'
@@ -391,7 +394,7 @@ def _execute_cmd(request, uid, template_dict, cookie_value=None):
     saved_read = cmd_result['saved_read']
     assert saved_read is not None
   except immaculater.Error as e:
-    return None, _error_page(request, unicode(e))
+    return None, _error_page(request, six.text_type(e))
   return saved_read, None
 
 
@@ -413,7 +416,7 @@ def _apply_batch_of_commands(user, batch, read_only, saved_read=None, cookie=Non
   Raises:
     immaculater.Error
   """
-  f = StringIO.StringIO()
+  f = io.BytesIO()
   codecinfo = codecs.lookup("utf8")
   wrapper = codecs.StreamReaderWriter(
       f, codecinfo.streamreader, codecinfo.streamwriter)
@@ -428,8 +431,10 @@ def _apply_batch_of_commands(user, batch, read_only, saved_read=None, cookie=Non
     wrapper.write('\n')
   wrapper.seek(0)
   printed = []
+
   def Print(s):
     printed.append(s)
+
   place_to_save_read = {'saved_read': saved_read}
   try:
     if saved_read is not None:
@@ -500,7 +505,7 @@ def _deserialized_cookie_value(cookie_raw_value):
 def _default_debug_encryption_key():
   if os.environ.get('DJANGO_DEBUG', '').lower() == 'true':
     # See Fernet.generate_key():
-    return u'ZdT5H2hhrJY9sNdpzdXiGeRd7JMPprR4yrzp4nLzUVo='
+    return 'ZdT5H2hhrJY9sNdpzdXiGeRd7JMPprR4yrzp4nLzUVo='
   return None
 
 
@@ -548,7 +553,7 @@ def _cookie_value(request):
     try:
       cookie_value = pyatdl_pb2.VisitorInfo0.FromString(blob)
     except message.Error as e:
-      _debug_log('cookie message.Error %s' % unicode(e))
+      _debug_log('cookie message.Error %s' % six.text_type(e))
       return _default_cookie_value(request.user.username)
     if cookie_value.sanity_check == _SANITY_CHECK and cookie_value.username_hash == _username_hash(request.user.username):
       return cookie_value
@@ -558,8 +563,8 @@ def _cookie_value(request):
   return _default_cookie_value(request.user.username)
 
 
-def _set_cookie(response, key, value, days_expire = 365):
-  max_age = days_expire * 24 * 60 * 60 
+def _set_cookie(response, key, value, days_expire=365):
+  max_age = days_expire * 24 * 60 * 60
   expires = datetime.datetime.strftime(
     datetime.datetime.utcnow() + datetime.timedelta(seconds=max_age),
     "%a, %d-%b-%Y %H:%M:%S GMT")
@@ -583,9 +588,9 @@ def as_text(request, the_view_filter):
        "sort alpha",
        "astaskpaper"],
       read_only=True)
-    response.write(u'\n'.join(x['printed']))
+    response.write('\n'.join(x['printed']))
   except immaculater.Error as e:
-    return _error_page(request, unicode(e))
+    return _error_page(request, six.text_type(e))
   return response
 
 
@@ -621,9 +626,9 @@ def as_text2(request):
        "sort alpha",
        "hypertext /todo"],
       read_only=True)
-    template_dict["Hypertext"] = u'\n'.join(x['printed'])
+    template_dict["Hypertext"] = '\n'.join(x['printed'])
   except immaculater.Error as e:
-    return _error_page(request, unicode(e))
+    return _error_page(request, six.text_type(e))
   response = _render(request, "as_text2.html", template_dict)
   _set_cookie(response, _COOKIE_NAME, _serialized_cookie_value(cookie_value))
   return response
@@ -644,9 +649,9 @@ def search(request):
        "sort alpha",
        "hypertext --search_query %s /todo" % pipes.quote(search_query) if search_query else "hypertext /todo"],
       read_only=True)
-    template_dict["Hypertext"] = u'\n'.join(x['printed'])
+    template_dict["Hypertext"] = '\n'.join(x['printed'])
   except immaculater.Error as e:
-    return _error_page(request, unicode(e))
+    return _error_page(request, six.text_type(e))
   response = _render(request, "search.html", template_dict)
   return response
 
@@ -654,9 +659,9 @@ def search(request):
 @djpjax.pjax()
 @never_cache
 @login_required
-def update_todolist(request): # /todo/cli
+def update_todolist(request):  # /todo/cli
   cookie_value = _cookie_value(request)
-  command = request.POST.get('command', u'').replace(u'\u2014', '--')  # em dash
+  command = request.POST.get('command', '').replace('\u2014', '--')  # em dash
   batch = []
   batch.append('echo "<Beginning of command line output, if any>"')
   subcommand = None
@@ -678,7 +683,7 @@ def update_todolist(request): # /todo/cli
   try:
     x = _apply_batch_of_commands(request.user, batch, read_only=False, cookie=cookie_value)
   except immaculater.Error as e:
-    return _error_page(request, unicode(e))
+    return _error_page(request, six.text_type(e))
   response = _render(
     request,
     "update_todolist.html",
@@ -712,7 +717,7 @@ def contexts(request):
       new_uid = mkctx['printed'][0]
       template_dict["Flash"] = '<strong><a href="/todo/context/%s">Context %s created.</a></strong>' % (new_uid, new_uid)
     except immaculater.Error as e:
-      return _error_page(request, unicode(e))
+      return _error_page(request, six.text_type(e))
   if saved_read is not None and not _using_pjax(request):  # https://en.wikipedia.org/wiki/Post/Redirect/Get
     response = redirect('contexts')
     _set_cookie(response, _COOKIE_NAME, _serialized_cookie_value(cookie_value))
@@ -761,7 +766,7 @@ def context(request, uid):
       new_uid = mkact['printed'][0].strip()
       template_dict["Flash"] = '<strong><a href="/todo/action/%s">Action %s created.</a></strong> (Expecting to see it? Change your view filter.)' % (new_uid, new_uid)
     except immaculater.Error as e:
-      return _error_page(request, unicode(e))
+      return _error_page(request, six.text_type(e))
   if saved_read is not None and not _using_pjax(request):  # https://en.wikipedia.org/wiki/Post/Redirect/Get
     response = redirect('context', uid=uid)
     _set_cookie(response, _COOKIE_NAME, _serialized_cookie_value(cookie_value))
@@ -795,7 +800,7 @@ def _context_get(request, uid, template_dict, cookie_value):  # mutates template
   template_dict.update(
     {"InctxJSON": inctx['printed'][0],
      "LsctxJSON": lsctx['printed'][0],
-     "UID": unicode(uid),
+     "UID": six.text_type(uid),
      "ViewFilter": cookie_value.view,
      "Note": '\n'.join(note['printed']),
      "Title": "Context"})
@@ -835,7 +840,7 @@ def projects(request):
       new_uid = mkprj['printed'][0]
       template_dict["Flash"] = '<strong><a href="/todo/project/%s">Project %s created.</a></strong>' % (new_uid, new_uid)
     except immaculater.Error as e:
-      return _error_page(request, unicode(e))
+      return _error_page(request, six.text_type(e))
   if new_folder:
     if not os.path.isabs(new_folder):
       return _error_page(
@@ -852,7 +857,7 @@ def projects(request):
       template_dict["Flash"] = "<strong>Folder created.</strong>"
     except immaculater.Error as e:
       return _error_page(
-        request, unicode(e))
+        request, six.text_type(e))
   if saved_read is not None and not _using_pjax(request):  # https://en.wikipedia.org/wiki/Post/Redirect/Get
     response = redirect('projects')
     _set_cookie(response, _COOKIE_NAME, _serialized_cookie_value(cookie_value))
@@ -908,7 +913,7 @@ def project(request, uid):
       new_uid = mkact['printed'][0]
       template_dict["Flash"] = '<strong><a href="/todo/action/%s">Action %s created.</a></strong> (Expecting to see it? Change your view filter.)' % (new_uid, new_uid)
     except immaculater.Error as e:
-      return _error_page(request, unicode(e))
+      return _error_page(request, six.text_type(e))
   if saved_read is not None and not _using_pjax(request):  # https://en.wikipedia.org/wiki/Post/Redirect/Get
     response = redirect('project', uid=uid)
     _set_cookie(response, _COOKIE_NAME, _serialized_cookie_value(cookie_value))
@@ -928,8 +933,8 @@ def _project_get(request, uid, template_dict, cookie_value):
                                          cookie=cookie_value)
   assert len(needsreview['printed']) == 1, needsreview['printed']
   lsprj = _apply_batch_of_commands(request.user, ['lsprj --json uid=%s' % uid],
-                                 read_only=True, saved_read=saved_read,
-                                 cookie=cookie_value)
+                                   read_only=True, saved_read=saved_read,
+                                   cookie=cookie_value)
   assert len(lsprj['printed']) == 1, lsprj['printed']
   note = _apply_batch_of_commands(request.user, ['note uid=%d' % uid],
                                   read_only=True, saved_read=saved_read)
@@ -942,7 +947,7 @@ def _project_get(request, uid, template_dict, cookie_value):
      "NeedsreviewJSON": needsreview['printed'][0],
      "LsprjJSON": lsprj['printed'][0],
      "UndeletedLsctxJSON": lsctx['printed'][0],
-     "UID": unicode(uid),
+     "UID": six.text_type(uid),
      "ViewFilter": cookie_value.view,
      "Title": "Project",
      "Note": '\n'.join(note['printed'])})
@@ -972,9 +977,9 @@ def view(request, slug):
       x[0].user,
       ["view all", "sort alpha", "astaskpaper"],
       read_only=True)
-    response.write(u'\n'.join(xx['printed']))
+    response.write('\n'.join(xx['printed']))
   except immaculater.Error as e:
-    return _error_page(request, unicode(e))
+    return _error_page(request, six.text_type(e))
   return response
 
 
@@ -1013,7 +1018,7 @@ def _action_get(request, uid, template_dict):  # mutates template_dict
         ['lsact --json uid=%d' % uid],
         read_only=True, saved_read=None)
   except immaculater.Error as e:
-    return _error_page(request, unicode(e))
+    return _error_page(request, six.text_type(e))
   assert len(lsact['printed']) == 1, lsact['printed']
   saved_read = lsact['saved_read']
   lsctx = _apply_batch_of_commands(request.user,
@@ -1032,7 +1037,7 @@ def _action_get(request, uid, template_dict):  # mutates template_dict
      "UndeletedLsprjJSON": lsprj['printed'][0],
      "Note": '\n'.join(note['printed']),
      "Title": "Action",
-     "UID": unicode(uid)})
+     "UID": six.text_type(uid)})
   return _render(
     request,
     "action.html",
@@ -1045,15 +1050,15 @@ def _create_new_action(request, template_dict, var_name='new_action'):
     try:
        result = _apply_batch_of_commands(
            request.user,
-           [u'cd uid=1',
-            u'mkact --verbose --autoprj --allow_slashes %s' % (pipes.quote(new_action),)],  # a.k.a. touch
+           ['cd uid=1',
+            'mkact --verbose --autoprj --allow_slashes %s' % (pipes.quote(new_action),)],  # a.k.a. touch
            read_only=False)
        assert len(result['printed']) == 1, result['printed']
        uid = result['printed'][0].strip()
        template_dict['Flash'] = '<a href="/todo/action/%s"><strong>Action %s created.</strong></a> (Expecting to see it? Refresh this page or change the view filter.)' % (uid, uid)
        return True, None
     except immaculater.Error as e:
-      return False, _error_page(request, unicode(e))
+      return False, _error_page(request, six.text_type(e))
   return False, None
 
 
@@ -1063,14 +1068,14 @@ def _create_new_project(request, template_dict):
     try:
        result = _apply_batch_of_commands(
            request.user,
-           [u'cd %s' % (pipes.quote(FLAGS.pyatdl_separator),),
-            u'mkprj --verbose --allow_slashes %s' % (pipes.quote(new_project),)],
+           ['cd %s' % (pipes.quote(FLAGS.pyatdl_separator),),
+            'mkprj --verbose --allow_slashes %s' % (pipes.quote(new_project),)],
            read_only=False)
        assert len(result['printed']) == 1, result['printed']
        uid = result['printed'][0].strip()
        template_dict['Flash'] = '<strong><a href="/todo/project/%s">Project %s created.</a></strong>' % (uid, uid)
     except immaculater.Error as e:
-      return _error_page(request, unicode(e))
+      return _error_page(request, six.text_type(e))
   return None
 
 
@@ -1232,8 +1237,8 @@ def weekly_review(request):
   note = _apply_batch_of_commands(request.user, ['note :__weekly_review'],
                                   read_only=True, saved_read=saved_read)
   template_dict.update({"ViewFilter": cookie_value.view,
-                       "Title": "Weekly Review",
-                       "Note": '\n'.join(note['printed'])})
+                        "Title": "Weekly Review",
+                        "Note": '\n'.join(note['printed'])})
   response = _render(request, "weekly_review.html", template_dict)
   _set_cookie(response, _COOKIE_NAME, _serialized_cookie_value(cookie_value))
   return response
@@ -1294,7 +1299,7 @@ def _authenticated_user_via_discord_bot_custom_auth(request):
   # value for a User that is_active.
   try:
     sa = allauth_models.SocialAccount.objects.get(
-        uid=unicode(json_data['discord_user']),
+        uid=six.text_type(json_data['discord_user']),
         provider='discord')
     if not sa.user.is_active:
       raise PermissionDenied()
@@ -1326,7 +1331,7 @@ def _authenticated_user_via_basic_auth(request):
 
 def _username_via_slack_creds(user_id, team_id):
   # TODO(chandler): Share this code with pipelines.py:
-  return team_id + u':' + user_id
+  return team_id + ':' + user_id
 
 
 # This assumes you've checked 'token' already.
@@ -1384,7 +1389,7 @@ def api(request):
       return JsonResponse({"error": "commands must be an array of strings"},
                           status=422)
     for c in json_data['commands']:
-      if not isinstance(c, basestring):
+      if not isinstance(c, six.string_types):
         return JsonResponse({"error": "commands must be an array of strings"},
                             status=422)
     cmd_list = json_data['commands']
@@ -1392,7 +1397,7 @@ def api(request):
       if json_data['read_only'] in (True, False):
         read_only = json_data['read_only']
       else:
-        if isinstance(json_data['read_only'], basestring):
+        if isinstance(json_data['read_only'], six.string_types):
           read_only = json_data['read_only'].lower() == 'true'
         else:
           return JsonResponse({"error": "read_only must be True/False/'true'/'false'"},
@@ -1403,7 +1408,7 @@ def api(request):
                          'printed': results['printed'],
                          'view': results['view']})
   except immaculater.Error as error:
-    return JsonResponse({'immaculater_error': unicode(error)}, status=422)
+    return JsonResponse({'immaculater_error': six.text_type(error)}, status=422)
 
 
 @never_cache
@@ -1425,7 +1430,7 @@ def discordapi(request):
     return JsonResponse({"error": "commands must be an array of strings"},
                         status=422)
   for c in json_data['commands']:
-    if not isinstance(c, basestring):
+    if not isinstance(c, six.string_types):
       return JsonResponse({"error": "commands must be an array of strings"},
                           status=422)
   cmd_list = json_data['commands']
@@ -1434,7 +1439,7 @@ def discordapi(request):
     if json_data['read_only'] in (True, False):
       read_only = json_data['read_only']
     else:
-      if isinstance(json_data['read_only'], basestring):
+      if isinstance(json_data['read_only'], six.string_types):
         read_only = json_data['read_only'].lower() == 'true'
       else:
         return JsonResponse({"error": "read_only must be True/False/'true'/'false'"},
@@ -1445,29 +1450,29 @@ def discordapi(request):
                          'printed': results['printed'],
                          'view': results['view']})
   except immaculater.Error as error:
-    return JsonResponse({'immaculater_error': unicode(error)}, status=422)
+    return JsonResponse({'immaculater_error': six.text_type(error)}, status=422)
 
 
 def _slackapi(request):
-  _debug_log(u'POST is %s' % unicode(request.POST))
+  _debug_log('POST is %s' % six.text_type(request.POST))
   user, sign_up_message = _authenticated_user_via_slack_user_and_team(
-    user_id=request.POST.get(u'user_id'),
-    team_id=request.POST.get(u'team_id'))
+    user_id=request.POST.get('user_id'),
+    team_id=request.POST.get('team_id'))
   if user is not None:
-    _debug_log(u'we have a user')
+    _debug_log('we have a user')
   else:
     return HttpResponse(sign_up_message, content_type="text/plain")
-  cmd = request.POST.get(u'text')
+  cmd = request.POST.get('text')
   if not cmd:
-    cmd = u'help'
+    cmd = 'help'
   try:
     results = _apply_batch_of_commands(user, [cmd], read_only=False)
-    _debug_log(u'we have a batch')
-    return HttpResponse(u"\n".join(results['printed']) if results['printed'] else u'Command succeeded.',
+    _debug_log('we have a batch')
+    return HttpResponse("\n".join(results['printed']) if results['printed'] else 'Command succeeded.',
                         content_type="text/plain")
   except immaculater.Error as error:
-    _debug_log(u'we have an error')
-    return HttpResponse(unicode(error), content_type="text/plain")
+    _debug_log('we have an error')
+    return HttpResponse(six.text_type(error), content_type="text/plain")
 
 
 @never_cache

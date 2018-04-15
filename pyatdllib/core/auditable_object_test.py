@@ -1,5 +1,9 @@
 """Unittests for module 'auditable_object'."""
 
+from __future__ import absolute_import
+from __future__ import unicode_literals
+from __future__ import print_function
+
 from pyatdllib.core import auditable_object
 from pyatdllib.core import unitjest
 
@@ -10,8 +14,8 @@ class AuditableObjectTestCase(unitjest.TestCase):
   def testFloatingPointTimestamp(self):
     self.assertEqual(
       auditable_object._FloatingPointTimestamp(-1), None)
-    self.assertAlmostEquals(
-      auditable_object._FloatingPointTimestamp(-1*10**6), -1)
+    self.assertAlmostEqual(
+      auditable_object._FloatingPointTimestamp(-1 * 10**6), -1)
     self.assertEqual(
       auditable_object._FloatingPointTimestamp(0), 0.0)
     self.assertEqual(

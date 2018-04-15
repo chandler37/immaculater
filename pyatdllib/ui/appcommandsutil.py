@@ -6,6 +6,11 @@ immaculater.py, but we also want to use them, in a separate namespace, in
 uicmd.py.
 """
 
+from __future__ import absolute_import
+from __future__ import unicode_literals
+from __future__ import print_function
+
+import six
 import time
 
 import gflags as flags
@@ -62,9 +67,9 @@ def _GenAppcommandsUsage(cmd, printer):
       printer(line)
     # Print out str(FLAGS) for just the UICmd-specific flags.
     tmp_flags = flags.FlagValues()
-    unused_cmd = type(cmd)(show_cmd, tmp_flags)
+    type(cmd)(show_cmd, tmp_flags)
     prefix = _UICMD_MODULE_NAME + ':\n'
-    flag_str = tmp_flags.ModuleHelp(_UICMD_MODULE_NAME)
+    flag_str = tmp_flags.ModuleHelp(str(_UICMD_MODULE_NAME) if six.PY2 else _UICMD_MODULE_NAME)
     flag_str = flag_str.lstrip()
     if flag_str.startswith(prefix):
       flag_str = flag_str[len(prefix):]
@@ -77,7 +82,7 @@ def _GenAppcommandsUsage(cmd, printer):
       printer('')
       printer('The incorrect usage is as follows:')
       printer('')
-      for line in unicode(detailed_error).splitlines():
+      for line in six.text_type(detailed_error).splitlines():
         printer('  ' + line)
 
   return Usage
@@ -184,31 +189,31 @@ class Namespace(object):
           argv = flag_values(argv)
         except flags.UnrecognizedFlagError as e:
           raise app.UsageError(
-            u'Cannot parse arguments. If you have a leading hyphen in one of '
-            u'your arguments, preface that argument with a \'--\' argument, '
-            u'the syntax that makes all following arguments positional. '
-            u'Detailed error: %s'
-            % unicode(e))
+            'Cannot parse arguments. If you have a leading hyphen in one of '
+            'your arguments, preface that argument with a \'--\' argument, '
+            'the syntax that makes all following arguments positional. '
+            'Detailed error: %s'
+            % six.text_type(e))
         except flags.FlagsError as e:
           raise app.UsageError(
-            u'Cannot parse arguments. Note the \'--\' syntax which makes all '
-            u'following arguments positional. Detailed error: %s'
-            % unicode(e))
+            'Cannot parse arguments. Note the \'--\' syntax which makes all '
+            'following arguments positional. Detailed error: %s'
+            % six.text_type(e))
         try:
           cmd.Run(argv)
         except AssertionError as e:
-          e.message = (u'For the following error, note that argv=%s. Error: %s'
-                       % (argv, unicode(e)))
+          e.message = ('For the following error, note that argv=%s. Error: %s'
+                       % (argv, six.text_type(e)))
           raise
         except IncorrectUsageError as e:
           if FLAGS.pyatdl_give_full_help_for_uicmd:
-            raise app.UsageError(unicode(e))
+            raise app.UsageError(six.text_type(e))
           else:
             raise
         return uc
       except app.UsageError as error:
         app.usage(shorthelp=1, detailed_error=error, exitcode=error.exitcode)
-        raise InvalidUsageError(unicode(error))
+        raise InvalidUsageError(six.text_type(error))
       finally:
         flag_values.Reset()
     finally:
@@ -248,7 +253,7 @@ class Namespace(object):
         try:
           the_state.ToDoList().CheckIsWellFormed()
         except AssertionError as e:
-          raise AssertionError('precheck: argv=%s error=%s' % (argv, unicode(e)))
+          raise AssertionError('precheck: argv=%s error=%s' % (argv, six.text_type(e)))
       rv = self._RunCommand(the_state, cmd, argv)
       if rv is not None and generate_undo_info:
         the_state.RegisterUndoableCommand(rv)
@@ -256,7 +261,7 @@ class Namespace(object):
         try:
           the_state.ToDoList().CheckIsWellFormed()
         except AssertionError as e:
-          raise AssertionError('postcheck: %s' % unicode(e))
+          raise AssertionError('postcheck: %s' % six.text_type(e))
     finally:
       if hasattr(FLAGS, 'pyatdl_internal_state'):  # see above about undo/redo
         delattr(FLAGS, 'pyatdl_internal_state')

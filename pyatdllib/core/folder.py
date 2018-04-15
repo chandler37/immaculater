@@ -1,5 +1,11 @@
 """Defines Folder, an ordered list of projects or Folders -- i.e., [Prj|Folder]."""
 
+from __future__ import absolute_import
+from __future__ import unicode_literals
+from __future__ import print_function
+
+import six
+
 import gflags as flags
 
 from . import common
@@ -28,6 +34,7 @@ class Folder(container.Container):
   """
 
   __pychecker__ = 'unusednames=cls'
+
   @classmethod
   def TypesContained(cls):
     return (container.Container,)
@@ -38,18 +45,15 @@ class Folder(container.Container):
     self.name = name
     self.note = note
 
-  def __str__(self):
-    return unicode(self).encode('utf-8')
-
   def __unicode__(self):
-    uid_str = u'' if not FLAGS.pyatdl_show_uid else u' uid=%s' % self.uid
-    return u"""
+    uid_str = '' if not FLAGS.pyatdl_show_uid else ' uid=%s' % self.uid
+    return """
 <folder%s is_deleted="%s" name="%s">
 %s
 </folder>
 """.strip() % (
       uid_str, self.is_deleted, self.name,
-      common.Indented(u'\n'.join(unicode(a) for a in self.items)))
+      common.Indented('\n'.join(six.text_type(a) for a in self.items)))
 
   def Projects(self):
     """Override."""

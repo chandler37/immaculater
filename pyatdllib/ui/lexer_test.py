@@ -1,5 +1,7 @@
 """Unittests the 'lexer' module."""
 
+from __future__ import unicode_literals
+
 import gflags as flags  # https://code.google.com/p/python-gflags/
 
 from pyatdllib.core import unitjest

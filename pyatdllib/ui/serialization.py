@@ -1,5 +1,9 @@
 """Routines for serializing and deserializing a tdl.ToDoList."""
 
+from __future__ import absolute_import
+from __future__ import unicode_literals
+from __future__ import print_function
+
 import hashlib
 import os
 import zlib
@@ -124,7 +128,7 @@ def SerializeToDoList(todolist, path):
   dirname = os.path.dirname(tmp_path)
   if dirname and not os.path.exists(dirname):
     os.makedirs(os.path.dirname(tmp_path))
-  with open(tmp_path, 'w') as tmp_file:
+  with open(tmp_path, 'wb') as tmp_file:
     SerializeToDoList2(todolist, tmp_file)
   try:
     os.remove(path + '.bak')
@@ -168,12 +172,12 @@ def DeserializeToDoList2(reader, tdl_factory):
   except EOFError:
     todolist = tdl_factory()
   try:
-    str(todolist)  # calls unicode(todolist)
+    str(todolist)  # calls todolist.__unicode__
     str(todolist.AsProto())
     todolist.CheckIsWellFormed()
   except:
-    print ('Serialization error?  Reset by rerunning with the "reset_database" '
-           'command.\nHere is the exception:\n')
+    print('Serialization error?  Reset by rerunning with the "reset_database" '
+          'command.\nHere is the exception:\n')
     raise
   return todolist
 
@@ -194,7 +198,7 @@ def DeserializeToDoList(path, tdl_factory):
     todolist = tdl_factory()
   else:
     try:
-      with open(path) as save_file:
+      with open(path, 'rb') as save_file:
         file_contents = save_file.read()
         if not file_contents:
           todolist = tdl_factory()
@@ -213,9 +217,9 @@ def DeserializeToDoList(path, tdl_factory):
     str(todolist.AsProto())
     todolist.CheckIsWellFormed()
   except:
-    print ('Serialization error?  Reset by rerunning with the "reset_database" '
-           'command, i.e. deleting\n  %s\nHere is the exception:\n'
-           % FLAGS.database_filename)
+    print('Serialization error?  Reset by rerunning with the "reset_database" '
+          'command, i.e. deleting\n  %s\nHere is the exception:\n'
+          % FLAGS.database_filename)
     raise
   return todolist
 
@@ -230,7 +234,7 @@ def GetRawProtobuf(path):
     Error
     IOError
   """
-  with open(path) as save_file:
+  with open(path, 'rb') as save_file:
     file_contents = save_file.read()
     payload = _GetPayloadAfterVerifyingChecksum(file_contents, path)
     return pyatdl_pb2.ToDoList.FromString(payload)  # pylint: disable=no-member

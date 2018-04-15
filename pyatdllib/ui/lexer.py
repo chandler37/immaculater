@@ -1,9 +1,12 @@
 """Routines that do lexical analysis.
 
-E.g., this module helps parse commands like 'chctx Context0, Action0'.
+E.g., this module helps parse commands like 'chctx Context0 Action0'.
 """
 
+from __future__ import unicode_literals
+
 import shlex
+import six
 
 import gflags as flags  # https://code.google.com/p/python-gflags/
 
@@ -66,9 +69,14 @@ def SplitCommandLineIntoArgv(space_delimited_argv, posix=True):
     Error
   """
   try:
-    return map(lambda s: s.decode('utf-8'),
-               shlex.split(space_delimited_argv.encode('utf-8'),
-                           comments=FLAGS.pyatdl_allow_command_line_comments,
-                           posix=posix))
+    if six.PY2:
+      return [s.decode('utf-8') for s in shlex.split(
+          space_delimited_argv.encode('utf-8'),
+          comments=FLAGS.pyatdl_allow_command_line_comments,
+          posix=posix)]
+    else:
+      return shlex.split(space_delimited_argv,
+                         comments=FLAGS.pyatdl_allow_command_line_comments,
+                         posix=posix)
   except ValueError as e:
     raise ShlexSyntaxError('Cannot parse command line. %s' % str(e))

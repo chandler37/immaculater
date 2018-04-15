@@ -21,7 +21,9 @@ def _brand():
 
 
 def _brand_url():
-  return os.environ['IMMACULATER_BRAND_URL']
+  return os.environ.get(
+    'IMMACULATER_BRAND_URL',
+    'please set the IMMACULATER_BRAND_URL environment variable')
 
 
 def _logo():
@@ -30,11 +32,11 @@ def _logo():
 
 
 def basics(request):
-    return {
-        "Brand": _brand(),
-        "BrandURL": _brand_url(),
-        "Logo": _logo(),
-        "SupportEmail": _support_email(),
-        "Favicon": _favicon_relative_path(),
-        "LogoutUrl": _create_logout_url(),
-        }
+  return {
+    "Brand": _brand(),
+    "BrandURL": _brand_url(),
+    "Logo": _logo(),
+    "SupportEmail": _support_email(),
+    "Favicon": _favicon_relative_path(),
+    "LogoutUrl": _create_logout_url(),
+  }

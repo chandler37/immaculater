@@ -1,5 +1,10 @@
 """Defines Prj, our notion of a "project", anything with two or more actions."""
 
+from __future__ import absolute_import
+from __future__ import unicode_literals
+from __future__ import print_function
+
+import six
 import time
 
 import gflags as flags
@@ -35,6 +40,7 @@ class Prj(container.Container):
   """
 
   __pychecker__ = 'unusednames=cls'
+
   @classmethod
   def TypesContained(cls):
     return (action.Action,)
@@ -56,30 +62,27 @@ class Prj(container.Container):
     self.is_active = is_active
     self.default_context_uid = None if default_context_uid == 0 else default_context_uid
 
-  def __str__(self):
-    return unicode(self).encode('utf-8')
-
   def __unicode__(self):
-    uid_str = u'' if not FLAGS.pyatdl_show_uid else u' uid=%s' % self.uid
+    uid_str = '' if not FLAGS.pyatdl_show_uid else ' uid=%s' % self.uid
     actions_strs = []
     for a in self.items:
-      actions_strs.append(unicode(a))
-    maxstr = u''
+      actions_strs.append(six.text_type(a))
+    maxstr = ''
     if self.max_seconds_before_review != DEFAULT_MAX_SECONDS_BEFORE_REVIEW:
-      maxstr = u' max_seconds_before_review="%s"' % self.max_seconds_before_review
-    return u"""
+      maxstr = ' max_seconds_before_review="%s"' % self.max_seconds_before_review
+    return """
 <project%s is_deleted="%s" is_complete="%s" is_active="%s"%s name="%s">
 %s
 </project>
 """.strip() % (uid_str, self.is_deleted, self.is_complete, self.is_active,
                maxstr, self.name,
-               common.Indented(u'\n'.join(actions_strs)))
+               common.Indented('\n'.join(actions_strs)))
 
   def __repr__(self):
     return '<prj_proto>\n%s\n</prj_proto>' % str(self.AsProto())
 
-  def AsTaskPaper(self, lines, context_name=None, project_name_prefix=u'',
-                  show_action=lambda _: true, hypertext_prefix=None,
+  def AsTaskPaper(self, lines, context_name=None, project_name_prefix='',
+                  show_action=lambda _: True, hypertext_prefix=None,
                   html_escaper=None):
     """Appends lines of text to lines.
 
@@ -99,8 +102,8 @@ class Prj(container.Container):
       else:
         return html_escaper(txt)
 
-    lines.append(u'')
-    full_name = u'%s%s:' % (project_name_prefix, self.name)
+    lines.append('')
+    full_name = '%s%s:' % (project_name_prefix, self.name)
     if hypertext_prefix is None:
       lines.append(full_name)
     else:
@@ -110,44 +113,44 @@ class Prj(container.Container):
                       Escaped(full_name),
                       '</s>' if self.is_complete or self.is_deleted else ''))
     if self.note:
-      for line in self.note.replace(u'\r', u'').split(u'\n'):
+      for line in self.note.replace('\r', '').split('\n'):
         lines.append(Escaped(line))
     for item in self.items:
       if not show_action(item):
         continue
-      hypernote = u''
-      note_suffix = u''
+      hypernote = ''
+      note_suffix = ''
       if item.note:
-        n = unicode(item.note).replace(u'\r', u'').replace(u'\\n', u'\n').strip('\n')
+        n = six.text_type(item.note).replace('\r', '').replace('\\n', '\n').strip('\n')
         if hypertext_prefix is None:
-          note_suffix = u'\tnote: ' + u'\t'.join(n.split(u'\n'))
+          note_suffix = '\tnote: ' + '\t'.join(n.split('\n'))
         else:
-          hypernote = u'<br>' + u'<br>'.join(Escaped(x) for x in n.split(u'\n'))
+          hypernote = '<br>' + '<br>'.join(Escaped(x) for x in n.split('\n'))
       else:
-        note_suffix = u''
+        note_suffix = ''
       if item.ctx:
-        cname = context_name(item.ctx).replace(u' ', u'_')
-        context_suffix = u' %s' % (cname,) if cname.startswith(u'@') else u' @%s' % (cname,)
+        cname = context_name(item.ctx).replace(' ', '_')
+        context_suffix = ' %s' % (cname,) if cname.startswith('@') else ' @%s' % (cname,)
         if context_suffix.strip() in item.name:
-          context_suffix = u''
+          context_suffix = ''
       else:
-        context_suffix = u''
+        context_suffix = ''
       if item.is_complete:
-        done_suffix = u' @done'
+        done_suffix = ' @done'
       else:
-        done_suffix = u''
+        done_suffix = ''
       if item.is_deleted:
-        deleted_suffix = u' @deleted'
-        done_suffix = u' @done'
+        deleted_suffix = ' @deleted'
+        done_suffix = ' @done'
       else:
-        deleted_suffix = u''
-      action_text = u'%s%s%s%s%s' % (item.name, note_suffix, context_suffix,
-                                     done_suffix, deleted_suffix)
+        deleted_suffix = ''
+      action_text = '%s%s%s%s%s' % (item.name, note_suffix, context_suffix,
+                                    done_suffix, deleted_suffix)
       if hypertext_prefix is None:
-        lines.append(u'\t- %s' % action_text)
+        lines.append('\t- %s' % action_text)
       else:
-        lines.append(u'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
-                     u'- <a href="%s/action/%s">%s%s%s%s</a>'
+        lines.append('&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
+                     '- <a href="%s/action/%s">%s%s%s%s</a>'
                      % (hypertext_prefix, item.uid,
                         '<s>' if item.is_complete or item.is_deleted else '',
                         Escaped(action_text),
@@ -219,7 +222,8 @@ class Prj(container.Container):
     Returns:
       Prj
     """
-    assert bytestring
+    if not bytestring:
+      raise ValueError("bad compression algorithm?")
     pb = pyatdl_pb2.Project.FromString(bytestring)  # pylint: disable=no-member
     max_seconds_before_review = None if not pb.HasField('max_seconds_before_review') else pb.max_seconds_before_review
     p = cls(the_uid=pb.common.uid,

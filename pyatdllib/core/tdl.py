@@ -4,6 +4,11 @@ list of Contexts.
 An end user thinks of the totality of their data as a ToDoList.
 """
 
+from __future__ import absolute_import
+from __future__ import unicode_literals
+from __future__ import print_function
+
+import six
 import time
 
 import gflags as flags  # https://code.google.com/p/python-gflags/
@@ -64,12 +69,12 @@ class ToDoList(object):
     self._has_never_purged_deleted = has_never_purged_deleted
 
   def __str__(self):
-    return unicode(self).encode('utf-8')
+    return self.__unicode__().encode('utf-8') if six.PY2 else self.__unicode__()
 
   def __unicode__(self):
     inbox_uid_str = '' if not FLAGS.pyatdl_show_uid else ' uid=%s' % self.inbox.uid
     todos_uid_str = '' if not FLAGS.pyatdl_show_uid else ' uid=%s' % self.root.uid
-    t = u"""
+    t = """
 <todolist%s>
     <inbox%s>
 %s
@@ -81,9 +86,9 @@ class ToDoList(object):
 </todolist>
 """ % (todos_uid_str,
        inbox_uid_str,
-       common.Indented(unicode(self.inbox), 2),
-       common.Indented(unicode(self.root), 1),
-       common.Indented(unicode(self.ctx_list), 2))
+       common.Indented(six.text_type(self.inbox), 2),
+       common.Indented(six.text_type(self.root), 1),
+       common.Indented(six.text_type(self.ctx_list), 2))
     return t.strip()
 
   def AsTaskPaper(self, lines, show_project=lambda _: True,
@@ -104,22 +109,22 @@ class ToDoList(object):
     def ContextName(context):
       for i in self.ctx_list.items:
         if i.uid == context.uid:
-          return unicode(i.name)
-      return u'impossible error so file a bug report please'
+          return six.text_type(i.name)
+      return 'impossible error so file a bug report please'
 
     # TODO(chandler): respect sort alpha|chrono
     for p, path in self.Projects():
       if not show_project(p):
         continue
-      prefix = unicode(FLAGS.pyatdl_separator).join(f.name for f in reversed(path))
+      prefix = six.text_type(FLAGS.pyatdl_separator).join(f.name for f in reversed(path))
       if prefix and not prefix.endswith(FLAGS.pyatdl_separator):
-        prefix += unicode(FLAGS.pyatdl_separator)
+        prefix += six.text_type(FLAGS.pyatdl_separator)
       if p.is_deleted:
-        prefix = u'@deleted ' + prefix
+        prefix = '@deleted ' + prefix
       if p.is_complete:
-        prefix = u'@done ' + prefix
+        prefix = '@done ' + prefix
       if not p.is_active:
-        prefix = u'@inactive ' + prefix
+        prefix = '@inactive ' + prefix
       p.AsTaskPaper(lines, context_name=ContextName, project_name_prefix=prefix,
                     show_action=show_action, hypertext_prefix=hypertext_prefix,
                     html_escaper=html_escaper)
@@ -386,6 +391,7 @@ class ToDoList(object):
     """
     if FLAGS.pyatdl_break_glass_and_skip_wellformedness_check:
       return
+
     def SelfStr():  # pylint: disable=missing-docstring
       saved_value = FLAGS.pyatdl_show_uid
       FLAGS.pyatdl_show_uid = True
@@ -453,6 +459,7 @@ class ToDoList(object):
       ToDoList
     """
     assert bytestring
+    assert type(bytestring) == six.binary_type, type(bytestring)
     pb = pyatdl_pb2.ToDoList.FromString(bytestring)  # pylint: disable=no-member
     inbox = prj.Prj.DeserializedProtobuf(
       pb.inbox.SerializeToString())

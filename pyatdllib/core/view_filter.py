@@ -6,6 +6,10 @@ The variable CLS_BY_UI_NAME allows you to find a view filter given its
 User-facing name.
 """
 
+from __future__ import absolute_import
+from __future__ import unicode_literals
+from __future__ import print_function
+
 from . import action
 from . import ctx
 from . import folder
@@ -16,6 +20,7 @@ class ViewFilter(object):
   """Shall we show completed items?  Inactive contexts? Etc."""
 
   __pychecker__ = 'unusednames=cls'
+
   @classmethod
   def ViewFilterUINames(cls):
     """Returns all the different aliases of this view filter.
@@ -43,7 +48,7 @@ class ViewFilter(object):
       if isinstance(item, folder.Folder) and self.ShowFolder(item):
         return True
     return False
-    
+
   def ProjectContainsShownAction(self, project):
     for item in project.items:
       if self.ShowAction(item):

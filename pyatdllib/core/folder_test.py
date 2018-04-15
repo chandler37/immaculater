@@ -22,8 +22,8 @@ class FolderTestCase(unitjest.TestCase):
     # pylint: disable=trailing-whitespace
     FLAGS.pyatdl_show_uid = False
     self._AssertEqualWithDiff(
-      str(outer),
-      r"""
+      [str(outer)],
+      [r"""
 <folder is_deleted="False" name="outer">
     <folder is_deleted="False" name="F0">
     
@@ -33,11 +33,11 @@ class FolderTestCase(unitjest.TestCase):
         <action is_deleted="False" is_complete="False" name="Oranges" ctx="uid=3"/>
     </project>
 </folder>
-""".strip())
+""".strip()])
     FLAGS.pyatdl_show_uid = True
     self._AssertEqualWithDiff(
-      str(outer),
-      r"""
+      [str(outer)],
+      [r"""
 <folder uid=7 is_deleted="False" name="outer">
     <folder uid=2 is_deleted="False" name="F0">
     
@@ -47,7 +47,7 @@ class FolderTestCase(unitjest.TestCase):
         <action uid=5 is_deleted="False" is_complete="False" name="Oranges" ctx="uid=3"/>
     </project>
 </folder>
-""".strip())
+""".strip()])
 
 
 if __name__ == '__main__':

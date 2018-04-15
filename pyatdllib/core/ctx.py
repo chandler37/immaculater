@@ -3,6 +3,12 @@
 E.g., "home" or "the store".
 """
 
+from __future__ import absolute_import
+from __future__ import unicode_literals
+from __future__ import print_function
+
+import six
+
 import gflags as flags
 
 from . import auditable_object
@@ -16,8 +22,10 @@ FLAGS = flags.FLAGS
 class Error(Exception):
   """Base class for this module's exceptions."""
 
+
 class NoSuchNameError(Error):
   """No Context by that name exists."""
+
 
 class Ctx(auditable_object.AuditableObject):
   """A context within which an action is possible.
@@ -41,16 +49,13 @@ class Ctx(auditable_object.AuditableObject):
     self.note = note
     self.is_active = is_active
 
-  def __str__(self):
-    return unicode(self).encode('utf-8')
-
   def __unicode__(self):
-    uid_str = u'' if not FLAGS.pyatdl_show_uid else u' uid=%s' % self.uid
-    return u'<context%s is_deleted="%s" is_active="%s" name="%s"/>' % (
+    uid_str = '' if not FLAGS.pyatdl_show_uid else ' uid=%s' % self.uid
+    return '<context%s is_deleted="%s" is_active="%s" name="%s"/>' % (
       uid_str,
       self.is_deleted,
       self.is_active,
-      self.name if self.name else u'uid=%s' % self.uid)
+      self.name if self.name else 'uid=%s' % self.uid)
 
   def __repr__(self):
     return '<ctx_proto>\n%s\n</ctx_proto>' % str(self.AsProto())
@@ -102,6 +107,7 @@ class CtxList(container.Container):
   """
 
   __pychecker__ = 'unusednames=cls'
+
   @classmethod
   def TypesContained(cls):
     return (Ctx,)
@@ -110,20 +116,17 @@ class CtxList(container.Container):
     super(CtxList, self).__init__(the_uid=the_uid, items=items)
     self.name = name
 
-  def __str__(self):
-    return unicode(self).encode('utf-8')
-
   def __unicode__(self):
-    uid_str = u'' if not FLAGS.pyatdl_show_uid else u' uid=%s' % self.uid
+    uid_str = '' if not FLAGS.pyatdl_show_uid else ' uid=%s' % self.uid
     ctx_strs = []
     for c in self.items:
-      ctx_strs.append(unicode(c))
-    return u"""
+      ctx_strs.append(six.text_type(c))
+    return """
 <context_list%s is_deleted="%s" name="%s">
 %s
 </context_list>
 """.strip() % (uid_str, self.is_deleted, self.name,
-               common.Indented(u'\n'.join(ctx_strs)))
+               common.Indented('\n'.join(ctx_strs)))
 
   def Projects(self):
     """See Container.Projects."""

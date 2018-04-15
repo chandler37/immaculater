@@ -55,7 +55,10 @@ to start the original CLI.
 
 ## Python 3 Support
 
-Yes, we support both 2.7 and 3.6.5 using the `six` library, and 3 is the default in production.
+Yes, we support both 2.7 and 3.6.5 using the `six` library, and 3 is the
+default in production. If 2.7 breaks, it will likely stay broken.
+
+We intend to upgrade to Django 2.0 at some point which requires Python 3.
 
 ## One-time Installation
 

@@ -125,6 +125,12 @@ We intend to upgrade to Django 2.0 at some point which requires Python 3.
  - See below about `heroku run python manage.py migrate`, necessary
    only rarely when the database schema changes
 
+If the push fails because of trouble with pip (e.g., `mount:
+failure.bad-requirements: No such file or directory`), try clearing the build
+cache:
+ - `heroku plugins:install heroku-repo`
+ - `heroku repo:purge_cache -a YOURAPPNAME`
+
 ## Database migrations
 
  - Edit the models.

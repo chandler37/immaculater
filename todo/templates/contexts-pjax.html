@@ -57,7 +57,7 @@ for (i = 0; i < ctxs.length; i++) {
     addButton(ctxs[i].name, ctxs[i].number_of_items, ctxs[i].uid);
 }
 document.getElementById("viewFilter").innerHTML = viewFilterHTML(
-    "contexts", "{% csrf_token %}", undefined, "{{ViewFilter}}");
+    "contexts", '{% csrf_token %}', undefined, "{{ViewFilter}}");
 
 pjaxifyForms();
 

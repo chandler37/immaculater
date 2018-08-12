@@ -69,7 +69,7 @@ _SANITY_CHECK = 37
 
 
 def _encrypted_todolist_protobuf(some_bytes):
-  return bytes(_protobuf_fernet().encrypt(some_bytes))
+  return _protobuf_fernet().encrypt(some_bytes).decode('utf-8')
 
 
 def _unencrypted_todolist_protobuf(pb):
@@ -533,7 +533,7 @@ def _serialized_cookie_value(cookie_value):
   """
   # SerializeToString will not throw.
   encrypted_value = _cookie_fernet().encrypt(cookie_value.SerializeToString())
-  return base64.urlsafe_b64encode(encrypted_value)
+  return base64.urlsafe_b64encode(encrypted_value).decode('utf-8')
 
 
 def _cookie_value(request):

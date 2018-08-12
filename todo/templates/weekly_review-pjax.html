@@ -177,7 +177,7 @@ Remember to press the **Save Note** button.
 simplemde.value(note_value);
 
 document.getElementById("viewFilter").innerHTML = viewFilterHTML(
-    "weekly_review", "{% csrf_token %}", undefined, "{{ViewFilter}}");
+    "weekly_review", '{% csrf_token %}', undefined, "{{ViewFilter}}");
 
 pjaxifyForms();
 

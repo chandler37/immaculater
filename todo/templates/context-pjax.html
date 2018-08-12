@@ -283,7 +283,7 @@ if (!inctx.length) {
 {% endcomment %}
 
 document.getElementById("viewFilter").innerHTML = viewFilterHTML(
-    "{{UID}}", "{% csrf_token %}", "{{UID}}", "{{ViewFilter}}");
+    "{{UID}}", '{% csrf_token %}', "{{UID}}", "{{ViewFilter}}");
 
 if (!lsctx.uid) {
     var f = document.getElementById("timestamp");

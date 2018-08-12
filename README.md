@@ -49,28 +49,30 @@ and Django and focus on the original command-line interface (as opposed to
 <https://github.com/chandler37/immaculater-cli> which requires the Django server). You'll find it in the
 `pyatdllib` subdirectory -- see
 [`pyatdllib/README.md`](https://github.com/chandler37/immaculater/blob/master/pyatdllib/README.md). You
-will need to run `pip install -r requirements.txt ` inside a `virtualenv` (see
+will need to run `pip3 install -r requirements.txt ` inside a `virtualenv` (see
 below) before `make test` will pass or the CLI will run. You can use `runme.sh`
 to start the original CLI.
 
 ## Python 3 Support
 
-Yes, we support both 2.7 and 3.6.5 using the `six` library, and 3 is the
-default in production. If 2.7 breaks, it will likely stay broken.
-
-We intend to upgrade to Django 2.0 at some point which requires Python 3.
+pyatdl proper supports both 2.7 and 3.6.6 using the `six` library, but
+Immaculater requires 3.6.6 because DJango 2 requires python 3.
 
 ## One-time Installation
 
- - Use [Homebrew](https://brew.sh/) to install python2 and python3. Its python2
-   will be more up to date than your mac's system python and will in other ways
-   better match the version of python you'll use on heroku.
- - Create a virtualenv with `virtualenv -p python2 venv`
+ - Use [Homebrew](https://brew.sh/) to install python3. But you may run into
+   problems with 3.7 or later and need to install 3.6 using the recipe at
+   https://stackoverflow.com/questions/51125013/how-can-i-install-a-previous-version-of-python-3-in-macos-using-homebrew
+ - `pip3 install virtualenv`
+ - Create a virtualenv with `virtualenv -p python3 venv`
  - `source venv/bin/activate`
  - Install postgresql. On OS X, `brew install postgresql` after installing
    [Homebrew](https://brew.sh/). On Linux, `apt-get install postgresql postgresql-contrib`
  - On Linux, `apt-get Install python-dev python3-dev`
- - Run `pip install -r requirements.txt` (again, after activating the virtualenv)
+ - Run `pip3 install -r requirements.txt` (again, after activating the
+   virtualenv)
+ - If the above fails on the `cryptography` package you may need to `export
+ LDFLAGS=-L/usr/local/opt/openssl/lib` and `export LDFLAGS=-L/usr/local/opt/openssl/lib`
  - Install the [Heroku CLI](https://devcenter.heroku.com/articles/heroku-cli)
  - Create a Heroku account
  - Run `heroku login`
@@ -79,6 +81,7 @@ We intend to upgrade to Django 2.0 at some point which requires Python 3.
 
  - `python manage.py migrate`
  - `python manage.py createsuperuser`
+ - `sqlite3 db.sqlite3` helps you see the local database if you need to.
 
 ## One-Time Heroku Setup
 
@@ -90,8 +93,6 @@ We intend to upgrade to Django 2.0 at some point which requires Python 3.
  - Generate two encryption keys as follows:
 
 > $ heroku run python manage.py shell
-
-> Python 2.7.14 (default, Sep 26 2017, 13:42:32) 
 
 > > from cryptography.fernet import Fernet
 
@@ -132,6 +133,9 @@ cache:
  - `heroku repo:purge_cache -a YOURAPPNAME`
 
 ## Database migrations
+
+First you may want to do a manual backup of your database with `heroku
+pg:backups:capture --app <YOUR APP NAME>`.
 
  - Edit the models.
  - `python manage.py makemigrations todo`
@@ -190,9 +194,9 @@ can do a remote commit with the following:
 	`git checkout master && git pull && git branch -d your_feature_branch_goes_here`
 
 When done with your feature, ensure all tests pass (`make test` and run pylint
-(`make pylint` after `pip install pylint` (inside an activated virtualenv)) and
-`flake8 .` (after `pip install flake8` (inside an activated virtualenv)).  The
-very best practice is to run `make cov` (first `pip install coverage` (inside
+(`make pylint` after `pip3 install pylint` (inside an activated virtualenv)) and
+`flake8 .` (after `pip3 install flake8` (inside an activated virtualenv)).  The
+very best practice is to run `make cov` (first `pip3 install coverage` (inside
 an activated virtualenv)) and ensure that your change has optimal unittest code
 coverage. You get bonus points for installing pychecker and running `make
 pychecker`.

@@ -116,7 +116,7 @@ Immaculater requires 3.6.6 because DJango 2 requires python 3.
  - Go to https://<yourprj>.herokuapp.com/admin to create additional user
    accounts
  - Consider signing up for https://papertrailapp.com/ e.g. to see your HTTP
-   500s' stack traces
+   500s' stack traces (use `heroku addons:open papertrail`)
 
 ## Heroku Deployment
 

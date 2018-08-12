@@ -334,7 +334,7 @@ if (lsprj.uid === 1) {
 	'<div class="col-sm-12">' +
         createButton(
             lsprj.uid.toString(),
-            "{% csrf_token %}",
+            '{% csrf_token %}',
             lsprj.uid,
             `<input type="hidden" name="cmd" value="chdefaultctx">
              <select name="new_default_uid" class="form-control i-submits-when-changed">` +
@@ -383,7 +383,7 @@ ${lsprj.needsreview ? '<input type="hidden" name="cmd" value="completereview">'
   TODO(chandler): Support 'configurereview'.
 {% endcomment %}
 document.getElementById("viewFilter").innerHTML = viewFilterHTML(
-    "{{UID}}", "{% csrf_token %}", "{{UID}}", "{{ViewFilter}}");
+    "{{UID}}", '{% csrf_token %}', "{{UID}}", "{{ViewFilter}}");
 if (lsprj.is_deleted || lsprj.is_complete) {
     var f = document.getElementById("create");
     if (f) {

@@ -158,7 +158,7 @@ for (i = 0; i < undeletedContexts.length; i++) {
 }
 var chctxButton = createButton(
     lsact.uid.toString(),
-    "{% csrf_token %}",
+    '{% csrf_token %}',
     lsact.uid,
     '<input type="hidden" name="cmd" value="chctx">\
 <select name="new_uid" class="form-control i-submits-when-changed">' +
@@ -188,7 +188,7 @@ for (i = 0; i < undeletedProjects.length; i++) {
 
 var mvButton = createButton(
     lsact.uid.toString(),
-    "{% csrf_token %}",
+    '{% csrf_token %}',
     lsact.uid,
     '<input type="hidden" name="cmd" value="mv">\
 <select name="new_uid" class="form-control i-submits-when-changed">' +

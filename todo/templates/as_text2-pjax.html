@@ -31,7 +31,7 @@ $(document).ready(function() {
 document.title = "{{Title}} \u2014 {{Brand}}";
 
 document.getElementById("viewFilter").innerHTML = viewFilterHTML(
-    "/todo/text", "{% csrf_token %}", undefined, "{{ViewFilter}}");
+    "/todo/text", '{% csrf_token %}', undefined, "{{ViewFilter}}");
 
 pjaxifyForms();
 

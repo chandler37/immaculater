@@ -86,7 +86,7 @@ for (i = 0; i < prjs.length; i++) {
     buttonDiv.appendChild(node);
 }
 document.getElementById("viewFilter").innerHTML = viewFilterHTML(
-    "projects", "{% csrf_token %}", undefined, "{{ViewFilter}}");
+    "projects", '{% csrf_token %}', undefined, "{{ViewFilter}}");
 
 pjaxifyForms();
 

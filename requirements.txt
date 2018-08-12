@@ -5,7 +5,7 @@ chardet==3.0.4
 cryptography==2.1.2
 dj-database-url==0.4.1
 Django==2.1
-django-allauth==0.35.0
+django-allauth==0.36.0
 django-bmemcached==0.2.3
 django-sendgrid-v5==0.6.87
 django-slack-oauth==1.4.3

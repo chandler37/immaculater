@@ -9,10 +9,13 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.10/ref/settings/
 """
 
+import datetime
 import os
 import dj_database_url
 
 from django.urls import reverse_lazy
+
+from immaculater import jwt
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -235,3 +238,7 @@ else:
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
     ACCOUNT_EMAIL_VERIFICATION = 'none'  # hence our EMAIL_BACKEND is fine.
 DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'noreply@localhost')
+
+JWT_PAYLOAD_HANDLER = jwt.jwt_payload_handler
+
+JWT_EXPIRATION_DELTA = datetime.timedelta(seconds=60*60*24)

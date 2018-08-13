@@ -27,6 +27,7 @@ urlpatterns = [
     url(r'^text$', views.as_text2, name='as_text2'),
     url(r'^search$', views.search, name='search'),
     url(r'^privacy.html$', views.privacy, name='privacy'),
+    url(r'^v1/projects$', views.V1ProjectsView.as_view(), name='v1_projects'),
 ]
 
 if settings.USE_ALLAUTH:

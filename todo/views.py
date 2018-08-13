@@ -29,6 +29,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.exceptions import PermissionDenied
+from django.core.serializers.json import DjangoJSONEncoder
 from django.db import transaction
 from django.http import Http404
 from django.http import HttpResponse
@@ -38,13 +39,16 @@ from django.shortcuts import redirect
 from django.template.response import TemplateResponse
 from django.utils.decorators import method_decorator
 from django.utils.encoding import escape_uri_path
+from django.utils.encoding import smart_text
 from django.utils.html import escape
 from django.views.decorators.cache import never_cache
 from django.views.decorators.clickjacking import xframe_options_sameorigin
 from django.views.decorators.csrf import csrf_exempt
+from django.views.generic import View
 from cryptography.fernet import Fernet, InvalidToken
 from google.protobuf import message
 from allauth.socialaccount import models as allauth_models
+from jwt_auth import mixins
 
 from . import models
 
@@ -1491,6 +1495,41 @@ def slackapi(request):
     if request.POST.get('team_id', '') not in allowed_teams:
       raise PermissionDenied()
   return _slackapi(request)
+
+
+class V1View(mixins.JSONWebTokenAuthMixin, View):
+  error_response_dict = {'errors': ['Improperly formatted request']}
+  json_encoder_class = DjangoJSONEncoder
+
+  @method_decorator([never_cache, csrf_exempt])
+  def dispatch(self, request, *args, **kwargs):
+    try:
+      return super().dispatch(request, *args, **kwargs)
+    except ValueError:
+      return self.render_bad_request_response()
+
+  def request_json(self, request):
+    return json.loads(smart_text(request.body))
+
+  def render_bad_request_response(self, error_dict=None):
+    if error_dict is None:
+      error_dict = self.error_response_dict
+
+    json_context = json.dumps(error_dict, cls=self.json_encoder_class)
+
+    return HttpResponseBadRequest(json_context, content_type='application/json')
+
+
+class V1ProjectsView(V1View):
+  def get(self, request):
+    # DLC
+    data = json.dumps({'username': request.user.username})
+    return HttpResponse(data)
+
+  def post(self, request):
+    # DLC
+    json_input = json.dumps(self.request_json(request), cls=self.json_encoder_class)
+    return HttpResponse(json_input, content_type='application/json')
 
 
 immaculater.InitFlags()

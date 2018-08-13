@@ -18,6 +18,7 @@ from django.conf.urls import include, url
 from django.contrib import admin
 from django.contrib.auth import views as auth_views
 from django.views.generic import RedirectView
+from jwt_auth.views import obtain_jwt_token
 from todo import views
 
 urlpatterns = [
@@ -25,7 +26,8 @@ urlpatterns = [
     url(r'^$', RedirectView.as_view(url='/todo'), name='go-to-todo'),
     url(r'^admin/', admin.site.urls),
     url(r'^slack/', include('django_slack_oauth.urls')),
-]
+    url(r'^v1-api-token-auth$', obtain_jwt_token),
+    ]
 if settings.USE_ALLAUTH:
     urlpatterns += [
         url(r'^accounts/', include('allauth.urls')),

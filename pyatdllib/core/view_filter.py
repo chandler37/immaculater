@@ -310,13 +310,15 @@ class ShowInactiveIncomplete(ViewFilter):
 
 CLS_BY_UI_NAME = {}
 
-for view_filter_cls in (
-    ShowAll,
-    ShowNotDeleted,
-    ShowNotFinalized,
-    ShowActionable,
-    ShowNeedingReview,
-    ShowInactiveIncomplete):
+_VIEW_FILTER_CLASSES = (
+  ShowAll,
+  ShowNotDeleted,
+  ShowNotFinalized,
+  ShowActionable,
+  ShowNeedingReview,
+  ShowInactiveIncomplete)
+
+for view_filter_cls in _VIEW_FILTER_CLASSES:
   for name in view_filter_cls.ViewFilterUINames():
     assert name not in CLS_BY_UI_NAME, name
     CLS_BY_UI_NAME[name] = view_filter_cls

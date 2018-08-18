@@ -17,6 +17,7 @@ clean:
 
 test:
 	cd pyatdllib && make test
+	python ./run_django_tests.py
 
 cov:
 	cd pyatdllib && make cov

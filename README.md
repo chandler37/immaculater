@@ -44,14 +44,15 @@ a
 [screencast on a jquery-pjax tweak related to flash messages and the quick capture box on the home page](https://youtu.be/bZAf5GWgoW8). And
 a [screencast coding up the "Delete Completed" feature](https://youtu.be/zQDLUs6IRGY).
 
-Next, forget about Heroku
-and Django and focus on the original command-line interface (as opposed to
-<https://github.com/chandler37/immaculater-cli> which requires the Django server). You'll find it in the
-`pyatdllib` subdirectory -- see
+Next, forget about Heroku and Django and focus on the original command-line
+interface (as opposed to <https://github.com/chandler37/immaculater-cli> which
+requires the Django server). You'll find it in the `pyatdllib` subdirectory --
+see
 [`pyatdllib/README.md`](https://github.com/chandler37/immaculater/blob/master/pyatdllib/README.md). You
-will need to run `pip3 install -r requirements.txt ` inside a `virtualenv` (see
-below) before `make test` will pass or the CLI will run. You can use `runme.sh`
-to start the original CLI.
+will need to run `pip3 install -r requirements.txt` and `pip3 install -r
+requirements-test.txt` inside a `virtualenv` (see below) before `make test`
+will pass or the CLI will run. You can use `runme.sh` to start the original
+CLI.
 
 ## Python 3 Support
 
@@ -69,8 +70,8 @@ Immaculater requires 3.6.6 because DJango 2 requires python 3.
  - Install postgresql. On OS X, `brew install postgresql` after installing
    [Homebrew](https://brew.sh/). On Linux, `apt-get install postgresql postgresql-contrib`
  - On Linux, `apt-get Install python-dev python3-dev`
- - Run `pip3 install -r requirements.txt` (again, after activating the
-   virtualenv)
+ - Run `pip3 install -r requirements.txt` and `pip3 install -r
+   requirements-test.txt` (again, after activating the virtualenv)
  - If the above fails on the `cryptography` package you may need to `export
  LDFLAGS=-L/usr/local/opt/openssl/lib` and `export LDFLAGS=-L/usr/local/opt/openssl/lib`
  - Install the [Heroku CLI](https://devcenter.heroku.com/articles/heroku-cli)
@@ -194,12 +195,12 @@ can do a remote commit with the following:
 	`git checkout master && git pull && git branch -d your_feature_branch_goes_here`
 
 When done with your feature, ensure all tests pass (`make test` and run pylint
-(`make pylint` after `pip3 install pylint` (inside an activated virtualenv)) and
-`flake8 .` (after `pip3 install flake8` (inside an activated virtualenv)).  The
-very best practice is to run `make cov` (first `pip3 install coverage` (inside
-an activated virtualenv)) and ensure that your change has optimal unittest code
-coverage. You get bonus points for installing pychecker and running `make
-pychecker`.
+(`make pylint` after `pip3 install pylint` (inside an activated virtualenv))
+and `flake8 .`.  The very best practice is to run `make cov` (first `pip3
+install coverage` (inside an activated virtualenv)) and ensure that your change
+has optimal unittest code coverage (this does not work for the tests run by
+`run_django_tests.py`). You get bonus points for installing pychecker and
+running `make pychecker`.
 
 The above practices give us the benefit of easy code reviews and ensure that
 your buggy works in progress doesn't interfere with other developers. Try to

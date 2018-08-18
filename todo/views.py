@@ -423,7 +423,7 @@ def _apply_batch_of_commands(user, batch, read_only, saved_read=None, cookie=Non
   f = io.BytesIO()
   codecinfo = codecs.lookup("utf8")
   wrapper = codecs.StreamReaderWriter(
-      f, codecinfo.streamreader, codecinfo.streamwriter)
+    f, codecinfo.streamreader, codecinfo.streamwriter)
   if cookie is not None:
     # Swallow errors if we have a bad cookie.
     wrapper.write('cd --swallow_errors uid=%d\n' % cookie.cwc_uid)
@@ -1522,8 +1522,13 @@ class V1View(mixins.JSONWebTokenAuthMixin, View):
 
 class V1ProjectsView(V1View):
   def get(self, request):
-    # DLC
-    data = json.dumps({'username': request.user.username})
+    cookie = _default_cookie_value(request.user.username)
+    # TODO(chandler): Set cookie.view based on UI params
+    batch = ['lsprj --json']
+    result = _apply_batch_of_commands(request.user, batch, True, cookie=cookie)
+    assert len(result['printed']) == 1, result['printed']
+    # top-level javascript arrays are a security no-no:
+    data = json.dumps({'result': json.loads(result['printed'][0])})
     return HttpResponse(data)
 
   def post(self, request):

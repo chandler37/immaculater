@@ -1,5 +1,6 @@
 from datetime import datetime
 
+
 def jwt_payload_handler(user):
     from jwt_auth import settings
     return {

@@ -175,7 +175,7 @@ def DeserializeToDoList2(reader, tdl_factory):
     str(todolist)  # calls todolist.__unicode__
     str(todolist.AsProto())
     todolist.CheckIsWellFormed()
-  except:
+  except:  # noqa: E722
     print('Serialization error?  Reset by rerunning with the "reset_database" '
           'command.\nHere is the exception:\n')
     raise
@@ -216,7 +216,7 @@ def DeserializeToDoList(path, tdl_factory):
     str(todolist)
     str(todolist.AsProto())
     todolist.CheckIsWellFormed()
-  except:
+  except:  # noqa: E722
     print('Serialization error?  Reset by rerunning with the "reset_database" '
           'command, i.e. deleting\n  %s\nHere is the exception:\n'
           % FLAGS.database_filename)

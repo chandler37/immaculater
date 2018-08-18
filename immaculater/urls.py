@@ -27,7 +27,7 @@ urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^slack/', include('django_slack_oauth.urls')),
     url(r'^v1-api-token-auth$', obtain_jwt_token),
-    ]
+]
 if settings.USE_ALLAUTH:
     urlpatterns += [
         url(r'^accounts/', include('allauth.urls')),

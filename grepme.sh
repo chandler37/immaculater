@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Greps this directory tree.
+# Greps this directory tree. See also 'git grep'
 
 TOP="$(dirname "$0")"
 

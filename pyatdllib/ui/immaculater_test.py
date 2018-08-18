@@ -188,10 +188,11 @@ class ImmaculaterTestCase(unitjest.TestCase):
     # Now apply a different batch without resetting the DB.
     assert not printed
     uid.singleton_factory = uid.Factory()
-    with open(_CreateTmpFile(r"""
+    contents = r"""
         mkprj Pbatch2
         lsctx
-        ls -a""")) as f:
+        ls -a"""
+    with open(_CreateTmpFile(contents)) as f:
       immaculater.ApplyBatchOfCommands(f, MyPrint)
     self.assertEqual(
       ['--context-- uid=0 ---active--- \'<none>\'',

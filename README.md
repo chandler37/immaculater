@@ -49,10 +49,9 @@ interface (as opposed to <https://github.com/chandler37/immaculater-cli> which
 requires the Django server). You'll find it in the `pyatdllib` subdirectory --
 see
 [`pyatdllib/README.md`](https://github.com/chandler37/immaculater/blob/master/pyatdllib/README.md). You
-will need to run `pip3 install -r requirements.txt` and `pip3 install -r
-requirements-test.txt` inside an activated `virtualenv` (see below) before `make test`
-will pass or the CLI will run. You can use `runme.sh` to start the original
-CLI.
+will need to run `make pipinstall` inside an activated `virtualenv` (see below)
+before `make test` will pass or the CLI will run. You can use `runme.sh` to
+start the original CLI.
 
 ## Python 3 Support
 

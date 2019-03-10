@@ -1,32 +1,55 @@
 # See README.md.
 
-.PHONY: all clean test cov pylint pychecker loc sh local
+.PHONY: all clean distclean test cov pylint pychecker loc sh local pipinstall
 
 all:
 	@echo "See README.md"
 
-local:
-	source venv/bin/activate && DJANGO_DEBUG=True python manage.py runserver 5000
+venv:
+	@echo "Install virtualenv system-wide via 'pip3 install virtualenv' if the following fails:"
+	virtualenv -p python3 venv
+	@echo "Now run the following:"
+	@echo "source venv/bin/activate"
 
-sh:
+pipinstall: venv
+	@./ensure_virtualenv.sh || exit 1
+	echo proceed
+	pip3 install -r requirements.txt
+	pip3 install -r requirements-test.txt
+
+local: venv
+	@./ensure_virtualenv.sh || exit 1
+	DJANGO_DEBUG=True python manage.py runserver 5000
+
+sh: venv
+	@./ensure_virtualenv.sh || exit 1
 	cd pyatdllib && make sh
 
 clean:
 	cd pyatdllib && make clean
 	rm -f *.pyc **/*.pyc
 
-test:
+distclean:
+	make clean
+	rm -fr venv
+	@echo "Print deactivate your virtualenv. Exit the shell if you do not know how."
+
+test: venv
+	@./ensure_virtualenv.sh || exit 1
 	cd pyatdllib && make test
 	python ./run_django_tests.py
 
-cov:
+cov: venv
 	cd pyatdllib && make cov
 
-pychecker:
+pychecker: venv
 	cd pyatdllib && make pychecker
 
-pylint:
+pylint: venv
 	cd pyatdllib && make pylint
 
-loc:
+# TODO(chandler37): flake8 support
+
+# TODO(chandler37): This misses django code?
+loc: 
 	cd pyatdllib && make loc

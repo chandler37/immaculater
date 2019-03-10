@@ -50,7 +50,7 @@ requires the Django server). You'll find it in the `pyatdllib` subdirectory --
 see
 [`pyatdllib/README.md`](https://github.com/chandler37/immaculater/blob/master/pyatdllib/README.md). You
 will need to run `pip3 install -r requirements.txt` and `pip3 install -r
-requirements-test.txt` inside a `virtualenv` (see below) before `make test`
+requirements-test.txt` inside an activated `virtualenv` (see below) before `make test`
 will pass or the CLI will run. You can use `runme.sh` to start the original
 CLI.
 
@@ -65,8 +65,11 @@ Immaculater requires 3.6.6 because DJango 2 requires python 3.
    problems with 3.7 or later and need to install 3.6 using the recipe at
    https://stackoverflow.com/questions/51125013/how-can-i-install-a-previous-version-of-python-3-in-macos-using-homebrew
  - `pip3 install virtualenv`
- - Create a virtualenv with `virtualenv -p python3 venv`
+ - Create a virtualenv with `make venv`
  - `source venv/bin/activate`
+ - Notice how your command prompt mentions `(venv)` now to let you know that
+   the virtualenv is activated. You can `deactivate` at any time or exit the
+   shell to deactivate.
  - Install postgresql. On OS X, `brew install postgresql` after installing
    [Homebrew](https://brew.sh/). On Linux, `apt-get install postgresql postgresql-contrib`
  - On Linux, `apt-get Install python-dev python3-dev`
@@ -194,7 +197,7 @@ can do a remote commit with the following:
     local branch with
 	`git checkout master && git pull && git branch -d your_feature_branch_goes_here`
 
-When done with your feature, ensure all tests pass (`make test` and run pylint
+When done with your feature, ensure all tests pass (`make test`) and run pylint
 (`make pylint` after `pip3 install pylint` (inside an activated virtualenv))
 and `flake8 .`.  The very best practice is to run `make cov` (first `pip3
 install coverage` (inside an activated virtualenv)) and ensure that your change

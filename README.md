@@ -49,10 +49,9 @@ interface (as opposed to <https://github.com/chandler37/immaculater-cli> which
 requires the Django server). You'll find it in the `pyatdllib` subdirectory --
 see
 [`pyatdllib/README.md`](https://github.com/chandler37/immaculater/blob/master/pyatdllib/README.md). You
-will need to run `pip3 install -r requirements.txt` and `pip3 install -r
-requirements-test.txt` inside a `virtualenv` (see below) before `make test`
-will pass or the CLI will run. You can use `runme.sh` to start the original
-CLI.
+will need to run `make pipinstall` inside an activated `virtualenv` (see below)
+before `make test` will pass or the CLI will run. You can use `runme.sh` to
+start the original CLI.
 
 ## Python 3 Support
 
@@ -65,13 +64,15 @@ Immaculater requires 3.6.6 because DJango 2 requires python 3.
    problems with 3.7 or later and need to install 3.6 using the recipe at
    https://stackoverflow.com/questions/51125013/how-can-i-install-a-previous-version-of-python-3-in-macos-using-homebrew
  - `pip3 install virtualenv`
- - Create a virtualenv with `virtualenv -p python3 venv`
+ - Create a virtualenv with `make venv`
  - `source venv/bin/activate`
+ - Notice how your command prompt mentions `(venv)` now to let you know that
+   the virtualenv is activated. You can `deactivate` at any time or exit the
+   shell to deactivate.
  - Install postgresql. On OS X, `brew install postgresql` after installing
    [Homebrew](https://brew.sh/). On Linux, `apt-get install postgresql postgresql-contrib`
  - On Linux, `apt-get Install python-dev python3-dev`
- - Run `pip3 install -r requirements.txt` and `pip3 install -r
-   requirements-test.txt` (again, after activating the virtualenv)
+ - Run `make pipinstall` (again, after activating the virtualenv)
  - If the above fails on the `cryptography` package you may need to `export
  LDFLAGS=-L/usr/local/opt/openssl/lib` and `export LDFLAGS=-L/usr/local/opt/openssl/lib`
  - Install the [Heroku CLI](https://devcenter.heroku.com/articles/heroku-cli)
@@ -133,7 +134,7 @@ cache:
  - `heroku plugins:install heroku-repo`
  - `heroku repo:purge_cache -a YOURAPPNAME`
 
-## Database migrations
+## Database Migrations
 
 First you may want to do a manual backup of your database with `heroku
 pg:backups:capture --app <YOUR APP NAME>`.
@@ -152,6 +153,64 @@ pg:backups:capture --app <YOUR APP NAME>`.
  - `git pull`
  - `git push heroku master`
  - `heroku run python manage.py migrate`
+
+## Upgrading Third-Party Dependencies
+
+The file `requirements.txt` pins third-party dependencies like `protobuf` and
+`Django` to versions that are tested. If you wish to upgrade, change the
+version. E.g., if you learn of a security vulnerability in `Django`, change its
+version. Don't change any other libraries. Installation may fail if the new
+`Djanjo` requires a newer version of something else. Upgrade that something
+else.
+
+If you wish to upgrade everything possible, edit `requirements.txt` so that it
+no longer contains any version information. You can do this via `sed -i "" -e
+"s/=.*//" requirements.txt`. Then `source venv/bin/activate; pip3 install -r
+requirements.txt`. (This is a subset of what `make pipinstall` does; we do not
+wish to install test dependencies at this point.) You will fetch the latest of
+everything. Now run `pip3 freeze > requirements.txt` to pin once more. Now run
+`make pipinstall test`. Understand each change by reading changelogs or
+studying the diff of the source code. You don't want to push the
+latest-but-not-necessarily-greatest to production accidentally, so make sure
+`requirements.txt` is frozen anew.
+
+The `protobuf` library is unique in that it contains Python a library used by
+the compiled `pyatdl.proto` file but also contains the protocol buffer
+compiler, `protoc`. You may wish to recompile
+`pyatdllib/core/pyatdl_pb2.py`. `make clean` will remove it and `make test`
+will trigger a new compilation.
+
+The real test is whether or not the new `pyatdl_pb2.py` can work with data
+inside postgresql that was created by the old version. It's the whole point of
+the library, but you should definitely run the old code to populate the
+database and then run the new code and see if it works. An automated test of
+this would be a welcome pull request.
+
+Here's an example of studying changelogs and the differences in the source
+code:
+
+- First do a web search to find the changelog, if there is one. Read it. Then...
+- `cd /tmp`
+- `git clone https://github.com/protocolbuffers/protobuf.git`
+- `cd protobuf`
+- `git tag -l --sort=version:refname`
+- `git diff v3.5.2..v3.7.0` # or whatever your old and new versions are
+- Enjoy your 350000 line diff. You might want to restrict your investigations
+  to the files with 'python' in the name, staring with
+  'python/google/protobuf/'.
+
+Why do this to yourself, though? Upgrading everything is not for the faint of
+heart. Limit upgrades to security releases and you're less likely to suffer
+data loss.
+
+When deploying your change, first create a backup of the postgresql database.
+
+If you need help understanding why things are installed, see
+[https://pypi.org/project/pipdeptree/](pipdeptree). You must install it inside
+the virtualenv (`make pipdeptree`).
+
+And don't forget to test with the same python version you're using in
+production, which itself must at times be upgraded by editing `runtime.txt`.
 
 ## Source Code and How to Commit
 
@@ -194,7 +253,7 @@ can do a remote commit with the following:
     local branch with
 	`git checkout master && git pull && git branch -d your_feature_branch_goes_here`
 
-When done with your feature, ensure all tests pass (`make test` and run pylint
+When done with your feature, ensure all tests pass (`make test`) and run pylint
 (`make pylint` after `pip3 install pylint` (inside an activated virtualenv))
 and `flake8 .`.  The very best practice is to run `make cov` (first `pip3
 install coverage` (inside an activated virtualenv)) and ensure that your change
@@ -308,7 +367,7 @@ Wouldn't it be nice if we had the following:
 
 ## Copyright
 
-Copyright 2017 David L. Chandler
+Copyright 2019 David L. Chandler
 
 See the LICENSE file in this directory.
 

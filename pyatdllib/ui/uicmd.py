@@ -1564,7 +1564,7 @@ def _PerformMkprjOrMkdir(prj_or_folder, state, name, allow_slashes, verbose):
       containr.uid)
     if verbose:
       state.Print(new_item.uid)
-  except tdl.NoSuchParentFolderError as e:
+  except tdl.NoSuchParentFolderError:
     raise BadArgsError('The parent directory must be a Folder, not a Project.')
   except state_module.InvalidPathError as e:
     raise BadArgsError(e)
@@ -2189,18 +2189,18 @@ class UICmdSeed(UICmd):
     _RunCmd(UICmdDeactivatectx, ['@waiting for'])
     _RunCmd(UICmdMkprj, [FLAGS.pyatdl_separator + 'miscellaneous'])
     _RunCmd(UICmdMkprj, [FLAGS.pyatdl_separator + 'learn how to use this to-do list'])
-    _RunCmd(UICmdTouch, [FLAGS.pyatdl_separator + 'learn how to use this to-do list' +
-                         FLAGS.pyatdl_separator +
-                         'Watch the video on the "Help" page -- find it on the top '
-                         'navigation bar'])
-    _RunCmd(UICmdTouch, [FLAGS.pyatdl_separator + 'learn how to use this to-do list' +
-                         FLAGS.pyatdl_separator +
-                         'Read the book "Getting Things Done" by David Allen'])
-    _RunCmd(UICmdTouch, [FLAGS.pyatdl_separator + 'learn how to use this to-do list' +
-                         FLAGS.pyatdl_separator +
-                         'After reading the book, try out a Weekly Review -- on'
-                         ' the top navigation bar, find it underneath the'
-                         ' "Other" drop-down'])
+    _RunCmd(UICmdTouch, [FLAGS.pyatdl_separator + 'learn how to use this to-do list'
+                         + FLAGS.pyatdl_separator
+                         + 'Watch the video on the "Help" page -- find it on the top '
+                         + 'navigation bar'])
+    _RunCmd(UICmdTouch, [FLAGS.pyatdl_separator + 'learn how to use this to-do list'
+                         + FLAGS.pyatdl_separator
+                         + 'Read the book "Getting Things Done" by David Allen'])
+    _RunCmd(UICmdTouch, [FLAGS.pyatdl_separator + 'learn how to use this to-do list'
+                         + FLAGS.pyatdl_separator
+                         + 'After reading the book, try out a Weekly Review -- on'
+                         + ' the top navigation bar, find it underneath the'
+                         + ' "Other" drop-down'])
 
 
 class UICmdRmctx(UndoableUICmd):
@@ -2279,7 +2279,7 @@ class UICmdRmact(UndoableUICmd):  # 'rm', 'rmact'
     name = args[-1]
     try:
       the_action, the_project = _LookupAction(state, name)
-    except NoSuchContainerError as e:
+    except NoSuchContainerError:
       raise BadArgsError('Action "%s" not found.' % name)
     try:
       the_project.DeleteChild(the_action)

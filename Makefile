@@ -1,6 +1,6 @@
 # See README.md.
 
-.PHONY: all clean distclean test cov pylint pychecker loc sh local pipinstall
+.PHONY: all clean distclean test cov pylint pychecker loc sh local pipinstall pipdeptree
 
 all:
 	@echo "See README.md"
@@ -13,9 +13,16 @@ venv:
 
 pipinstall: venv
 	@./ensure_virtualenv.sh || exit 1
-	echo proceed
 	pip3 install -r requirements.txt
 	pip3 install -r requirements-test.txt
+
+venv/bin/pipdeptree: venv
+	@./ensure_virtualenv.sh || exit 1
+	pip3 install pipdeptree
+
+pipdeptree: venv/bin/pipdeptree
+	@./ensure_virtualenv.sh || exit 1
+	./venv/bin/pipdeptree
 
 local: venv
 	@./ensure_virtualenv.sh || exit 1
@@ -34,6 +41,7 @@ distclean:
 	rm -fr venv
 	@echo "Print deactivate your virtualenv. Exit the shell if you do not know how."
 
+# test and run the flake8 linter:
 test: venv
 	@./ensure_virtualenv.sh || exit 1
 	cd pyatdllib && make test
@@ -47,8 +55,6 @@ pychecker: venv
 
 pylint: venv
 	cd pyatdllib && make pylint
-
-# TODO(chandler37): flake8 support
 
 # TODO(chandler37): This misses django code?
 loc: 

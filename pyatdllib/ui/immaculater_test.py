@@ -1202,8 +1202,7 @@ dump""")) as f:
     ]
     self.helpTest(inputs, golden_printed)
 
-  def testRm(self):  # 'rm' is a mere alias of 'rmact'. See also test cases
-                     # using 'rmact'.
+  def testRm(self):  # 'rm' is a mere alias of 'rmact'. See also test cases using 'rmact'.
     inputs = ['chclock 11371137',
               'reset --annihilate',
               'cd /inbox',

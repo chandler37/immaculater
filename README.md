@@ -72,8 +72,7 @@ Immaculater requires 3.6.6 because DJango 2 requires python 3.
  - Install postgresql. On OS X, `brew install postgresql` after installing
    [Homebrew](https://brew.sh/). On Linux, `apt-get install postgresql postgresql-contrib`
  - On Linux, `apt-get Install python-dev python3-dev`
- - Run `pip3 install -r requirements.txt` and `pip3 install -r
-   requirements-test.txt` (again, after activating the virtualenv)
+ - Run `make pipinstall` (again, after activating the virtualenv)
  - If the above fails on the `cryptography` package you may need to `export
  LDFLAGS=-L/usr/local/opt/openssl/lib` and `export LDFLAGS=-L/usr/local/opt/openssl/lib`
  - Install the [Heroku CLI](https://devcenter.heroku.com/articles/heroku-cli)
@@ -205,6 +204,13 @@ heart. Limit upgrades to security releases and you're less likely to suffer
 data loss.
 
 When deploying your change, first create a backup of the postgresql database.
+
+If you need help understanding why things are installed, see
+[https://pypi.org/project/pipdeptree/](pipdeptree). You must install it inside
+the virtualenv (`make pipdeptree`).
+
+And don't forget to test with the same python version you're using in
+production, which itself must at times be upgraded by editing `runtime.txt`.
 
 ## Source Code and How to Commit
 

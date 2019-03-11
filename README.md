@@ -367,7 +367,7 @@ Wouldn't it be nice if we had the following:
 
 ## Copyright
 
-Copyright 2017 David L. Chandler
+Copyright 2019 David L. Chandler
 
 See the LICENSE file in this directory.
 

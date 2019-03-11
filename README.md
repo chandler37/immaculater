@@ -135,7 +135,7 @@ cache:
  - `heroku plugins:install heroku-repo`
  - `heroku repo:purge_cache -a YOURAPPNAME`
 
-## Database migrations
+## Database Migrations
 
 First you may want to do a manual backup of your database with `heroku
 pg:backups:capture --app <YOUR APP NAME>`.
@@ -154,6 +154,57 @@ pg:backups:capture --app <YOUR APP NAME>`.
  - `git pull`
  - `git push heroku master`
  - `heroku run python manage.py migrate`
+
+## Upgrading Third-Party Dependencies
+
+The file `requirements.txt` pins third-party dependencies like `protobuf` and
+`Django` to versions that are tested. If you wish to upgrade, change the
+version. E.g., if you learn of a security vulnerability in `Django`, change its
+version. Don't change any other libraries. Installation may fail if the new
+`Djanjo` requires a newer version of something else. Upgrade that something
+else.
+
+If you wish to upgrade everything possible, edit `requirements.txt` so that it
+no longer contains any version information. You can do this via `sed -i "" -e
+"s/=.*//" requirements.txt`. Then `source venv/bin/activate; pip3 install -r
+requirements.txt`. (This is a subset of what `make pipinstall` does; we do not
+wish to install test dependencies at this point.) You will fetch the latest of
+everything. Now run `pip3 freeze > requirements.txt` to pin once more. Now run
+`make pipinstall test`. Understand each change by reading changelogs or
+studying the diff of the source code. You don't want to push the
+latest-but-not-necessarily-greatest to production accidentally, so make sure
+`requirements.txt` is frozen anew.
+
+The `protobuf` library is unique in that it contains Python a library used by
+the compiled `pyatdl.proto` file but also contains the protocol buffer
+compiler, `protoc`. You may wish to recompile
+`pyatdllib/core/pyatdl_pb2.py`. `make clean` will remove it and `make test`
+will trigger a new compilation.
+
+The real test is whether or not the new `pyatdl_pb2.py` can work with data
+inside postgresql that was created by the old version. It's the whole point of
+the library, but you should definitely run the old code to populate the
+database and then run the new code and see if it works. An automated test of
+this would be a welcome pull request.
+
+Here's an example of studying changelogs and the differences in the source
+code:
+
+- First do a web search to find the changelog, if there is one. Read it. Then...
+- `cd /tmp`
+- `git clone https://github.com/protocolbuffers/protobuf.git`
+- `cd protobuf`
+- `git tag -l --sort=version:refname`
+- `git diff v3.5.2..v3.7.0` # or whatever your old and new versions are
+- Enjoy your 350000 line diff. You might want to restrict your investigations
+  to the files with 'python' in the name, staring with
+  'python/google/protobuf/'.
+
+Why do this to yourself, though? Upgrading everything is not for the faint of
+heart. Limit upgrades to security releases and you're less likely to suffer
+data loss.
+
+When deploying your change, first create a backup of the postgresql database.
 
 ## Source Code and How to Commit
 

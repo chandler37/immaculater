@@ -1532,7 +1532,7 @@ class V1ProjectsView(V1View):
     return HttpResponse(data)
 
   def post(self, request):
-    # DLC
+    # TODO(chandler): finish and test this.
     json_input = json.dumps(self.request_json(request), cls=self.json_encoder_class)
     return HttpResponse(json_input, content_type='application/json')
 

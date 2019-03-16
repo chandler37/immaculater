@@ -154,6 +154,10 @@ pg:backups:capture --app <YOUR APP NAME>`.
  - `git push heroku master`
  - `heroku run python manage.py migrate`
 
+You should not need to put your app in maintenance mode via `heroku
+maintenance:on -a <YOUR APP NAME>` but if you are ignoring best practices and
+mixing a database change with a code change, it's probably best.
+
 ## Upgrading Third-Party Dependencies
 
 The file `requirements.txt` pins third-party dependencies like `protobuf` and

@@ -1417,6 +1417,113 @@ def api(request):
 
 @never_cache
 @csrf_exempt
+def mergeprotobufs(request):
+  """This API is the heart of how a smartphone app or a single-page web
+  application (SPA) (e.g., using React+Redux,
+  https://webdev.dartlang.org/angular, https://angular.io/, or Vue.js)
+  interacts with the database.
+
+  This API accepts an optional ToDoList and merges it with the latest ToDoList
+  in the database. It returns the merged data.
+
+  Imagine you write a Flutter smartphone app. Flutter uses Dart. Dart has
+  protocol messages a.k.a. protocol buffers a.k.a. protobufs. See here:
+  https://pub.dartlang.org/packages/protobuf. So you can use pyatdl.ToDoList to
+  represent the data on the smartphone app and then use pyatdl.ChecksumAndData
+  to transmit it to this API. You disallow any updates as you wait for this
+  API's result. You then replace your data structure with the merged data
+  structure. In this way a user can interact via the Discord and Slack APIs,
+  via SPAs, via this django classic-web-architecture web app, and via your new
+  smartphone app, all simultaneously. Changes will be merged. Additions are
+  straightforward but you must handle UID collisions (e.g., the smartphone app
+  has added Action 123 "buy soymilk" and the django app has added Project 123
+  "replace wifi router"). Deletions are trickier because we must preserve the
+  object's UID (but we can delete the data like "buy soymilk") and indicate
+  that it was deleted so this server can delete the data. TODO(chandler37): Add
+  an API that truly deletes deleted items, to be used only when all devices are
+  known to be in sync.
+
+  You might wonder why one would need an SPA. This django app is a web
+  application, after all. It uses PJAX (pushState+AJAX), but it's still classic
+  web architecture. Any operation the user performs waits on the AJAX request
+  to finish and the browser to replace part of the page and render the
+  change. If the server is slow, that could mean waiting two seconds to see the
+  checkbox appear to be checked. And if you press that checkbox or alter that
+  drop-down with text inside the 'capture new action' box, that text will be
+  lost when the browser renders. An SPA is a much better UX especially if the
+  server is slow (perhaps because you're running Immaculater in only one
+  datacenter and the user is far away).
+
+  You might also wonder why the app would want to use this type of API instead
+  of a full REST API for Actions, Projects, Contexts, Folders, etc. That's
+  simple: Use the right tool for the job. Since a human being's personal to-do
+  list fits nicely in a single HTTP request, just make one request. Then you
+  don't have to worry about doing additions, deletions, etc. in a piecemeal
+  fashion. This merge is all-or-nothing.
+
+  TODO(chandler37): Allow specifying whether the output should be sha1-hashed.
+
+  TODO(chandler37): Allow specifying whether the output should be
+  zlib-compressed (which level? 7? 9?). Perhaps have an 'auto' level that
+  compresses only when the data is large enough that it might save a packet.
+
+  Example usage:
+
+  curl -H 'Content-Type: application/json' -X POST -d '{"latest": "serialized protobuf"}' -u foo:bar http://127.0.0.1:5000/todo/mergeprotobufs
+
+  Or, to discard any of your app's changes and just see what's in the database:
+
+  curl -H 'Content-Type: application/json' -X POST -d '{"latest":null}' -u foo:bar http://127.0.0.1:5000/todo/mergeprotobufs
+  """
+  # NOTE: The environment variable USE_MERGE_PROTOBUF_API must be set to "True"
+  # to enable this API because it is currently not fully implemented.
+
+  # TODO: create an audit log so the user can see "oh i synced an hour ago",
+  # perhaps with a summary of changes
+
+  # TODO: Reject HTTP unless you're speaking to localhost. Require HTTPS. We do
+  # this at a higher level, but enforce it here too, just in case.
+  if request.method != 'POST':
+    raise Http404()
+  user = _authenticated_user_via_basic_auth(request)  # TODO: maybe use JWTs instead? See //immaculater/jwt.py
+  assert user is not None and user.is_active
+  try:
+    json_data = json.loads(request.body)
+  except ValueError:
+    return HttpResponseBadRequest("Invalid JSON")
+  if not isinstance(json_data, dict) or 'latest' not in json_data:
+    return JsonResponse({"error": "Needed a dict containing the key 'latest'"},
+                        status=422)
+  skip_merge = json_data['latest'] is None
+  if not skip_merge and not isinstance(json_data['latest'], str):
+    return JsonResponse({"error": "latest must be null or a serialized pyatdl.ChecksumAndData protobuf (a string)"},
+                        status=422)
+  latest_todolist = None
+  if not skip_merge:
+    # TODO: reuse existing code for unpacking ChecksumAndData.
+    latest_checksumanddata = _deserialize_checksumanddata_pb(json_data['latest'])  # TODO: implement this function and add error handling
+    assert isinstance(latest_checksumanddata, pyatdl_pb2.ChecksumAndData)
+    if latest_checksumanddata.sha1_checksum is not None and latest_checksumanddata.sha1_checksum != _sha1_checksum(latest_checksumanddata.payload):
+      return JsonResponse({'immaculater_error': "sha1 hash was wrong"}, status=422)
+    if latest_checksumanddata.payload_length != len(latest_checksumanddata.payload):
+      return JsonResponse({'immaculater_error': "payload_length was wrong"}, status=422)
+    uncompressed_payload = latest_checksumanddata.payload
+    if latest_checksumanddata.payload_is_zlib_compressed:
+      uncompressed_payload = _decompress(latest_checksumanddata.payload)
+    # TODO: implement this function and add error handling:
+    latest_todolist = _deserialize_todolist_pb(uncompressed_payload)
+  assert latest_todolist is None or isinstance(latest_todolist, pyatdl_pb2.ToDoList), 'weird type %s' % type(latest_todolist)
+  existing_pb = _read_todolist_from_database_but_not_creating_anything_if_not_found(user)  # TODO
+  assert existing_pb is None or isinstance(existing_pb, pyatdl_pb2.ToDoList), 'weird type %s' % type(existing_pb)
+  if existing_pb is None and skip_merge:
+    existing_pb = _new_todolist()  # TODO
+  merged_pb = existing_pb if skip_merge else _merge_todolist_protobufs(existing_pb, latest_todolist)
+  _write_to_the_database(merged_pb)  # TODO
+  return JsonResponse({'pyatdl.ChecksumAndData': serialized_merged_checksumanddata})  # TODO
+
+
+@never_cache
+@csrf_exempt
 def discordapi(request):
   """Like /api but only for use by the immaculater-discord-bot Discord bot."""
   if request.method != 'POST':

@@ -31,4 +31,9 @@ urlpatterns = [
 ]
 
 if settings.USE_ALLAUTH:
-    urlpatterns.append(url(r'^discordapi$', views.discordapi, name='discordapi'))
+    urlpatterns.append(
+        url(r'^discordapi$', views.discordapi, name='discordapi'))
+
+if settings.USE_MERGE_PROTOBUF_API:
+    urlpatterns.append(
+        url(r'^mergeprotobufs$', views.mergeprotobufs, name='mergeprotobufs'))

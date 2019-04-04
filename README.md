@@ -81,8 +81,8 @@ Immaculater requires 3.6.6 because DJango 2 requires python 3.
 
 ## One-Time Local Server Setup
 
- - `python manage.py migrate`
- - `python manage.py createsuperuser`
+ - `make localmigrate`
+ - `make localsuperuser`
  - `sqlite3 db.sqlite3` helps you see the local database if you need to.
 
 ## One-Time Heroku Setup
@@ -144,7 +144,7 @@ pg:backups:capture --app <YOUR APP NAME>`.
  - Test locally with `python manage.py migrate`
  - `git checkout master`
  - `git pull`
- - `git checkout -b migration_branch`
+ - `git checkout origin/master -b migration_branch`
  - `git add <new file>`
  - `git commit`
  - `git push origin migration_branch`
@@ -229,7 +229,7 @@ can do a remote commit with the following:
 
  - `git checkout master`
  - `git pull`
- - `git checkout -b your_feature_branch_goes_here`
+ - `git checkout origin/master -b your_feature_branch_goes_here`
  - Make your edits
  - `source venv/bin/activate`
  - `(cd pyatdllib && make test)`

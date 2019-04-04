@@ -1,9 +1,17 @@
 # See README.md.
 
-.PHONY: all clean distclean test cov pylint pychecker loc sh local pipinstall pipdeptree
+.PHONY: all clean distclean test cov pylint pychecker loc sh local pipinstall pipdeptree localmigrate localsuperuser
 
 all:
 	@echo "See README.md"
+
+localmigrate:
+	@./ensure_virtualenv.sh || exit 1
+	python manage.py migrate
+
+localsuperuser:
+	@./ensure_virtualenv.sh || exit 1
+	python manage.py createsuperuser
 
 venv:
 	@echo "Install virtualenv system-wide via 'pip3 install virtualenv' if the following fails:"

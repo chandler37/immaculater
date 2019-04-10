@@ -60,18 +60,19 @@ Immaculater requires 3.6.6 because DJango 2 requires python 3.
 
 ## One-time Installation
 
- - Use [Homebrew](https://brew.sh/) to install python3. But you may run into
-   problems with 3.7 or later and need to install 3.6 using the recipe at
-   https://stackoverflow.com/questions/51125013/how-can-i-install-a-previous-version-of-python-3-in-macos-using-homebrew
+ - If you're on MacOS, use [Homebrew](https://brew.sh/) to install python3. But
+    you may run into problems with 3.7 or later and need to install 3.6 using the
+    recipe at
+    https://stackoverflow.com/questions/51125013/how-can-i-install-a-previous-version-of-python-3-in-macos-using-homebrew
+ - On Linux, `apt-get Install python-dev python3-dev`
+ - Install postgresql. On MacOS, `brew install postgresql` after installing
+   [Homebrew](https://brew.sh/). On Linux, `apt-get install postgresql postgresql-contrib`
  - `pip3 install virtualenv`
  - Create a virtualenv with `make venv`
  - `source venv/bin/activate`
  - Notice how your command prompt mentions `(venv)` now to let you know that
    the virtualenv is activated. You can `deactivate` at any time or exit the
    shell to deactivate.
- - Install postgresql. On OS X, `brew install postgresql` after installing
-   [Homebrew](https://brew.sh/). On Linux, `apt-get install postgresql postgresql-contrib`
- - On Linux, `apt-get Install python-dev python3-dev`
  - Run `make pipinstall` (again, after activating the virtualenv)
  - If the above fails on the `cryptography` package you may need to `export
  LDFLAGS=-L/usr/local/opt/openssl/lib` and `export LDFLAGS=-L/usr/local/opt/openssl/lib`
@@ -182,7 +183,8 @@ The `protobuf` library is unique in that it contains Python a library used by
 the compiled `pyatdl.proto` file but also contains the protocol buffer
 compiler, `protoc`. You may wish to recompile
 `pyatdllib/core/pyatdl_pb2.py`. `make clean` will remove it and `make test`
-will trigger a new compilation.
+will trigger a new compilation. You might prefer to install `protoc` via
+homebrew using `brew install protobuf`.
 
 The real test is whether or not the new `pyatdl_pb2.py` can work with data
 inside postgresql that was created by the old version. It's the whole point of
@@ -346,13 +348,28 @@ Wouldn't it be nice if we had the following:
 - A login page that doesn't change style upon an invalid login
 - [Docker support](https://docs.docker.com/compose/django/)
 - Voice integration with Alexa, Siri, Google Home, etc.
-- A better web app than the one found here, something slick
-  like the 'mail.google.com' interface to GMail
+- SPA: A better web app than the one found here, something slick like the
+  'mail.google.com' interface to GMail, possibly in Angular or AngularDart or
+  using React. There is an API (unimplemented but specified clearly in
+  `todo/views.py`) called `mergeprotobufs` that would be at the heart of such a
+  single-page application (SPA). Instead of RESTful APIs for Actions, Projects,
+  Contexts, Folders, Notes, etc., there will simply be `mergeprotobufs` which
+  deals with all of the data at once, merging changes made in the SPA with
+  changes made otherwise (via Alexa, Slack, Discord, the CLI, this django
+  classic web architecture web app, the iOS app, or the Android app). Using
+  this API requires sending a protobuf from Javascript, so see
+  https://github.com/protocolbuffers/protobuf/tree/master/js
 - Expanding the setup.py magic built around <https://github.com/chandler37/immaculater-cli>
    into a proper PyPI package listed publicly
-- An iOS app
+- An iOS app. Google's Flutter framework (which also works for Android) uses
+  Dart which is a supported language for protocol buffers, so the
+  aforementioned `mergeprotobufs` API will do the trick in terms of syncing
+  data with other apps (like this django classic web architecture web app or a
+  future SPA). React Native might be able to use generated Javascript
+  protobufs, too, and targets Android as well.
 - An Android app
-    - Perhaps SL4A scripting layer for android
+    - Flutter? (See above about iOS.)
+    - Or if you abandon iOS, perhaps SL4A scripting layer for android, or....
     - See kivy.org which uses python-for-android under the hood, particularly the
       'notes' tutorial app.
         - Dependence: Cython-0.22
@@ -362,7 +379,7 @@ Wouldn't it be nice if we had the following:
         - `~/git/kivy/examples/tutorials/notes/final$ buildozer -v android debug deploy run`
 - An actual filesystem (remember how Plan 9 made pretty much everything pretend
   to be a filesystem? We already are pretending.) Starting with a linux
-  filesystem (see FUSE) and an OS X filesystem (see [FUSE for macOS](https://osxfuse.github.io/))
+  filesystem (see FUSE) and an MacOS filesystem (see [FUSE for macOS](https://osxfuse.github.io/))
 - Per-user encryption. We already use [Fernet](https://cryptography.io/en/latest/fernet/)
   to encrypt the to-do list, but some users would prefer a
   second layer of encryption such that an attacker would have to break a

@@ -169,7 +169,7 @@ version. Don't change any other libraries. Installation may fail if the new
 else.
 
 If you wish to upgrade everything possible, edit `requirements.txt` so that it
-no longer contains any version information. You can do this via `sed -i "" -e
+no longer contains any version information. You can do this via `sed -i -e
 "s/=.*//" requirements.txt`. Then `source venv/bin/activate; pip3 install -r
 requirements.txt`. (This is a subset of what `make pipinstall` does; we do not
 wish to install test dependencies at this point.) You will fetch the latest of

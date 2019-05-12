@@ -4,6 +4,10 @@
 help:
 	@echo "See README.md but maybe... make venv; source venv/bin/activate; make test"
 
+.PHONY: papertrail
+papertrail:
+	heroku addons:open papertrail
+
 .PHONY: localmigrate
 localmigrate: venv/requirements-installed-by-makefile
 	@./ensure_virtualenv.sh || exit 1
@@ -75,8 +79,9 @@ distclean: clean
 .PHONY: test
 test: venv/requirements-installed-by-makefile venv/requirements-test-installed-by-makefile
 	@./ensure_virtualenv.sh || exit 1
-	cd pyatdllib && make test
+	cd pyatdllib && make protoc_middleman
 	python ./run_django_tests.py $(ARGS)
+	cd pyatdllib && make test
 	@echo ""
 	@echo "Tests and linters passed".
 

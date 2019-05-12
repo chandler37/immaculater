@@ -13,10 +13,51 @@ message VisitorInfo0 {
   extensions 20000 to max;
 }
 
+// The input to the mergeprotobufs API:
+message MergeToDoListRequest {
+  // We could include a ToDoList, but the mergeprotobufs API never needs to
+  // decode latest.payload (which takes time and memory) if your application is
+  // the only one that has modified the user's to-do list (that is, if
+  // previous_sha1_checksum still describes the most recent version of the
+  // user's to-do list):
+  optional ChecksumAndData latest = 1;  // where payload_is_zlib_compressed
+                                        // must be false (use HTTP compression
+                                        // if you care)
+
+  // What version of the uncompressed ToDoList did you start with? Optional
+  // when and only when new_data is true:
+  optional string previous_sha1_checksum = 2;
+
+  // You registered this user and you created a starter to-do list for them and
+  // you're saving it for the first time to the database:
+  optional bool new_data = 3 [default = false];
+
+  optional fixed64 sanity_check = 15 [jstype = JS_STRING];  // Must be 18369614221190020847
+}
+
+// The output from the mergeprotobufs API on its HTTP 200 OK happy path:
+message MergeToDoListResponse {
+  // Note that we do not use zlib compression or provide you with a bunch of
+  // bytes and a checksum. HTTP is atop TCP which has TCP checksums. HTTP (even
+  // with TLS) supports compression. So ChecksumAndData is not needed. (Okay,
+  // fine -- the sanity_check field proves that we trust nothing and no one :)
+
+  // Always present. This will be equal to the sha1_checksum you provided when
+  // to_do_list is absent:
+  optional string sha1_checksum = 1;
+  optional ToDoList to_do_list = 2;  // present iff the merge operation actually did something
+  optional bool starter_template = 3 [default = false];  // Is to_do_list the to-do list stamped out for a new user?
+  optional fixed64 sanity_check = 15 [jstype = JS_STRING];  // Must be 18369614221190021342
+}
+
 // When we serialize ToDoList, we do so using ChecksumAndData. This way we can
 // detect data corruption.
 message ChecksumAndData {
   required int64 payload_length = 1 [jstype = JS_STRING];  // in bytes
+  // TODO(chandler37): why sha1? why not a faster noncryptographic hash or
+  // pseudorandom function (PRF)?  do we need a cryptographic hash (given that
+  // only the User can modify their data)? why not sha-3 or at least sha-256?
+  // SipHash? HighwayHash?
   optional string sha1_checksum = 2;
   optional bool payload_is_zlib_compressed = 3;
   required bytes payload = 10123;
@@ -73,6 +114,7 @@ message Common {
   // range. See
   // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/MAX_SAFE_INTEGER
   optional int64 uid = 4 [jstype = JS_STRING];
+  // DLC keep counters of objects: actions: {created: 100, completed: 90, deleted: 5}
   optional bool is_deleted = 1;
   optional Timestamp timestamp = 2;
   optional Metadata metadata = 3;
@@ -148,5 +190,6 @@ message ToDoList {
   optional Folder root = 2;
   optional ContextList ctx_list = 3;
   optional NoteList note_list = 5;
+// DLC test future data passed in is preserved: e.g.,  optional Foo foo = 6;
   extensions 20000 to max;
 }

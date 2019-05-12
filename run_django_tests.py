@@ -13,7 +13,7 @@ import subprocess
 
 
 PYTEST_ARGS = {
-    'default': ['todo/tests'],
+    'default': ['todo/tests', '-vv'],
     'fast': ['todo/tests', '-q'],
 }
 

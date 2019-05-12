@@ -19,8 +19,12 @@ import gflags as flags  # https://code.google.com/p/python-gflags/
 
 from third_party.django_pjax import djpjax
 from pyatdllib.ui import immaculater
+from pyatdllib.ui import serialization
+from pyatdllib.ui import uicmd
 from pyatdllib.core import pyatdl_pb2
+from pyatdllib.core import tdl
 from pyatdllib.core import view_filter
+from pyatdllib.core.mergeprotobufs import Merge
 from django.contrib.auth import authenticate
 from django.contrib.auth import logout
 from django.contrib.auth import update_session_auth_hash
@@ -67,6 +71,8 @@ FLAGS.no_context_display_string = 'Actions Without Context'
 
 _COOKIE_NAME = 'VISITOR_INFO0'
 _SANITY_CHECK = 37
+MERGETODOLISTREQUEST_CONTENT_TYPE = 'application/x-protobuf; messageType="pyatdl.MergeToDoListRequest"'
+MERGETODOLISTREQUEST_SANITY_CHECK = 18369614221190020847
 
 
 # TODO(chandler): Support redo/undo. Put the commands in the protobuf.
@@ -1294,7 +1300,7 @@ def _authenticated_user_via_discord_bot_custom_auth(request):
     raise PermissionDenied()
   try:
     userid, password = base64.b64decode(auth[1]).decode('iso-8859-1').split(':', 1)
-  except (TypeError, UnicodeDecodeError, binascii.Error):
+  except (ValueError, TypeError, UnicodeDecodeError, binascii.Error):
     raise PermissionDenied()
   if userid != os.environ['IMMACULATER_DISCORD_BOT_ID']:
     raise PermissionDenied()
@@ -1320,22 +1326,22 @@ def _authenticated_user_via_discord_bot_custom_auth(request):
   raise PermissionDenied()
 
 
-def _authenticated_user_via_basic_auth(request):
+def _active_authenticated_user_via_basic_auth(request):
   auth = request.META.get('HTTP_AUTHORIZATION', '').split()
   if not auth or auth[0].lower() != 'basic' or len(auth) != 2:
     raise PermissionDenied()
   try:
     userid, password = base64.b64decode(auth[1]).decode('iso-8859-1').split(':', 1)
-  except (TypeError, UnicodeDecodeError, binascii.Error):
+  except (ValueError, TypeError, UnicodeDecodeError, binascii.Error):
     raise PermissionDenied()
   credentials = {
     User.USERNAME_FIELD: userid,
     'password': password
   }
   user = authenticate(request=request, **credentials)
-  if user is None:
+  if user is None:  # which may be because user.is_active is False in the case of the ModelBackend
     raise PermissionDenied()
-  if not user.is_active:
+  if not user.is_active:  # but you can't be too careful...
     raise PermissionDenied()
   return user
 
@@ -1377,7 +1383,7 @@ def api(request):
   """
   if request.method != 'POST':
     raise Http404()
-  user = _authenticated_user_via_basic_auth(request)
+  user = _active_authenticated_user_via_basic_auth(request)
   assert user is not None
   read_only = False
   cmd_list = request.POST.getlist('cmdro', [])
@@ -1422,33 +1428,163 @@ def api(request):
     return JsonResponse({'immaculater_error': six.text_type(error)}, status=422)
 
 
+def _is_valid_sha1_checksum(s):
+  return re.match(r'^[0-9a-f]{40}$', s)
+
+
+def _parse_mergeprotobufs_request(request):
+  """mergeprotobufs helper returning a 2-tuple (None|pyatdl_pb2.MergeToDoListRequest, None|HttpResponse)."""
+  if request.content_type != MERGETODOLISTREQUEST_CONTENT_TYPE and request.content_type != MERGETODOLISTREQUEST_CONTENT_TYPE.split(';', 1)[0]:
+    msg = "Content type provided is %s instead of %s" % (
+        request.content_type,
+        MERGETODOLISTREQUEST_CONTENT_TYPE)
+    return None, JsonResponse({"error": msg}, status=415)  # Unsupported Media Type
+  try:
+    req = pyatdl_pb2.MergeToDoListRequest.FromString(request.body)
+  except message.Error as e:
+    _debug_log('MergeToDoListRequest message.Error %s' % six.text_type(e))
+    return None, JsonResponse({"error": "Could not parse pyatdl.MergeToDoListRequest"},
+                              status=400)
+  if req.sanity_check != MERGETODOLISTREQUEST_SANITY_CHECK:
+    return None, JsonResponse({"error": "Got a valid MergeToDoListRequest but sanity_check was %s" % req.sanity_check},
+                              status=422)
+  if req.previous_sha1_checksum and req.new_data:
+    return None, JsonResponse({"error": "new data should not be based on a previous checksum %s" % req.previous_sha1_checksum},
+                              status=422)
+  if req.new_data and not req.latest.sha1_checksum:
+    return None, JsonResponse({"error": "new data should come with req.latest.sha1_checksum"},
+                              status=422)
+  if len(req.previous_sha1_checksum) and req.previous_sha1_checksum == req.latest.sha1_checksum:
+    return None, JsonResponse({"error": "req.previous_sha1_checksum equals req.latest.sha1_checksum which means you are just asking for changes from other devices, I presume, since nothing changed on your end. The only way to ask for that is to omit the 'latest' field which saves network bandwidth."},
+                              status=409)
+  if req.latest.payload_is_zlib_compressed:
+    return None, JsonResponse({"error": "req.latest.payload_is_zlib_compressed is true which is unsupported because we have HTTP compression available to us."},
+                              status=409)
+  sha1_format_error = "is the wrong length or not hexadecimal"
+  if req.previous_sha1_checksum and not _is_valid_sha1_checksum(req.previous_sha1_checksum):
+    return None, JsonResponse({"error": "previous_sha1 %s" % sha1_format_error},
+                              status=422)
+  if req.latest.sha1_checksum and not _is_valid_sha1_checksum(req.latest.sha1_checksum):
+    return None, JsonResponse({"error": "latest.sha1_checksum %s" % sha1_format_error},
+                              status=422)
+  if req.latest.payload and not req.latest.sha1_checksum:
+    return None, JsonResponse({"error": "latest.payload given but latest.sha1_checksum absent"},
+                              status=422)
+  if len(req.latest.payload) != req.latest.payload_length:
+    return None, JsonResponse({"error": "len(latest.payload)=%s but latest.payload_length=%s" % (len(req.latest.payload), req.latest.payload_length)},
+                              status=422)
+  if req.latest.sha1_checksum:
+    if not req.latest.payload:
+      return None, JsonResponse({"error": "req.latest.sha1_checksum given but req.latest.payload is missing"},
+                                status=422)
+    # TODO(chandler37): verify req.latest.sha1_checksum optionally to save a few CPU cycles?
+    real_sum = serialization.Sha1Checksum(req.latest.payload)
+    if real_sum != req.latest.sha1_checksum:
+      return None, JsonResponse({"error": "SHA1(latest.payload)=%s mismatches with latest.sha1_checksum=%s" % (real_sum, req.latest.sha1_checksum)},
+                                status=422)
+  return req, None
+
+
+def _write_database(user, some_bytes, sha1_checksum):
+  # DLC we must write the sha1 checksum too
+  SerializationWriter(user, None).write(some_bytes)
+
+
+def _read_database(user, sha1_checksum):
+  """Returns (None|tdl.ToDoList, None|str); raises serialization.DeserializationError"""
+  # DLC optimize: do not read the data from the database if sha1_checksum is present and matches the database
+  reader = SerializationReader(user)
+  sha1_checksum_list = []
+  a_tdl = serialization.DeserializeToDoList2(
+      reader,
+      tdl_factory=None,
+      sha1_checksum_list=sha1_checksum_list)
+  assert len(sha1_checksum_list) <= 1, sha1_checksum_list
+  if sha1_checksum_list and sha1_checksum_list[0] == sha1_checksum:
+    return None, sha1_checksum
+  return a_tdl, sha1_checksum_list[0] if sha1_checksum_list else None
+
+
 @never_cache
 @csrf_exempt
+@transaction.atomic  # DLC let's use select_for_update() on models.ToDoList
 def mergeprotobufs(request):
-  """This API is the heart of how a smartphone app or a single-page web
-  application (SPA) (e.g., using React+Redux,
+  """`mergeprotobufs` (which can merely read or merely write as well) receives
+  an octet-stream that is a pyatdl.MergeToDoListRequest and returns various
+  HTML and JSON errors or an HTTP 200 with an octet-stream that is a
+  pyatdl.MergeToDoListResponse which will contain a wrapped pyatdl.ToDoList
+  when and only when the to-do list has been modified since your app last saw
+  it by another app (probably on another device).
+
+  This API is the heart of how a desktop app, smartphone app or a
+  single-page web application (SPA) (e.g., using React+Redux,
   https://webdev.dartlang.org/angular, https://angular.io/, or Vue.js)
   interacts with the database.
 
-  This API accepts an optional ToDoList and merges it with the latest ToDoList
-  in the database. It returns the merged data.
+  This API accepts an optional ToDoList and the SHA1 hash of the starting point
+  and merges it with the latest ToDoList in the database. It returns the merged
+  data if there were changes on other devices (no reason to send back the
+  identical data otherwise) along with an SHA1 hash that becomes part of your
+  request the next time you call this API. It always returns HTTP 200 upon
+  success, returning a binary protobuf of type pyatdl.ChecksumAndData.
+
+  The SHA1 checksum serves two purposes:
+
+  1) It makes certain that the transport layer didn't fail us -- we compute the
+  same checksum server-side and abort if your checksum does not match our
+  checksum of your "payload" which is a serialized (binary) protobuf of type
+  pyatdl.ToDoList that is optionally gzip-compressed if
+  pyatdl.ChecksumAndData.payload_is_zlib_compressed is true (defaults to
+  false). We do not recommend such compression at this level because
+  compression, if valuable, is possible at the level of HTTP (via RFC 2616's
+  'gzip', 'deflate', 'compress', etc.). This paranoia about data corruption
+  comes at a cost, and you may wish to disable it. But there's still value in
+  this hash because of the following: (DLC make it disable-able and use a
+  cheaper hash/PRF e.g. SipHash or HighwayHash (https://arxiv.org/abs/1612.06257))
+
+  2) It allows us to avoid merging in the common case that no merge is required
+  because only your app has made any changes. When combined with the length,
+  hash collisions are so unlikely (and, thanks to the use of a cryptographic
+  hash, very expensive to create artifically by attackers) that we can use a
+  SHA1 checksum as a unique identifier for a pyatdl.ToDoList and thus can tell
+  that you are trying to save changes to version V and are the only one who has
+  made changes since V because V is the most recent version in our database. We
+  then short circuit the merge and simply accept your changes as version V+1
+  and write them to the database along with the SHA1 checksum.
+
+  DLC check length too and even check byte by byte in paranoid mode.
+
+  DLC talk about SHA1's brokenness -- soon it won't be that expensive to
+  construct artificial collisions (even with the same length, I assume)
 
   Imagine you write a Flutter smartphone app. Flutter uses Dart. Dart has
   protocol messages a.k.a. protocol buffers a.k.a. protobufs. See here:
   https://pub.dartlang.org/packages/protobuf. So you can use pyatdl.ToDoList to
   represent the data on the smartphone app and then use pyatdl.ChecksumAndData
   to transmit it to this API. You disallow any updates as you wait for this
-  API's result. You then replace your data structure with the merged data
-  structure. In this way a user can interact via the Discord and Slack APIs,
-  via SPAs, via this django classic-web-architecture web app, and via your new
-  smartphone app, all simultaneously. Changes will be merged. Additions are
-  straightforward but you must handle UID collisions (e.g., the smartphone app
-  has added Action 123 "buy soymilk" and the django app has added Project 123
-  "replace wifi router"). Deletions are trickier because we must preserve the
-  object's UID (but we can delete the data like "buy soymilk") and indicate
-  that it was deleted so this server can delete the data. TODO(chandler37): Add
-  an API that truly deletes deleted items, to be used only when all devices are
-  known to be in sync.
+  API's result (or you might write them to a side log you can replay against
+  the result obtained from this API). You then replace your data structure with
+  the merged data structure (or the merged data structure plus any replayed
+  events from your side log).
+
+  In this way a user can interact via the Discord and Slack APIs, via SPAs, via
+  this django classic-web-architecture web app, via a desktop app, and via your
+  new smartphone app, all simultaneously. Changes will be merged. Additions are
+  straightforward except in the exceptionally rare case that two devices picked
+  the same 64-bit pseudorandom number for a UID (you'd expect your first such
+  collision after roughly the square root of 2**64 (a few billion) items were
+  created) (e.g., the smartphone app has added Action 3145957813018432511 "buy
+  soymilk" and the django app has added Project 3145957813018432511 "replace
+  wifi router").
+
+  DLC return max mtime/ctime or current server time.
+
+  DLC verify that incoming timestamps are sane.
+
+  Deletions are trickier because we must preserve the object's UID (but we can
+  delete the data like "buy soymilk") and indicate that it was deleted so this
+  server can delete the data. TODO(chandler37): Add an API that truly deletes
+  deleted items, to be used only when all devices are known to be in sync.
 
   You might wonder why one would need an SPA. This django app is a web
   application, after all. It uses PJAX (pushState+AJAX), but it's still classic
@@ -1468,65 +1604,119 @@ def mergeprotobufs(request):
   don't have to worry about doing additions, deletions, etc. in a piecemeal
   fashion. This merge is all-or-nothing.
 
-  TODO(chandler37): Allow specifying whether the output should be sha1-hashed.
+  TODO(chandler37): Allow specifying whether the output should be
+  sha1-hashed. DLC sha-3? sha-256? DLC it must be.
 
   TODO(chandler37): Allow specifying whether the output should be
-  zlib-compressed (which level? 7? 9?). Perhaps have an 'auto' level that
+  zlib-compressed (which level? 2? 7? 9?). Perhaps have an 'auto' level that
   compresses only when the data is large enough that it might save a packet.
 
   Example usage:
 
-  curl -H 'Content-Type: application/json' -X POST -d '{"latest": "serialized protobuf"}' -u foo:bar http://127.0.0.1:5000/todo/mergeprotobufs
+  curl -H 'Content-Type: application/DLC' -X POST -d 'DLC' -u foo:bar http://127.0.0.1:5000/todo/mergeprotobufs
 
   Or, to discard any of your app's changes and just see what's in the database:
 
-  curl -H 'Content-Type: application/json' -X POST -d '{"latest":null}' -u foo:bar http://127.0.0.1:5000/todo/mergeprotobufs
+  curl DLC
+
+  TODO(chandler37): Preserve unknown protobuf tags (future data). [For now you
+  have to change this django server first (and not just to see your tag, but to
+  copy it over) because we reserve the right to pluck out only the tags we know
+  about, discarding your extensions.]
+
+  DLC test when we return no protobuf, indicating that what you sent us is
+  fully up to date (no merging was done). Test this with a pyatdl.ToDoList as
+  input and without (which is a request a frontend might make to stay in sync
+  with other devices' changes).
   """
-  # NOTE: The environment variable USE_MERGE_PROTOBUF_API must be set to "True"
-  # to enable this API because it is currently not fully implemented.
-
-  # TODO: create an audit log so the user can see "oh i synced an hour ago",
+  # DLC: create an audit log so the user can see "oh i synced an hour ago",
   # perhaps with a summary of changes
-
-  # TODO: Reject HTTP unless you're speaking to localhost. Require HTTPS. We do
-  # this at a higher level, but enforce it here too, just in case.
   if request.method != 'POST':
     raise Http404()
-  user = _authenticated_user_via_basic_auth(request)  # TODO: maybe use JWTs instead? See //immaculater/jwt.py
-  assert user is not None and user.is_active
+  if not request.is_secure() and os.environ.get('DJANGO_DEBUG') != "True":
+    # We do this at a higher level with SECURE_SSL_REDIRECT, but enforce it
+    # here too, just in case.
+    return JsonResponse({"error": "Use https, not http"},
+                        status=426)
+
+  # TODO(chandler37): maybe use JWTs instead? See //immaculater/jwt.py:
+  user = _active_authenticated_user_via_basic_auth(request)
+  pbreq, error_response = _parse_mergeprotobufs_request(request)
+  assert pbreq is None or error_response is None
+  assert pbreq is not None or error_response is not None
+  if error_response:
+    return error_response
+
   try:
-    json_data = json.loads(request.body)
-  except ValueError:
-    return HttpResponseBadRequest("Invalid JSON")
-  if not isinstance(json_data, dict) or 'latest' not in json_data:
-    return JsonResponse({"error": "Needed a dict containing the key 'latest'"},
-                        status=422)
-  skip_merge = json_data['latest'] is None
-  if not skip_merge and not isinstance(json_data['latest'], str):
-    return JsonResponse({"error": "latest must be null or a serialized pyatdl.ChecksumAndData protobuf (a string)"},
-                        status=422)
-  latest_todolist = None
-  if not skip_merge:
-    # TODO: reuse existing code for unpacking ChecksumAndData.
-    latest_checksumanddata = _deserialize_checksumanddata_pb(json_data['latest'])  # TODO: implement this function and add error handling
-    assert isinstance(latest_checksumanddata, pyatdl_pb2.ChecksumAndData)
-    if latest_checksumanddata.sha1_checksum is not None and latest_checksumanddata.sha1_checksum != _sha1_checksum(latest_checksumanddata.payload):
-      return JsonResponse({'immaculater_error': "sha1 hash was wrong"}, status=422)
-    if latest_checksumanddata.payload_length != len(latest_checksumanddata.payload):
-      return JsonResponse({'immaculater_error': "payload_length was wrong"}, status=422)
-    uncompressed_payload = latest_checksumanddata.payload
-    if latest_checksumanddata.payload_is_zlib_compressed:
-      uncompressed_payload = _decompress(latest_checksumanddata.payload)
-    # TODO: implement this function and add error handling:
-    latest_todolist = _deserialize_todolist_pb(uncompressed_payload)
-  assert latest_todolist is None or isinstance(latest_todolist, pyatdl_pb2.ToDoList), 'weird type %s' % type(latest_todolist)
-  existing_pb = _read_todolist_from_database_but_not_creating_anything_if_not_found(user)  # TODO
-  assert existing_pb is None or isinstance(existing_pb, pyatdl_pb2.ToDoList), 'weird type %s' % type(existing_pb)
-  if existing_pb is None and skip_merge:
-    existing_pb = _new_todolist()  # TODO
-  merged_pb = existing_pb if skip_merge else _merge_todolist_protobufs(existing_pb, latest_todolist)
-  _write_to_the_database(merged_pb)  # TODO
-  return JsonResponse({'pyatdl.ChecksumAndData': serialized_merged_checksumanddata})  # TODO
+    db_result, db_sha1 = _read_database(user, pbreq.latest.sha1_checksum)
+  except serialization.DeserializationError:
+    return JsonResponse(
+        {"error": "Cannot read existing to-do list from the database!"},
+        status=500)  # CONFLICT
+
+  if pbreq.latest.sha1_checksum and db_sha1 == pbreq.latest.sha1_checksum:
+    assert db_result is None, db_result
+    return HttpResponse(status=204)  # you are in sync
+
+  if db_result is not None and pbreq.new_data:
+    return JsonResponse(
+        {"error": "You set the new_data bit, but there is already a to-do list in the database. Maybe we should overwrite it? Maybe we should do a potentially ugly merge (ugly because two or more applications are competing to get the user started)? For now we abort and await your pull request."},
+        status=409)  # CONFLICT
+
+  pbresponse = pyatdl_pb2.MergeToDoListResponse()
+  pbresponse.sanity_check = 18369614221190021342
+  assert db_result is None or isinstance(db_result, tdl.ToDoList), 'weird type %s' % type(db_result)
+
+  def protobuf_response():
+    serialized_result = pbresponse.SerializeToString()
+    hr = HttpResponse(serialized_result)
+    # The following seems better than application/octet-stream and is supported
+    # by some debugging proxies:
+    hr['Content-Type'] = 'application/x-protobuf; messageType="pyatdl.MergeToDoListResponse"'
+    hr['Content-Length'] = len(serialized_result)  # DLC needed?
+    hr['Content-Transfer-Encoding'] = 'binary'
+    return hr
+
+  if db_result is None:
+    if pbreq.HasField('latest'):
+      if pbreq.new_data:
+        # DLC based on a FLAG for performance reasons,
+        # deserialize-and-then-serialize to make sure it's valid and not too
+        # large to process
+        _write_database(user, pbreq.latest.payload, pbreq.sha1_checksum)
+        pbresponse.sha1_checksum = pbreq.latest.sha1_checksum
+        # Leave pbresponse.to_do_list unset for performance reasons. (If this
+        # complicates some apps, then we can add a boolean to
+        # MergeToDoListRequest to be verbose.)
+        return protobuf_response()
+      return JsonResponse({"error": "This backend has no to-do list. You passed one in but did not set the 'new_data' boolean to true. We are aborting out of an abundance of caution. You might wish to call this API once with different arguments to trigger the creation of the default to-do list for new users."},
+                          status=409)
+    assert not pbreq.new_data
+    db_result = uicmd.NewToDoList()
+    pbresponse.starter_template = True
+    pbresponse.to_do_list.CopyFrom(db_result.AsProto())
+    pbresponse.sha1_checksum = serialization.Sha1Checksum(
+        pbresponse.to_do_list.SerializeToString())
+    _write_database(user, pbresponse.to_do_list.SerializeToString(), None)
+    return protobuf_response()
+
+  if pbreq.HasField('latest'):
+    # It does not match what is in the db; we must merge.
+    try:
+      deserialized_latest = pyatdl_pb2.ToDoList.FromString(pbreq.latest.payload)
+    except message.Error as e:
+      return JsonResponse({"error": "The given to-do list did not serialize. Hint: %s" % str(e)},  # DLC test
+                          status=409)
+    merged_tdl_pb = Merge(db_result, deserialized_latest)
+    pbresponse.sha1_checksum = _write_database(
+        user, merged_tdl_pb.SerializeToString(), None)  # DLC verify that this serializes and deserializes via _TestDeserializationOfChecksumWithData
+    assert len(pbresponse.sha1_checksum) == 40, pbresponse.sha1_checksum
+    pbresponse.to_do_list.CopyFrom(merged_tdl_pb)
+    return protobuf_response()
+  assert len(db_sha1) == 40, db_sha1
+  pbresponse.sha1_checksum = db_sha1
+  pbresponse.to_do_list.CopyFrom(db_result.AsProto())
+  return protobuf_response()
 
 
 @never_cache
@@ -1682,3 +1872,8 @@ immaculater.InitFlags()
 #   File "immaculater/third_party/django_pjax/djpjax.py", line 39, in _view
 #     resp.template_name = _pjaxify_template_var(resp.template_name)
 # AttributeError: 'HttpResponseRedirect' object has no attribute 'template_name'
+
+# TODO(chandler37): https://github.com/chandler37/immaculater/issues/55: The
+# notes fields can become large, so let's store only the first, say, 256 bytes
+# of the note in pyatdl.proto and store links to the complete larger items
+# which will live in a new database table.

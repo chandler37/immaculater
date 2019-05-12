@@ -29,12 +29,9 @@ urlpatterns = [
     url(r'^search$', views.search, name='search'),
     url(r'^privacy.html$', views.privacy, name='privacy'),
     url(r'^v1/projects$', views.V1ProjectsView.as_view(), name='v1_projects'),
+    url(r'^mergeprotobufs$', views.mergeprotobufs, name='mergeprotobufs'),
 ]
 
 if settings.USE_ALLAUTH:
     urlpatterns.append(
         url(r'^discordapi$', views.discordapi, name='discordapi'))
-
-if settings.USE_MERGE_PROTOBUF_API:
-    urlpatterns.append(
-        url(r'^mergeprotobufs$', views.mergeprotobufs, name='mergeprotobufs'))

@@ -16,6 +16,8 @@ import unittest
 
 import gflags as flags
 
+from google.protobuf import text_format
+
 from . import action
 from . import prj
 
@@ -73,6 +75,12 @@ class TestCase(unittest.TestCase):
     with open(tempfilename, 'wb') as f:
       f.write(contents.encode('utf-8'))
     return tempfilename
+
+  def assertProtosEqual(self, pb1, pb2):
+    if pb1.SerializeToString() != pb2.SerializeToString():
+      self.assertEqual(
+        text_format.MessageToString(pb1),
+        text_format.MessageToString(pb2))
 
   def _Python3Munging(self, list_of_strings):
     def Munge(string):

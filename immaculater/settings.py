@@ -40,9 +40,6 @@ DEBUG = os.environ.get('DJANGO_DEBUG') == "True"
 
 # Application definition
 
-# TODO: implement this API:
-USE_MERGE_PROTOBUF_API = os.environ.get("USE_MERGE_PROTOBUF_API", "False") == "True"
-
 INSTALLED_APPS = [
     'todo.apps.TodoConfig',
     'django.contrib.admin',
@@ -255,3 +252,5 @@ if os.environ.get("SENTRY_DSN"):
       dsn=os.environ.get("SENTRY_DSN"),
       integrations=[DjangoIntegration()]
   )
+
+# DLC Set ATOMIC_REQUESTS to True and remove @transaction.atomic?

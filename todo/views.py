@@ -53,6 +53,7 @@ from cryptography.fernet import Fernet, InvalidToken
 from google.protobuf import message
 from allauth.socialaccount import models as allauth_models
 from jwt_auth import mixins
+from oauth2_provider.views.generic import ProtectedResourceView
 
 from . import models
 
@@ -1845,6 +1846,11 @@ class V1ProjectsView(V1View):
     # TODO(chandler): finish and test this.
     json_input = json.dumps(self.request_json(request), cls=self.json_encoder_class)
     return HttpResponse(json_input, content_type='application/json')
+
+
+class DLCApiEndpoint(ProtectedResourceView):
+    def get(self, request, *args, **kwargs):
+        return HttpResponse('Hello, DLC')
 
 
 immaculater.InitFlags()

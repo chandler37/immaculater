@@ -58,6 +58,10 @@ INSTALLED_APPS = [
     'allauth.account',
     'allauth.socialaccount',
 ]
+
+# Alexa skills that require linking an account require an OAuth 2.0 flow:
+BE_AN_OAUTH_PROVIDER = os.environ.get("BE_AN_OAUTH_PROVIDER", "False") == "True"
+
 USE_ALLAUTH = os.environ.get("USE_ALLAUTH", "False") == "True"
 if USE_ALLAUTH:
     INSTALLED_APPS += [
@@ -69,6 +73,7 @@ if USE_ALLAUTH:
         'allauth.socialaccount.providers.google',
         'allauth.socialaccount.providers.slack',
     ]
+INSTALLED_APPS.append('oauth2_provider')
 
 SITE_ID = 1
 
@@ -229,8 +234,17 @@ if DEBUG:
                 'handlers': ['console'],
                 'propagate': True,
                 'level': 'DEBUG',
-            }
+            },
+            'django': {
+                'handlers':['console'],
+                'propagate': True,
+                'level':'DEBUG',
+            },
         },
+        'root': {
+            'level': 'DEBUG',
+            'handlers': ['console']
+        }
     }
 
 if os.environ.get('SENDGRID_API_KEY'):

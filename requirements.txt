@@ -9,6 +9,7 @@ Django==2.2.2
 django-allauth==0.39.1
 django-bmemcached==0.2.4
 django-jwt-auth==0.0.2
+django-oauth-toolkit==1.0.0
 django-sendgrid-v5==0.8.0
 django-slack-oauth==1.5.0
 enum34==1.1.6

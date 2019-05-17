@@ -1,2 +1,3 @@
 *_pb2.py -diff -merge linguist-generated=true
 *_pb.js -diff -merge linguist-generated=true
+*.binaryproto binary

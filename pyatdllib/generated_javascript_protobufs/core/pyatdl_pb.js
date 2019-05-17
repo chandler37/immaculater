@@ -736,7 +736,7 @@ proto.pyatdl.VisitorInfo0.deserializeBinaryFromReader = function(msg, reader) {
       msg.setSanityCheck(value);
       break;
     case 7:
-      var value = /** @type {number} */ (reader.readInt64());
+      var value = /** @type {string} */ (reader.readInt64String());
       msg.setCwcUid(value);
       break;
     case 3:
@@ -790,9 +790,9 @@ proto.pyatdl.VisitorInfo0.serializeBinaryToWriter = function(message, writer) {
       f
     );
   }
-  f = /** @type {number} */ (jspb.Message.getField(message, 7));
+  f = /** @type {string} */ (jspb.Message.getField(message, 7));
   if (f != null) {
-    writer.writeInt64(
+    writer.writeInt64String(
       7,
       f
     );
@@ -857,14 +857,14 @@ proto.pyatdl.VisitorInfo0.prototype.hasSanityCheck = function() {
 
 /**
  * optional int64 cwc_uid = 7;
- * @return {number}
+ * @return {string}
  */
 proto.pyatdl.VisitorInfo0.prototype.getCwcUid = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 7, 0));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 7, "0"));
 };
 
 
-/** @param {number} value */
+/** @param {string} value */
 proto.pyatdl.VisitorInfo0.prototype.setCwcUid = function(value) {
   jspb.Message.setField(this, 7, value);
 };
@@ -1081,7 +1081,7 @@ proto.pyatdl.ChecksumAndData.deserializeBinaryFromReader = function(msg, reader)
     var field = reader.getFieldNumber();
     switch (field) {
     case 1:
-      var value = /** @type {number} */ (reader.readInt64());
+      var value = /** @type {string} */ (reader.readInt64String());
       msg.setPayloadLength(value);
       break;
     case 2:
@@ -1128,9 +1128,9 @@ proto.pyatdl.ChecksumAndData.prototype.serializeBinary = function() {
  */
 proto.pyatdl.ChecksumAndData.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = /** @type {number} */ (jspb.Message.getField(message, 1));
+  f = /** @type {string} */ (jspb.Message.getField(message, 1));
   if (f != null) {
-    writer.writeInt64(
+    writer.writeInt64String(
       1,
       f
     );
@@ -1163,14 +1163,14 @@ proto.pyatdl.ChecksumAndData.serializeBinaryToWriter = function(message, writer)
 
 /**
  * required int64 payload_length = 1;
- * @return {number}
+ * @return {string}
  */
 proto.pyatdl.ChecksumAndData.prototype.getPayloadLength = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 1, 0));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, "0"));
 };
 
 
-/** @param {number} value */
+/** @param {string} value */
 proto.pyatdl.ChecksumAndData.prototype.setPayloadLength = function(value) {
   jspb.Message.setField(this, 1, value);
 };
@@ -1385,15 +1385,15 @@ proto.pyatdl.Timestamp.deserializeBinaryFromReader = function(msg, reader) {
     var field = reader.getFieldNumber();
     switch (field) {
     case 1:
-      var value = /** @type {number} */ (reader.readInt64());
+      var value = /** @type {string} */ (reader.readInt64String());
       msg.setCtime(value);
       break;
     case 2:
-      var value = /** @type {number} */ (reader.readInt64());
+      var value = /** @type {string} */ (reader.readInt64String());
       msg.setDtime(value);
       break;
     case 3:
-      var value = /** @type {number} */ (reader.readInt64());
+      var value = /** @type {string} */ (reader.readInt64String());
       msg.setMtime(value);
       break;
     default:
@@ -1425,23 +1425,23 @@ proto.pyatdl.Timestamp.prototype.serializeBinary = function() {
  */
 proto.pyatdl.Timestamp.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = /** @type {number} */ (jspb.Message.getField(message, 1));
+  f = /** @type {string} */ (jspb.Message.getField(message, 1));
   if (f != null) {
-    writer.writeInt64(
+    writer.writeInt64String(
       1,
       f
     );
   }
-  f = /** @type {number} */ (jspb.Message.getField(message, 2));
+  f = /** @type {string} */ (jspb.Message.getField(message, 2));
   if (f != null) {
-    writer.writeInt64(
+    writer.writeInt64String(
       2,
       f
     );
   }
-  f = /** @type {number} */ (jspb.Message.getField(message, 3));
+  f = /** @type {string} */ (jspb.Message.getField(message, 3));
   if (f != null) {
-    writer.writeInt64(
+    writer.writeInt64String(
       3,
       f
     );
@@ -1451,14 +1451,14 @@ proto.pyatdl.Timestamp.serializeBinaryToWriter = function(message, writer) {
 
 /**
  * optional int64 ctime = 1;
- * @return {number}
+ * @return {string}
  */
 proto.pyatdl.Timestamp.prototype.getCtime = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 1, 0));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, "0"));
 };
 
 
-/** @param {number} value */
+/** @param {string} value */
 proto.pyatdl.Timestamp.prototype.setCtime = function(value) {
   jspb.Message.setField(this, 1, value);
 };
@@ -1483,14 +1483,14 @@ proto.pyatdl.Timestamp.prototype.hasCtime = function() {
 
 /**
  * optional int64 dtime = 2;
- * @return {number}
+ * @return {string}
  */
 proto.pyatdl.Timestamp.prototype.getDtime = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 2, 0));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, "0"));
 };
 
 
-/** @param {number} value */
+/** @param {string} value */
 proto.pyatdl.Timestamp.prototype.setDtime = function(value) {
   jspb.Message.setField(this, 2, value);
 };
@@ -1515,14 +1515,14 @@ proto.pyatdl.Timestamp.prototype.hasDtime = function() {
 
 /**
  * optional int64 mtime = 3;
- * @return {number}
+ * @return {string}
  */
 proto.pyatdl.Timestamp.prototype.getMtime = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 3, 0));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 3, "0"));
 };
 
 
-/** @param {number} value */
+/** @param {string} value */
 proto.pyatdl.Timestamp.prototype.setMtime = function(value) {
   jspb.Message.setField(this, 3, value);
 };
@@ -1813,7 +1813,7 @@ proto.pyatdl.Common.deserializeBinaryFromReader = function(msg, reader) {
     var field = reader.getFieldNumber();
     switch (field) {
     case 4:
-      var value = /** @type {number} */ (reader.readInt64());
+      var value = /** @type {string} */ (reader.readInt64String());
       msg.setUid(value);
       break;
     case 1:
@@ -1862,9 +1862,9 @@ proto.pyatdl.Common.prototype.serializeBinary = function() {
  */
 proto.pyatdl.Common.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = /** @type {number} */ (jspb.Message.getField(message, 4));
+  f = /** @type {string} */ (jspb.Message.getField(message, 4));
   if (f != null) {
-    writer.writeInt64(
+    writer.writeInt64String(
       4,
       f
     );
@@ -1899,14 +1899,14 @@ proto.pyatdl.Common.serializeBinaryToWriter = function(message, writer) {
 
 /**
  * optional int64 uid = 4;
- * @return {number}
+ * @return {string}
  */
 proto.pyatdl.Common.prototype.getUid = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 4, 0));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 4, "0"));
 };
 
 
-/** @param {number} value */
+/** @param {string} value */
 proto.pyatdl.Common.prototype.setUid = function(value) {
   jspb.Message.setField(this, 4, value);
 };
@@ -2518,7 +2518,7 @@ proto.pyatdl.Project.toObject = function(includeInstance, msg) {
     proto.pyatdl.Action.toObject, includeInstance),
     maxSecondsBeforeReview: jspb.Message.getOptionalFloatingPointField(msg, 5),
     lastReviewEpochSeconds: jspb.Message.getOptionalFloatingPointField(msg, 6),
-    defaultContextUid: jspb.Message.getFieldWithDefault(msg, 7, 0)
+    defaultContextUid: jspb.Message.getFieldWithDefault(msg, 7, "0")
   };
 
   jspb.Message.toObjectExtension(/** @type {!jspb.Message} */ (msg), obj,
@@ -2585,7 +2585,7 @@ proto.pyatdl.Project.deserializeBinaryFromReader = function(msg, reader) {
       msg.setLastReviewEpochSeconds(value);
       break;
     case 7:
-      var value = /** @type {number} */ (reader.readInt64());
+      var value = /** @type {string} */ (reader.readInt64String());
       msg.setDefaultContextUid(value);
       break;
     default:
@@ -2664,9 +2664,9 @@ proto.pyatdl.Project.serializeBinaryToWriter = function(message, writer) {
       f
     );
   }
-  f = /** @type {number} */ (jspb.Message.getField(message, 7));
+  f = /** @type {string} */ (jspb.Message.getField(message, 7));
   if (f != null) {
-    writer.writeInt64(
+    writer.writeInt64String(
       7,
       f
     );
@@ -2877,14 +2877,14 @@ proto.pyatdl.Project.prototype.hasLastReviewEpochSeconds = function() {
 
 /**
  * optional int64 default_context_uid = 7;
- * @return {number}
+ * @return {string}
  */
 proto.pyatdl.Project.prototype.getDefaultContextUid = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 7, 0));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 7, "0"));
 };
 
 
-/** @param {number} value */
+/** @param {string} value */
 proto.pyatdl.Project.prototype.setDefaultContextUid = function(value) {
   jspb.Message.setField(this, 7, value);
 };

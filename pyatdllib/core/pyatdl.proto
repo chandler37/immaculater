@@ -6,7 +6,7 @@ package pyatdl;
 message VisitorInfo0 {
   // If we deserialize and find an invalid sanity_check, then, er, insanity.
   optional int32 sanity_check = 1;
-  optional int64 cwc_uid = 7;  // CurrentWorkingContainer, see 'help cd'
+  optional int64 cwc_uid = 7 [jstype = JS_STRING];  // CurrentWorkingContainer, see 'help cd'
   optional string view = 3;  // See 'help view'
   optional string sort = 5 [default = "alpha"];  // See 'help sort'
   optional bytes username_hash = 6;
@@ -16,7 +16,7 @@ message VisitorInfo0 {
 // When we serialize ToDoList, we do so using ChecksumAndData. This way we can
 // detect data corruption.
 message ChecksumAndData {
-  required int64 payload_length = 1;  // in bytes
+  required int64 payload_length = 1 [jstype = JS_STRING];  // in bytes
   optional string sha1_checksum = 2;
   optional bool payload_is_zlib_compressed = 3;
   required bytes payload = 10123;
@@ -24,9 +24,9 @@ message ChecksumAndData {
 }
 
 message Timestamp {
-  optional int64 ctime = 1;
-  optional int64 dtime = 2;
-  optional int64 mtime = 3;
+  optional int64 ctime = 1 [jstype = JS_STRING];
+  optional int64 dtime = 2 [jstype = JS_STRING];
+  optional int64 mtime = 3 [jstype = JS_STRING];
 }
 
 // A better name might be "Description":
@@ -40,7 +40,7 @@ message Metadata {
 message Common {
   // UID = "Unique IDentifier". Two things that have the same name are
   // distinguished by uid. We use small positive (nonzero) integers.
-  optional int64 uid = 4;
+  optional int64 uid = 4 [jstype = JS_STRING];  // DLC might want jstype = JS_STRING for all these? because of https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/MAX_SAFE_INTEGER ?
   optional bool is_deleted = 1;
   optional Timestamp timestamp = 2;
   optional Metadata metadata = 3;
@@ -62,7 +62,7 @@ message Action {
   // _JsonForOneItem will be cleaner and the save file will be a few bytes
   // smaller:
   //
-  // optional int64 ctx_uid = 5;  
+  // optional int64 ctx_uid = 5 [jstype = JS_STRING];  
 
   extensions 20000 to max;
 }
@@ -76,7 +76,7 @@ message Project {
   optional float last_review_epoch_seconds = 6;  // seconds since the epoch
 
   // 0 means no default. uid=0 conventionally refers to Actions Without Context:
-  optional int64 default_context_uid = 7 [default = 0];
+  optional int64 default_context_uid = 7 [default = 0, jstype = JS_STRING];
 
   extensions 20000 to max;
 }

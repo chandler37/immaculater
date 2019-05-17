@@ -40,7 +40,11 @@ message Metadata {
 message Common {
   // UID = "Unique IDentifier". Two things that have the same name are
   // distinguished by uid. We use small positive (nonzero) integers.
-  optional int64 uid = 4 [jstype = JS_STRING];  // DLC might want jstype = JS_STRING for all these? because of https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/MAX_SAFE_INTEGER ?
+  //
+  // jstype is because javascript has only one numeric type and it is floating
+  // point. See
+  // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/MAX_SAFE_INTEGER
+  optional int64 uid = 4 [jstype = JS_STRING];
   optional bool is_deleted = 1;
   optional Timestamp timestamp = 2;
   optional Metadata metadata = 3;

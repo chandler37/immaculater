@@ -580,7 +580,7 @@ def _set_cookie(response, key, value, days_expire=365):
 # to users in production (a security no-no and a UX faux pas):
 @never_cache
 def five_hundred(request):
-    division_by_zero = 1 / 0
+    division_by_zero = 1 / 0  # # noqa: F841
 
 
 # TODO(chandler): For inactive, incomplete i'm not seeing 'foo @someday/maybe'

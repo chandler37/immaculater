@@ -23,8 +23,9 @@ FLAGS = flags.FLAGS
 class StateTestCase(unitjest.TestCase):
 
   def setUp(self):
+    FLAGS.pyatdl_randomize_uids = False
     time.time = lambda: 1337
-    uid.singleton_factory = uid.Factory()
+    uid.ResetNotesOfExistingUIDs()
     FLAGS.pyatdl_show_uid = True
     FLAGS.pyatdl_separator = '/'
     self._the_state = None
@@ -84,7 +85,7 @@ class StateTestCase(unitjest.TestCase):
 
     def NewStateInstance():
       del printed[:]
-      uid.singleton_factory = uid.Factory()
+      uid.ResetNotesOfExistingUIDs()
       return state.State(Print, uicmd.NewToDoList(), uicmd.APP_NAMESPACE)
 
     def TestNothingToRedo():

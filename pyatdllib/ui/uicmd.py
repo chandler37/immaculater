@@ -109,7 +109,7 @@ def _ListingForContext(show_uid, show_timestamps, context):
   if context is None:
     uid_str = 'uid=0 ' if show_uid else ''
   else:
-    uid_str = 'uid=%s ' % context.uid if show_uid else ''
+    uid_str = ('uid=%s ' % context.uid) if show_uid else ''
   return '--context-- %s%s%s%s %s' % (
       uid_str,
       _DeletedStr(context.is_deleted if context is not None else False),
@@ -189,7 +189,7 @@ def _JsonForOneItem(item, to_do_list, number_of_items,
     'dtime': None if item is None or not item.is_deleted else item.dtime,
     'mtime': 0 if item is None else item.mtime,
     'is_complete': item.is_complete if hasattr(item, 'is_complete') else False,
-    'uid': 0 if item is None else item.uid,
+    'uid': str(0 if item is None else item.uid),  # javascript cannot handle 64-bit integers
     'name': name_override if name_override is not None else name,
     'number_of_items': number_of_items
   }
@@ -198,7 +198,11 @@ def _JsonForOneItem(item, to_do_list, number_of_items,
   if hasattr(item, 'NeedsReview'):
     rv['needsreview'] = bool(item.NeedsReview())
   if hasattr(item, 'default_context_uid'):
-    rv['default_context_uid'] = 0 if item.default_context_uid is None else item.default_context_uid
+    # Why a string instead of an integer? JSON doesn't have 64-bit
+    # integers. javascript has only one numeric type and it is floating point
+    # and therefore unable to represent all UIDs in our range. See
+    # https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/MAX_SAFE_INTEGER
+    rv['default_context_uid'] = str(0 if item.default_context_uid is None else item.default_context_uid)
   if hasattr(item, 'ctx_uid'):
     if item.ctx_uid is None:
       in_context = FLAGS.no_context_display_string
@@ -211,7 +215,7 @@ def _JsonForOneItem(item, to_do_list, number_of_items,
           "The protobuf has a bad Context association with an Action. item.ctx_uid=%s item.uid=%s"
           % (item.ctx_uid, item.uid))
     rv['in_context'] = in_context_override if in_context_override is not None else in_context
-    rv['in_context_uid'] = item.ctx_uid if item.ctx_uid is not None else None
+    rv['in_context_uid'] = str(item.ctx_uid) if item.ctx_uid is not None else None
   if item is None:
     rv['is_active'] = True
   if hasattr(item, 'is_active'):
@@ -389,7 +393,7 @@ def _LookupAction(state, argument):
     (Action, Prj)
   Raises:
     BadArgsError
-    NoSuchContainerError
+    NoSuchContainerError  # TODO(chandler37): This is a misnomer; NoSuchItemError?
   """
   try:
     the_uid = lexer.ParseSyntaxForUID(argument)
@@ -1130,9 +1134,12 @@ class UICmdChctx(UndoableUICmd):
     context = _LookupContext(state, ctx_name)
     if context is None and not delete_ctx:
       raise BadArgsError('No such Context "%s"' % ctx_name)
-    an_action, unused_project = _LookupAction(state, action_name)
-    assert delete_ctx or context.uid != 0, ctx_name
-    an_action.ctx_uid = None if delete_ctx else context.uid
+    try:
+      an_action, unused_project = _LookupAction(state, action_name)
+      assert delete_ctx or context.uid != 0, ctx_name
+      an_action.ctx_uid = None if delete_ctx else context.uid
+    except NoSuchContainerError as e:
+      raise BadArgsError(e)
 
 
 class UICmdChdefaultctx(UndoableUICmd):
@@ -1184,7 +1191,8 @@ class UICmdLsact(UndoableUICmd):
     except NoSuchContainerError as e:
       raise BadArgsError(e)
     to_be_json = _JsonForOneItem(an_action, state.ToDoList(), 1)
-    to_be_json['project_uid'] = a_project.uid
+    # javascript cannot handle 64-bit integers:
+    to_be_json['project_uid'] = None if a_project.uid is None else str(a_project.uid)
     to_be_json['project_path'] = state.ContainerAbsolutePath(a_project)
     to_be_json['display_project_path'] = state.ContainerAbsolutePath(
       a_project, display=True)
@@ -2125,7 +2133,7 @@ class UICmdReset(UICmd):
       raise BadArgsError(
           'You did not pass in the flag --annihilate to confirm that you really'
           ' want to lose all your data.')
-    uid.singleton_factory = uid.Factory()
+    uid.ResetNotesOfExistingUIDs()
     state.SetToDoList(NewToDoList())
     state.ResetUndoStack()
     state.Print('Reset complete.')
@@ -2145,7 +2153,7 @@ class UICmdLoad(UICmd):
     state = FLAGS.pyatdl_internal_state
     self.RaiseUnlessNArgumentsGiven(1, args)
     filename = args[-1]
-    uid.singleton_factory = uid.Factory()
+    uid.ResetNotesOfExistingUIDs()
     try:
       todolist = serialization.DeserializeToDoList(filename, NewToDoList)
     except serialization.DeserializationError as e:

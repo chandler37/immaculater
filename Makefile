@@ -55,7 +55,7 @@ sh: venv/requirements-installed-by-makefile
 .PHONY: djsh
 djsh: venv/requirements-installed-by-makefile venv/requirements-test-installed-by-makefile
 	@./ensure_virtualenv.sh || exit 1
-	cd pyatdllib && make sh
+	DJANGO_DEBUG=True python manage.py shell
 
 .PHONY: clean
 clean: # you need protoc (Google's protobuf compiler) to regenerate *_pb2.py

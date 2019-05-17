@@ -145,8 +145,10 @@ class AuditableObject(object):
     if os.environ.get('DJANGO_DEBUG') == "True":
       # See comment above for why we don't run this in production.
       assert self.__dict__['mtime'] >= self.__dict__['ctime'], str(self.__dict__)
-    assert 2**63 > pb.uid >= uid.MIN_UID, str(pb)
-    uid.singleton_factory.NoteExistingUID(pb.uid)
+    assert 2**63 > pb.uid >= -2**63, str(pb)
+    assert pb.uid != 0
+    if self.__dict__['uid'] != pb.uid:
+      uid.singleton_factory.NoteExistingUID(pb.uid)
     self.__dict__['uid'] = pb.uid
 
   def __str__(self):

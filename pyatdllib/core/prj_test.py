@@ -2,12 +2,22 @@
 
 import time
 
+import gflags as flags  # https://code.google.com/p/python-gflags/
+
 from pyatdllib.core import prj
+from pyatdllib.core import uid
 from pyatdllib.core import unitjest
+
+
+FLAGS = flags.FLAGS
 
 
 # pylint: disable=missing-docstring,too-many-public-methods
 class PrjTestCase(unitjest.TestCase):
+
+  def setUp(self):
+    FLAGS.pyatdl_randomize_uids = False
+    uid.ResetNotesOfExistingUIDs()
 
   def testEmptyPrj(self):
     project = prj.Prj()
@@ -51,7 +61,7 @@ class PrjTestCase(unitjest.TestCase):
   metadata {
     name: "myname"
   }
-  uid: 3
+  uid: 4
 }
 is_complete: false
 is_active: true
@@ -66,7 +76,7 @@ actions {
     metadata {
       name: "Buy milk"
     }
-    uid: 1
+    uid: 2
   }
   is_complete: false
 }
@@ -81,7 +91,7 @@ actions {
     metadata {
       name: "Oranges"
     }
-    uid: 2
+    uid: 3
   }
   is_complete: false
   ctx {

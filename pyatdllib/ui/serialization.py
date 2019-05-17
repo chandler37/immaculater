@@ -156,7 +156,7 @@ def DeserializeToDoList2(reader, tdl_factory):
   Raises:
     DeserializationError
   """
-  uid.singleton_factory = uid.Factory()
+  uid.ResetNotesOfExistingUIDs()
   try:
     file_contents = reader.read()
     if not file_contents:
@@ -193,7 +193,7 @@ def DeserializeToDoList(path, tdl_factory):
   Raises:
     DeserializationError
   """
-  uid.singleton_factory = uid.Factory()
+  uid.ResetNotesOfExistingUIDs()
   if not os.path.exists(path):
     todolist = tdl_factory()
   else:

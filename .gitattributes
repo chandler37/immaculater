@@ -1,2 +1,2 @@
-*_pb2.py binary
-*_pb.js binary
+*_pb2.py -diff -merge linguist-generated=true
+*_pb.js -diff -merge linguist-generated=true

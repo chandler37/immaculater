@@ -64,11 +64,11 @@ clean: # you need protoc (Google's protobuf compiler) to regenerate *_pb2.py
 
 # TODO: 'make clean' prints out 'To be perfectly clean, see 'immaculater reset_database'.'
 .PHONY: distclean
-distclean:
-	make clean
+distclean: clean
 	rm -f db.sqlite3
 	rm -fr venv
 	rm -f pyatdllib/core/pyatdl_pb2.py # should already be deleted but just in case
+	rm -f pyatdllib/generated_javascript_protobufs/core/pyatdl_pb.js
 	@echo "Print deactivate your virtualenv. Exit the shell if you do not know how."
 
 # test and run the flake8 linter (unless ARGS is --nolint):
@@ -95,6 +95,6 @@ pylint: venv
 # counts lines of code
 .PHONY: dilbert
 dilbert: 
-	wc -l `find todo immaculater pyatdllib -name '.git' -prune -o -name '*_pb2.py' -prune -o -type f -name '*.py' -print` pyatdllib/core/pyatdl.proto todo/templates/*.html immaculater/static/immaculater/*.js
+	wc -l `find todo immaculater pyatdllib -name '.git' -prune -o -name '*_pb2.py' -prune -o -name '*_pb.js' -prune -o -type f -name '*.py' -print` pyatdllib/core/pyatdl.proto todo/templates/*.html immaculater/static/immaculater/*.js
 
 .DEFAULT_GOAL := help

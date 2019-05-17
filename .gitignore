@@ -15,6 +15,7 @@ __pycache__/
 
 /.*
 !/.gitignore
+!/.gitattributes
 !/.gitmodules
 !/.flake8
 

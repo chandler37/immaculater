@@ -30,7 +30,7 @@ class FolderTestCase(unitjest.TestCase):
     </folder>
     <project is_deleted="False" is_complete="False" is_active="True" name="myname">
         <action is_deleted="False" is_complete="False" name="Buy milk" ctx=""/>
-        <action is_deleted="False" is_complete="False" name="Oranges" ctx="uid=3"/>
+        <action is_deleted="False" is_complete="False" name="Oranges" ctx="uid=-9223372036854775808"/>
     </project>
 </folder>
 """.strip()])
@@ -38,13 +38,13 @@ class FolderTestCase(unitjest.TestCase):
     self._AssertEqualWithDiff(
       [str(outer)],
       [r"""
-<folder uid=7 is_deleted="False" name="outer">
+<folder uid=6 is_deleted="False" name="outer">
     <folder uid=2 is_deleted="False" name="F0">
     
     </folder>
-    <project uid=6 is_deleted="False" is_complete="False" is_active="True" name="myname">
-        <action uid=4 is_deleted="False" is_complete="False" name="Buy milk" ctx=""/>
-        <action uid=5 is_deleted="False" is_complete="False" name="Oranges" ctx="uid=3"/>
+    <project uid=5 is_deleted="False" is_complete="False" is_active="True" name="myname">
+        <action uid=3 is_deleted="False" is_complete="False" name="Buy milk" ctx=""/>
+        <action uid=4 is_deleted="False" is_complete="False" name="Oranges" ctx="uid=-9223372036854775808"/>
     </project>
 </folder>
 """.strip()])

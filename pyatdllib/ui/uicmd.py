@@ -148,16 +148,16 @@ def _ListingForOneItem(show_uid, show_timestamps, item, to_do_list, name_overrid
   if hasattr(item, 'is_active'):
     active_str = '%s ' % _ActiveStr(item.is_active)
   in_context = ''
-  if hasattr(item, 'ctx'):
-    if item.ctx is None:
+  if hasattr(item, 'ctx_uid'):
+    if item.ctx_uid is None:
       in_context = ' --in-context-- %s' % pipes.quote(
         FLAGS.no_context_display_string)
     else:
-      context = to_do_list.ContextByUID(item.ctx.uid)
+      context = to_do_list.ContextByUID(item.ctx_uid)
       if context is None:
         raise AssertionError(
-          "The protobuf has a bad Context association with an Action. item.ctx.uid=%s item.uid=%s"
-          % (item.ctx.uid, item.uid))
+          "The protobuf has a bad Context association with an Action. item.ctx_uid=%s item.uid=%s"
+          % (item.ctx_uid, item.uid))
       in_context = ' --in-context-- %s' % pipes.quote(context.name)
   return '%s%s%s%s%s%s' % (
     lead,
@@ -199,19 +199,19 @@ def _JsonForOneItem(item, to_do_list, number_of_items,
     rv['needsreview'] = bool(item.NeedsReview())
   if hasattr(item, 'default_context_uid'):
     rv['default_context_uid'] = 0 if item.default_context_uid is None else item.default_context_uid
-  if hasattr(item, 'ctx'):
-    if item.ctx is None:
+  if hasattr(item, 'ctx_uid'):
+    if item.ctx_uid is None:
       in_context = FLAGS.no_context_display_string
     else:
-      context = to_do_list.ContextByUID(item.ctx.uid)
+      context = to_do_list.ContextByUID(item.ctx_uid)
       if context is not None:
         in_context = context.name
       else:
         raise AssertionError(
-          "The protobuf has a bad Context association with an Action. item.ctx.uid=%s item.uid=%s"
-          % (item.ctx.uid, item.uid))
+          "The protobuf has a bad Context association with an Action. item.ctx_uid=%s item.uid=%s"
+          % (item.ctx_uid, item.uid))
     rv['in_context'] = in_context_override if in_context_override is not None else in_context
-    rv['in_context_uid'] = item.ctx.uid if item.ctx is not None else None
+    rv['in_context_uid'] = item.ctx_uid if item.ctx_uid is not None else None
   if item is None:
     rv['is_active'] = True
   if hasattr(item, 'is_active'):
@@ -1131,7 +1131,8 @@ class UICmdChctx(UndoableUICmd):
     if context is None and not delete_ctx:
       raise BadArgsError('No such Context "%s"' % ctx_name)
     an_action, unused_project = _LookupAction(state, action_name)
-    an_action.ctx = None if delete_ctx else context
+    assert delete_ctx or context.uid != 0, ctx_name
+    an_action.ctx_uid = None if delete_ctx else context.uid
 
 
 class UICmdChdefaultctx(UndoableUICmd):
@@ -1157,8 +1158,8 @@ class UICmdChdefaultctx(UndoableUICmd):
       raise BadArgsError(e)
     project.default_context_uid = None if context is None else context.uid
     for item in project.items:
-      if item.ctx is None:
-        item.ctx = context
+      if item.ctx_uid is None:
+        item.ctx_uid = context.uid
 
 
 class UICmdLsact(UndoableUICmd):
@@ -1902,10 +1903,13 @@ class UICmdTouch(UndoableUICmd):  # 'mkact', 'touch'
       a = action.Action(name=basename)
     except auditable_object.IllegalNameError as e:
       raise BadArgsError(e)
-    a.ctx = context
+    if context is not None:
+      a.ctx_uid = context.uid
     if context is None and containr.default_context_uid is not None:
+      # default_context_uid may no longer exist:
       default_context = state.ToDoList().ContextByUID(containr.default_context_uid)
-      a.ctx = default_context  # None if default_context_uid no longer exists
+      if default_context is not None:
+        a.ctx_uid = default_context.uid
     containr.items.append(a)
     containr.NoteModification()
     if containr.is_complete:
@@ -2030,7 +2034,7 @@ class UICmdRename(UndoableUICmd):
       if isinstance(item, action.Action) and FLAGS.autoctx:
         context = _ContextFromActionName(state, new)
         if context is not None:
-          item.ctx = context
+          item.ctx_uid = context.uid
 
     def ContainerOfOld(state, old):
       dirname = state.DirName(old)

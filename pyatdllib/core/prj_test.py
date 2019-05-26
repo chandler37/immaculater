@@ -23,7 +23,7 @@ class PrjTestCase(unitjest.TestCase):
     project = unitjest.FullPrj()
     self.assertEqual(project.name, 'myname')
     self.assertEqual(project.items[0].name, 'Buy milk')
-    self.assertEqual(project.items[1].ctx.name, 'the store')
+    self.assertEqual(project.items[1].ctx_uid, -2**63)
     project.items[1] = project.items[0]
     self.assertEqual(project.items, [project.items[0], project.items[0]])
 
@@ -51,7 +51,7 @@ class PrjTestCase(unitjest.TestCase):
   metadata {
     name: "myname"
   }
-  uid: 4
+  uid: 3
 }
 is_complete: false
 is_active: true
@@ -66,7 +66,7 @@ actions {
     metadata {
       name: "Buy milk"
     }
-    uid: 2
+    uid: 1
   }
   is_complete: false
 }
@@ -81,12 +81,12 @@ actions {
     metadata {
       name: "Oranges"
     }
-    uid: 3
+    uid: 2
   }
   is_complete: false
   ctx {
     common {
-      uid: 1
+      uid: -9223372036854775808
     }
   }
 }

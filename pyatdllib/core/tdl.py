@@ -63,6 +63,7 @@ class ToDoList(object):
 
   def __init__(self, inbox=None, root=None, ctx_list=None, note_list=None, has_never_purged_deleted=True):
     self.inbox = inbox if inbox is not None else prj.Prj(name=FLAGS.inbox_project_name)
+    assert self.inbox.uid == 1, self.inbox.uid
     self.root = root if root is not None else folder.Folder(name='')
     self.ctx_list = ctx_list if ctx_list is not None else ctx.CtxList(name='Contexts')
     self.note_list = note_list if note_list is not None else note.NoteList()
@@ -106,9 +107,9 @@ class ToDoList(object):
     Returns:
       None
     """
-    def ContextName(context):
+    def ContextName(context_uid):
       for i in self.ctx_list.items:
-        if i.uid == context.uid:
+        if i.uid == context_uid:
           return six.text_type(i.name)
       return 'impossible error so file a bug report please'
 
@@ -194,10 +195,10 @@ class ToDoList(object):
     """
     for a, p in self.Actions():
       if ctx_uid is None:
-        if a.ctx is None:
+        if a.ctx_uid is None:
           yield a, p
       else:
-        if a.ctx is not None and a.ctx.uid == ctx_uid:
+        if a.ctx_uid is not None and a.ctx_uid == ctx_uid:
           yield a, p
 
   def ActionsInProject(self, prj_uid):
@@ -233,8 +234,8 @@ class ToDoList(object):
       ctx_uid: int
     """
     for a, unused_prj in self.ActionsInContext(ctx_uid):
-      assert a.ctx.uid == ctx_uid, str(a)
-      a.ctx = None
+      assert a.ctx_uid == ctx_uid, str(a)
+      a.ctx_uid = None
     for p, unused_path in self.Projects():
       if p.default_context_uid == ctx_uid:
         p.default_context_uid = None

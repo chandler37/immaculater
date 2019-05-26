@@ -9,7 +9,6 @@ from __future__ import print_function
 import gflags as flags
 
 from . import auditable_object
-from . import ctx
 from . import pyatdl_pb2
 
 FLAGS = flags.FLAGS
@@ -28,15 +27,16 @@ class Action(auditable_object.AuditableObject):
     is_deleted: bool
     name: None|unicode|str  # e.g., "Buy milk"
     note: unicode|str
-    ctx: None|ctx.Ctx  # the context, e.g. "Grocery store"
+    ctx_uid: None|int  # UID of the Context, e.g. -5983155992228943816 which might refer to "@the store"
   """
 
-  def __init__(self, the_uid=None, name=None, context=None, note=''):
+  def __init__(self, the_uid=None, name=None, ctx_uid=None, note=''):
     super(Action, self).__init__(the_uid=the_uid)
     self.is_complete = False
     self.name = name
     self.note = note
-    self.ctx = context
+    assert (ctx_uid is None) or (-2**63 <= ctx_uid < 2**63), ctx_uid
+    self.ctx_uid = ctx_uid
 
   def __unicode__(self):
     uid_str = '' if not FLAGS.pyatdl_show_uid else ' uid=%s' % self.uid
@@ -45,7 +45,7 @@ class Action(auditable_object.AuditableObject):
       self.is_deleted,
       self.is_complete,
       '' if self.name is None else self.name,
-      '' if self.ctx is None else 'uid=%s' % self.ctx.uid)
+      '' if self.ctx_uid is None else 'uid=%s' % self.ctx_uid)
 
   def __repr__(self):
     return '<action_proto>\n%s\n</action_proto>' % str(self.AsProto())
@@ -59,8 +59,11 @@ class Action(auditable_object.AuditableObject):
     pb.common.metadata.name = self.name
     if self.note:
       pb.common.metadata.note = self.note
-    if self.ctx is not None:
-      pb.ctx.common.uid = self.ctx.uid
+    if self.ctx_uid is not None:
+      # The protocol is dumb; see comments in pyatdl.proto regarding
+      # switching from embedding a Context message to embedding merely a
+      # Context's UID.
+      pb.ctx.common.uid = self.ctx_uid
     return pb
 
   @classmethod
@@ -74,14 +77,15 @@ class Action(auditable_object.AuditableObject):
     """
     assert bytestring
     pb = pyatdl_pb2.Action.FromString(bytestring)  # pylint: disable=no-member
-    s = pb.ctx.SerializeToString()
-    the_context = None
-    if s:
-      the_context = ctx.Ctx.DeserializedProtobuf(s)
+    ctx_uid = None
+    if pb.ctx.common.HasField('uid'):
+      ctx_uid = pb.ctx.common.uid
+      assert 2**63 > ctx_uid >= -2**63, ctx_uid
+      assert ctx_uid != 0
     a = cls(the_uid=pb.common.uid,
             name=pb.common.metadata.name,
             note=pb.common.metadata.note,
-            context=the_context)
+            ctx_uid=ctx_uid)
     a.SetFieldsBasedOnProtobuf(pb.common)
     a.is_complete = pb.is_complete
     return a

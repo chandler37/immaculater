@@ -88,7 +88,7 @@ class Prj(container.Container):
 
     Args:
       lines: [unicode]
-      context_name: lambda Ctx: unicode
+      context_name: lambda int: unicode  # the integer is a UID
       project_name_prefix: unicode
       show_action: lambda Action: bool
       hypertext_prefix: None|unicode  # None means to output plain text
@@ -96,6 +96,9 @@ class Prj(container.Container):
     Returns:
       None
     """
+    # TODO(chandler37): We might want to optionally display @without_context
+    # when there is not a context for an action to easily find those actions so
+    # you can assign them contexts?
     def Escaped(txt):
       if hypertext_prefix is None:
         return txt
@@ -128,8 +131,8 @@ class Prj(container.Container):
           hypernote = '<br>' + '<br>'.join(Escaped(x) for x in n.split('\n'))
       else:
         note_suffix = ''
-      if item.ctx:
-        cname = context_name(item.ctx).replace(' ', '_')
+      if item.ctx_uid is not None:
+        cname = context_name(item.ctx_uid).replace(' ', '_')
         context_suffix = ' %s' % (cname,) if cname.startswith('@') else ' @%s' % (cname,)
         if context_suffix.strip() in item.name:
           context_suffix = ''

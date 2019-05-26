@@ -15,7 +15,6 @@ import unittest
 import gflags as flags
 
 from . import action
-from . import ctx
 from . import prj
 
 FLAGS = flags.FLAGS
@@ -27,9 +26,9 @@ def FullPrj():
   Returns:
     Prj
   """
-  store_ctx = ctx.Ctx(name='the store')
+  store_ctx_uid = -2**63
   a0 = action.Action(name='Buy milk')
-  a1 = action.Action(name='Oranges', context=store_ctx)
+  a1 = action.Action(name='Oranges', ctx_uid=store_ctx_uid)
   rv = prj.Prj(name='myname', items=[a0, a1])
   return rv
 

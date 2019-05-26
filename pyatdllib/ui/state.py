@@ -142,14 +142,14 @@ class State(object):  # pylint: disable=too-many-instance-attributes,too-many-pu
       return project
 
     def ActionToContext(an_action):  # pylint: disable=missing-docstring
-      if an_action.ctx is None:
+      if an_action.ctx_uid is None:
         return None
       for c in self.ToDoList().ctx_list.items:
-        if c.uid == an_action.ctx.uid:
+        if c.uid == an_action.ctx_uid:
           return c
       raise ValueError(
         'No Context found for action "%s" even though that action has a context UID of "%s"'
-        % (an_action.uid, an_action.ctx.common.uid))
+        % (an_action.uid, an_action.ctx_uid))
 
     if search_query:
       assert filter_cls is None

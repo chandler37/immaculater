@@ -1408,7 +1408,6 @@ dump""")) as f:
                       '    is_active: true\n'
                       '  }\n'
                       '}\n'
-                      'has_never_purged_deleted: true\n'
                       ]
     self.helpTest(inputs, golden_printed)
 

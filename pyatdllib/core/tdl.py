@@ -20,7 +20,6 @@ from . import folder
 from . import note
 from . import prj
 from . import pyatdl_pb2
-from . import uid
 
 flags.DEFINE_string('inbox_project_name', 'inbox',
                     'Name of the top-level "inbox" project')
@@ -61,13 +60,12 @@ class ToDoList(object):
     note_list: NoteList  # every auditable object has its own note; these are global
   """
 
-  def __init__(self, inbox=None, root=None, ctx_list=None, note_list=None, has_never_purged_deleted=True):
+  def __init__(self, inbox=None, root=None, ctx_list=None, note_list=None):
     self.inbox = inbox if inbox is not None else prj.Prj(name=FLAGS.inbox_project_name)
     assert self.inbox.uid == 1, self.inbox.uid
     self.root = root if root is not None else folder.Folder(name='')
     self.ctx_list = ctx_list if ctx_list is not None else ctx.CtxList(name='Contexts')
     self.note_list = note_list if note_list is not None else note.NoteList()
-    self._has_never_purged_deleted = has_never_purged_deleted
 
   def __str__(self):
     return self.__unicode__().encode('utf-8') if six.PY2 else self.__unicode__()
@@ -134,7 +132,6 @@ class ToDoList(object):
     self.inbox.PurgeDeleted()
     self.root.PurgeDeleted()
     self.ctx_list.PurgeDeleted()
-    self._has_never_purged_deleted = False
 
   def DeleteCompleted(self):
     self.inbox.DeleteCompleted()
@@ -421,14 +418,6 @@ class ToDoList(object):
              str(objecttype),
              SelfStr()))
       uids_seen[the_uid] = objecttype
-    if uids_seen and self._has_never_purged_deleted:
-      if len(uids_seen) - (uid.MIN_UID - 1) != max(uids_seen):
-        raise AssertionError(
-          'UID well-formedness check: Max seen=%s instead of the expected %s. uids_seen = %s self=%s'
-          % (max(uids_seen),
-             len(uids_seen) - (uid.MIN_UID - 1),
-             sorted(uids_seen),
-             SelfStr()))
 
   def AsProto(self, pb=None):
     """Serializes this object to a protocol buffer.
@@ -446,7 +435,6 @@ class ToDoList(object):
     self.ctx_list.AsProto(pb.ctx_list)
     self.note_list.AsProto(pb.note_list)
     assert self.ctx_list.uid == pb.ctx_list.common.uid
-    pb.has_never_purged_deleted = self._has_never_purged_deleted
     assert pb.ctx_list.common.metadata.name, 'X23 %s' % str(pb.ctx_list)
     return pb
 
@@ -472,7 +460,6 @@ class ToDoList(object):
     serialized_note_list = pb.note_list.SerializeToString()
     note_list = note.NoteList.DeserializedProtobuf(
       serialized_note_list)
-    rv = cls(inbox=inbox, root=root, ctx_list=ctx_list, note_list=note_list,
-             has_never_purged_deleted=pb.has_never_purged_deleted)
+    rv = cls(inbox=inbox, root=root, ctx_list=ctx_list, note_list=note_list)
     rv.CheckIsWellFormed()
     return rv

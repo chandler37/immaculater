@@ -3763,7 +3763,6 @@ proto.pyatdl.ToDoList.toObject = function(includeInstance, msg) {
     inbox: (f = msg.getInbox()) && proto.pyatdl.Project.toObject(includeInstance, f),
     root: (f = msg.getRoot()) && proto.pyatdl.Folder.toObject(includeInstance, f),
     ctxList: (f = msg.getCtxList()) && proto.pyatdl.ContextList.toObject(includeInstance, f),
-    hasNeverPurgedDeleted: jspb.Message.getFieldWithDefault(msg, 4, true),
     noteList: (f = msg.getNoteList()) && proto.pyatdl.NoteList.toObject(includeInstance, f)
   };
 
@@ -3818,10 +3817,6 @@ proto.pyatdl.ToDoList.deserializeBinaryFromReader = function(msg, reader) {
       var value = new proto.pyatdl.ContextList;
       reader.readMessage(value,proto.pyatdl.ContextList.deserializeBinaryFromReader);
       msg.setCtxList(value);
-      break;
-    case 4:
-      var value = /** @type {boolean} */ (reader.readBool());
-      msg.setHasNeverPurgedDeleted(value);
       break;
     case 5:
       var value = new proto.pyatdl.NoteList;
@@ -3882,13 +3877,6 @@ proto.pyatdl.ToDoList.serializeBinaryToWriter = function(message, writer) {
       3,
       f,
       proto.pyatdl.ContextList.serializeBinaryToWriter
-    );
-  }
-  f = /** @type {boolean} */ (jspb.Message.getField(message, 4));
-  if (f != null) {
-    writer.writeBool(
-      4,
-      f
     );
   }
   f = message.getNoteList();
@@ -4000,40 +3988,6 @@ proto.pyatdl.ToDoList.prototype.clearCtxList = function() {
  */
 proto.pyatdl.ToDoList.prototype.hasCtxList = function() {
   return jspb.Message.getField(this, 3) != null;
-};
-
-
-/**
- * optional bool has_never_purged_deleted = 4;
- * Note that Boolean fields may be set to 0/1 when serialized from a Java server.
- * You should avoid comparisons like {@code val === true/false} in those cases.
- * @return {boolean}
- */
-proto.pyatdl.ToDoList.prototype.getHasNeverPurgedDeleted = function() {
-  return /** @type {boolean} */ (jspb.Message.getFieldWithDefault(this, 4, true));
-};
-
-
-/** @param {boolean} value */
-proto.pyatdl.ToDoList.prototype.setHasNeverPurgedDeleted = function(value) {
-  jspb.Message.setField(this, 4, value);
-};
-
-
-/**
- * Clears the field making it undefined.
- */
-proto.pyatdl.ToDoList.prototype.clearHasNeverPurgedDeleted = function() {
-  jspb.Message.setField(this, 4, undefined);
-};
-
-
-/**
- * Returns whether this field is set.
- * @return {boolean}
- */
-proto.pyatdl.ToDoList.prototype.hasHasNeverPurgedDeleted = function() {
-  return jspb.Message.getField(this, 4) != null;
 };
 
 

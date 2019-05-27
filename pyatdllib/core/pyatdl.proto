@@ -112,10 +112,13 @@ message Folder {
 }
 
 message ToDoList {
+  // Before we set UIDs at random this helped find a few bugs; we don't read or
+  // write it these days:
+  reserved 4;  // obsolete optional bool has_never_purged_deleted
+
   optional Project inbox = 1;
   optional Folder root = 2;
   optional ContextList ctx_list = 3;
-  optional bool has_never_purged_deleted = 4 [default = true];
   optional NoteList note_list = 5;
   extensions 20000 to max;
 }

@@ -12,10 +12,14 @@ https://docs.djangoproject.com/en/1.10/ref/settings/
 import datetime
 import os
 import dj_database_url
+import sentry_sdk
+
+from sentry_sdk.integrations.django import DjangoIntegration
 
 from django.urls import reverse_lazy
 
 from immaculater import jwt
+
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -245,3 +249,10 @@ DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'noreply@localhost')
 JWT_PAYLOAD_HANDLER = jwt.jwt_payload_handler
 
 JWT_EXPIRATION_DELTA = datetime.timedelta(seconds=60 * 60 * 24)
+
+if os.environ.get("SENTRY_DSN"):
+  sentry_sdk.init(
+      dsn=os.environ.get("SENTRY_DSN"),
+      integrations=[DjangoIntegration()]
+  )
+

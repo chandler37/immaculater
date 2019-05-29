@@ -105,4 +105,8 @@ mainton:
 maintoff:
 	heroku maintenance:off
 
+.PHONY: pushbranch
+pushbranch:
+	git push origin HEAD
+
 .DEFAULT_GOAL := help

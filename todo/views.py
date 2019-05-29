@@ -576,6 +576,13 @@ def _set_cookie(response, key, value, days_expire=365):
   response.set_cookie(key, value, max_age=max_age, expires=expires)
 
 
+# Tests our Sentry integration and tests that we are not showing stack traces
+# to users in production (a security no-no and a UX faux pas):
+@never_cache
+def five_hundred(request):
+    division_by_zero = 1 / 0
+
+
 # TODO(chandler): For inactive, incomplete i'm not seeing 'foo @someday/maybe'
 # in the inbox; i see only inactive projects.
 @xframe_options_sameorigin

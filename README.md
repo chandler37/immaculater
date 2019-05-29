@@ -246,14 +246,14 @@ can do a remote commit with the following:
  - `git diff`
  - `git add X Y Z` for any new files X Y and Z
  - `git commit --all`
- - `git push origin your_feature_branch_goes_here`
+ - `git push origin HEAD` which has a shortcut `make pushbranch`
  - Go to
     [the pull requests page at github](https://github.com/chandler37/immaculater/pulls)
     and choose 'New pull request' to create a request to merge your feature
     branch into `master`.
  - Now find a code reviewer and work with your reviewer towards consensus (making
     commits to your feature branch that the pull request will automagically
-    incorporate after `git push origin your_feature_branch_goes_here`). When ready,
+    incorporate after `git push origin HEAD`). When ready,
     just press the 'Merge' button and let the website do the actual change to
     `master`. You can then close the source branch on github and delete your
     local branch with
@@ -315,6 +315,19 @@ You might want to subscribe to
 https://groups.google.com/forum/#!forum/django-allauth-announce if you're
 setting `USE_ALLAUTH` to `True` and the django announce list. TODO: How to stay
 updated on Fernet bugs?
+
+## Sentry
+
+[Sentry](https://sentry.io/) is a closed-source commercial product that
+collects unhandled exceptions in production.
+
+To use it, which may or may not incur ongoing fees, sign up, create a Django
+Sentry project, and then run the following:
+
+`heroku config:set "SENTRY_DSN=https://yourinfo@sentry.io/yourprojectid"`
+
+Test it by hitting `/todo/fivehundred1423457234` in your browser which will
+cause an unhandled `ZeroDivisionError`.
 
 ## History
 

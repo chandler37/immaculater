@@ -97,6 +97,12 @@ class State(object):  # pylint: disable=too-many-instance-attributes,too-many-pu
     self._todolist = td
     self._current_working_container = self._todolist.root
     self._view_filter = self.NewViewFilter()
+    # TODO(chandler37): Perhaps we need to raise TooBigToSaveError if this is
+    # too big? But really it'd be better to just delete the original undo/redo
+    # code (see RewindForUndoRedo e.g.) which only worked in the command-line
+    # interface before the django webapp and certainly doesn't work for mobile
+    # apps, single-page webapps, or desktop apps. To undo/redo we must alter
+    # pyatdl.proto itself.
     self._serialized_tdl_we_rewind_to = td.AsProto().SerializeToString()
     self._class_to_deserialize_into = td.__class__
 

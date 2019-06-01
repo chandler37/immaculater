@@ -9,7 +9,9 @@ from __future__ import unicode_literals
 from __future__ import print_function
 
 import difflib
+import os
 import six
+import tempfile
 import unittest
 
 import gflags as flags
@@ -36,6 +38,41 @@ def FullPrj():
 # pylint: disable=too-few-public-methods
 class TestCase(unittest.TestCase):
   """Even better than unittest.TestCase."""
+
+  def setUp(self):
+    self._tempfilenames = []
+
+  def tearDown(self):
+    for name in self._tempfilenames:
+      try:
+        os.remove(name)
+      except OSError:
+        pass
+
+  def _NamedTempFile(self):
+    tf = tempfile.NamedTemporaryFile(
+      prefix='tmppyatdlunitjest',
+      delete=False)
+    self._tempfilenames.append(tf.name)
+    self._tempfilenames.append(tf.name + '.bak')
+    return tf
+
+  def _CreateTmpFile(self, contents):
+    """Creates a new temporary file (that will never be removed) and returns the
+    name of that file.
+
+    Args:
+      contents: str
+    Returns:
+      str
+    """
+    with tempfile.NamedTemporaryFile(prefix='tmppyatdlunitjest', delete=False) as tf:
+      tempfilename = tf.name
+      self._tempfilenames.append(tf.name)
+      self._tempfilenames.append(tf.name + '.bak')
+    with open(tempfilename, 'wb') as f:
+      f.write(contents.encode('utf-8'))
+    return tempfilename
 
   def _Python3Munging(self, list_of_strings):
     def Munge(string):

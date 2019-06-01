@@ -19,6 +19,7 @@ FLAGS = flags.FLAGS
 class UIDTestCase(unitjest.TestCase):
 
   def setUp(self):
+    super().setUp()
     FLAGS.pyatdl_randomize_uids = False
     uid.ResetNotesOfExistingUIDs()
 

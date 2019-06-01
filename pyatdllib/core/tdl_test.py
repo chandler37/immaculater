@@ -20,6 +20,7 @@ FLAGS = flags.FLAGS
 class TdlTestCase(unitjest.TestCase):
 
   def setUp(self):
+    super().setUp()
     FLAGS.pyatdl_randomize_uids = False
     uid.ResetNotesOfExistingUIDs()
 

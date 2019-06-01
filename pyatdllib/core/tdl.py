@@ -13,6 +13,8 @@ import time
 
 import gflags as flags  # https://code.google.com/p/python-gflags/
 
+from google.protobuf.pyext._message import SetAllowOversizeProtos
+
 from . import action
 from . import common
 from . import ctx
@@ -449,6 +451,19 @@ class ToDoList(object):
     """
     assert bytestring
     assert type(bytestring) == six.binary_type, type(bytestring)
+    SetAllowOversizeProtos(True)  # there's a 64MiB memory limit otherwise
+    # TODO(chandler37): make local; in the command line interface: `loadtest -n
+    # 3` is fine but `loadtest -n 100` has saved a pb to the database that we
+    # cannot parse which we should NEVER ALLOW. So when we
+    # SetAllowOversizeProtos(False) and `loadtest -n 100` we should reject the
+    # protobuf before saving unparseable data to the database. Also, navigating
+    # to the Action page for 'DeepAction' gives bizarre errors from appcommands
+    # about the following:
+    #
+    # Internal Server Error: /todo/action/7812977415892969734
+    # AttributeError: pyatdl_internal_state
+    # gflags.exceptions.DuplicateFlagError: The flag 'json' is defined twice. First from <unknown>, Second from pyatdllib.ui.appcommandsutil.  Description from first occurrence: Output JSON
+
     pb = pyatdl_pb2.ToDoList.FromString(bytestring)  # pylint: disable=no-member
     inbox = prj.Prj.DeserializedProtobuf(
       pb.inbox.SerializeToString())

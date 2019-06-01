@@ -3,6 +3,7 @@
 import gflags as flags
 
 from pyatdllib.core import folder
+from pyatdllib.core import uid
 from pyatdllib.core import unitjest
 
 FLAGS = flags.FLAGS
@@ -10,6 +11,10 @@ FLAGS = flags.FLAGS
 
 # pylint: disable=missing-docstring,too-many-public-methods
 class FolderTestCase(unitjest.TestCase):
+
+  def setUp(self):
+    FLAGS.pyatdl_randomize_uids = False
+    uid.ResetNotesOfExistingUIDs()
 
   def testStr(self):
     f = folder.Folder()
@@ -38,13 +43,13 @@ class FolderTestCase(unitjest.TestCase):
     self._AssertEqualWithDiff(
       [str(outer)],
       [r"""
-<folder uid=6 is_deleted="False" name="outer">
-    <folder uid=2 is_deleted="False" name="F0">
+<folder uid=7 is_deleted="False" name="outer">
+    <folder uid=3 is_deleted="False" name="F0">
     
     </folder>
-    <project uid=5 is_deleted="False" is_complete="False" is_active="True" name="myname">
-        <action uid=3 is_deleted="False" is_complete="False" name="Buy milk" ctx=""/>
-        <action uid=4 is_deleted="False" is_complete="False" name="Oranges" ctx="uid=-9223372036854775808"/>
+    <project uid=6 is_deleted="False" is_complete="False" is_active="True" name="myname">
+        <action uid=4 is_deleted="False" is_complete="False" name="Buy milk" ctx=""/>
+        <action uid=5 is_deleted="False" is_complete="False" name="Oranges" ctx="uid=-9223372036854775808"/>
     </project>
 </folder>
 """.strip()])

@@ -476,7 +476,7 @@ class State(object):  # pylint: disable=too-many-instance-attributes,too-many-pu
     interface. It rewinds things so that we are in the same place we were
     when the to-do list was last deserialized/created.
     """
-    uid.singleton_factory = uid.Factory()
+    uid.ResetNotesOfExistingUIDs()
     old_view_filter_name = None
     if self._view_filter is not None:
       old_view_filter_name = self._view_filter.ViewFilterUINames()[0]

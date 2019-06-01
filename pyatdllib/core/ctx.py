@@ -39,8 +39,8 @@ class Ctx(auditable_object.AuditableObject):
     mtime: int  # seconds since the epoch
     is_deleted: bool
     is_active: bool  # "someday/maybe" would be inactive.  Most are active.
-    name: None|unicode|str
-    note: unicode|str
+    name: None|basestring
+    note: basestring
   """
 
   def __init__(self, the_uid=None, name=None, is_active=True, note=''):

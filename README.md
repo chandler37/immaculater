@@ -53,10 +53,14 @@ will need to run `make pipinstall` inside an activated `virtualenv` (see below)
 before `make test` will pass or the CLI will run. You can use `runme.sh` to
 start the original CLI.
 
-## Python 3 Support
+## Python 3
 
-pyatdl proper supports both 2.7 and 3.6.6 using the `six` library, but
-Immaculater requires 3.6.6 because DJango 2 requires python 3.
+pyatdl proper used to support both 2.7 and 3.6+ (using the `six` library), but
+Python 3 has crept in over time.  Immaculater and pyatdl require 3.6+ because
+DJango 2 requires Python 3.
+
+The file './runtime.txt' names a version of Python that is particularly well
+tested because it's used in production (on Heroku).
 
 ## One-time Installation
 
@@ -134,6 +138,12 @@ failure.bad-requirements: No such file or directory`), try clearing the build
 cache:
  - `heroku plugins:install heroku-repo`
  - `heroku repo:purge_cache -a YOURAPPNAME`
+
+(An advanced technique is to push a topic branch to Heroku, which requires
+pushing it to what the `heroku` remote considers `master`. This will likely
+require a force push later (`-f` forces) to push `master` back. You can do this
+by (assuming `git status` shows you are on your topic branch) running `git push
+-f heroku HEAD:master`.)
 
 ## Database Migrations
 

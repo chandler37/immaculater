@@ -47,13 +47,13 @@ def ParseSyntaxForUID(candidate):
     (_, rhs) = candidate.split('=')
     try:
       an_integer = int(rhs, 10)
-      if an_integer <= 0:
+      if an_integer < -2**63 or an_integer >= 2**63 or an_integer == 0:
         raise ValueError('reraise')
       return an_integer
     except ValueError:
       raise UIDSyntaxError('Illegal "uid" syntax. Correct syntax: uid=N where '
-                           'N is a positive, decimal integer')
-    return None
+                           '-2**63 <= N < 2**63 is a signed decimal integer that is not zero')
+  return None
 
 
 def SplitCommandLineIntoArgv(space_delimited_argv, posix=True):

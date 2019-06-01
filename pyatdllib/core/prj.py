@@ -228,7 +228,10 @@ class Prj(container.Container):
     if not bytestring:
       raise ValueError("bad compression algorithm?")
     pb = pyatdl_pb2.Project.FromString(bytestring)  # pylint: disable=no-member
-    max_seconds_before_review = None if not pb.HasField('max_seconds_before_review') else pb.max_seconds_before_review
+    if pb.HasField('max_seconds_before_review'):
+      max_seconds_before_review = pb.max_seconds_before_review
+    else:
+      max_seconds_before_review = None
     p = cls(the_uid=pb.common.uid,
             name=pb.common.metadata.name,
             note=pb.common.metadata.note,

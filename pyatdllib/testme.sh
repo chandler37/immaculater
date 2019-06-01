@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # To test just one test case, do something like this:
-# cd $TOP && PYTHONPATH=$TOP python ui/immaculater_test.py ImmaculaterTestCase.testArgProcessing 
+# cd $TOP && PYTHONPATH=$TOP python ui/immaculater_test.py ImmaculaterTestCase.testArgProcessing
 
 TOP="$(dirname "$0")"
 

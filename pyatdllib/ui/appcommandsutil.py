@@ -201,15 +201,15 @@ class Namespace(object):
             % six.text_type(e))
         try:
           cmd.Run(argv)
-        except AssertionError as e:
-          e.message = ('For the following error, note that argv=%s. Error: %s'
-                       % (argv, six.text_type(e)))
-          raise
         except IncorrectUsageError as e:
           if FLAGS.pyatdl_give_full_help_for_uicmd:
             raise app.UsageError(six.text_type(e))
           else:
             raise
+        except Exception as e:
+          msg = 'For the following error, note that argv=%s. Error: %s' % (argv, six.text_type(e))
+          # This requires python 3; the 'six' module has 'reraise' if you must use Python 2.7:
+          raise type(e)(msg) from e
         return uc
       except app.UsageError as error:
         app.usage(shorthelp=1, detailed_error=error, exitcode=error.exitcode)

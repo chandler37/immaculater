@@ -255,4 +255,3 @@ if os.environ.get("SENTRY_DSN"):
       dsn=os.environ.get("SENTRY_DSN"),
       integrations=[DjangoIntegration()]
   )
-

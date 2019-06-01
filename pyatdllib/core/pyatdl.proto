@@ -39,10 +39,38 @@ message Metadata {
 // Fields common to Action, Project, Context, etc.
 message Common {
   // UID = "Unique IDentifier". Two things that have the same name are
-  // distinguished by uid. We use small positive (nonzero) integers.
+  // distinguished by uid. In ancient history we used small, positive (nonzero)
+  // integers, and for our unittests' readability we still do that in almost
+  // all the tests. Supporting multiple devices, some of which are typically
+  // offline, is tricky if you count 1,2,3,... "I see a new action 123 from one
+  // device and a new action 123 from another device -- what do I do?"
   //
-  // jstype is because javascript has only one numeric type and it is floating
-  // point. See
+  // So instead we choose UIDs from a 64-bit space at random, choosing again
+  // and again until we are free from collisions with existing UIDs.
+  //
+  // If we had done this from the beginning, we would have picked fixed64
+  // instead of int64 because of the savings in space on the wire and because
+  // negative numbers are less fun. Of course we could change to a new fixed64
+  // field, but changing a protocol used by mulitple devices and codebases is
+  // cumbersome. Even without multiple devices you'd have to leave in the old
+  // field and deal with it forever or else you'd risk breaking people's saved
+  // backup files. If you have both fields, you're more likely to have bugs
+  // when the wrong one is used.
+  //
+  // MAYBE(chandler37): Change the protobuf to use sfixed64 or fixed64 to save
+  // some bytes relative to int64, which is ten bytes long for negative
+  // numbers, which we see about one half of the time, and needlessly large for
+  // numbers > 2**56, which we see about half of the time.
+  //
+  // Without UIDs, how would you delete a Project in a multi-device world? With
+  // UIDs available, you leave the Project in place, delete most of its
+  // metadata like the fact that it was "Buy a new car", and flip the
+  // is_deleted bit. The `mergeprotobufs` API will then delete it from both
+  // places and remove the Project message.
+
+  // Below, `jstype` is because javascript has only one numeric type and it is
+  // floating point and therefore unable to represent all UIDs in our
+  // range. See
   // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/MAX_SAFE_INTEGER
   optional int64 uid = 4 [jstype = JS_STRING];
   optional bool is_deleted = 1;

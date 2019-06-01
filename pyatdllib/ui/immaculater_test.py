@@ -50,9 +50,13 @@ class ImmaculaterTestCase(unitjest.TestCase):
   # pylint: disable=trailing-whitespace
 
   def setUp(self):
+    random.seed(3737123)
+
+    FLAGS.pyatdl_randomize_uids = False
+
     assert _helpers.GetHelpWidth
     _helpers.GetHelpWidth = lambda: 180
-    uid.singleton_factory = uid.Factory()
+    uid.ResetNotesOfExistingUIDs()
 
     # There is a gflags.TextWrap glitch re: the line '-a,--[no]show_all:
     # Additionally lists everything, even hidden objects, overriding the view
@@ -187,7 +191,7 @@ class ImmaculaterTestCase(unitjest.TestCase):
 
     # Now apply a different batch without resetting the DB.
     assert not printed
-    uid.singleton_factory = uid.Factory()
+    uid.ResetNotesOfExistingUIDs()
     contents = r"""
         mkprj Pbatch2
         lsctx
@@ -469,17 +473,17 @@ dump""")) as f:
               ]
     golden_printed = [
       'Reset complete.',
-      '[{"ctime":0,"dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":0,"name":"<none>","number_of_items":0,"uid":0}]',
+      '[{"ctime":0,"dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":0,"name":"<none>","number_of_items":0,"uid":"0"}]',
       'after len==0',
-      '[{"ctime":0,"dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":0,"name":"<none>","number_of_items":0,"uid":0},{"ctime":1137.0,"dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"653","number_of_items":0,"uid":4}]',
+      '[{"ctime":0,"dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":0,"name":"<none>","number_of_items":0,"uid":"0"},{"ctime":1137.0,"dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"653","number_of_items":0,"uid":"4"}]',
       'after len==1',
       'Save complete.',
       'Load complete.',
-      '[{"ctime":0,"dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":0,"name":"<none>","number_of_items":0,"uid":0},{"ctime":1137.0,"dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"653","number_of_items":0,"uid":4},{"ctime":1137.0,"dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"at 654}]","number_of_items":0,"uid":5}]',
+      '[{"ctime":0,"dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":0,"name":"<none>","number_of_items":0,"uid":"0"},{"ctime":1137.0,"dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"653","number_of_items":0,"uid":"4"},{"ctime":1137.0,"dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"at 654}]","number_of_items":0,"uid":"5"}]',
       'after len==2',
       'Takes zero or one arguments; found these arguments: [u\'0\', u\'1\']',
       'after too many args',
-      '{"ctime":1137.0,"dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"653","number_of_items":0,"uid":4}',
+      '{"ctime":1137.0,"dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"653","number_of_items":0,"uid":"4"}',
       'after --json 653',
       '--context-- ---active--- 653',
       'after 653',
@@ -553,17 +557,99 @@ dump""")) as f:
       'after --json not-an-action',
       'Needs a single positional argument; found none',
       'after no args',
-      '{"ctime":1137.0,"display_project_path":"inbox","dtime":null,"in_context":"<none>","in_context_uid":null,"is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"a 0","number_of_items":1,"project_path":"/inbox","project_uid":1,"uid":4}',
+      '{"ctime":1137.0,"display_project_path":"inbox","dtime":null,"in_context":"<none>","in_context_uid":null,"is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"a 0","number_of_items":1,"project_path":"/inbox","project_uid":"1","uid":"4"}',
       'after --json uid=4',
-      '{"ctime":1137.0,"display_project_path":"inbox","dtime":null,"in_context":"<none>","in_context_uid":null,"is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"a 0","number_of_items":1,"project_path":"/inbox","project_uid":1,"uid":4}',
+      '{"ctime":1137.0,"display_project_path":"inbox","dtime":null,"in_context":"<none>","in_context_uid":null,"is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"a 0","number_of_items":1,"project_path":"/inbox","project_uid":"1","uid":"4"}',
       'after --json /inbox/a 0',
-      '{"ctime":1137.0,"display_project_path":"inbox","dtime":null,"in_context":"c0","in_context_uid":5,"is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"a 0","number_of_items":1,"project_path":"/inbox","project_uid":1,"uid":4}',
+      '{"ctime":1137.0,"display_project_path":"inbox","dtime":null,"in_context":"c0","in_context_uid":"5","is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"a 0","number_of_items":1,"project_path":"/inbox","project_uid":"1","uid":"4"}',
       'after --json uid=4 chctx c0',
       'before mv uid=4',
       'after mv uid=4',
-      '{"ctime":1137.0,"display_project_path":"D0/P0","dtime":null,"in_context":"c0","in_context_uid":5,"is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"a 0","number_of_items":1,"project_path":"/D0/P0","project_uid":7,"uid":4}',
+      '{"ctime":1137.0,"display_project_path":"D0/P0","dtime":null,"in_context":"c0","in_context_uid":"5","is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"a 0","number_of_items":1,"project_path":"/D0/P0","project_uid":"7","uid":"4"}',
       'after --json uid=4 chctx c0 /D0/P0',
-      '{"ctime":1137.0,"display_project_path":"D0/P0","dtime":null,"in_context":"c0","in_context_uid":5,"is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"a 0","number_of_items":1,"project_path":"/D0/P0","project_uid":7,"uid":4}',
+      '{"ctime":1137.0,"display_project_path":"D0/P0","dtime":null,"in_context":"c0","in_context_uid":"5","is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"a 0","number_of_items":1,"project_path":"/D0/P0","project_uid":"7","uid":"4"}',
+      'after running from root',
+    ]
+    self.helpTest(inputs, golden_printed)
+
+  def testUidSyntaxForNegativeNumbers(self):
+    FLAGS.pyatdl_randomize_uids = True
+    FLAGS.pyatdl_show_uid = True
+    random.seed(37)
+    inputs = ['chclock 1137',
+              'reset --annihilate',
+              'cd /inbox',
+              'lsact uid=1',
+              'echo after --nojson not-an-action',
+              'lsact --json uid=1',
+              'echo after --json not-an-action',
+              'lsact --json',
+              'echo after no args',
+              'mkact "placeholder 0"',
+              'mkact "action with id +8923216991658685487"',  # 0.967 * the max
+              'mkact "placeholder 1"',
+              'mkact "placeholder 2"',
+              'mkact "action with id -8310047117500551536"',  # 0.901 * the min
+              'mkctx c0',
+              'mkdir /D0',
+              'mkprj /D0/P0',
+              'ls -R /',
+              'echo after ls -R /',
+              'lsact --json uid=-8310047117500551536',
+              'echo after --json uid=-8310047117500551536',
+              'lsact --json uid=8923216991658685487',
+              'echo after --json uid=8923216991658685487',
+              'chctx c0 uid=-8310047117500551536',
+              'lsact --json uid=-8310047117500551536',
+              'echo after --json uid=-8310047117500551536 chctx c0',
+              'echo before mv uid=-8310047117500551536',
+              'mv uid=-8310047117500551536 /D0/P0',
+              'mv uid=-8310047117500551536 uid=1',  # -> /inbox
+              'echo after mv uid=-8310047117500551536',
+              'mv "/inbox/a 0" /D0/P0',
+              'lsact --json uid=-8310047117500551536',
+              'echo after --json uid=-8310047117500551536 chctx c0 /D0/P0',
+              'cd /',
+              'lsact --json uid=-8310047117500551536',
+              'echo after running from root',
+              ]
+    golden_printed = [
+      'Reset complete.',
+      '--json is required; see "help ls" and consider using "ls -a"',
+      'after --nojson not-an-action',
+      'No Action with UID 1 exists.',
+      'after --json not-an-action',
+      'Needs a single positional argument; found none',
+      'after no args',
+      '--project-- uid=1 --incomplete-- ---active--- inbox',
+      '--folder--- uid=3780713555715847339 D0',
+      '',
+      '/inbox:',
+      '--action--- uid=277028180750618930 --incomplete-- \'placeholder 0\' --in-context-- \'<none>\'',
+      '--action--- uid=8923216991658685487 --incomplete-- \'action with id +8923216991658685487\' --in-context-- \'<none>\'',
+      '--action--- uid=7844860928174339221 --incomplete-- \'placeholder 1\' --in-context-- \'<none>\'',
+      '--action--- uid=4355858073736897916 --incomplete-- \'placeholder 2\' --in-context-- \'<none>\'',
+      '--action--- uid=-8310047117500551536 --incomplete-- \'action with id -8310047117500551536\' --in-context-- \'<none>\'',
+      '',
+      '/D0:',
+      '--project-- uid=8677894846078606063 --incomplete-- ---active--- P0',
+      '',
+      '/D0/P0:',
+      'after ls -R /',
+      '{"ctime":1137.0,"display_project_path":"inbox","dtime":null,"in_context":"<none>","in_context_uid":null,"is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"action with id -8310047117500551536","number_of_items":1,"project_path":"/inbox","project_uid":"1","uid":"-8310047117500551536"}',
+      'after --json uid=-8310047117500551536',
+      '{"ctime":1137.0,"display_project_path":"inbox","dtime":null,"in_context":"<none>","in_context_uid":null,"is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"action with id +8923216991658685487","number_of_items":1,"project_path":"/inbox","project_uid":"1","uid":"8923216991658685487"}',
+      'after --json uid=8923216991658685487',
+      '{"ctime":1137.0,"display_project_path":"inbox","dtime":null,"in_context":"c0","in_context_uid":"7926615695106819409","is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"action with id -8310047117500551536","number_of_items":1,"project_path":"/inbox","project_uid":"1","uid":"-8310047117500551536"}',
+      'after --json uid=-8310047117500551536 chctx c0',
+      'before mv uid=-8310047117500551536',
+      'after mv uid=-8310047117500551536',
+      r"""With current working Folder/Project "/inbox", there is no such child "a 0".  Choices:
+    ..
+""",
+      '{"ctime":1137.0,"display_project_path":"inbox","dtime":null,"in_context":"c0","in_context_uid":"7926615695106819409","is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"action with id -8310047117500551536","number_of_items":1,"project_path":"/inbox","project_uid":"1","uid":"-8310047117500551536"}',
+      'after --json uid=-8310047117500551536 chctx c0 /D0/P0',
+      '{"ctime":1137.0,"display_project_path":"inbox","dtime":null,"in_context":"c0","in_context_uid":"7926615695106819409","is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"action with id -8310047117500551536","number_of_items":1,"project_path":"/inbox","project_uid":"1","uid":"-8310047117500551536"}',
       'after running from root',
     ]
     self.helpTest(inputs, golden_printed)
@@ -622,11 +708,11 @@ dump""")) as f:
       'Reset complete.',
       '[]',
       'after null',
-      '[{"ctime":1137.0,"dtime":null,"in_context":"<none>","in_context_uid":null,"in_prj":"inbox","is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"a0_655","number_of_items":1,"uid":5},{"ctime":1137.0,"dtime":null,"in_context":"<none>","in_context_uid":null,"in_prj":"inbox","is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"a1_655","number_of_items":1,"uid":6}]',
+      '[{"ctime":1137.0,"dtime":null,"in_context":"<none>","in_context_uid":null,"in_prj":"inbox","is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"a0_655","number_of_items":1,"uid":"5"},{"ctime":1137.0,"dtime":null,"in_context":"<none>","in_context_uid":null,"in_prj":"inbox","is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"a1_655","number_of_items":1,"uid":"6"}]',
       'after 2',
-      '[{"ctime":1137.0,"dtime":null,"in_context":"655","in_context_uid":4,"in_prj":"inbox","is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"a0_655","number_of_items":1,"uid":5}]',
+      '[{"ctime":1137.0,"dtime":null,"in_context":"655","in_context_uid":"4","in_prj":"inbox","is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"a0_655","number_of_items":1,"uid":"5"}]',
       'after len==1',
-      '[{"ctime":1137.0,"dtime":null,"in_context":"655","in_context_uid":4,"in_prj":"inbox","is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"a0_655","number_of_items":1,"uid":5},{"ctime":1137.0,"dtime":null,"in_context":"655","in_context_uid":4,"in_prj":"inbox","is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"a1_655","number_of_items":1,"uid":6}]',
+      '[{"ctime":1137.0,"dtime":null,"in_context":"655","in_context_uid":"4","in_prj":"inbox","is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"a0_655","number_of_items":1,"uid":"5"},{"ctime":1137.0,"dtime":null,"in_context":"655","in_context_uid":"4","in_prj":"inbox","is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"a1_655","number_of_items":1,"uid":"6"}]',
       'after len==2',
     ]
     self.helpTest(inputs, golden_printed)
@@ -665,11 +751,11 @@ dump""")) as f:
       'Reset complete.',
       '/inbox',
       'after nothing but inbox default',
-      '[{"ctime":1137.0,"default_context_uid":0,"dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"inbox","needsreview":false,"number_of_items":0,"path":"/","uid":1}]',
+      '[{"ctime":1137.0,"default_context_uid":"0","dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"inbox","needsreview":false,"number_of_items":0,"path":"/","uid":"1"}]',
       'after nothing but inbox --json',
       '/inbox',
       'after nothing but inbox --nojson',
-      '[{"ctime":1137.0,"default_context_uid":0,"dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"inbox","needsreview":false,"number_of_items":0,"path":"/","uid":1},{"ctime":1137.0,"default_context_uid":0,"dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"p 0","needsreview":false,"number_of_items":0,"path":"/","uid":4},{"ctime":1137.0,"default_context_uid":0,"dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"p1","needsreview":false,"number_of_items":0,"path":"/","uid":5},{"ctime":1137.0,"default_context_uid":0,"dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"p2_in_dir0","needsreview":false,"number_of_items":0,"path":"/dir0","uid":7}]',
+      '[{"ctime":1137.0,"default_context_uid":"0","dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"inbox","needsreview":false,"number_of_items":0,"path":"/","uid":"1"},{"ctime":1137.0,"default_context_uid":"0","dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"p 0","needsreview":false,"number_of_items":0,"path":"/","uid":"4"},{"ctime":1137.0,"default_context_uid":"0","dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"p1","needsreview":false,"number_of_items":0,"path":"/","uid":"5"},{"ctime":1137.0,"default_context_uid":"0","dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"p2_in_dir0","needsreview":false,"number_of_items":0,"path":"/dir0","uid":"7"}]',
       'after several --json',
       '/inbox',
       '/p 0',
@@ -680,11 +766,11 @@ dump""")) as f:
       'after two args',
       'With an argument, --json is required',
       'after uid=1',
-      '{"ctime":1137.0,"default_context_uid":0,"dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"max_seconds_before_review":604800.0,"mtime":1137.0,"name":"inbox","needsreview":false,"number_of_items":0,"parent_path":"/","uid":1}',
+      '{"ctime":1137.0,"default_context_uid":"0","dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"max_seconds_before_review":604800.0,"mtime":1137.0,"name":"inbox","needsreview":false,"number_of_items":0,"parent_path":"/","uid":"1"}',
       'after --json uid=1',
-      '{"ctime":1137.0,"default_context_uid":0,"dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"max_seconds_before_review":604800.0,"mtime":1137.0,"name":"inbox","needsreview":false,"number_of_items":0,"parent_path":"/","uid":1}',
+      '{"ctime":1137.0,"default_context_uid":"0","dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"max_seconds_before_review":604800.0,"mtime":1137.0,"name":"inbox","needsreview":false,"number_of_items":0,"parent_path":"/","uid":"1"}',
       'after --json /inbox',
-      '{"ctime":1137.0,"default_context_uid":0,"dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"max_seconds_before_review":604800.0,"mtime":1137.0,"name":"p2_in_dir0","needsreview":false,"number_of_items":0,"parent_path":"/dir0","uid":7}',
+      '{"ctime":1137.0,"default_context_uid":"0","dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"max_seconds_before_review":604800.0,"mtime":1137.0,"name":"p2_in_dir0","needsreview":false,"number_of_items":0,"parent_path":"/dir0","uid":"7"}',
       'after --json p2_in_dir0',
     ]
     self.helpTest(inputs, golden_printed)
@@ -768,9 +854,9 @@ dump""")) as f:
       'after ls',
       '[]',
       'after uid=4 p0',
-      '[{"ctime":1137.0,"dtime":null,"in_context":"<none>","in_context_uid":null,"is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"a0_in_p1","number_of_items":1,"uid":6}]',
+      '[{"ctime":1137.0,"dtime":null,"in_context":"<none>","in_context_uid":null,"is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"a0_in_p1","number_of_items":1,"uid":"6"}]',
       'after uid=5 p1',
-      '[{"ctime":1137.0,"dtime":null,"in_context":"<none>","in_context_uid":null,"is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"a0_in_p2_in_dir0","number_of_items":1,"uid":9},{"ctime":1137.0,"dtime":null,"in_context":"<none>","in_context_uid":null,"is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"a1_in_p2_in_dir0","number_of_items":1,"uid":10}]',
+      '[{"ctime":1137.0,"dtime":null,"in_context":"<none>","in_context_uid":null,"is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"a0_in_p2_in_dir0","number_of_items":1,"uid":"9"},{"ctime":1137.0,"dtime":null,"in_context":"<none>","in_context_uid":null,"is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"a1_in_p2_in_dir0","number_of_items":1,"uid":"10"}]',
       'after uid=8 p2_in_dir0',
       '--action--- uid=9 --incomplete-- a0_in_p2_in_dir0 --in-context-- \'<none>\'',
       '--action--- uid=10 --incomplete-- a1_in_p2_in_dir0 --in-context-- \'<none>\'',
@@ -3093,7 +3179,7 @@ dump""")) as f:
       "--context-- uid=0 ---active--- '<none>'",
       '--context-- uid=4 ---active--- c',
       'lsact:',
-      '{"ctime":1137008.0,"display_project_path":"inbox","dtime":null,"in_context":"C","in_context_uid":4,"is_complete":false,"is_deleted":false,"mtime":1137008.0,"name":"a","number_of_items":1,"project_path":"/inbox","project_uid":1,"uid":5}',
+      '{"ctime":1137008.0,"display_project_path":"inbox","dtime":null,"in_context":"C","in_context_uid":"4","is_complete":false,"is_deleted":false,"mtime":1137008.0,"name":"a","number_of_items":1,"project_path":"/inbox","project_uid":"1","uid":"5"}',
     ]
     self.helpTest(inputs, golden_printed)
 
@@ -3105,10 +3191,22 @@ dump""")) as f:
       'echo rmctx Error:',
       'rmctx uid=1',  # That's /inbox
       'mkctx Cb',  # uid=5
+      # TODO(chandler37): It'd be nice to have the command line with a + in
+      # front of it echo the command so we could just say '+lsctx' instead of
+      # 'echo lsctx:;lsctx':
+      'echo lsctx:',
+      'lsctx',
       'cd /inbox',
       'mkact Aa',  # uid=6
       'chctx Cb Aa',
-      'echo Err chctx -1:',
+      'echo no error for chctx uid=0 because uid=0 is special meaning for Actions Without Context:',
+      'chctx uid=0 Aa',
+      'echo Err chctx uid=None:',
+      'chctx uid=None Aa',
+      'echo Err chctx uid="":',
+      'chctx uid= Aa',
+      'chctx uid=5 Aa',
+      'echo no error for chctx -1 (except that it is not found):',
       'chctx uid=-1 Aa',
       'echo Err chctx 999:',
       'chctx uid=999 Aa',
@@ -3122,8 +3220,10 @@ dump""")) as f:
       'echo gist1:',
       'dump -m',
       'echo end gist1',
-      'echo inctx via uid:',
+      'echo inctx Cb via uid=5:',
       'inctx uid=5',
+      'echo inctx via uid=0:',
+      'inctx uid=0',
       'echo inctx via name:',
       'inctx Cb',
       'echo [de]activatectx via UID:',
@@ -3133,6 +3233,8 @@ dump""")) as f:
       'completereview uid=9',
       'echo Err991:',
       'completereview uid=991',
+      'echo Err completereview uid=0:',
+      'completereview uid=0',
       'cd /inbox',
       'complete uid=6',
       'uncomplete uid=6',
@@ -3192,8 +3294,17 @@ dump""")) as f:
     golden_printed = [
       'rmctx Error:',
       'No such context "uid=1".  Your choices: Ca',
-      'Err chctx -1:',
-      'Illegal "uid" syntax. Correct syntax: uid=N where N is a positive, decimal integer',
+      'lsctx:',
+      "--context-- uid=0 ---active--- '<none>'",
+      '--context-- uid=4 ---active--- Ca',
+      '--context-- uid=5 ---active--- Cb',
+      'no error for chctx uid=0 because uid=0 is special meaning for Actions Without Context:',
+      'Err chctx uid=None:',
+      'Illegal "uid" syntax. Correct syntax: uid=N where -2**63 <= N < 2**63 is a signed decimal integer that is not zero',
+      'Err chctx uid=:',
+      'Illegal "uid" syntax. Correct syntax: uid=N where -2**63 <= N < 2**63 is a signed decimal integer that is not zero',
+      'no error for chctx -1 (except that it is not found):',
+      'No such Context "uid=-1"',
       'Err chctx 999:',
       'No such Context "uid=999"',
       'gist1:',
@@ -3220,13 +3331,17 @@ dump""")) as f:
       '    </contexts>',
       '</todolist>',
       'end gist1',
-      'inctx via uid:',
+      'inctx Cb via uid=5:',
       '--action--- uid=6 --incomplete-- Aa',
+      'inctx via uid=0:',
       'inctx via name:',
       '--action--- uid=6 --incomplete-- Aa',
       '[de]activatectx via UID:',
       'Err991:',
       'No Project exists with UID 991',
+      'Err completereview uid=0:',
+      'Illegal "uid" syntax. Correct syntax: uid=N where -2**63 <= N < 2**63 is a '
+      'signed decimal integer that is not zero',
       'root:',
       '/',
       '[x2] /:',
@@ -3791,7 +3906,7 @@ it and use this view filter. Note: this is ignored in --show_all mode""",
     HelpHelpTest(['chclock 999999999', 'needsreview'],
                  ['/inbox', '/Pa', '/Fb/Fbb/Pbb'])
     HelpHelpTest(['chclock 999999999', 'needsreview --json'],
-                 ['[{"ctime":36,"default_context_uid":0,"dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":36,"name":"inbox","needsreview":true,"number_of_items":0,"uid":1},{"ctime":111.0,"default_context_uid":0,"dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":111.0,"name":"Pa","needsreview":true,"number_of_items":0,"uid":4},{"ctime":111.0,"default_context_uid":0,"dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":111.0,"name":"Pbb","needsreview":true,"number_of_items":1,"uid":8}]'])
+                 ['[{"ctime":36,"default_context_uid":"0","dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":36,"name":"inbox","needsreview":true,"number_of_items":0,"uid":"1"},{"ctime":111.0,"default_context_uid":"0","dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":111.0,"name":"Pa","needsreview":true,"number_of_items":0,"uid":"4"},{"ctime":111.0,"default_context_uid":"0","dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":111.0,"name":"Pbb","needsreview":true,"number_of_items":1,"uid":"8"}]'])
     HelpHelpTest(['chclock 999999998', 'completereview /Fb/Fbb/Pbb'],
                  [])
     # TODO(chandler): Should we treat the review of the inbox specially? You
@@ -4062,7 +4177,7 @@ it and use this view filter. Note: this is ignored in --show_all mode""",
       'ls -l uid=5',
       '--context-- mtime=1969/12/31-19:00:37 ctime=1969/12/31-19:00:37 uid=5 ---active--- C',
       'ls uid=0',
-      'Illegal "uid" syntax. Correct syntax: uid=N where N is a positive, decimal integer',
+      'Illegal "uid" syntax. Correct syntax: uid=N where -2**63 <= N < 2**63 is a signed decimal integer that is not zero',
       # TODO: Make it print out '--context-- uid=0 \'<none>\''
     ]
     self.helpTest(inputs, golden_printed)
@@ -4265,7 +4380,7 @@ it and use this view filter. Note: this is ignored in --show_all mode""",
       '--context-- uid=0 ---active--- \'<none>\'',
       '--context-- uid=6 ---active--- D',
       'rename uid=0 foo',
-      'Illegal "uid" syntax. Correct syntax: uid=N where N is a positive, decimal integer',
+      'Illegal "uid" syntax. Correct syntax: uid=N where -2**63 <= N < 2**63 is a signed decimal integer that is not zero',
     ]
     self.helpTest(inputs, golden_printed)
 
@@ -4446,11 +4561,11 @@ it and use this view filter. Note: this is ignored in --show_all mode""",
       '/bDthird:',
       'lsprj:',
       # inbox always first:
-      '[{"ctime":1137.0,"default_context_uid":0,"dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"inbox","needsreview":false,"number_of_items":3,"path":"/","uid":1},{"ctime":1137.0,"default_context_uid":0,"dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"asecond","needsreview":false,"number_of_items":0,"path":"/","uid":8},{"ctime":1137.0,"default_context_uid":0,"dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"bthird","needsreview":false,"number_of_items":0,"path":"/","uid":9},{"ctime":1137.0,"default_context_uid":0,"dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"cfirst","needsreview":false,"number_of_items":0,"path":"/","uid":7}]',
+      '[{"ctime":1137.0,"default_context_uid":"0","dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"inbox","needsreview":false,"number_of_items":3,"path":"/","uid":"1"},{"ctime":1137.0,"default_context_uid":"0","dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"asecond","needsreview":false,"number_of_items":0,"path":"/","uid":"8"},{"ctime":1137.0,"default_context_uid":"0","dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"bthird","needsreview":false,"number_of_items":0,"path":"/","uid":"9"},{"ctime":1137.0,"default_context_uid":"0","dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"cfirst","needsreview":false,"number_of_items":0,"path":"/","uid":"7"}]',
       'lsctx alpha:',
-      '[{"ctime":0,"dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":0,"name":"<none>","number_of_items":3,"uid":0},{"ctime":1137.0,"dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"@asecond","number_of_items":0,"uid":14},{"ctime":1137.0,"dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"@cfirst","number_of_items":0,"uid":13}]',
+      '[{"ctime":0,"dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":0,"name":"<none>","number_of_items":3,"uid":"0"},{"ctime":1137.0,"dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"@asecond","number_of_items":0,"uid":"14"},{"ctime":1137.0,"dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"@cfirst","number_of_items":0,"uid":"13"}]',
       'lsctx chrono:',
-      '[{"ctime":0,"dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":0,"name":"<none>","number_of_items":3,"uid":0},{"ctime":1137.0,"dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"@cfirst","number_of_items":0,"uid":13},{"ctime":1137.0,"dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"@asecond","number_of_items":0,"uid":14}]',
+      '[{"ctime":0,"dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":0,"name":"<none>","number_of_items":3,"uid":"0"},{"ctime":1137.0,"dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"@cfirst","number_of_items":0,"uid":"13"},{"ctime":1137.0,"dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"@asecond","number_of_items":0,"uid":"14"}]',
     ]
     self.helpTest(inputs, golden_printed)
 
@@ -5290,7 +5405,7 @@ it and use this view filter. Note: this is ignored in --show_all mode""",
       "inactive_and_incomplete inprj inbox:",
       "[]",
       "all inprj inbox:",
-      '[{"ctime":37.0,"dtime":null,"in_context":"<none>","in_context_uid":null,"is_complete":false,"is_deleted":false,"mtime":37.0,"name":"active_and_incomplete_in_inbox","number_of_items":1,"uid":16}]',
+      '[{"ctime":37.0,"dtime":null,"in_context":"<none>","in_context_uid":null,"is_complete":false,"is_deleted":false,"mtime":37.0,"name":"active_and_incomplete_in_inbox","number_of_items":1,"uid":"16"}]',
     ]
     self.helpTest(inputs, golden_printed)
 
@@ -5447,7 +5562,7 @@ it and use this view filter. Note: this is ignored in --show_all mode""",
       "--action--- uid=10 --incomplete-- afternewname --in-context-- '<none>'",
       "--action--- uid=12 --incomplete-- afterrmctx --in-context-- '<none>'",
       "lsprj --json uid=1",
-      '{"ctime":36.0,"default_context_uid":14,"dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"max_seconds_before_review":604800.0,"mtime":1137.0,"name":"inbox","needsreview":false,"number_of_items":3,"parent_path":"/","uid":1}',
+      '{"ctime":36.0,"default_context_uid":"14","dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"max_seconds_before_review":604800.0,"mtime":1137.0,"name":"inbox","needsreview":false,"number_of_items":3,"parent_path":"/","uid":"1"}',
       "uid=15 for @highestuid:",
       "--context-- uid=0 mtime=1969/12/31-19:00:00 ctime=1969/12/31-19:00:00 ---active--- '<none>'",
       "--context-- uid=14 mtime=1969/12/31-19:18:57 ctime=1969/12/31-19:18:57 ---active--- @foobar",
@@ -5760,6 +5875,239 @@ it and use this view filter. Note: this is ignored in --show_all mode""",
       "ls after save:",
       "--action--- --incomplete-- foo@work --in-context-- @WorK",
     ]
+    self.helpTest(inputs, golden_printed)
+
+  def testRandomizingUidsOnTopOfLegacySequentialData(self):
+    random.seed(3737124)
+    FLAGS.pyatdl_show_uid = True
+    save_path = _CreateTmpFile('')
+    inputs = ['chclock 38',
+              'note /inbox "a nice inbox note"',
+              'mkctx @home',
+              'mkctx @work',
+              'do foo',
+              'chctx @home /inbox/foo',
+              'echo ls:',
+              'ls /inbox',
+              'rename --noautoctx /inbox/foo "/inbox/foo @work"',
+              'echo ls still @home:',
+              'ls /inbox',
+              'rename --autoctx "/inbox/foo @work" /inbox/foo@work',
+              'echo ls with foo @work:',
+              'ls /inbox',
+              'renamectx @work @WorK',
+              'save %s' % pipes.quote(save_path)
+              ]
+    golden_printed = [
+      "ls:",
+      "--action--- uid=6 --incomplete-- foo --in-context-- @home",
+      "ls still @home:",
+      "--action--- uid=6 --incomplete-- 'foo @work' --in-context-- @home",
+      "ls with foo @work:",
+      "--action--- uid=6 --incomplete-- foo@work --in-context-- @work",
+      "Save complete.",
+    ]
+    self.helpTest(inputs, golden_printed)
+    # Now load this data, which is like legacy data before we randomized UIDs,
+    # and add new objects with random UIDs.
+    FLAGS.pyatdl_randomize_uids = True
+    inputs = ['load %s' % pipes.quote(save_path),
+              'echo ls after save:',
+              'ls -R /',
+              'chclock 38',
+              'note --noreplace /inbox " and more notes"',
+              'do newaction',
+              'mkprj newprj',
+              'mkdir newfolder',
+              'mkctx @newctx',
+              'note :__foo foo',
+              'echo ls /inbox:',
+              'ls /inbox',
+              'echo dumpprotobuf:',
+              'dumpprotobuf',
+              'save %s' % pipes.quote(save_path),
+              'load %s' % pipes.quote(save_path),
+              'dumpprotobuf',
+              ]
+    gold_pb = [
+      'inbox {\n'
+      '  common {\n'
+      '    is_deleted: false\n'
+      '    timestamp {\n'
+      '      ctime: 36000000\n'
+      '      dtime: -1\n'
+      '      mtime: 38000000\n'
+      '    }\n'
+      '    metadata {\n'
+      '      name: "inbox"\n'
+      '      note: "a nice inbox note and more notes"\n'
+      '    }\n'
+      '    uid: 1\n'
+      '  }\n'
+      '  is_complete: false\n'
+      '  is_active: true\n'
+      '  actions {\n'
+      '    common {\n'
+      '      is_deleted: false\n'
+      '      timestamp {\n'
+      '        ctime: 38000000\n'
+      '        dtime: -1\n'
+      '        mtime: 38000000\n'
+      '      }\n'
+      '      metadata {\n'
+      '        name: "foo@work"\n'
+      '      }\n'
+      '      uid: 6\n'
+      '    }\n'
+      '    is_complete: false\n'
+      '    ctx {\n'
+      '      common {\n'
+      '        uid: 5\n'
+      '      }\n'
+      '    }\n'
+      '  }\n'
+      '  actions {\n'
+      '    common {\n'
+      '      is_deleted: false\n'
+      '      timestamp {\n'
+      '        ctime: 38000000\n'
+      '        dtime: -1\n'
+      '        mtime: 38000000\n'
+      '      }\n'
+      '      metadata {\n'
+      '        name: "newaction"\n'
+      '      }\n'
+      '      uid: 7577081113976058321\n'
+      '    }\n'
+      '    is_complete: false\n'
+      '  }\n'
+      '}\n'
+      'root {\n'
+      '  common {\n'
+      '    is_deleted: false\n'
+      '    timestamp {\n'
+      '      ctime: 36000000\n'
+      '      dtime: -1\n'
+      '      mtime: 38000000\n'
+      '    }\n'
+      '    metadata {\n'
+      '      name: ""\n'
+      '    }\n'
+      '    uid: 2\n'
+      '  }\n'
+      '  folders {\n'
+      '    common {\n'
+      '      is_deleted: false\n'
+      '      timestamp {\n'
+      '        ctime: 38000000\n'
+      '        dtime: -1\n'
+      '        mtime: 38000000\n'
+      '      }\n'
+      '      metadata {\n'
+      '        name: "newfolder"\n'
+      '      }\n'
+      '      uid: -6279119140261074202\n'
+      '    }\n'
+      '  }\n'
+      '  projects {\n'
+      '    common {\n'
+      '      is_deleted: false\n'
+      '      timestamp {\n'
+      '        ctime: 38000000\n'
+      '        dtime: -1\n'
+      '        mtime: 38000000\n'
+      '      }\n'
+      '      metadata {\n'
+      '        name: "newprj"\n'
+      '      }\n'
+      '      uid: -1551412508615596635\n'
+      '    }\n'
+      '    is_complete: false\n'
+      '    is_active: true\n'
+      '  }\n'
+      '}\n'
+      'ctx_list {\n'
+      '  common {\n'
+      '    is_deleted: false\n'
+      '    timestamp {\n'
+      '      ctime: 38000000\n'
+      '      dtime: -1\n'
+      '      mtime: 38000000\n'
+      '    }\n'
+      '    metadata {\n'
+      '      name: "Contexts"\n'
+      '    }\n'
+      '    uid: 3\n'
+      '  }\n'
+      '  contexts {\n'
+      '    common {\n'
+      '      is_deleted: false\n'
+      '      timestamp {\n'
+      '        ctime: 38000000\n'
+      '        dtime: -1\n'
+      '        mtime: 38000000\n'
+      '      }\n'
+      '      metadata {\n'
+      '        name: "@home"\n'
+      '      }\n'
+      '      uid: 4\n'
+      '    }\n'
+      '    is_active: true\n'
+      '  }\n'
+      '  contexts {\n'
+      '    common {\n'
+      '      is_deleted: false\n'
+      '      timestamp {\n'
+      '        ctime: 38000000\n'
+      '        dtime: -1\n'
+      '        mtime: 38000000\n'
+      '      }\n'
+      '      metadata {\n'
+      '        name: "@WorK"\n'
+      '      }\n'
+      '      uid: 5\n'
+      '    }\n'
+      '    is_active: true\n'
+      '  }\n'
+      '  contexts {\n'
+      '    common {\n'
+      '      is_deleted: false\n'
+      '      timestamp {\n'
+      '        ctime: 38000000\n'
+      '        dtime: -1\n'
+      '        mtime: 38000000\n'
+      '      }\n'
+      '      metadata {\n'
+      '        name: "@newctx"\n'
+      '      }\n'
+      '      uid: 5670910009383379977\n'
+      '    }\n'
+      '    is_active: true\n'
+      '  }\n'
+      '}\n'
+      'note_list {\n'
+      '  notes {\n'
+      '    name: ":__foo"\n'
+      '    note: "foo"\n'
+      '  }\n'
+      '}\n'
+    ]
+    golden_printed = [
+      "Load complete.",
+      "ls after save:",
+      "--project-- uid=1 --incomplete-- ---active--- inbox",
+      '',
+      '/inbox:',
+      '--action--- uid=6 --incomplete-- foo@work --in-context-- @WorK',
+      'ls /inbox:',
+      '--action--- uid=6 --incomplete-- foo@work --in-context-- @WorK',
+      '--action--- uid=7577081113976058321 --incomplete-- newaction --in-context-- '
+      "'<none>'",
+      'dumpprotobuf:',
+    ] + gold_pb + [
+      'Save complete.',
+      'Load complete.',
+    ] + gold_pb
     self.helpTest(inputs, golden_printed)
 
 

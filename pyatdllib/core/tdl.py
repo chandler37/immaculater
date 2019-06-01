@@ -20,6 +20,7 @@ from . import folder
 from . import note
 from . import prj
 from . import pyatdl_pb2
+from . import uid
 
 flags.DEFINE_string('inbox_project_name', 'inbox',
                     'Name of the top-level "inbox" project')
@@ -61,9 +62,10 @@ class ToDoList(object):
   """
 
   def __init__(self, inbox=None, root=None, ctx_list=None, note_list=None):
-    self.inbox = inbox if inbox is not None else prj.Prj(name=FLAGS.inbox_project_name)
-    assert self.inbox.uid == 1, self.inbox.uid
-    self.root = root if root is not None else folder.Folder(name='')
+    self.inbox = inbox if inbox is not None else prj.Prj(name=FLAGS.inbox_project_name, the_uid=uid.INBOX_UID)
+    assert self.inbox.uid == uid.INBOX_UID, self.inbox.uid
+    self.root = root if root is not None else folder.Folder(name='', the_uid=uid.ROOT_FOLDER_UID)
+    assert self.root.uid == uid.ROOT_FOLDER_UID, self.inbox.uid
     self.ctx_list = ctx_list if ctx_list is not None else ctx.CtxList(name='Contexts')
     self.note_list = note_list if note_list is not None else note.NoteList()
 
@@ -334,9 +336,6 @@ class ToDoList(object):
   def AddContext(self, context_name):
     """Adds a Ctx with the given name to our list of contexts.
 
-    This function takes a basestring, not a Ctx, to avoid wasting a UID.
-    "Burning" a UID would make the well-formedness check more difficult.
-
     Args:
       context_name: basestring
     Returns:
@@ -400,24 +399,25 @@ class ToDoList(object):
     self.ctx_list.CheckIsWellFormed()
     for f, unused_path in self.root.ContainersPreorder():
       f.CheckIsWellFormed()
-    # Verify that UIDs are unique and that no ID maps to two or more object
-    # types.
-    objecttype_and_uid = set()
+    # Verify that UIDs are unique globally (not just within Actions or Contexts):
+    uids = set()
     for item in self.Items():
       if not item.uid:
         raise AssertionError(
           'Missing UID for item "%s". self=%s' % (str(item), SelfStr()))
-      objecttype_and_uid.add((type(item), item.uid))
-    uids_seen = {}
-    for (objecttype, the_uid) in objecttype_and_uid:
-      if the_uid in uids_seen:
+      if item.uid in uids:
         raise AssertionError(
-          'UID %s was used for two different object types (i.e., Ctx, Action, Folder, Prj). Type 1=%s Type 2=%s; self=%s'
-          % (the_uid,
-             str(uids_seen[the_uid]),
-             str(objecttype),
-             SelfStr()))
-      uids_seen[the_uid] = objecttype
+          'UID %s was used for two different objects' % item.uid)
+      uids.add(item.uid)
+    for item in self.Items():
+      if hasattr(item, 'default_context_uid'):
+        if item.default_context_uid is not None and item.default_context_uid not in uids:
+          raise AssertionError(
+            'UID %s is a default_context_uid but that UID does not exist.' % item.default_context_uid)
+      if hasattr(item, 'ctx_uid'):
+        if item.ctx_uid is not None and item.ctx_uid not in uids:
+          raise AssertionError(
+            "UID %s is an action's context UID but that context does not exist." % item.ctx_uid)
 
   def AsProto(self, pb=None):
     """Serializes this object to a protocol buffer.

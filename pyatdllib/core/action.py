@@ -25,8 +25,8 @@ class Action(auditable_object.AuditableObject):
     mtime: int  # seconds since the epoch
     is_complete: bool
     is_deleted: bool
-    name: None|unicode|str  # e.g., "Buy milk"
-    note: unicode|str
+    name: None|basestring  # e.g., "Buy milk"
+    note: basestring
     ctx_uid: None|int  # UID of the Context, e.g. -5983155992228943816 which might refer to "@the store"
   """
 

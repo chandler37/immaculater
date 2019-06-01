@@ -5,7 +5,7 @@
 {% load static %}
   <h1>{{Title}} &ndash; <a href="/todo"><img src="{% static Logo %}" alt="{{Brand}}" width=202 height=50></a></h1>
 
-  Welcome, {{Nickname}}! (<a href="{{LogoutUrl}}">sign out</a>)<br><br>
+  Welcome, {{Nickname}}! (<a data-pjax="0" href="{{LogoutUrl}}">sign out</a>)<br><br>
 
   The following are keyboard shortcuts:
 

@@ -5,7 +5,7 @@
     {% load static %}
     <h1>{{Title}} &ndash; <a href="/todo"><img src="{% static Logo %}" alt="{{Brand}}" width=202 height=50></a></h1>
 
-    Welcome, {{Nickname|escape}}! (<a href="{{LogoutUrl}}">sign out</a>)<br><br>
+    Welcome, {{Nickname|escape}}! (<a data-pjax="0" href="{{LogoutUrl}}">sign out</a>)<br><br>
 
     An error occurred; use your back button or click the logo above to
     proceed. The following are the error details:

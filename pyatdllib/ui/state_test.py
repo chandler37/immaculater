@@ -23,6 +23,7 @@ FLAGS = flags.FLAGS
 class StateTestCase(unitjest.TestCase):
 
   def setUp(self):
+    super().setUp()
     FLAGS.pyatdl_randomize_uids = False
     time.time = lambda: 1337
     uid.ResetNotesOfExistingUIDs()
@@ -31,6 +32,7 @@ class StateTestCase(unitjest.TestCase):
     self._the_state = None
 
   def tearDown(self):
+    super().tearDown()
     del self._the_state
 
   def _Exec(self, argv):

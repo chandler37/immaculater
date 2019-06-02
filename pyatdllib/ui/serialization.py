@@ -37,6 +37,14 @@ class DeserializationError(Error):
   """Failed to load to-do list."""
 
 
+class TooBigToSaveError(Error):
+  """Failed to save to-do list because it is too large. You can delete
+  completed actions (should still fit...) and then purge deleted
+  actions. Or you can export to TaskPaper format and see if it or
+  OmniFocus can deal with your extra-large to-do list.
+  """
+
+
 def _Sha1Checksum(payload):
   """Returns the SHA1 checksum of the given byte sequence.
 
@@ -97,9 +105,49 @@ def _SerializedWithChecksum(payload):
       payload, FLAGS.pyatdl_zlib_compression_level)
   pb.payload = payload
   pb.payload_length = len(payload)
-  pb.sha1_checksum = _Sha1Checksum(payload)
+  cksum = _Sha1Checksum(payload)
+  pb.sha1_checksum = cksum
   assert payload
-  return pb.SerializeToString()  # pylint: disable=no-member
+  result = pb.SerializeToString()
+  _TestDeserializationOfChecksumWithData(result, cksum)
+  return result
+
+
+def _TestDeserializationOfChecksumWithData(bytestring, cksum):
+  """Makes sure we don't save to the database something so large we cannot read it back.
+
+  Args:
+    bytestring: str
+    cksum: str
+  Raises:
+    TooBigToSaveError
+    AssertionError (for checksum mismatch)
+  """
+  pb = pyatdl_pb2.ChecksumAndData.FromString(bytestring)
+  assert len(cksum) > 0
+  if cksum != pb.sha1_checksum:
+    raise AssertionError(
+        'this should never happen even if the to-do list is too big. '
+        'cksum=%s and pb.sha1_checksum=%s'
+        % (cksum, pb.sha1_checksum))
+  if pb.payload_length != len(pb.payload):
+    raise AssertionError(
+        'this should never happen even if the to-do list is too big. '
+        'pb.payload_length=%s and pb.payload actual length=%s'
+        % (pb.payload_length, len(pb.payload)))
+  real_sum = _Sha1Checksum(pb.payload)  # TODO(chandler37): this is expensive, make it optional?
+  if real_sum != cksum:
+    raise AssertionError(
+        'this should never happen even if the to-do list is too big. '
+        'SHA1(pb.payload)=%s and pb.sha1_checksum=%s'
+        % (real_sum, pb.sha1_checksum))
+  uncompressed_payload = pb.payload
+  if pb.payload_is_zlib_compressed:
+    uncompressed_payload = zlib.decompress(pb.payload)
+  try:
+    pyatdl_pb2.ToDoList.FromString(uncompressed_payload)
+  except message.DecodeError:
+    raise TooBigToSaveError
 
 
 def SerializeToDoList2(todolist, writer):

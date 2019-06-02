@@ -14,6 +14,7 @@ FLAGS = flags.FLAGS
 class ActionTestCase(unitjest.TestCase):  # pylint: disable=missing-docstring,too-many-public-methods
 
   def setUp(self):
+    super().setUp()
     FLAGS.pyatdl_randomize_uids = False
     uid.ResetNotesOfExistingUIDs()
 

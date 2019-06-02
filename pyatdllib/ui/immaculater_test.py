@@ -4,130 +4,30 @@ from __future__ import absolute_import
 from __future__ import unicode_literals
 from __future__ import print_function
 
-import copy
-import os
 import pipes
 import random
 import six
-import tempfile
 import time
 import zlib
 
 import gflags as flags  # https://github.com/gflags/python-gflags
-from gflags import _helpers
 
 from google.protobuf import message
 
 from pyatdllib.ui import immaculater
-from pyatdllib.core import tdl
+from pyatdllib.ui import test_helper
 from pyatdllib.core import uid
-from pyatdllib.core import unitjest
-
-immaculater.RegisterUICmds(cloud_only=False)
 
 FLAGS = flags.FLAGS
 
 
-def _CreateTmpFile(contents):
-  """Creates a new temporary file (that will never be removed) and returns the
-  name of that file.
-
-  Args:
-    contents: str
-  Returns:
-    str
-  """
-  with tempfile.NamedTemporaryFile(
-    prefix='tmppyatdluiimmaculater_test', delete=False) as tf:
-    tempfilename = tf.name
-  with open(tempfilename, 'wb') as f:
-    f.write(contents.encode('utf-8'))
-  return tempfilename
-
-
 # pylint: disable=line-too-long,missing-docstring,too-many-public-methods
-class ImmaculaterTestCase(unitjest.TestCase):
+class ImmaculaterTestCase(test_helper.TestHelper):
   # pylint: disable=trailing-whitespace
 
   def setUp(self):
-    random.seed(3737123)
-
-    FLAGS.pyatdl_randomize_uids = False
-
-    assert _helpers.GetHelpWidth
-    _helpers.GetHelpWidth = lambda: 180
-    uid.ResetNotesOfExistingUIDs()
-
-    # There is a gflags.TextWrap glitch re: the line '-a,--[no]show_all:
-    # Additionally lists everything, even hidden objects, overriding the view
-    # filter' so we replace TextWrap.
-    def MyTextWrap(text, length=None, indent='', firstline_indent=None, tabs='    '):  # pylint: disable=unused-argument
-      return text
-
-    flags.TextWrap = MyTextWrap
-    FLAGS.pyatdl_allow_exceptions_in_batch_mode = True
-    FLAGS.pyatdl_separator = '/'
-    FLAGS.pyatdl_break_glass_and_skip_wellformedness_check = False
-    FLAGS.pyatdl_give_full_help_for_uicmd = False
-    FLAGS.pyatdl_paranoia = True
-    FLAGS.pyatdl_allow_command_line_comments = False
-    FLAGS.pyatdl_zlib_compression_level = 6
-    FLAGS.pyatdl_show_uid = False
-    FLAGS.seed_upon_creation = False
-    FLAGS.no_context_display_string = '<none>'
-    FLAGS.time_format = '%Y/%m/%d-%H:%M:%S'
-    FLAGS.timezone = 'US/Eastern'
-    self.saved_time = time.time
-    time.time = lambda: 36
-    self.todolist = tdl.ToDoList()
-    time.time = self.saved_time
-    self.saved_input = immaculater._Input  # pylint: disable=protected-access
-    self.saved_print = immaculater._Print  # pylint: disable=protected-access
-    self.maxDiff = None  # pylint: disable=invalid-name
-    tf = tempfile.NamedTemporaryFile(
-      prefix='tmppyatdluiimmaculater_test', delete=False)
-    FLAGS.database_filename = tf.name
-    tf.close()
-    self.saved_decompress = zlib.decompress
-
-  def tearDown(self):
-    zlib.decompress = self.saved_decompress
-    time.time = self.saved_time
-    immaculater._Input = self.saved_input  # pylint: disable=protected-access
-    immaculater._Print = self.saved_print  # pylint: disable=protected-access
-    try:
-      os.remove(FLAGS.database_filename)
-    except OSError:
-      pass
-
-  def helpTest(self, inputs, golden_outputs):
-    """Feeds the inputs to the beast and verifies that the output
-    matches the golden output.
-
-    Args:
-      inputs: [basestring]
-      golden_outputs: [basestring]
-    """
-    inputs = copy.copy(inputs)
-
-    def MyRawInput(unused_prompt=''):  # pylint: disable=unused-argument
-      if not inputs:
-        raise EOFError('immaculater_test1')
-      return inputs.pop(0)
-
-    printed = []
-
-    def MyPrint(s):
-      printed.append(six.text_type(s))
-
-    immaculater._Input = MyRawInput  # pylint: disable=protected-access
-    immaculater._Print = MyPrint  # pylint: disable=protected-access
-
-    def HTMLEscaper(s):
-      return s.replace('&nbsp;', '&amp;nbsp;')
-
-    immaculater.MutateToDoListLoop(self.todolist, html_escaper=HTMLEscaper)
-    self._AssertEqualWithDiff(golden_outputs, printed)
+    super().setUp()
+    FLAGS.pyatdl_allow_infinite_memory_for_protobuf = True
 
   def testBase64RandomSlug(self):
     random.seed(37)
@@ -155,7 +55,7 @@ class ImmaculaterTestCase(unitjest.TestCase):
       pwd
       echo after pwd; ls -a: # This is a POSIX-style comment
       ls -a"""
-    with open(_CreateTmpFile(v0)) as f:
+    with open(self._CreateTmpFile(v0)) as f:
       immaculater.ApplyBatchOfCommands(f, MyPrint)
     self.assertEqual(
       ['Reset complete.',
@@ -172,7 +72,7 @@ class ImmaculaterTestCase(unitjest.TestCase):
       printed)
     del printed[:]
     FLAGS.pyatdl_allow_command_line_comments = True
-    with open(_CreateTmpFile(v0)) as f:
+    with open(self._CreateTmpFile(v0)) as f:
       immaculater.ApplyBatchOfCommands(f, MyPrint)
     self.assertEqual(
       ['Reset complete.',
@@ -196,7 +96,7 @@ class ImmaculaterTestCase(unitjest.TestCase):
         mkprj Pbatch2
         lsctx
         ls -a"""
-    with open(_CreateTmpFile(contents)) as f:
+    with open(self._CreateTmpFile(contents)) as f:
       immaculater.ApplyBatchOfCommands(f, MyPrint)
     self.assertEqual(
       ['--context-- uid=0 ---active--- \'<none>\'',
@@ -218,7 +118,7 @@ class ImmaculaterTestCase(unitjest.TestCase):
 
     immaculater._Print = MyPrint  # pylint: disable=protected-access
 
-    with open(_CreateTmpFile(r"""
+    with open(self._CreateTmpFile(r"""
 reset --annihilate
 mkdir F0
 cd F0
@@ -295,7 +195,7 @@ dump""")) as f:
     # Now apply a different batch without resetting the DB. Tests
     # deserialization.
     assert not printed
-    with open(_CreateTmpFile('dump')) as f:
+    with open(self._CreateTmpFile('dump')) as f:
       immaculater.ApplyBatchOfCommands(f)
     self._AssertEqualWithDiff(
       [gold],
@@ -311,7 +211,7 @@ dump""")) as f:
 
     zlib.decompress = MyPoisonedDecompress
     try:
-      with open(_CreateTmpFile('dump')) as f:
+      with open(self._CreateTmpFile('dump')) as f:
         immaculater.ApplyBatchOfCommands(f)
     except (message.DecodeError, ValueError):
       pass
@@ -321,7 +221,7 @@ dump""")) as f:
     # Unpoison it.
     zlib.decompress = self.saved_decompress
     del printed[:]
-    with open(_CreateTmpFile('dump')) as f:
+    with open(self._CreateTmpFile('dump')) as f:
       immaculater.ApplyBatchOfCommands(f)
     self._AssertEqualWithDiff(
       [gold],
@@ -330,7 +230,7 @@ dump""")) as f:
     # Now deserialize and then serialize without compression.
     FLAGS.pyatdl_zlib_compression_level = 0
     del printed[:]
-    with open(_CreateTmpFile('dump')) as f:
+    with open(self._CreateTmpFile('dump')) as f:
       immaculater.ApplyBatchOfCommands(f)
     self._AssertEqualWithDiff(
       [gold],
@@ -338,7 +238,7 @@ dump""")) as f:
     # Now go back to compressing. Can we deserialize an uncompressed payload?
     FLAGS.pyatdl_zlib_compression_level = 6
     del printed[:]
-    with open(_CreateTmpFile('dump')) as f:
+    with open(self._CreateTmpFile('dump')) as f:
       immaculater.ApplyBatchOfCommands(f)
     self._AssertEqualWithDiff(
       [gold],
@@ -375,7 +275,7 @@ dump""")) as f:
     self.helpTest(inputs, golden_printed)
 
   def testLsContextOfActionAfterDeserialization(self):
-    save_path = _CreateTmpFile('')
+    save_path = self._CreateTmpFile('')
     inputs = ['mkctx @home',
               'mkact -c @home /inbox/a',
               'echo ls before save:',
@@ -448,7 +348,7 @@ dump""")) as f:
     self.helpTest(inputs, golden_printed)
 
   def testLsctxJson(self):
-    save_path = _CreateTmpFile('')
+    save_path = self._CreateTmpFile('')
     inputs = ['chclock 1137',
               'reset --annihilate',
               'cd /inbox',
@@ -898,7 +798,7 @@ dump""")) as f:
 
   def testMv(self):
     FLAGS.pyatdl_show_uid = True
-    save_path = _CreateTmpFile('')
+    save_path = self._CreateTmpFile('')
     inputs = ['chclock 1137',
               'reset --annihilate',
               'mv /inbox /',
@@ -4197,7 +4097,7 @@ it and use this view filter. Note: this is ignored in --show_all mode""",
     self.helpTest(inputs, golden_printed)
 
   def testSeed(self):
-    save_path = _CreateTmpFile('')
+    save_path = self._CreateTmpFile('')
     inputs = ['chclock 77',
               'seed',
               'save %s' % pipes.quote(save_path),
@@ -4455,7 +4355,7 @@ it and use this view filter. Note: this is ignored in --show_all mode""",
     self.helpTest(inputs, golden_printed)
 
   def testUnicode(self):
-    save_path = _CreateTmpFile('')
+    save_path = self._CreateTmpFile('')
     inputs = ['mkact /inbox/\u02bctil',
               'ls -R /',
               'save %s' % pipes.quote(save_path),
@@ -4743,7 +4643,7 @@ it and use this view filter. Note: this is ignored in --show_all mode""",
     self.helpTest(inputs, golden_printed)
     
   def testNote(self):
-    save_path = _CreateTmpFile('')
+    save_path = self._CreateTmpFile('')
     inputs = ['echo wrong args:',
               'note',
               'note 0 1 2',
@@ -4862,7 +4762,7 @@ it and use this view filter. Note: this is ignored in --show_all mode""",
 
   def testPurgeDeleted(self):
     FLAGS.pyatdl_show_uid = True
-    save_path = _CreateTmpFile('')
+    save_path = self._CreateTmpFile('')
     inputs = ['mkact /inbox/alive',
               'mkact /inbox/deleted',
               'mkact /inbox/alive2',
@@ -5000,7 +4900,7 @@ it and use this view filter. Note: this is ignored in --show_all mode""",
 
   def testPurgeDeleted2(self):
     FLAGS.pyatdl_show_uid = True
-    save_path = _CreateTmpFile('')
+    save_path = self._CreateTmpFile('')
     inputs = ['mkact /inbox/alive',
               'mkact /inbox/deleted',
               'mkact /inbox/alive2',
@@ -5113,7 +5013,7 @@ it and use this view filter. Note: this is ignored in --show_all mode""",
 
   def testWeeklyReviewNotes(self):
     FLAGS.pyatdl_show_uid = True
-    save_path = _CreateTmpFile('')
+    save_path = self._CreateTmpFile('')
     inputs = ['echo nop',
               'note :__weekly_review',
               'cat :__weekly_review',
@@ -5460,7 +5360,7 @@ it and use this view filter. Note: this is ignored in --show_all mode""",
 
   def testChdefaultctxAndReusingUIDs(self):
     FLAGS.pyatdl_show_uid = True
-    save_path = _CreateTmpFile('')
+    save_path = self._CreateTmpFile('')
     inputs = ['chclock 1137.0',
               'mkprj /p',
               'chdefaultctx @unknown /p',
@@ -5579,7 +5479,7 @@ it and use this view filter. Note: this is ignored in --show_all mode""",
   def testPrjify(self):
     # TODO(chandler): support uid=-1 referring to the last object created, the
     # max UID in the system.
-    save_path = _CreateTmpFile('')
+    save_path = self._CreateTmpFile('')
     inputs = ['do foo bar/baz',
               'prjify uid=4',
               'save %s' % pipes.quote(save_path),
@@ -5692,7 +5592,7 @@ it and use this view filter. Note: this is ignored in --show_all mode""",
     self.helpTest(inputs, golden_printed)
 
   def testDeletecompleted(self):
-    save_path = _CreateTmpFile('')
+    save_path = self._CreateTmpFile('')
     inputs = ['chclock 37',
               'do foo',
               'do bar',
@@ -5844,7 +5744,7 @@ it and use this view filter. Note: this is ignored in --show_all mode""",
     self.helpTest(inputs, golden_printed)
 
   def testRenameChangingContext(self):
-    save_path = _CreateTmpFile('')
+    save_path = self._CreateTmpFile('')
     inputs = ['mkctx @home',
               'mkctx @work',
               'do foo',
@@ -5880,7 +5780,7 @@ it and use this view filter. Note: this is ignored in --show_all mode""",
   def testRandomizingUidsOnTopOfLegacySequentialData(self):
     random.seed(3737124)
     FLAGS.pyatdl_show_uid = True
-    save_path = _CreateTmpFile('')
+    save_path = self._CreateTmpFile('')
     inputs = ['chclock 38',
               'note /inbox "a nice inbox note"',
               'mkctx @home',
@@ -6110,9 +6010,123 @@ it and use this view filter. Note: this is ignored in --show_all mode""",
     ] + gold_pb
     self.helpTest(inputs, golden_printed)
 
+  def testNoTooBigToSaveError(self):
+    save_path = self._CreateTmpFile('')
+    inputs = ['loadtest -n 100',
+              'save %s' % pipes.quote(save_path),
+              'load %s' % pipes.quote(save_path),
+              'ls /inbox',
+              ]
+    golden_printed = [
+      'Save complete.',
+      'Load complete.',
+      "--action--- --incomplete-- AinboxLoadTest0 --in-context-- '<none>'",
+      "--action--- --incomplete-- AinboxLoadTest1 --in-context-- '<none>'",
+      "--action--- --incomplete-- AinboxLoadTest2 --in-context-- '<none>'",
+      "--action--- --incomplete-- AinboxLoadTest3 --in-context-- '<none>'",
+      "--action--- --incomplete-- AinboxLoadTest4 --in-context-- '<none>'",
+      "--action--- --incomplete-- AinboxLoadTest5 --in-context-- '<none>'",
+      "--action--- --incomplete-- AinboxLoadTest6 --in-context-- '<none>'",
+      "--action--- --incomplete-- AinboxLoadTest7 --in-context-- '<none>'",
+      "--action--- --incomplete-- AinboxLoadTest8 --in-context-- '<none>'",
+      "--action--- --incomplete-- AinboxLoadTest9 --in-context-- '<none>'",
+      "--action--- --incomplete-- AinboxLoadTest10 --in-context-- '<none>'",
+      "--action--- --incomplete-- AinboxLoadTest11 --in-context-- '<none>'",
+      "--action--- --incomplete-- AinboxLoadTest12 --in-context-- '<none>'",
+      "--action--- --incomplete-- AinboxLoadTest13 --in-context-- '<none>'",
+      "--action--- --incomplete-- AinboxLoadTest14 --in-context-- '<none>'",
+      "--action--- --incomplete-- AinboxLoadTest15 --in-context-- '<none>'",
+      "--action--- --incomplete-- AinboxLoadTest16 --in-context-- '<none>'",
+      "--action--- --incomplete-- AinboxLoadTest17 --in-context-- '<none>'",
+      "--action--- --incomplete-- AinboxLoadTest18 --in-context-- '<none>'",
+      "--action--- --incomplete-- AinboxLoadTest19 --in-context-- '<none>'",
+      "--action--- --incomplete-- AinboxLoadTest20 --in-context-- '<none>'",
+      "--action--- --incomplete-- AinboxLoadTest21 --in-context-- '<none>'",
+      "--action--- --incomplete-- AinboxLoadTest22 --in-context-- '<none>'",
+      "--action--- --incomplete-- AinboxLoadTest23 --in-context-- '<none>'",
+      "--action--- --incomplete-- AinboxLoadTest24 --in-context-- '<none>'",
+      "--action--- --incomplete-- AinboxLoadTest25 --in-context-- '<none>'",
+      "--action--- --incomplete-- AinboxLoadTest26 --in-context-- '<none>'",
+      "--action--- --incomplete-- AinboxLoadTest27 --in-context-- '<none>'",
+      "--action--- --incomplete-- AinboxLoadTest28 --in-context-- '<none>'",
+      "--action--- --incomplete-- AinboxLoadTest29 --in-context-- '<none>'",
+      "--action--- --incomplete-- AinboxLoadTest30 --in-context-- '<none>'",
+      "--action--- --incomplete-- AinboxLoadTest31 --in-context-- '<none>'",
+      "--action--- --incomplete-- AinboxLoadTest32 --in-context-- '<none>'",
+      "--action--- --incomplete-- AinboxLoadTest33 --in-context-- '<none>'",
+      "--action--- --incomplete-- AinboxLoadTest34 --in-context-- '<none>'",
+      "--action--- --incomplete-- AinboxLoadTest35 --in-context-- '<none>'",
+      "--action--- --incomplete-- AinboxLoadTest36 --in-context-- '<none>'",
+      "--action--- --incomplete-- AinboxLoadTest37 --in-context-- '<none>'",
+      "--action--- --incomplete-- AinboxLoadTest38 --in-context-- '<none>'",
+      "--action--- --incomplete-- AinboxLoadTest39 --in-context-- '<none>'",
+      "--action--- --incomplete-- AinboxLoadTest40 --in-context-- '<none>'",
+      "--action--- --incomplete-- AinboxLoadTest41 --in-context-- '<none>'",
+      "--action--- --incomplete-- AinboxLoadTest42 --in-context-- '<none>'",
+      "--action--- --incomplete-- AinboxLoadTest43 --in-context-- '<none>'",
+      "--action--- --incomplete-- AinboxLoadTest44 --in-context-- '<none>'",
+      "--action--- --incomplete-- AinboxLoadTest45 --in-context-- '<none>'",
+      "--action--- --incomplete-- AinboxLoadTest46 --in-context-- '<none>'",
+      "--action--- --incomplete-- AinboxLoadTest47 --in-context-- '<none>'",
+      "--action--- --incomplete-- AinboxLoadTest48 --in-context-- '<none>'",
+      "--action--- --incomplete-- AinboxLoadTest49 --in-context-- '<none>'",
+      "--action--- --incomplete-- AinboxLoadTest50 --in-context-- '<none>'",
+      "--action--- --incomplete-- AinboxLoadTest51 --in-context-- '<none>'",
+      "--action--- --incomplete-- AinboxLoadTest52 --in-context-- '<none>'",
+      "--action--- --incomplete-- AinboxLoadTest53 --in-context-- '<none>'",
+      "--action--- --incomplete-- AinboxLoadTest54 --in-context-- '<none>'",
+      "--action--- --incomplete-- AinboxLoadTest55 --in-context-- '<none>'",
+      "--action--- --incomplete-- AinboxLoadTest56 --in-context-- '<none>'",
+      "--action--- --incomplete-- AinboxLoadTest57 --in-context-- '<none>'",
+      "--action--- --incomplete-- AinboxLoadTest58 --in-context-- '<none>'",
+      "--action--- --incomplete-- AinboxLoadTest59 --in-context-- '<none>'",
+      "--action--- --incomplete-- AinboxLoadTest60 --in-context-- '<none>'",
+      "--action--- --incomplete-- AinboxLoadTest61 --in-context-- '<none>'",
+      "--action--- --incomplete-- AinboxLoadTest62 --in-context-- '<none>'",
+      "--action--- --incomplete-- AinboxLoadTest63 --in-context-- '<none>'",
+      "--action--- --incomplete-- AinboxLoadTest64 --in-context-- '<none>'",
+      "--action--- --incomplete-- AinboxLoadTest65 --in-context-- '<none>'",
+      "--action--- --incomplete-- AinboxLoadTest66 --in-context-- '<none>'",
+      "--action--- --incomplete-- AinboxLoadTest67 --in-context-- '<none>'",
+      "--action--- --incomplete-- AinboxLoadTest68 --in-context-- '<none>'",
+      "--action--- --incomplete-- AinboxLoadTest69 --in-context-- '<none>'",
+      "--action--- --incomplete-- AinboxLoadTest70 --in-context-- '<none>'",
+      "--action--- --incomplete-- AinboxLoadTest71 --in-context-- '<none>'",
+      "--action--- --incomplete-- AinboxLoadTest72 --in-context-- '<none>'",
+      "--action--- --incomplete-- AinboxLoadTest73 --in-context-- '<none>'",
+      "--action--- --incomplete-- AinboxLoadTest74 --in-context-- '<none>'",
+      "--action--- --incomplete-- AinboxLoadTest75 --in-context-- '<none>'",
+      "--action--- --incomplete-- AinboxLoadTest76 --in-context-- '<none>'",
+      "--action--- --incomplete-- AinboxLoadTest77 --in-context-- '<none>'",
+      "--action--- --incomplete-- AinboxLoadTest78 --in-context-- '<none>'",
+      "--action--- --incomplete-- AinboxLoadTest79 --in-context-- '<none>'",
+      "--action--- --incomplete-- AinboxLoadTest80 --in-context-- '<none>'",
+      "--action--- --incomplete-- AinboxLoadTest81 --in-context-- '<none>'",
+      "--action--- --incomplete-- AinboxLoadTest82 --in-context-- '<none>'",
+      "--action--- --incomplete-- AinboxLoadTest83 --in-context-- '<none>'",
+      "--action--- --incomplete-- AinboxLoadTest84 --in-context-- '<none>'",
+      "--action--- --incomplete-- AinboxLoadTest85 --in-context-- '<none>'",
+      "--action--- --incomplete-- AinboxLoadTest86 --in-context-- '<none>'",
+      "--action--- --incomplete-- AinboxLoadTest87 --in-context-- '<none>'",
+      "--action--- --incomplete-- AinboxLoadTest88 --in-context-- '<none>'",
+      "--action--- --incomplete-- AinboxLoadTest89 --in-context-- '<none>'",
+      "--action--- --incomplete-- AinboxLoadTest90 --in-context-- '<none>'",
+      "--action--- --incomplete-- AinboxLoadTest91 --in-context-- '<none>'",
+      "--action--- --incomplete-- AinboxLoadTest92 --in-context-- '<none>'",
+      "--action--- --incomplete-- AinboxLoadTest93 --in-context-- '<none>'",
+      "--action--- --incomplete-- AinboxLoadTest94 --in-context-- '<none>'",
+      "--action--- --incomplete-- AinboxLoadTest95 --in-context-- '<none>'",
+      "--action--- --incomplete-- AinboxLoadTest96 --in-context-- '<none>'",
+      "--action--- --incomplete-- AinboxLoadTest97 --in-context-- '<none>'",
+      "--action--- --incomplete-- AinboxLoadTest98 --in-context-- '<none>'",
+      "--action--- --incomplete-- AinboxLoadTest99 --in-context-- '<none>'",
+      '--action--- --incomplete-- ALongName' + ('LoadTest' * 100) + " --in-context-- '<none>'",
+    ]
+    self.helpTest(inputs, golden_printed)
+
 
 if __name__ == '__main__':
-  unitjest.main()
+  test_helper.main()
 
 
 # TODO(chandler): Test working with future protobuf; verify that we pass along

@@ -31,6 +31,9 @@ flags.DEFINE_bool(
     'This is very dangerous! We skip checks that make sure everything is '
     'well-formed. If you serialize (i.e., save) your to-do list without '
     'such checks, you may not be able to deserialize (i.e., load) it later.')
+flags.DEFINE_bool(
+    'pyatdl_allow_infinite_memory_for_protobuf', False,
+    'There is a 64MiB memory limit otherwise.')
 flags.DEFINE_string('pyatdl_separator', '/',
                     'In Folder names, which character separates parent from child?')
 
@@ -451,14 +454,11 @@ class ToDoList(object):
     """
     assert bytestring
     assert type(bytestring) == six.binary_type, type(bytestring)
-    SetAllowOversizeProtos(True)  # there's a 64MiB memory limit otherwise
-    # TODO(chandler37): make local; in the command line interface: `loadtest -n
-    # 3` is fine but `loadtest -n 100` has saved a pb to the database that we
-    # cannot parse which we should NEVER ALLOW. So when we
-    # SetAllowOversizeProtos(False) and `loadtest -n 100` we should reject the
-    # protobuf before saving unparseable data to the database. Also, navigating
-    # to the Action page for 'DeepAction' gives bizarre errors from appcommands
-    # about the following:
+    SetAllowOversizeProtos(FLAGS.pyatdl_allow_infinite_memory_for_protobuf)
+    # TODO(chandler37): after `loadtest -n 100` with
+    # FLAGS.pyatdl_allow_infinite_memory_for_protobuf==True (on localhost;
+    # heroku will time out), navigating to the Action page for 'DeepAction'
+    # gives bizarre errors from appcommands about the following:
     #
     # Internal Server Error: /todo/action/7812977415892969734
     # AttributeError: pyatdl_internal_state

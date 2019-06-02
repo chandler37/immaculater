@@ -14,6 +14,7 @@ FLAGS = flags.FLAGS
 class LexerTestCase(unitjest.TestCase):
 
   def setUp(self):
+    super().setUp()
     self.maxDiff = None  # pylint: disable=invalid-name
     FLAGS.pyatdl_allow_command_line_comments = False
 

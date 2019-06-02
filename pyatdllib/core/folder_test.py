@@ -13,6 +13,7 @@ FLAGS = flags.FLAGS
 class FolderTestCase(unitjest.TestCase):
 
   def setUp(self):
+    super().setUp()
     FLAGS.pyatdl_randomize_uids = False
     uid.ResetNotesOfExistingUIDs()
 

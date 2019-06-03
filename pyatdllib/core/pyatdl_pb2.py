@@ -663,95 +663,95 @@ DESCRIPTOR.message_types_by_name['Folder'] = _FOLDER
 DESCRIPTOR.message_types_by_name['ToDoList'] = _TODOLIST
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
-VisitorInfo0 = _reflection.GeneratedProtocolMessageType('VisitorInfo0', (_message.Message,), dict(
-  DESCRIPTOR = _VISITORINFO0,
-  __module__ = 'core.pyatdl_pb2'
+VisitorInfo0 = _reflection.GeneratedProtocolMessageType('VisitorInfo0', (_message.Message,), {
+  'DESCRIPTOR' : _VISITORINFO0,
+  '__module__' : 'core.pyatdl_pb2'
   # @@protoc_insertion_point(class_scope:pyatdl.VisitorInfo0)
-  ))
+  })
 _sym_db.RegisterMessage(VisitorInfo0)
 
-ChecksumAndData = _reflection.GeneratedProtocolMessageType('ChecksumAndData', (_message.Message,), dict(
-  DESCRIPTOR = _CHECKSUMANDDATA,
-  __module__ = 'core.pyatdl_pb2'
+ChecksumAndData = _reflection.GeneratedProtocolMessageType('ChecksumAndData', (_message.Message,), {
+  'DESCRIPTOR' : _CHECKSUMANDDATA,
+  '__module__' : 'core.pyatdl_pb2'
   # @@protoc_insertion_point(class_scope:pyatdl.ChecksumAndData)
-  ))
+  })
 _sym_db.RegisterMessage(ChecksumAndData)
 
-Timestamp = _reflection.GeneratedProtocolMessageType('Timestamp', (_message.Message,), dict(
-  DESCRIPTOR = _TIMESTAMP,
-  __module__ = 'core.pyatdl_pb2'
+Timestamp = _reflection.GeneratedProtocolMessageType('Timestamp', (_message.Message,), {
+  'DESCRIPTOR' : _TIMESTAMP,
+  '__module__' : 'core.pyatdl_pb2'
   # @@protoc_insertion_point(class_scope:pyatdl.Timestamp)
-  ))
+  })
 _sym_db.RegisterMessage(Timestamp)
 
-Metadata = _reflection.GeneratedProtocolMessageType('Metadata', (_message.Message,), dict(
-  DESCRIPTOR = _METADATA,
-  __module__ = 'core.pyatdl_pb2'
+Metadata = _reflection.GeneratedProtocolMessageType('Metadata', (_message.Message,), {
+  'DESCRIPTOR' : _METADATA,
+  '__module__' : 'core.pyatdl_pb2'
   # @@protoc_insertion_point(class_scope:pyatdl.Metadata)
-  ))
+  })
 _sym_db.RegisterMessage(Metadata)
 
-Common = _reflection.GeneratedProtocolMessageType('Common', (_message.Message,), dict(
-  DESCRIPTOR = _COMMON,
-  __module__ = 'core.pyatdl_pb2'
+Common = _reflection.GeneratedProtocolMessageType('Common', (_message.Message,), {
+  'DESCRIPTOR' : _COMMON,
+  '__module__' : 'core.pyatdl_pb2'
   # @@protoc_insertion_point(class_scope:pyatdl.Common)
-  ))
+  })
 _sym_db.RegisterMessage(Common)
 
-Context = _reflection.GeneratedProtocolMessageType('Context', (_message.Message,), dict(
-  DESCRIPTOR = _CONTEXT,
-  __module__ = 'core.pyatdl_pb2'
+Context = _reflection.GeneratedProtocolMessageType('Context', (_message.Message,), {
+  'DESCRIPTOR' : _CONTEXT,
+  '__module__' : 'core.pyatdl_pb2'
   # @@protoc_insertion_point(class_scope:pyatdl.Context)
-  ))
+  })
 _sym_db.RegisterMessage(Context)
 
-Action = _reflection.GeneratedProtocolMessageType('Action', (_message.Message,), dict(
-  DESCRIPTOR = _ACTION,
-  __module__ = 'core.pyatdl_pb2'
+Action = _reflection.GeneratedProtocolMessageType('Action', (_message.Message,), {
+  'DESCRIPTOR' : _ACTION,
+  '__module__' : 'core.pyatdl_pb2'
   # @@protoc_insertion_point(class_scope:pyatdl.Action)
-  ))
+  })
 _sym_db.RegisterMessage(Action)
 
-Project = _reflection.GeneratedProtocolMessageType('Project', (_message.Message,), dict(
-  DESCRIPTOR = _PROJECT,
-  __module__ = 'core.pyatdl_pb2'
+Project = _reflection.GeneratedProtocolMessageType('Project', (_message.Message,), {
+  'DESCRIPTOR' : _PROJECT,
+  '__module__' : 'core.pyatdl_pb2'
   # @@protoc_insertion_point(class_scope:pyatdl.Project)
-  ))
+  })
 _sym_db.RegisterMessage(Project)
 
-Note = _reflection.GeneratedProtocolMessageType('Note', (_message.Message,), dict(
-  DESCRIPTOR = _NOTE,
-  __module__ = 'core.pyatdl_pb2'
+Note = _reflection.GeneratedProtocolMessageType('Note', (_message.Message,), {
+  'DESCRIPTOR' : _NOTE,
+  '__module__' : 'core.pyatdl_pb2'
   # @@protoc_insertion_point(class_scope:pyatdl.Note)
-  ))
+  })
 _sym_db.RegisterMessage(Note)
 
-NoteList = _reflection.GeneratedProtocolMessageType('NoteList', (_message.Message,), dict(
-  DESCRIPTOR = _NOTELIST,
-  __module__ = 'core.pyatdl_pb2'
+NoteList = _reflection.GeneratedProtocolMessageType('NoteList', (_message.Message,), {
+  'DESCRIPTOR' : _NOTELIST,
+  '__module__' : 'core.pyatdl_pb2'
   # @@protoc_insertion_point(class_scope:pyatdl.NoteList)
-  ))
+  })
 _sym_db.RegisterMessage(NoteList)
 
-ContextList = _reflection.GeneratedProtocolMessageType('ContextList', (_message.Message,), dict(
-  DESCRIPTOR = _CONTEXTLIST,
-  __module__ = 'core.pyatdl_pb2'
+ContextList = _reflection.GeneratedProtocolMessageType('ContextList', (_message.Message,), {
+  'DESCRIPTOR' : _CONTEXTLIST,
+  '__module__' : 'core.pyatdl_pb2'
   # @@protoc_insertion_point(class_scope:pyatdl.ContextList)
-  ))
+  })
 _sym_db.RegisterMessage(ContextList)
 
-Folder = _reflection.GeneratedProtocolMessageType('Folder', (_message.Message,), dict(
-  DESCRIPTOR = _FOLDER,
-  __module__ = 'core.pyatdl_pb2'
+Folder = _reflection.GeneratedProtocolMessageType('Folder', (_message.Message,), {
+  'DESCRIPTOR' : _FOLDER,
+  '__module__' : 'core.pyatdl_pb2'
   # @@protoc_insertion_point(class_scope:pyatdl.Folder)
-  ))
+  })
 _sym_db.RegisterMessage(Folder)
 
-ToDoList = _reflection.GeneratedProtocolMessageType('ToDoList', (_message.Message,), dict(
-  DESCRIPTOR = _TODOLIST,
-  __module__ = 'core.pyatdl_pb2'
+ToDoList = _reflection.GeneratedProtocolMessageType('ToDoList', (_message.Message,), {
+  'DESCRIPTOR' : _TODOLIST,
+  '__module__' : 'core.pyatdl_pb2'
   # @@protoc_insertion_point(class_scope:pyatdl.ToDoList)
-  ))
+  })
 _sym_db.RegisterMessage(ToDoList)
 
 

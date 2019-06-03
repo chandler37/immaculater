@@ -178,23 +178,28 @@ version. Don't change any other libraries. Installation may fail if the new
 `Djanjo` requires a newer version of something else. Upgrade that something
 else.
 
-If you wish to upgrade everything possible, edit `requirements.txt` so that it
-no longer contains any version information. You can do this via `sed -i -e
-"s/=.*//" requirements.txt`. Then `source venv/bin/activate; pip3 install -r
+If you wish to upgrade everything possible, run `make upgrade` which does the
+following: Edit `requirements.txt` so that it no longer contains any version
+information. You can do this via `sed -i "" -e "s/=.*//"
+requirements.txt`. Then `source venv/bin/activate; pip3 install -r
 requirements.txt`. (This is a subset of what `make pipinstall` does; we do not
 wish to install test dependencies at this point.) You will fetch the latest of
 everything. Now run `pip3 freeze > requirements.txt` to pin once more. Now run
-`make pipinstall test`. Understand each change by reading changelogs or
-studying the diff of the source code. You don't want to push the
-latest-but-not-necessarily-greatest to production accidentally, so make sure
-`requirements.txt` is frozen anew.
+`make pipinstall test`.
+
+Understand each change by reading changelogs or studying the diff of the source
+code. You don't want to push the latest-but-not-necessarily-greatest to
+production accidentally, so make sure `requirements.txt` is frozen anew (which
+`make upgrade` does for you).
 
 The `protobuf` library is unique in that it contains Python a library used by
 the compiled `pyatdl.proto` file but also contains the protocol buffer
 compiler, `protoc`. You may wish to recompile
 `pyatdllib/core/pyatdl_pb2.py`. `make clean` will remove it and `make test`
 will trigger a new compilation. You might prefer to install `protoc` via
-homebrew using `brew install protobuf`.
+homebrew using `brew install protobuf` but it is not always up to date and is
+perhaps not built with the same compiler options as the official releases at
+https://github.com/protocolbuffers/protobuf/releases.
 
 The real test is whether or not the new `pyatdl_pb2.py` can work with data
 inside postgresql that was created by the old version. It's the whole point of

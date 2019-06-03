@@ -12,7 +12,7 @@ python: protoc_middleman
 
 .PHONY: clean
 clean:
-	rm -f protoc_middleman core/pyatdl.pb.cc core/pyatdl.pb.h core/pyatdl_pb2.py
+	rm -f protoc_middleman core/pyatdl.pb.cc core/pyatdl.pb.h core/pyatdl_pb2.py generated_javascript_protobufs/core/*.js
 	rm -f *.pyc **/*.pyc
 	rm -fr htmlcov
 	rm -f .coverage

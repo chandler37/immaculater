@@ -45,7 +45,7 @@ class TooBigToSaveError(Error):
   """
 
 
-def _Sha1Checksum(payload):
+def Sha1Checksum(payload):
   """Returns the SHA1 checksum of the given byte sequence.
 
   Args:
@@ -58,12 +58,13 @@ def _Sha1Checksum(payload):
   return m.hexdigest()
 
 
-def _GetPayloadAfterVerifyingChecksum(file_contents, path):
+def _GetPayloadAfterVerifyingChecksum(file_contents, path, sha1_checksum_list=None):
   """Verifies the checksum of the payload; returns the payload.
 
   Args:
     file_contents: bytes  # serialized form of ChecksumAndData
     path: str  # save file location used only in error messages
+    sha1_checksum_list: None|list to which we append the SHA1 checksum
   Returns:
     bytes
   Raises:
@@ -80,9 +81,11 @@ def _GetPayloadAfterVerifyingChecksum(file_contents, path):
     raise DeserializationError(
       'Invalid save file %s: payload_length=%s but len(payload)=%s'
       % (path, pb.payload_length, len(pb.payload)))
-  if _Sha1Checksum(pb.payload) != pb.sha1_checksum:
+  if Sha1Checksum(pb.payload) != pb.sha1_checksum:
     raise DeserializationError(
       'Invalid save file %s: Checksum mismatch' % (path,))
+  if sha1_checksum_list is not None:
+    sha1_checksum_list.append(pb.sha1_checksum)
   if pb.payload_is_zlib_compressed:
     return zlib.decompress(pb.payload)
   return pb.payload
@@ -105,7 +108,7 @@ def _SerializedWithChecksum(payload):
       payload, FLAGS.pyatdl_zlib_compression_level)
   pb.payload = payload
   pb.payload_length = len(payload)
-  cksum = _Sha1Checksum(payload)
+  cksum = Sha1Checksum(payload)
   pb.sha1_checksum = cksum
   assert payload
   result = pb.SerializeToString()
@@ -135,7 +138,7 @@ def _TestDeserializationOfChecksumWithData(bytestring, cksum):
         'this should never happen even if the to-do list is too big. '
         'pb.payload_length=%s and pb.payload actual length=%s'
         % (pb.payload_length, len(pb.payload)))
-  real_sum = _Sha1Checksum(pb.payload)  # TODO(chandler37): this is expensive, make it optional?
+  real_sum = Sha1Checksum(pb.payload)  # TODO(chandler37): this is expensive, make it optional?
   if real_sum != cksum:
     raise AssertionError(
         'this should never happen even if the to-do list is too big. '
@@ -193,14 +196,15 @@ def SerializeToDoList(todolist, path):
   os.rename(tmp_path, path)
 
 
-def DeserializeToDoList2(reader, tdl_factory):
+def DeserializeToDoList2(reader, tdl_factory, sha1_checksum_list=None):
   """Deserializes a to-do list from the given file.
 
   Args:
     reader: object with 'read(self)' method and 'name' attribute
-    tdl_factory: callable function ()->tdl.ToDoList
+    tdl_factory: None|callable function ()->tdl.ToDoList
+    sha1_checksum_list: None|list to which we append the SHA1 checksum
   Returns:
-    tdl.ToDoList
+    None|tdl.ToDoList  # None only if tdl_factory is None and would have been used
   Raises:
     DeserializationError
   """
@@ -208,18 +212,23 @@ def DeserializeToDoList2(reader, tdl_factory):
   try:
     file_contents = reader.read()
     if not file_contents:
+      if tdl_factory is None:
+        return None
       todolist = tdl_factory()
     else:
       todolist = tdl.ToDoList.DeserializedProtobuf(
-        _GetPayloadAfterVerifyingChecksum(file_contents, reader.name))
+        _GetPayloadAfterVerifyingChecksum(file_contents, reader.name, sha1_checksum_list=sha1_checksum_list))
   except IOError as e:
     raise DeserializationError(
       'Cannot deserialize to-do list from %s. See the "reset_database" command '
       'regarding beginning anew. Error: %s'
       % (reader.name, repr(e)))
   except EOFError:
+    if tdl_factory is None:
+      return None
     todolist = tdl_factory()
   try:
+    # TODO(chandler37): make this optional based on a FLAG for performance reasons.
     str(todolist)  # calls todolist.__unicode__
     str(todolist.AsProto())
     todolist.CheckIsWellFormed()

@@ -1486,13 +1486,18 @@ def _parse_mergeprotobufs_request(request):
 
 
 def _write_database(user, some_bytes, sha1_checksum):
-  # DLC we must write the sha1 checksum too
+  # TODO(chandler37): As a huge performance optimization, we must write the
+  # sha1 checksum too. Let's write it to a separate column and query not the
+  # entire row but just that column. A separate table would work too if django
+  # is hard to convince to read just part of a row because we use transactions.
   SerializationWriter(user, None).write(some_bytes)
 
 
 def _read_database(user, sha1_checksum):
   """Returns (None|tdl.ToDoList, None|str); raises serialization.DeserializationError"""
-  # DLC optimize: do not read the data from the database if sha1_checksum is present and matches the database
+  # TODO(chandler37): After making the "huge performance optimization" in
+  # _write_database, change this function too. Stop reading the ToDoList data
+  # from the database if sha1_checksum is present and matches the database.
   reader = SerializationReader(user)
   sha1_checksum_list = []
   a_tdl = serialization.DeserializeToDoList2(
@@ -1507,7 +1512,7 @@ def _read_database(user, sha1_checksum):
 
 @never_cache
 @csrf_exempt
-@transaction.atomic  # DLC let's use select_for_update() on models.ToDoList
+@transaction.atomic  # TODO(chandler37): Let's use select_for_update() on models.ToDoList
 def mergeprotobufs(request):
   """`mergeprotobufs` (which can merely read or merely write as well) receives
   an octet-stream that is a pyatdl.MergeToDoListRequest and returns various
@@ -1539,8 +1544,8 @@ def mergeprotobufs(request):
   compression, if valuable, is possible at the level of HTTP (via RFC 2616's
   'gzip', 'deflate', 'compress', etc.). This paranoia about data corruption
   comes at a cost, and you may wish to disable it. But there's still value in
-  this hash because of the following: (DLC make it disable-able and use a
-  cheaper hash/PRF e.g. SipHash or HighwayHash (https://arxiv.org/abs/1612.06257))
+  this hash because of the following: (TODO(chandler37): make it configurable
+  that we skip verifying the hash as a performance win.)
 
   2) It allows us to avoid merging in the common case that no merge is required
   because only your app has made any changes. When combined with the length,
@@ -1552,10 +1557,17 @@ def mergeprotobufs(request):
   then short circuit the merge and simply accept your changes as version V+1
   and write them to the database along with the SHA1 checksum.
 
-  DLC check length too and even check byte by byte in paranoid mode.
+  TODO(chandler37): check length too and even check byte by byte in paranoid
+  mode.
 
-  DLC talk about SHA1's brokenness -- soon it won't be that expensive to
-  construct artificial collisions (even with the same length, I assume)
+  TODO(chandler37): talk about SHA1's brokenness -- soon it won't be that
+  expensive to construct artificial collisions (even with the same length, I
+  assume). Then explain how our threat model means that we don't care (because
+  only you, authenticated by username and password or a JWT that came from
+  username and password, can modify your data). Since we don't care, we should
+  be using something faster.  TODO(chandler37): Use a cheaper hash/PRF
+  e.g. SipHash or HighwayHash (https://arxiv.org/abs/1612.06257) or crc32 or
+  md5 or ...
 
   Imagine you write a Flutter smartphone app. Flutter uses Dart. Dart has
   protocol messages a.k.a. protocol buffers a.k.a. protobufs. See here:
@@ -1577,9 +1589,10 @@ def mergeprotobufs(request):
   soymilk" and the django app has added Project 3145957813018432511 "replace
   wifi router").
 
-  DLC return max mtime/ctime or current server time.
+  TODO(chandler37): return max mtime/ctime or current server time so that the
+  client can make sure their clock isn't terribly off.
 
-  DLC verify that incoming timestamps are sane.
+  TODO(chandler37): verify that incoming timestamps are sane.
 
   Deletions are trickier because we must preserve the object's UID (but we can
   delete the data like "buy soymilk") and indicate that it was deleted so this
@@ -1605,32 +1618,25 @@ def mergeprotobufs(request):
   fashion. This merge is all-or-nothing.
 
   TODO(chandler37): Allow specifying whether the output should be
-  sha1-hashed. DLC sha-3? sha-256? DLC it must be.
-
-  TODO(chandler37): Allow specifying whether the output should be
   zlib-compressed (which level? 2? 7? 9?). Perhaps have an 'auto' level that
   compresses only when the data is large enough that it might save a packet.
 
   Example usage:
 
-  curl -H 'Content-Type: application/DLC' -X POST -d 'DLC' -u foo:bar http://127.0.0.1:5000/todo/mergeprotobufs
-
-  Or, to discard any of your app's changes and just see what's in the database:
-
-  curl DLC
+  curl -X POST --data-binary @localfile.MergeToDoListRequest.binaryproto -u foo:bar http://127.0.0.1:5000/todo/mergeprotobufs
 
   TODO(chandler37): Preserve unknown protobuf tags (future data). [For now you
   have to change this django server first (and not just to see your tag, but to
   copy it over) because we reserve the right to pluck out only the tags we know
   about, discarding your extensions.]
 
-  DLC test when we return no protobuf, indicating that what you sent us is
-  fully up to date (no merging was done). Test this with a pyatdl.ToDoList as
-  input and without (which is a request a frontend might make to stay in sync
-  with other devices' changes).
+  TODO(chandler37): test when we return no protobuf, indicating that what you
+  sent us is fully up to date (no merging was done). Test this with a
+  pyatdl.ToDoList as input and without (which is a request a frontend might
+  make to stay in sync with other devices' changes).
   """
-  # DLC: create an audit log so the user can see "oh i synced an hour ago",
-  # perhaps with a summary of changes
+  # TODO(chandler37): create an audit log so the user can see "oh i synced an
+  # hour ago from Device D", perhaps with a summary of changes.
   if request.method != 'POST':
     raise Http404()
   if not request.is_secure() and os.environ.get('DJANGO_DEBUG') != "True":
@@ -1673,14 +1679,14 @@ def mergeprotobufs(request):
     # The following seems better than application/octet-stream and is supported
     # by some debugging proxies:
     hr['Content-Type'] = 'application/x-protobuf; messageType="pyatdl.MergeToDoListResponse"'
-    hr['Content-Length'] = len(serialized_result)  # DLC needed?
+    hr['Content-Length'] = len(serialized_result)  # TODO(chandler37): needed?
     hr['Content-Transfer-Encoding'] = 'binary'
     return hr
 
   if db_result is None:
     if pbreq.HasField('latest'):
       if pbreq.new_data:
-        # DLC based on a FLAG for performance reasons,
+        # TODO(chandler37): based on a FLAG for performance reasons,
         # deserialize-and-then-serialize to make sure it's valid and not too
         # large to process
         _write_database(user, pbreq.latest.payload, pbreq.sha1_checksum)
@@ -1705,11 +1711,11 @@ def mergeprotobufs(request):
     try:
       deserialized_latest = pyatdl_pb2.ToDoList.FromString(pbreq.latest.payload)
     except message.Error as e:
-      return JsonResponse({"error": "The given to-do list did not serialize. Hint: %s" % str(e)},  # DLC test
+      return JsonResponse({"error": "The given to-do list did not serialize. Hint: %s" % str(e)},  # TODO(chandler37): test
                           status=409)
     merged_tdl_pb = Merge(db_result, deserialized_latest)
     pbresponse.sha1_checksum = _write_database(
-        user, merged_tdl_pb.SerializeToString(), None)  # DLC verify that this serializes and deserializes via _TestDeserializationOfChecksumWithData
+        user, merged_tdl_pb.SerializeToString(), None)  # TODO(chandler37): verify that this serializes and deserializes via _TestDeserializationOfChecksumWithData
     assert len(pbresponse.sha1_checksum) == 40, pbresponse.sha1_checksum
     pbresponse.to_do_list.CopyFrom(merged_tdl_pb)
     return protobuf_response()

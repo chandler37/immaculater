@@ -253,4 +253,10 @@ if os.environ.get("SENTRY_DSN"):
       integrations=[DjangoIntegration()]
   )
 
-# DLC Set ATOMIC_REQUESTS to True and remove @transaction.atomic?
+# TODO(chandler37): Set ATOMIC_REQUESTS to True and remove uses of
+# @transaction.atomic? (If you don't think you need transactions, run multiple
+# django servers against the same database and run many clients in parallel all
+# trying to add actions with unique Action.Common.Metadata.Name fields. Record
+# which ones the django app said succeeded and then stop writing and read and
+# make sure all the actions you added are there. Without txns, you'll see that
+# some updates make it to the database but are then overwritten.)

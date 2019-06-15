@@ -228,7 +228,7 @@ def DeserializeToDoList2(reader, tdl_factory, sha1_checksum_list=None):
       return None
     todolist = tdl_factory()
   try:
-    # DLC make this optional based on a FLAG for performance reasons
+    # TODO(chandler37): make this optional based on a FLAG for performance reasons.
     str(todolist)  # calls todolist.__unicode__
     str(todolist.AsProto())
     todolist.CheckIsWellFormed()

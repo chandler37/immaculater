@@ -13,7 +13,22 @@ message VisitorInfo0 {
   extensions 20000 to max;
 }
 
-// The input to the mergeprotobufs API:
+// The input to the mergeprotobufs API.
+//
+// If you have made changes, pass in a `ToDoList` as `latest.payload`. If you
+// deserialize and reserialize without making changes, it could change the SHA1
+// checksum, so you probably want to keep track of whether you made changes so
+// you can avoid passing in something that's the-same-but-different and
+// triggering the merging algorithm which costs time and memory.
+//
+// If you previously called mergeprotobufs to obtain a to-do list, set
+// `previous_sha1_checksum` to be the SHA1 checksum of that list (from
+// `MergeToDoListResponse.sha1_checksum`). Do this regardless of whether or not
+// you set `latest`.
+//
+// TODO(chandler37): test future data passed in is preserved: e.g., `message
+// ToDoList { optional Foo foo = 6; }; message Foo { optional bool new_field =
+// 1; }`
 message MergeToDoListRequest {
   // We could include a ToDoList, but the mergeprotobufs API never needs to
   // decode latest.payload (which takes time and memory) if your application is
@@ -80,7 +95,7 @@ message Metadata {
 // Fields common to Action, Project, Context, etc.
 message Common {
   // UID = "Unique IDentifier". Two things that have the same name are
-  // distinguished by uid. In ancient history we used small, positive (nonzero)
+  // distinguished by UID. In ancient history we used small, positive (nonzero)
   // integers, and for our unittests' readability we still do that in almost
   // all the tests. Supporting multiple devices, some of which are typically
   // offline, is tricky if you count 1,2,3,... "I see a new action 123 from one
@@ -114,7 +129,6 @@ message Common {
   // range. See
   // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/MAX_SAFE_INTEGER
   optional int64 uid = 4 [jstype = JS_STRING];
-  // DLC keep counters of objects: actions: {created: 100, completed: 90, deleted: 5}
   optional bool is_deleted = 1;
   optional Timestamp timestamp = 2;
   optional Metadata metadata = 3;
@@ -190,6 +204,9 @@ message ToDoList {
   optional Folder root = 2;
   optional ContextList ctx_list = 3;
   optional NoteList note_list = 5;
-// DLC test future data passed in is preserved: e.g.,  optional Foo foo = 6;
+
+  // TODO(chandler37): keep counters of objects: {actions: {created: 100,
+  // completed: 90, deleted: 5}, projects: {created: 25,
+  // completed: 10, deleted: 1}}
   extensions 20000 to max;
 }

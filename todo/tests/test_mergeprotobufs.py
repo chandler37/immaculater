@@ -16,7 +16,7 @@ from pyatdllib.ui import serialization
 from todo import models
 from todo import views
 
-# DLC test admin_client, client, invalid password, unknown user, ...
+# TODO(chandler37): test admin_client, client, invalid password, unknown user, ...
 
 
 @pytest.mark.django_db
@@ -98,7 +98,8 @@ ctx_list {
 
     def _encrypted_contents_of_known_existing_protobuf(self):
         return views._encrypted_todolist_protobuf(self._cksum().SerializeToString())
-        # DLC return 'DLC19191919' we should catch the InvalidToken error and serve up a graceful 500
+        # TODO(chandler37): If we return 'ELC19191919', we should catch the
+        # InvalidToken error and serve up a graceful 500.
 
     def _happy_post(self, data):
         return self.client.post(
@@ -255,7 +256,7 @@ sanity_check: 18369614221190021342
         req = pyatdl_pb2.MergeToDoListRequest()
         req.sanity_check = views.MERGETODOLISTREQUEST_SANITY_CHECK
         response = self._happy_post(req.SerializeToString())
-        assert response.status_code == 200, 'DLC response.content is %s' % response.content
+        assert response.status_code == 200, 'response.content is %s' % response.content
         pbresp = pyatdl_pb2.MergeToDoListResponse.FromString(response.content)
         assert text_format.MessageToString(pbresp) == r"""
 sha1_checksum: "b2f2761dc24359cace7809eaf7cb0e1cf9c3f05e"

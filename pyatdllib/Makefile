@@ -19,7 +19,11 @@ clean:
 	rm -f TAGS
 	echo "To be perfectly clean, see 'immaculater reset_database'."
 
-# protoc is from https://developers.google.com/protocol-buffers/docs/pythontutorial TODO(chandler37): Generate Dart code too using https://github.com/dart-lang/protobuf/tree/master/protoc_plugin and https://developers.google.com/protocol-buffers/docs/reference/dart-generated DLC drop toObject generation?
+# protoc is from https://developers.google.com/protocol-buffers/docs/pythontutorial
+#
+# TODO(chandler37): Generate Dart code too using
+# https://github.com/dart-lang/protobuf/tree/master/protoc_plugin and
+# https://developers.google.com/protocol-buffers/docs/reference/dart-generated
 protoc_middleman: core/pyatdl.proto
 	protoc --python_out=. core/pyatdl.proto
 	protoc --js_out=import_style=commonjs,binary:generated_javascript_protobufs core/pyatdl.proto

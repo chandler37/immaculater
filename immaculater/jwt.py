@@ -3,13 +3,24 @@ from datetime import datetime
 
 def jwt_payload_handler(user):
     from jwt_auth import settings
+    # TODO(chandler37): Let's reimplement sessions. If we just use a User's
+    # primary key, don't we need a blacklist of JWTs? Otherwise, for password
+    # changes, account deletions by user, or administrative disabling of
+    # accounts, we'll still allow in the old JWT until it expires. Why not have
+    # a jwt_sessions table with a 64-bit pseudorandomly assigned number as
+    # primary key and just put that number here, base64-encoded to avoid the
+    # JSON disaster of treating integers greater than 2**53 in absolute value
+    # as numbers (see
+    # https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/MAX_SAFE_INTEGER)?
+    #
+    # You may argue that now we have to hit the database. We have to anyway in
+    # case the admin disabled the user. The story about "we must be
+    # planet-scale so we cannot contact the database or an auth server" is
+    # irrelevant for this and almost every application, and I think even if you
+    # need to be planet-scale you'd be foolish to put things like 'is this User
+    # a SuperUser?' inside a JWT because the crypto can be broken and you want
+    # to limit the damage if it is.
     return {
-        'user_id': user.pk,  # DLC why not basically reimplement sessions? don't
-                             # you need a blacklist of jwts otherwise for
-                             # password changes, account deletions by user, or
-                             # administrative disabling of accounts? Why not
-                             # have a jwt_sessions table with a 64-bit
-                             # pseudorandom number and just put that number
-                             # here?
+        'user_id': user.pk,
         'exp': datetime.utcnow() + settings.JWT_EXPIRATION_DELTA
     }

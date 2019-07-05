@@ -80,7 +80,7 @@ distclean: clean
 test: venv/requirements-installed-by-makefile venv/requirements-test-installed-by-makefile
 	@./ensure_virtualenv.sh || exit 1
 	cd pyatdllib && make protoc_middleman
-	python ./run_django_tests.py $(ARGS)
+	DJANGO_DEBUG=True python ./run_django_tests.py $(ARGS)
 	cd pyatdllib && make test
 	@echo ""
 	@echo "Tests and linters passed".

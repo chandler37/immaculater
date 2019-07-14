@@ -1,65 +1,85 @@
-# See README.md.
+# If you have difficulty with this Makefile, you might install the latest GNU
+# Make via Homebrew (https://brew.sh/) [try `brew install make`] and try again
+# using `gmake`. If that doesn't work you might want to install the latest bash
+# via `brew install bash` and update your PATH to prefer it over the older
+# MacOS-provided bash.
+
+# /bin/sh is the default; we want bash so we can 'source venv/bin/activate':
+SHELL := $(shell which bash)
+
+ACTIVATE_VENV := source venv/bin/activate
 
 .PHONY: help
 help:
-	@echo "See README.md but maybe... make venv; source venv/bin/activate; make test"
+	@echo "See README.md but maybe... make test"
 
-.PHONY: papertrail
-papertrail:
-	heroku addons:open papertrail
-
-.PHONY: localmigrate
-localmigrate: venv/requirements-installed-by-makefile
-	@./ensure_virtualenv.sh || exit 1
-	python manage.py migrate
-
-.PHONY: localsuperuser
-localsuperuser: venv/requirements-installed-by-makefile
-	@./ensure_virtualenv.sh || exit 1
-	python manage.py createsuperuser
+# One-time installation of virtualenv and heroku CLI globally.
+#
+# We use `pip3`, not `pip`. On MacOS `pip` is Python 2.7 (either
+# via Homebrew `python@2` or, frigteningly, the stock Python provided by
+# Apple), not Python 3. `pip3` (using python version 3) is courtesy of the
+# `python` package from [Homebrew](https://brew.sh/).
+.PHONY: install_tools
+install_tools:
+	@echo "If brew is not found, you need to install Homebrew; see https://brew.sh/"
+	brew update
+	brew install python
+	pip3 install virtualenv
+	brew tap heroku/brew && brew install heroku
 
 venv:
-	@echo "Install virtualenv system-wide via 'pip3 install virtualenv' if the following fails:"
+	@echo "Install virtualenv system-wide via 'make install_tools' if the following fails:"
 	virtualenv -p python3 venv
-	@echo "Now run the following:"
+	@echo "The virtualenv is not active unless you run the following:"
 	@echo "source venv/bin/activate"
+	@echo ""
+	@echo "But if you use the Makefile it activates it for you temporarily."
 
 .PHONY: pipinstall
 pipinstall: venv/requirements-installed-by-makefile venv/requirements-test-installed-by-makefile
 
 venv/requirements-installed-by-makefile: requirements.txt | venv
-	@./ensure_virtualenv.sh || exit 1
-	pip3 install -r $<
+	$(ACTIVATE_VENV) && pip3 install -r $<
 	touch $@
 
 venv/requirements-test-installed-by-makefile: requirements-test.txt | venv
-	@./ensure_virtualenv.sh || exit 1
-	pip3 install -r $<
+	$(ACTIVATE_VENV) && pip3 install -r $<
 	touch $@
 
 venv/bin/pipdeptree: venv
-	@./ensure_virtualenv.sh || exit 1
-	pip3 install pipdeptree
+	$(ACTIVATE_VENV) && pip3 install pipdeptree
 
 .PHONY: pipdeptree
 pipdeptree: venv/bin/pipdeptree venv/requirements-installed-by-makefile
-	@./ensure_virtualenv.sh || exit 1
-	./venv/bin/pipdeptree
+	$(ACTIVATE_VENV) && ./venv/bin/pipdeptree
+
+venv/local-migrations-performed: todo/migrations/*.py | venv/requirements-installed-by-makefile venv/protoc-has-run
+	$(ACTIVATE_VENV) && python manage.py migrate
+	touch $@
+
+.PHONY: localmigrate
+localmigrate: venv/local-migrations-performed
+	$(ACTIVATE_VENV) && python manage.py migrate
+
+.PHONY: localsuperuser
+localsuperuser: venv/local-migrations-performed
+	$(ACTIVATE_VENV) && python manage.py createsuperuser
 
 .PHONY: local
-local: venv/requirements-installed-by-makefile
-	@./ensure_virtualenv.sh || exit 1
-	DJANGO_DEBUG=True python manage.py runserver 5000
+local: venv/local-migrations-performed
+	$(ACTIVATE_VENV) && DJANGO_DEBUG=True python manage.py runserver 5000
 
-.PHONY: sh
-sh: venv/requirements-installed-by-makefile
-	@./ensure_virtualenv.sh || exit 1
-	cd pyatdllib && make sh
+venv/protoc-has-run:
+	cd pyatdllib && make protoc_middleman
+	touch $@
 
-.PHONY: djsh
-djsh: venv/requirements-installed-by-makefile venv/requirements-test-installed-by-makefile
-	@./ensure_virtualenv.sh || exit 1
-	DJANGO_DEBUG=True python manage.py shell
+.PHONY: sh shell
+shell sh: venv/local-migrations-performed venv/protoc-has-run
+	$(ACTIVATE_VENV) && cd pyatdllib && make sh
+
+.PHONY: djsh djshell
+djshell djsh: venv/requirements-installed-by-makefile venv/requirements-test-installed-by-makefile
+	$(ACTIVATE_VENV) && DJANGO_DEBUG=True python manage.py shell
 
 .PHONY: clean
 clean: # you need protoc (Google's protobuf compiler) to regenerate *_pb2.py
@@ -78,10 +98,9 @@ distclean: clean
 # test and run the flake8 linter (unless ARGS is --nolint):
 .PHONY: test
 test: venv/requirements-installed-by-makefile venv/requirements-test-installed-by-makefile
-	@./ensure_virtualenv.sh || exit 1
-	cd pyatdllib && make protoc_middleman
-	DJANGO_DEBUG=True python ./run_django_tests.py $(ARGS)
-	cd pyatdllib && make test
+	$(ACTIVATE_VENV) && cd pyatdllib && make protoc_middleman
+	$(ACTIVATE_VENV) && DJANGO_DEBUG=True python ./run_django_tests.py $(ARGS)
+	$(ACTIVATE_VENV) && cd pyatdllib && make test
 	@echo ""
 	@echo "Tests and linters passed".
 
@@ -91,14 +110,13 @@ upgrade: unfreezeplus pipinstall test
 
 .PHONY: unfreezeplus
 unfreezeplus:
-	@./ensure_virtualenv.sh || exit 1
 	@git diff-index --quiet HEAD || { echo "not in a clean git workspace; run 'git status'"; exit 1; }
 	rm -f venv/requirements-test-installed-by-makefile venv/requirements-installed-by-makefile
 	# If this fails, `deactivate; make distclean` and try again:
-	pip freeze | xargs pip3 uninstall -y
-	sed -i "" -e "s/=.*//" requirements.txt
-	pip3 install -r requirements.txt
-	pip3 freeze > requirements.txt
+	$(ACTIVATE_VENV) && pip freeze | xargs pip3 uninstall -y
+	$(ACTIVATE_VENV) && sed -i "" -e "s/=.*//" requirements.txt
+	$(ACTIVATE_VENV) && pip3 install -r requirements.txt
+	$(ACTIVATE_VENV) && pip3 freeze > requirements.txt
 
 .PHONY: cov
 cov: venv
@@ -117,13 +135,20 @@ pylint: venv
 dilbert: 
 	wc -l `find todo immaculater pyatdllib -name '.git' -prune -o -name '*_pb2.py' -prune -o -name '*_pb.js' -prune -o -type f -name '*.py' -print` pyatdllib/core/pyatdl.proto todo/templates/*.html immaculater/static/immaculater/*.js
 
+.PHONY: papertrail
+papertrail:
+	@echo "Install heroku system-wide via 'make install_tools' if the following fails:"
+	heroku "addons:open" papertrail
+
 .PHONY: mainton
 mainton:
-	heroku maintenance:on
+	@echo "Install heroku system-wide via 'make install_tools' if the following fails:"
+	heroku "maintenance:on"
 
 .PHONY: maintoff
 maintoff:
-	heroku maintenance:off
+	@echo "Install heroku system-wide via 'make install_tools' if the following fails:"
+	heroku "maintenance:off"
 
 .PHONY: pushbranch
 pushbranch:

@@ -145,12 +145,8 @@ message Action {
   optional Common common = 1;
   optional bool is_complete = 3;
 
-  optional Context ctx = 4;  // We just use the ID from Common.uid.
-  // TODO(chandler): Deprecate ctx=4 and use the following, ctx_uid. Then
-  // _JsonForOneItem will be cleaner and the save file will be a few bytes
-  // smaller:
-  //
-  // optional int64 ctx_uid = 5 [jstype = JS_STRING];  
+  optional Context ctx = 4;  // We just use the ID from Common.uid. DEPRECATED: Please transition to using `ctx_uid`.
+  optional int64 ctx_uid = 5 [jstype = JS_STRING];
 
   extensions 20000 to max;
 }

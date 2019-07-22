@@ -355,7 +355,7 @@ proto.pyatdl.Context.extensionsBinary = {};
  * @constructor
  */
 proto.pyatdl.Action = function(opt_data) {
-  jspb.Message.initialize(this, opt_data, 0, 5, null, null);
+  jspb.Message.initialize(this, opt_data, 0, 6, null, null);
 };
 goog.inherits(proto.pyatdl.Action, jspb.Message);
 if (goog.DEBUG && !COMPILED) {
@@ -2870,7 +2870,8 @@ proto.pyatdl.Action.toObject = function(includeInstance, msg) {
   var f, obj = {
     common: (f = msg.getCommon()) && proto.pyatdl.Common.toObject(includeInstance, f),
     isComplete: (f = jspb.Message.getBooleanField(msg, 3)) == null ? undefined : f,
-    ctx: (f = msg.getCtx()) && proto.pyatdl.Context.toObject(includeInstance, f)
+    ctx: (f = msg.getCtx()) && proto.pyatdl.Context.toObject(includeInstance, f),
+    ctxUid: (f = jspb.Message.getField(msg, 5)) == null ? undefined : f
   };
 
   jspb.Message.toObjectExtension(/** @type {!jspb.Message} */ (msg), obj,
@@ -2923,6 +2924,10 @@ proto.pyatdl.Action.deserializeBinaryFromReader = function(msg, reader) {
       var value = new proto.pyatdl.Context;
       reader.readMessage(value,proto.pyatdl.Context.deserializeBinaryFromReader);
       msg.setCtx(value);
+      break;
+    case 5:
+      var value = /** @type {string} */ (reader.readInt64String());
+      msg.setCtxUid(value);
       break;
     default:
       jspb.Message.readBinaryExtension(msg, reader,
@@ -2977,6 +2982,13 @@ proto.pyatdl.Action.serializeBinaryToWriter = function(message, writer) {
       4,
       f,
       proto.pyatdl.Context.serializeBinaryToWriter
+    );
+  }
+  f = /** @type {string} */ (jspb.Message.getField(message, 5));
+  if (f != null) {
+    writer.writeInt64String(
+      5,
+      f
     );
   }
   jspb.Message.serializeBinaryExtensions(message, writer,
@@ -3079,6 +3091,38 @@ proto.pyatdl.Action.prototype.clearCtx = function() {
  */
 proto.pyatdl.Action.prototype.hasCtx = function() {
   return jspb.Message.getField(this, 4) != null;
+};
+
+
+/**
+ * optional int64 ctx_uid = 5;
+ * @return {string}
+ */
+proto.pyatdl.Action.prototype.getCtxUid = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 5, "0"));
+};
+
+
+/** @param {string} value */
+proto.pyatdl.Action.prototype.setCtxUid = function(value) {
+  jspb.Message.setField(this, 5, value);
+};
+
+
+/**
+ * Clears the field making it undefined.
+ */
+proto.pyatdl.Action.prototype.clearCtxUid = function() {
+  jspb.Message.setField(this, 5, undefined);
+};
+
+
+/**
+ * Returns whether this field is set.
+ * @return {boolean}
+ */
+proto.pyatdl.Action.prototype.hasCtxUid = function() {
+  return jspb.Message.getField(this, 5) != null;
 };
 
 

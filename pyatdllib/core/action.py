@@ -35,7 +35,7 @@ class Action(auditable_object.AuditableObject):
     self.is_complete = False
     self.name = name
     self.note = note
-    assert (ctx_uid is None) or (-2**63 <= ctx_uid < 2**63), ctx_uid
+    assert (ctx_uid is None) or ((-2**63 <= ctx_uid < 0) or (0 < ctx_uid < 2**63)), ctx_uid
     self.ctx_uid = ctx_uid
 
   def __unicode__(self):
@@ -63,7 +63,8 @@ class Action(auditable_object.AuditableObject):
       # The protocol is dumb; see comments in pyatdl.proto regarding
       # switching from embedding a Context message to embedding merely a
       # Context's UID.
-      pb.ctx.common.uid = self.ctx_uid
+      pb.ctx.common.uid = self.ctx_uid  # TODO(chandler37): remove this and then remove the field from the .proto but make it reserved.
+      pb.ctx_uid = self.ctx_uid
     return pb
 
   @classmethod
@@ -78,10 +79,11 @@ class Action(auditable_object.AuditableObject):
     assert bytestring
     pb = pyatdl_pb2.Action.FromString(bytestring)  # pylint: disable=no-member
     ctx_uid = None
+    if pb.HasField('ctx_uid'):
+      ctx_uid = pb.ctx_uid
     if pb.ctx.common.HasField('uid'):
       ctx_uid = pb.ctx.common.uid
-      assert 2**63 > ctx_uid >= -2**63, ctx_uid
-      assert ctx_uid != 0
+    assert (ctx_uid is None) or ((-2**63 <= ctx_uid < 0) or (0 < ctx_uid < 2**63)), ctx_uid
     a = cls(the_uid=pb.common.uid,
             name=pb.common.metadata.name,
             note=pb.common.metadata.note,

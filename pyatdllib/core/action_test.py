@@ -67,6 +67,7 @@ ctx {
     uid: -9223372036854775808
   }
 }
+ctx_uid: -9223372036854775808
 """)
     finally:
       time.time = saved_time

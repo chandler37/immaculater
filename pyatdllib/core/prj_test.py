@@ -95,11 +95,6 @@ actions {
     uid: 3
   }
   is_complete: false
-  ctx {
-    common {
-      uid: -9223372036854775808
-    }
-  }
   ctx_uid: -9223372036854775808
 }
 """])

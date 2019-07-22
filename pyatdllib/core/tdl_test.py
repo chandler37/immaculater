@@ -114,11 +114,7 @@ inbox {
       uid: 24
     }
     is_complete: false
-    ctx {
-      common {
-    uid: -13
-      }
-    }
+    ctx_uid: -13
   }
 }
 root {
@@ -333,11 +329,7 @@ root {
     uid: 27
       }
       is_complete: false
-      ctx {
-    common {
-      uid: 6
-    }
-      }
+      ctx_uid: 6
     }
   }
 }

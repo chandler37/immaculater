@@ -75,7 +75,7 @@ venv/protoc-has-run:
 
 .PHONY: sh shell
 shell sh: venv/local-migrations-performed venv/protoc-has-run
-	$(ACTIVATE_VENV) && cd pyatdllib && make sh
+	$(ACTIVATE_VENV) && cd pyatdllib && make sh ARGS="$(ARGS)"
 
 .PHONY: djsh djshell
 djshell djsh: venv/requirements-installed-by-makefile venv/requirements-test-installed-by-makefile

@@ -142,12 +142,10 @@ message Context {
 }
 
 message Action {
+  reserved 4;  // obsolete optional Context ctx
   optional Common common = 1;
   optional bool is_complete = 3;
-
-  optional Context ctx = 4;  // We just use the ID from Common.uid. DEPRECATED: Please transition to using `ctx_uid`.
   optional int64 ctx_uid = 5 [jstype = JS_STRING];
-
   extensions 20000 to max;
 }
 

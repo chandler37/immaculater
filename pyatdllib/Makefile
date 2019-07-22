@@ -5,7 +5,7 @@ all: python
 
 .PHONY: sh
 sh: python
-	./runme.sh sh
+	./runme.sh sh $(ARGS)
 
 .PHONY: python
 python: protoc_middleman

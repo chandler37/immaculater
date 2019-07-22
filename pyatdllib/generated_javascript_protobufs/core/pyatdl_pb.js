@@ -2870,7 +2870,6 @@ proto.pyatdl.Action.toObject = function(includeInstance, msg) {
   var f, obj = {
     common: (f = msg.getCommon()) && proto.pyatdl.Common.toObject(includeInstance, f),
     isComplete: (f = jspb.Message.getBooleanField(msg, 3)) == null ? undefined : f,
-    ctx: (f = msg.getCtx()) && proto.pyatdl.Context.toObject(includeInstance, f),
     ctxUid: (f = jspb.Message.getField(msg, 5)) == null ? undefined : f
   };
 
@@ -2919,11 +2918,6 @@ proto.pyatdl.Action.deserializeBinaryFromReader = function(msg, reader) {
     case 3:
       var value = /** @type {boolean} */ (reader.readBool());
       msg.setIsComplete(value);
-      break;
-    case 4:
-      var value = new proto.pyatdl.Context;
-      reader.readMessage(value,proto.pyatdl.Context.deserializeBinaryFromReader);
-      msg.setCtx(value);
       break;
     case 5:
       var value = /** @type {string} */ (reader.readInt64String());
@@ -2974,14 +2968,6 @@ proto.pyatdl.Action.serializeBinaryToWriter = function(message, writer) {
     writer.writeBool(
       3,
       f
-    );
-  }
-  f = message.getCtx();
-  if (f != null) {
-    writer.writeMessage(
-      4,
-      f,
-      proto.pyatdl.Context.serializeBinaryToWriter
     );
   }
   f = /** @type {string} */ (jspb.Message.getField(message, 5));
@@ -3058,39 +3044,6 @@ proto.pyatdl.Action.prototype.clearIsComplete = function() {
  */
 proto.pyatdl.Action.prototype.hasIsComplete = function() {
   return jspb.Message.getField(this, 3) != null;
-};
-
-
-/**
- * optional Context ctx = 4;
- * @return {?proto.pyatdl.Context}
- */
-proto.pyatdl.Action.prototype.getCtx = function() {
-  return /** @type{?proto.pyatdl.Context} */ (
-    jspb.Message.getWrapperField(this, proto.pyatdl.Context, 4));
-};
-
-
-/** @param {?proto.pyatdl.Context|undefined} value */
-proto.pyatdl.Action.prototype.setCtx = function(value) {
-  jspb.Message.setWrapperField(this, 4, value);
-};
-
-
-/**
- * Clears the message field making it undefined.
- */
-proto.pyatdl.Action.prototype.clearCtx = function() {
-  this.setCtx(undefined);
-};
-
-
-/**
- * Returns whether this field is set.
- * @return {boolean}
- */
-proto.pyatdl.Action.prototype.hasCtx = function() {
-  return jspb.Message.getField(this, 4) != null;
 };
 
 

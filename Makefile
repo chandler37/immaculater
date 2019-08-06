@@ -106,7 +106,7 @@ test: venv/requirements-installed-by-makefile venv/requirements-test-installed-b
 
 .PHONY: upgrade
 upgrade: unfreezeplus pipinstall test
-	echo "See the 'Upgrading Third-Party Dependencies' section of ./README.md"
+	@echo "See the 'Upgrading Third-Party Dependencies' section of ./README.md"
 
 .PHONY: unfreezeplus
 unfreezeplus:

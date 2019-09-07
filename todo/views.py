@@ -1658,7 +1658,7 @@ def mergeprotobufs(request):
   except serialization.DeserializationError:
     return JsonResponse(
         {"error": "Cannot read existing to-do list from the database!"},
-        status=500)  # CONFLICT
+        status=500)
 
   if pbreq.latest.sha1_checksum and db_sha1 == pbreq.latest.sha1_checksum:
     assert db_result is None, db_result

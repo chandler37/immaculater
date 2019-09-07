@@ -5,8 +5,8 @@ chardet==3.0.4
 cryptography==2.7
 defusedxml==0.6.0
 dj-database-url==0.5.0
-Django==2.2.4
-django-allauth==0.39.1
+Django==2.2.5
+django-allauth==0.40.0
 django-bmemcached==0.2.4
 django-jwt-auth==0.0.2
 django-sendgrid-v5==0.8.0
@@ -17,8 +17,8 @@ gunicorn==19.9.0
 idna==2.8
 ipaddress==1.0.22
 jsonfield==2.0.2
-oauthlib==3.0.2
-protobuf==3.8.0
+oauthlib==3.1.0
+protobuf==3.9.1
 psycopg2-binary==2.8.3
 pycparser==2.19
 PyJWT==1.7.1
@@ -32,10 +32,10 @@ pytz==2019.2
 requests==2.22.0
 requests-oauthlib==1.2.0
 sendgrid==6.0.5
-sentry-sdk==0.10.2
+sentry-sdk==0.11.2
 six==1.12.0
 sqlparse==0.3.0
-typing==3.7.4
+typing==3.7.4.1
 uhashring==1.1
 urllib3==1.25.3
 whitenoise==4.1.3

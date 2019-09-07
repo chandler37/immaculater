@@ -1,3 +1,4 @@
+// source: core/pyatdl.proto
 /**
  * @fileoverview
  * @enhanceable

@@ -222,7 +222,6 @@ def ApplyBatchOfCommands(input_file, printer=None, reader=None, writer=None,
     tdl,
     uicmd.APP_NAMESPACE,
     html_escaper)
-  the_state.ToDoList().CheckIsWellFormed()
   for line in input_file:
     line = line.strip()
     if not line:

@@ -82,13 +82,15 @@ djshell djsh: venv/requirements-installed-by-makefile venv/requirements-test-ins
 	$(ACTIVATE_VENV) && DJANGO_DEBUG=True python manage.py shell
 
 .PHONY: clean
-clean: # you need protoc (Google's protobuf compiler) to regenerate *_pb2.py
-	rm -f *.pyc **/*.pyc
-	cd pyatdllib && make clean
+clean: distclean
 
+# You need protoc (Google's protobuf compiler) to regenerate *_pb2.py
+#
 # TODO: 'make clean' prints out 'To be perfectly clean, see 'immaculater reset_database'.'
 .PHONY: distclean
-distclean: clean
+distclean:
+	rm -f *.pyc **/*.pyc
+	cd pyatdllib && make clean
 	rm -f db.sqlite3
 	rm -fr venv
 	rm -f pyatdllib/core/pyatdl_pb2.py # should already be deleted but just in case

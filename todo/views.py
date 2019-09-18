@@ -92,14 +92,24 @@ def _unencrypted_todolist_protobuf(pb):
 
 
 class SerializationWriter(object):
-  def __init__(self, user, place_to_save_read):
+  def __init__(self, mode, user, place_to_save_read):
     """Init.
 
+    Regarding `mode`, 'write' is typical but 'write only if nothing is
+    yet written' is useful for read-only commands, e.g. 'lsctx'.
+
+    This avoids the race condition where we read, someone else writes, and we then
+    overwrite stale data. TODO(chandler): Eliminate the race condition.
+
     Args:
+      mode: 'write only if nothing is yet written' | 'write'
       user: models.User
       place_to_save_read: None|dict that will have 'saved_read' filled in with
-        the result of the write
+                          the result of the write
     """
+    if mode not in ('write', 'write only if nothing is yet written'):
+      raise ValueError('bad mode')
+    self._mode = mode
     self._user = user
     if place_to_save_read is None:
       self._place_to_save_read = {}
@@ -114,9 +124,10 @@ class SerializationWriter(object):
     x = models.ToDoList.objects.filter(user__id=user_id)
     encrypted_contents = _encrypted_todolist_protobuf(b)
     if len(x):
-      x[0].encrypted_contents2 = encrypted_contents
-      x[0].contents = b''
-      x[0].save()
+      if self._mode == 'write':
+        x[0].encrypted_contents2 = encrypted_contents
+        x[0].contents = b''
+        x[0].save()
     else:
       new_model = models.ToDoList(user=self._user,
                                   contents=b'',
@@ -147,19 +158,6 @@ class SerializationWriter(object):
       new_model.save()
       x = models.ToDoList.objects.filter(user__id=user_id)
       assert len(x) == 1, user_id
-    self._place_to_save_read['saved_read'] = b
-
-
-class SerializationNonWriter(object):
-  """A writer that doesn't write, useful for read-only commands, e.g. 'lsctx'.
-
-  This avoids the race condition where we read, someone else writes, and we then
-  overwrite stale data. TODO(chandler): Eliminate the race condition.
-  """
-  def __init__(self, place_to_save_read):
-    self._place_to_save_read = place_to_save_read
-
-  def write(self, b):
     self._place_to_save_read['saved_read'] = b
 
 
@@ -451,10 +449,10 @@ def _apply_batch_of_commands(user, batch, read_only, saved_read=None, cookie=Non
       reader = SavedSerializationReader(saved_read)
     else:
       reader = SerializationReader(user, place_to_save_read)
-    if read_only:
-      writer = SerializationNonWriter(place_to_save_read)
-    else:
-      writer = SerializationWriter(user, place_to_save_read)
+    writer = SerializationWriter(
+      'write only if nothing is yet written' if read_only else 'write',
+      user,
+      place_to_save_read)
     result_dict = immaculater.ApplyBatchOfCommands(
       wrapper, Print, reader, writer, html_escaper=escape)
   finally:
@@ -1490,7 +1488,7 @@ def _write_database(user, some_bytes, sha1_checksum):
   # sha1 checksum too. Let's write it to a separate column and query not the
   # entire row but just that column. A separate table would work too if django
   # is hard to convince to read just part of a row because we use transactions.
-  SerializationWriter(user, None).write(some_bytes)
+  SerializationWriter('write', user, None).write(some_bytes)
 
 
 def _read_database(user, sha1_checksum):

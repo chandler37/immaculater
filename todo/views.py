@@ -1368,6 +1368,20 @@ def _authenticated_user_via_slack_user_and_team(user_id, team_id):
 
 @never_cache
 @csrf_exempt
+def overload_phasers(request):
+  """Raises an exception to test the Sentry integration"""
+  if request.method == 'POST':
+    raise Exception("testing Exception")
+  if request.method == 'DELETE':
+    raise BaseException("testing BaseException which we will never raise...")
+  try:
+    raise TypeError("testing TypeError")
+  except TypeError as e:
+    raise IndexError("testing IndexError from TypeError") from e
+
+
+@never_cache
+@csrf_exempt
 def api(request):
   """Because we have a CLI, our API simply accepts a list of strings.
 

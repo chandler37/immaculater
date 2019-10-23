@@ -75,7 +75,7 @@ venv/protoc-has-run:
 
 .PHONY: sh shell
 shell sh: venv/local-migrations-performed venv/protoc-has-run
-	$(ACTIVATE_VENV) && cd pyatdllib && make sh ARGS="$(ARGS)"
+	cd pyatdllib && make sh ARGS="$(ARGS)"
 
 .PHONY: djsh djshell
 djshell djsh: venv/requirements-installed-by-makefile venv/requirements-test-installed-by-makefile
@@ -93,16 +93,14 @@ distclean:
 	cd pyatdllib && make clean
 	rm -f db.sqlite3
 	rm -fr venv
-	rm -f pyatdllib/core/pyatdl_pb2.py # should already be deleted but just in case
-	rm -f pyatdllib/generated_javascript_protobufs/core/pyatdl_pb.js
-	@echo "Print deactivate your virtualenv. Exit the shell if you do not know how."
+	@echo "Print deactivate your virtualenv if you manually activated it (unlikely because the Makefile does it for you). Exit the shell if you do not know how."
 
 # test and run the flake8 linter (unless ARGS is --nolint):
 .PHONY: test
 test: venv/requirements-installed-by-makefile venv/requirements-test-installed-by-makefile
-	$(ACTIVATE_VENV) && cd pyatdllib && make protoc_middleman
+	cd pyatdllib && make protoc_middleman
 	$(ACTIVATE_VENV) && DJANGO_DEBUG=True python ./run_django_tests.py $(ARGS)
-	$(ACTIVATE_VENV) && cd pyatdllib && make test
+	cd pyatdllib && make test
 	@echo ""
 	@echo "Tests and linters passed".
 

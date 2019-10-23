@@ -1,5 +1,6 @@
 #!/bin/bash
-make || exit 1
+make all || exit 1
+source ../venv/bin/activate
 TOP="$(dirname "$0")"
 export PYTHONPATH=".."
 rm -f .coverage || exit 1

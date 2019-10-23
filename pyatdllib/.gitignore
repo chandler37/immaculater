@@ -3,5 +3,8 @@ htmlcov
 *.pyc
 *~
 protoc_middleman
+pub_installed_middleman
+brew_installed_middleman
+protoc_installed_middleman
 .DS_Store
 TAGS

@@ -283,7 +283,7 @@ def _execute_cmd(request, uid, template_dict, cookie_value=None):
                  'deactivatectx', 'activateprj', 'deactivateprj', 'rename',
                  'clearreview', 'note', 'note_for_weekly_review',
                  'note_for_home', 'prjify', 'togglecomplete',
-                 'toggleincomplete'):
+                 'toggleincomplete', 'inboxize', 'inboxize_home'):
     return None, _error_page(request, 'cmd must not be %s' % cmd)
 
   def ReplaceNote(destination):
@@ -296,6 +296,17 @@ def _execute_cmd(request, uid, template_dict, cookie_value=None):
         [command_line],
         read_only=False)
     template_dict["Flash"] = "<strong>Note saved.</strong>"
+    return cmd_result
+
+  def Inboxize(destination):
+    if destination == 'uid=0':
+      destination = ':__actions_without_context'
+    command_line = 'note --inboxize ' + destination
+    cmd_result = _apply_batch_of_commands(
+        request.user,
+        [command_line],
+        read_only=False)
+    template_dict["Flash"] = "<strong>Note transformed into Actions in the Inbox.</strong>"
     return cmd_result
 
   try:
@@ -350,6 +361,10 @@ def _execute_cmd(request, uid, template_dict, cookie_value=None):
       template_dict["Flash"] = "<strong>Renamed.</strong>"
     elif cmd == 'note':
       cmd_result = ReplaceNote('uid=%s' % uid)
+    elif cmd == 'inboxize':
+      cmd_result = Inboxize('uid=%s' % uid)
+    elif cmd == 'inboxize_home':
+      cmd_result = Inboxize(':__home')
     elif cmd == 'note_for_weekly_review':
       cmd_result = ReplaceNote(':__weekly_review')
     elif cmd == 'note_for_home':

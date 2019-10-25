@@ -6161,6 +6161,76 @@ it and use this view filter. Note: this is ignored in --show_all mode""",
     ]
     self.helpTest(inputs, golden_printed)
 
+  def testInboxizingNotes(self):
+    save_path = self._CreateTmpFile('')
+    inputs = ['note :__home "home note\\nwith two lines\\n"',
+              'note --inboxize :__home',
+              'do "turn all the items in the attached note into actions"',
+              'note "/inbox/turn all the items in the attached note into actions" "\t- @xfer call verizon\\n\t- @xfer https://github.com/timvisee/ffsend\\n\t- @xfer \t\\n\t- @xfer https://github.com/opencontainers/runc\\n"',
+              'echo ls:',
+              'ls /inbox',
+              'note "/inbox/turn all the items in the attached note into actions"',
+              'note --inboxize "/inbox/turn all the items in the attached note into actions"',
+              'echo ls after @work change:',
+              'ls -R /',
+              'echo note is now:',
+              'note "/inbox/turn all the items in the attached note into actions"',
+              'save %s' % pipes.quote(save_path),
+              'load %s' % pipes.quote(save_path),
+              'echo ls after save:',
+              'ls -R /',
+              'echo note is finally:',
+              'note "/inbox/turn all the items in the attached note into actions"',
+              ]
+    # TODO(chandler37): When you turn an action into a project, you ought to be able to take the note of that action
+    # and make each line an action in the new project.
+    golden_printed = [
+      'ls:',
+      "--action--- --incomplete-- 'home note' --in-context-- '<none>'",
+      "--action--- --incomplete-- 'with two lines' --in-context-- '<none>'",
+      "--action--- --incomplete-- 'turn all the items in the attached note into "
+      "actions' --in-context-- '<none>'",
+      '\t- @xfer call verizon\\n\t- @xfer https://github.com/timvisee/ffsend\\n\t- '
+      '@xfer \t\\n\t- @xfer https://github.com/opencontainers/runc\\n',
+      'ls after @work change:',
+      '--project-- --incomplete-- ---active--- inbox',
+      '',
+      '/inbox:',
+      "--action--- --incomplete-- 'home note' --in-context-- '<none>'",
+      "--action--- --incomplete-- 'with two lines' --in-context-- '<none>'",
+      "--action--- --incomplete-- 'turn all the items in the attached note into "
+      "actions' --in-context-- '<none>'",
+      "--action--- --incomplete-- 'call verizon' --in-context-- '<none>'",
+      '--action--- --incomplete-- https://github.com/timvisee/ffsend --in-context-- '
+      "'<none>'",
+      '--action--- --incomplete-- https://github.com/opencontainers/runc '
+      "--in-context-- '<none>'",
+      'note is now:',
+      'You chose to process the note that was here into\\na sequence of Actions in '
+      'the Inbox.\\n\\nThe first such action was the following:\\n\t- call '
+      'verizon',
+      'Save complete.',
+      'Load complete.',
+      'ls after save:',
+      '--project-- --incomplete-- ---active--- inbox',
+      '',
+      '/inbox:',
+      "--action--- --incomplete-- 'home note' --in-context-- '<none>'",
+      "--action--- --incomplete-- 'with two lines' --in-context-- '<none>'",
+      "--action--- --incomplete-- 'turn all the items in the attached note into "
+      "actions' --in-context-- '<none>'",
+      "--action--- --incomplete-- 'call verizon' --in-context-- '<none>'",
+      '--action--- --incomplete-- https://github.com/timvisee/ffsend --in-context-- '
+      "'<none>'",
+      '--action--- --incomplete-- https://github.com/opencontainers/runc '
+      "--in-context-- '<none>'",
+      'note is finally:',
+      'You chose to process the note that was here into\\na sequence of Actions in '
+      'the Inbox.\\n\\nThe first such action was the following:\\n\t- call '
+      'verizon'
+    ]
+    self.helpTest(inputs, golden_printed)
+
 
 if __name__ == '__main__':
   test_helper.main()

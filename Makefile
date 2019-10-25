@@ -65,6 +65,9 @@ localmigrate: venv/local-migrations-performed
 localsuperuser: venv/local-migrations-performed
 	$(ACTIVATE_VENV) && python manage.py createsuperuser
 
+.PHONY: web
+web: local
+
 .PHONY: local
 local: venv/local-migrations-performed
 	$(ACTIVATE_VENV) && DJANGO_DEBUG=True python manage.py runserver 5000
@@ -132,7 +135,7 @@ pylint: venv
 
 # counts lines of code
 .PHONY: dilbert
-dilbert: 
+dilbert:
 	wc -l `find todo immaculater pyatdllib -name '.git' -prune -o -name '*_pb2.py' -prune -o -name '*_pb.js' -prune -o -type f -name '*.py' -print` pyatdllib/core/pyatdl.proto todo/templates/*.html immaculater/static/immaculater/*.js
 
 .PHONY: papertrail

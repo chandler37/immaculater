@@ -47,6 +47,18 @@
 </div>
 </div>
 
+{# TODO(chandler37): Do not show this as clickable (if at all?) if there is no note. #}
+{# TODO(chandler37): This should pass in the note value so they don't have to click 'Save Note' first. #}
+<div class="row">
+<div class="col-sm-12">
+<form id="inboxizer" class="i-pjax-form" action="/todo/home" method="post">
+{% csrf_token %}
+<div class="input-group block-display">
+<input type="hidden" name="cmd" value="inboxize_home" class="form-control">
+<input type="submit" value="Turn each line of the above note into an Inbox Action (Does NOT Save Note! Do that first!)" class="btn btn-primary">
+</div>
+</form>
+
 <script>
 "use strict";
 $(document).ready(function() {

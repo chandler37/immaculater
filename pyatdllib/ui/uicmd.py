@@ -275,6 +275,53 @@ def NewToDoList():
   return t
 
 
+def _RemovePrefix(prefix, text):
+  match = re.match(prefix, text)
+  if match is None:
+    return text
+  return text[len(match.group()):]
+
+
+def _Inboxize(state, note):
+  """Creates a new Action in the Inbox for every line in the note. Returns the new note.
+
+  Args:
+    state: State
+    note: basestring
+  Returns:
+    basestring
+  Raises:
+    BadArgsError
+  """
+  def essence(line):
+    return _RemovePrefix(r'@xfer\b', line.strip().lstrip(':-\u2013\u2014').lstrip()).lstrip()
+
+  first_action = None
+  note = note.replace(r'\n', '\n')
+  beginning = 'You chose to process'
+  for line in note.splitlines():
+    action = essence(line).strip()
+    if not action:
+      continue
+    # TODO(chandler37): preserve metadata, ctime anyway?
+    if first_action is None:
+      first_action = action
+      if action.startswith(beginning):
+        raise BadArgsError('You already turned this note into Actions in the Inbox.')
+    APP_NAMESPACE.FindCmdAndExecute(
+      state,
+      ['do', action])
+  if first_action is None:
+    return ''
+  return "\\n".join(
+    [f'{beginning} the note that was here into',
+     'a sequence of Actions in the Inbox.',
+     '',
+     'The first such action was the following:',
+     f'\t- {first_action}',
+     ])
+
+
 def _LookupProject(state, argument):  # pylint: disable=too-many-branches
   """Returns the specified Project and its parent Container.
 
@@ -1675,23 +1722,36 @@ class UICmdNote(UICmd):
                       'Replace instead of append',
                       short_name='r',
                       flag_values=flag_values)
+    flags.DEFINE_bool('inboxize',
+                      False,
+                      'Turn each line of the note into its own Action in the Inbox and clear the note.',
+                      short_name='z',
+                      flag_values=flag_values)
 
   def Run(self, args):  # pylint: disable=missing-docstring,no-self-use
     state = FLAGS.pyatdl_internal_state
     if len(args) == 2:
       if re.match(r'^:[a-zA-Z0-9_-]+$', args[-1]) is not None:
-        x = state.ToDoList().note_list.notes.get(args[-1], '')
+        notes = state.ToDoList().note_list.notes
+        x = notes.get(args[-1], '')
         if x:
-          state.Print(x)
+          if FLAGS.inboxize:
+            notes[args[-1]] = _Inboxize(state, x)
+          else:
+            state.Print(x)
         return
       try:
-        auditable_object = state.GetObjectFromPath(args[-1],
-                                                   include_contexts=True)
+        auditable_object = state.GetObjectFromPath(args[-1], include_contexts=True)
       except state_module.Error as e:
         raise BadArgsError(six.text_type(e))
       if auditable_object.note:
-        state.Print(auditable_object.note)
+        if FLAGS.inboxize:
+          auditable_object.note = _Inboxize(state, auditable_object.note)
+        else:
+          state.Print(auditable_object.note)
       return
+    if FLAGS.inboxize:
+      raise BadArgsError('--inboxize only works with the single-positional-argument form.')
     self.RaiseUnlessNArgumentsGiven(2, args)
     if re.match(r'^:[a-zA-Z0-9_-]+$', args[-2]) is not None:
       notes = state.ToDoList().note_list.notes
@@ -1701,8 +1761,7 @@ class UICmdNote(UICmd):
         notes[args[-2]] = notes.get(args[-2], '') + args[-1]
       return
     try:
-      auditable_object = state.GetObjectFromPath(args[-2],
-                                                 include_contexts=True)
+      auditable_object = state.GetObjectFromPath(args[-2], include_contexts=True)
     except state_module.Error as e:
       raise BadArgsError(six.text_type(e))
     if FLAGS.replace:
@@ -1767,7 +1826,7 @@ class UICmdActivateprj(UndoableUICmd):
   """Makes the sole named Project active, which affects view filters.
 
   An inactive project does not appear (e.g., with "ls") under the "actionable"
-  view filter. You"d need to use "all_even_deleted" or "all" or "inactive". An
+  view filter. You'd need to use "all_even_deleted" or "all" or "inactive". An
   inactive project is, in layman's terms, "on hold".
   """
   def Run(self, args):  # pylint: disable=missing-docstring,no-self-use

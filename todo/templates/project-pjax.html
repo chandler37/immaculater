@@ -33,13 +33,6 @@
 </div>
 </div>
 
-<div class="row">
-<div class="col-sm-12">
-<p id="name">
-</div>
-</div>
-
-
 <div class="row" id="rename">
 <div class="col-sm-12">
 {% comment %}
@@ -50,7 +43,7 @@ context-pjax.html as well.
 {% csrf_token %}
 <div class="input-group">
 <input type="hidden" name="cmd" value="rename" class="form-control">
-<input type="text" name="new_name" value="" class="form-control">
+<input id="newnametext" type="text" name="new_name" value="" class="form-control">
 <span class="input-group-btn">
 <input type="submit" value="Rename" class="btn btn-primary">
 </span>
@@ -154,8 +147,6 @@ if (!inprj.length) {
 	buttonDiv.innerHTML = "<p class=\"text-center\">No actions are visible under the current view filter. Set View Filter to 'All' to see all but deleted actions.</p>";
     }
 }
-document.getElementById("name").innerHTML =
-    "<b>Name: " + HTMLescape(lsprj.name) + "</b>";
 if (lsprj.uid === 1) {
     document.title = "Inbox \u2014 {{Brand}}";
 } else {
@@ -166,6 +157,8 @@ if (lsprj.uid === 1 || lsprj.is_deleted) {
     if (f) {
         f.parentNode.removeChild(f);
     }
+} else {
+    document.getElementById("newnametext").value = lsprj.name;
 }
 
 var simplemde = new SimpleMDE({ spellChecker: false, element: $("#textarea0")[0] });

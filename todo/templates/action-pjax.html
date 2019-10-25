@@ -8,17 +8,11 @@
 
 <div class="row">
 <div class="col-sm-12">
-<p id="name">
-</div>
-</div>
-
-<div class="row">
-<div class="col-sm-12">
 <form id="rename" class="i-pjax-form" action="{{UID}}" method="post">
 {% csrf_token %}
 <div class="input-group">
 <input type="hidden" name="cmd" value="rename" class="form-control">
-<input type="text" name="new_name" value="" class="form-control">
+<input id="newnametext" type="text" name="new_name" value="" class="form-control">
 <span class="input-group-btn">
 <input type="submit" value="Rename" class="btn btn-primary">
 </span>
@@ -92,13 +86,13 @@ var simplemde = new SimpleMDE({ spellChecker: false, element: $("#textarea0")[0]
 var note_value = "{{Note|escapejs}}".replace(/\u005cn/g, "\n");
 simplemde.value(note_value);
 var lsact = JSON.parse("{{LsactJSON|escapejs}}");
-document.getElementById("name").innerHTML =
-    "<b>Name: " + HTMLescape(lsact.name) + "</b>";
 if (lsact.is_deleted) {
     var f = document.getElementById("rename");
     if (f) {
         f.parentNode.removeChild(f);
     }
+} else {
+    document.getElementById("newnametext").value = lsact.name;
 }
 document.getElementById("title").innerHTML =
     "{{Title}} &lsquo;" + HTMLescape(lsact.name) + "&rsquo;";

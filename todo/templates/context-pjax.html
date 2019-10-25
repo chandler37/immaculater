@@ -36,19 +36,13 @@
 </div>
 </div>
 
-<div class="row">
-<div class="col-sm-12">
-<p id="name">
-</div>
-</div>
-
 <div class="row" id="rename">
 <div class="col-sm-12">
 <form class="i-pjax-form" action="{{UID}}" method="post">
 {% csrf_token %}
 <div class="input-group">
 <input type="hidden" name="cmd" value="rename" class="form-control">
-<input type="text" name="new_name" value="" class="form-control">
+<input id="newnametext" type="text" name="new_name" value="" class="form-control">
 <span class="input-group-btn">
 <input type="submit" value="Rename" class="btn btn-primary">
 </span>
@@ -123,6 +117,8 @@ if (!lsctx.uid || lsctx.is_deleted) {
     if (f) {
         f.parentNode.removeChild(f);
     }
+} else {
+    document.getElementById("newnametext").value = lsctx.name;
 }
 if (lsctx.is_deleted) {
     var f = document.getElementById("create");
@@ -131,15 +127,6 @@ if (lsctx.is_deleted) {
     }
 }
 var inctx = JSON.parse("{{InctxJSON|escapejs}}");
-if (!lsctx.uid) {
-    var f = document.getElementById("name");
-    if (f) {
-        f.parentNode.removeChild(f);
-    }
-} else {
-    document.getElementById("name").innerHTML =
-        "<b>Name: " + HTMLescape(lsctx.name) + "</b>";
-}
 document.getElementById("title").innerHTML =
     ((lsctx.uid)
      ? "{{Title}} &lsquo;" + HTMLescape(lsctx.name) + "&rsquo;"

@@ -879,17 +879,21 @@ proto.pyatdl.VisitorInfo0.prototype.getSanityCheck = function() {
 };
 
 
-/** @param {number} value */
+/**
+ * @param {number} value
+ * @return {!proto.pyatdl.VisitorInfo0} returns this
+ */
 proto.pyatdl.VisitorInfo0.prototype.setSanityCheck = function(value) {
-  jspb.Message.setField(this, 1, value);
+  return jspb.Message.setField(this, 1, value);
 };
 
 
 /**
  * Clears the field making it undefined.
+ * @return {!proto.pyatdl.VisitorInfo0} returns this
  */
 proto.pyatdl.VisitorInfo0.prototype.clearSanityCheck = function() {
-  jspb.Message.setField(this, 1, undefined);
+  return jspb.Message.setField(this, 1, undefined);
 };
 
 
@@ -911,17 +915,21 @@ proto.pyatdl.VisitorInfo0.prototype.getCwcUid = function() {
 };
 
 
-/** @param {string} value */
+/**
+ * @param {string} value
+ * @return {!proto.pyatdl.VisitorInfo0} returns this
+ */
 proto.pyatdl.VisitorInfo0.prototype.setCwcUid = function(value) {
-  jspb.Message.setField(this, 7, value);
+  return jspb.Message.setField(this, 7, value);
 };
 
 
 /**
  * Clears the field making it undefined.
+ * @return {!proto.pyatdl.VisitorInfo0} returns this
  */
 proto.pyatdl.VisitorInfo0.prototype.clearCwcUid = function() {
-  jspb.Message.setField(this, 7, undefined);
+  return jspb.Message.setField(this, 7, undefined);
 };
 
 
@@ -943,17 +951,21 @@ proto.pyatdl.VisitorInfo0.prototype.getView = function() {
 };
 
 
-/** @param {string} value */
+/**
+ * @param {string} value
+ * @return {!proto.pyatdl.VisitorInfo0} returns this
+ */
 proto.pyatdl.VisitorInfo0.prototype.setView = function(value) {
-  jspb.Message.setField(this, 3, value);
+  return jspb.Message.setField(this, 3, value);
 };
 
 
 /**
  * Clears the field making it undefined.
+ * @return {!proto.pyatdl.VisitorInfo0} returns this
  */
 proto.pyatdl.VisitorInfo0.prototype.clearView = function() {
-  jspb.Message.setField(this, 3, undefined);
+  return jspb.Message.setField(this, 3, undefined);
 };
 
 
@@ -975,17 +987,21 @@ proto.pyatdl.VisitorInfo0.prototype.getSort = function() {
 };
 
 
-/** @param {string} value */
+/**
+ * @param {string} value
+ * @return {!proto.pyatdl.VisitorInfo0} returns this
+ */
 proto.pyatdl.VisitorInfo0.prototype.setSort = function(value) {
-  jspb.Message.setField(this, 5, value);
+  return jspb.Message.setField(this, 5, value);
 };
 
 
 /**
  * Clears the field making it undefined.
+ * @return {!proto.pyatdl.VisitorInfo0} returns this
  */
 proto.pyatdl.VisitorInfo0.prototype.clearSort = function() {
-  jspb.Message.setField(this, 5, undefined);
+  return jspb.Message.setField(this, 5, undefined);
 };
 
 
@@ -1031,17 +1047,21 @@ proto.pyatdl.VisitorInfo0.prototype.getUsernameHash_asU8 = function() {
 };
 
 
-/** @param {!(string|Uint8Array)} value */
+/**
+ * @param {!(string|Uint8Array)} value
+ * @return {!proto.pyatdl.VisitorInfo0} returns this
+ */
 proto.pyatdl.VisitorInfo0.prototype.setUsernameHash = function(value) {
-  jspb.Message.setField(this, 6, value);
+  return jspb.Message.setField(this, 6, value);
 };
 
 
 /**
  * Clears the field making it undefined.
+ * @return {!proto.pyatdl.VisitorInfo0} returns this
  */
 proto.pyatdl.VisitorInfo0.prototype.clearUsernameHash = function() {
-  jspb.Message.setField(this, 6, undefined);
+  return jspb.Message.setField(this, 6, undefined);
 };
 
 
@@ -1214,17 +1234,21 @@ proto.pyatdl.MergeToDoListRequest.prototype.getLatest = function() {
 };
 
 
-/** @param {?proto.pyatdl.ChecksumAndData|undefined} value */
+/**
+ * @param {?proto.pyatdl.ChecksumAndData|undefined} value
+ * @return {!proto.pyatdl.MergeToDoListRequest} returns this
+*/
 proto.pyatdl.MergeToDoListRequest.prototype.setLatest = function(value) {
-  jspb.Message.setWrapperField(this, 1, value);
+  return jspb.Message.setWrapperField(this, 1, value);
 };
 
 
 /**
  * Clears the message field making it undefined.
+ * @return {!proto.pyatdl.MergeToDoListRequest} returns this
  */
 proto.pyatdl.MergeToDoListRequest.prototype.clearLatest = function() {
-  this.setLatest(undefined);
+  return this.setLatest(undefined);
 };
 
 
@@ -1246,17 +1270,21 @@ proto.pyatdl.MergeToDoListRequest.prototype.getPreviousSha1Checksum = function()
 };
 
 
-/** @param {string} value */
+/**
+ * @param {string} value
+ * @return {!proto.pyatdl.MergeToDoListRequest} returns this
+ */
 proto.pyatdl.MergeToDoListRequest.prototype.setPreviousSha1Checksum = function(value) {
-  jspb.Message.setField(this, 2, value);
+  return jspb.Message.setField(this, 2, value);
 };
 
 
 /**
  * Clears the field making it undefined.
+ * @return {!proto.pyatdl.MergeToDoListRequest} returns this
  */
 proto.pyatdl.MergeToDoListRequest.prototype.clearPreviousSha1Checksum = function() {
-  jspb.Message.setField(this, 2, undefined);
+  return jspb.Message.setField(this, 2, undefined);
 };
 
 
@@ -1278,17 +1306,21 @@ proto.pyatdl.MergeToDoListRequest.prototype.getNewData = function() {
 };
 
 
-/** @param {boolean} value */
+/**
+ * @param {boolean} value
+ * @return {!proto.pyatdl.MergeToDoListRequest} returns this
+ */
 proto.pyatdl.MergeToDoListRequest.prototype.setNewData = function(value) {
-  jspb.Message.setField(this, 3, value);
+  return jspb.Message.setField(this, 3, value);
 };
 
 
 /**
  * Clears the field making it undefined.
+ * @return {!proto.pyatdl.MergeToDoListRequest} returns this
  */
 proto.pyatdl.MergeToDoListRequest.prototype.clearNewData = function() {
-  jspb.Message.setField(this, 3, undefined);
+  return jspb.Message.setField(this, 3, undefined);
 };
 
 
@@ -1310,17 +1342,21 @@ proto.pyatdl.MergeToDoListRequest.prototype.getSanityCheck = function() {
 };
 
 
-/** @param {string} value */
+/**
+ * @param {string} value
+ * @return {!proto.pyatdl.MergeToDoListRequest} returns this
+ */
 proto.pyatdl.MergeToDoListRequest.prototype.setSanityCheck = function(value) {
-  jspb.Message.setField(this, 15, value);
+  return jspb.Message.setField(this, 15, value);
 };
 
 
 /**
  * Clears the field making it undefined.
+ * @return {!proto.pyatdl.MergeToDoListRequest} returns this
  */
 proto.pyatdl.MergeToDoListRequest.prototype.clearSanityCheck = function() {
-  jspb.Message.setField(this, 15, undefined);
+  return jspb.Message.setField(this, 15, undefined);
 };
 
 
@@ -1492,17 +1528,21 @@ proto.pyatdl.MergeToDoListResponse.prototype.getSha1Checksum = function() {
 };
 
 
-/** @param {string} value */
+/**
+ * @param {string} value
+ * @return {!proto.pyatdl.MergeToDoListResponse} returns this
+ */
 proto.pyatdl.MergeToDoListResponse.prototype.setSha1Checksum = function(value) {
-  jspb.Message.setField(this, 1, value);
+  return jspb.Message.setField(this, 1, value);
 };
 
 
 /**
  * Clears the field making it undefined.
+ * @return {!proto.pyatdl.MergeToDoListResponse} returns this
  */
 proto.pyatdl.MergeToDoListResponse.prototype.clearSha1Checksum = function() {
-  jspb.Message.setField(this, 1, undefined);
+  return jspb.Message.setField(this, 1, undefined);
 };
 
 
@@ -1525,17 +1565,21 @@ proto.pyatdl.MergeToDoListResponse.prototype.getToDoList = function() {
 };
 
 
-/** @param {?proto.pyatdl.ToDoList|undefined} value */
+/**
+ * @param {?proto.pyatdl.ToDoList|undefined} value
+ * @return {!proto.pyatdl.MergeToDoListResponse} returns this
+*/
 proto.pyatdl.MergeToDoListResponse.prototype.setToDoList = function(value) {
-  jspb.Message.setWrapperField(this, 2, value);
+  return jspb.Message.setWrapperField(this, 2, value);
 };
 
 
 /**
  * Clears the message field making it undefined.
+ * @return {!proto.pyatdl.MergeToDoListResponse} returns this
  */
 proto.pyatdl.MergeToDoListResponse.prototype.clearToDoList = function() {
-  this.setToDoList(undefined);
+  return this.setToDoList(undefined);
 };
 
 
@@ -1557,17 +1601,21 @@ proto.pyatdl.MergeToDoListResponse.prototype.getStarterTemplate = function() {
 };
 
 
-/** @param {boolean} value */
+/**
+ * @param {boolean} value
+ * @return {!proto.pyatdl.MergeToDoListResponse} returns this
+ */
 proto.pyatdl.MergeToDoListResponse.prototype.setStarterTemplate = function(value) {
-  jspb.Message.setField(this, 3, value);
+  return jspb.Message.setField(this, 3, value);
 };
 
 
 /**
  * Clears the field making it undefined.
+ * @return {!proto.pyatdl.MergeToDoListResponse} returns this
  */
 proto.pyatdl.MergeToDoListResponse.prototype.clearStarterTemplate = function() {
-  jspb.Message.setField(this, 3, undefined);
+  return jspb.Message.setField(this, 3, undefined);
 };
 
 
@@ -1589,17 +1637,21 @@ proto.pyatdl.MergeToDoListResponse.prototype.getSanityCheck = function() {
 };
 
 
-/** @param {string} value */
+/**
+ * @param {string} value
+ * @return {!proto.pyatdl.MergeToDoListResponse} returns this
+ */
 proto.pyatdl.MergeToDoListResponse.prototype.setSanityCheck = function(value) {
-  jspb.Message.setField(this, 15, value);
+  return jspb.Message.setField(this, 15, value);
 };
 
 
 /**
  * Clears the field making it undefined.
+ * @return {!proto.pyatdl.MergeToDoListResponse} returns this
  */
 proto.pyatdl.MergeToDoListResponse.prototype.clearSanityCheck = function() {
-  jspb.Message.setField(this, 15, undefined);
+  return jspb.Message.setField(this, 15, undefined);
 };
 
 
@@ -1777,17 +1829,21 @@ proto.pyatdl.ChecksumAndData.prototype.getPayloadLength = function() {
 };
 
 
-/** @param {string} value */
+/**
+ * @param {string} value
+ * @return {!proto.pyatdl.ChecksumAndData} returns this
+ */
 proto.pyatdl.ChecksumAndData.prototype.setPayloadLength = function(value) {
-  jspb.Message.setField(this, 1, value);
+  return jspb.Message.setField(this, 1, value);
 };
 
 
 /**
  * Clears the field making it undefined.
+ * @return {!proto.pyatdl.ChecksumAndData} returns this
  */
 proto.pyatdl.ChecksumAndData.prototype.clearPayloadLength = function() {
-  jspb.Message.setField(this, 1, undefined);
+  return jspb.Message.setField(this, 1, undefined);
 };
 
 
@@ -1809,17 +1865,21 @@ proto.pyatdl.ChecksumAndData.prototype.getSha1Checksum = function() {
 };
 
 
-/** @param {string} value */
+/**
+ * @param {string} value
+ * @return {!proto.pyatdl.ChecksumAndData} returns this
+ */
 proto.pyatdl.ChecksumAndData.prototype.setSha1Checksum = function(value) {
-  jspb.Message.setField(this, 2, value);
+  return jspb.Message.setField(this, 2, value);
 };
 
 
 /**
  * Clears the field making it undefined.
+ * @return {!proto.pyatdl.ChecksumAndData} returns this
  */
 proto.pyatdl.ChecksumAndData.prototype.clearSha1Checksum = function() {
-  jspb.Message.setField(this, 2, undefined);
+  return jspb.Message.setField(this, 2, undefined);
 };
 
 
@@ -1841,17 +1901,21 @@ proto.pyatdl.ChecksumAndData.prototype.getPayloadIsZlibCompressed = function() {
 };
 
 
-/** @param {boolean} value */
+/**
+ * @param {boolean} value
+ * @return {!proto.pyatdl.ChecksumAndData} returns this
+ */
 proto.pyatdl.ChecksumAndData.prototype.setPayloadIsZlibCompressed = function(value) {
-  jspb.Message.setField(this, 3, value);
+  return jspb.Message.setField(this, 3, value);
 };
 
 
 /**
  * Clears the field making it undefined.
+ * @return {!proto.pyatdl.ChecksumAndData} returns this
  */
 proto.pyatdl.ChecksumAndData.prototype.clearPayloadIsZlibCompressed = function() {
-  jspb.Message.setField(this, 3, undefined);
+  return jspb.Message.setField(this, 3, undefined);
 };
 
 
@@ -1897,17 +1961,21 @@ proto.pyatdl.ChecksumAndData.prototype.getPayload_asU8 = function() {
 };
 
 
-/** @param {!(string|Uint8Array)} value */
+/**
+ * @param {!(string|Uint8Array)} value
+ * @return {!proto.pyatdl.ChecksumAndData} returns this
+ */
 proto.pyatdl.ChecksumAndData.prototype.setPayload = function(value) {
-  jspb.Message.setField(this, 10123, value);
+  return jspb.Message.setField(this, 10123, value);
 };
 
 
 /**
  * Clears the field making it undefined.
+ * @return {!proto.pyatdl.ChecksumAndData} returns this
  */
 proto.pyatdl.ChecksumAndData.prototype.clearPayload = function() {
-  jspb.Message.setField(this, 10123, undefined);
+  return jspb.Message.setField(this, 10123, undefined);
 };
 
 
@@ -2065,17 +2133,21 @@ proto.pyatdl.Timestamp.prototype.getCtime = function() {
 };
 
 
-/** @param {string} value */
+/**
+ * @param {string} value
+ * @return {!proto.pyatdl.Timestamp} returns this
+ */
 proto.pyatdl.Timestamp.prototype.setCtime = function(value) {
-  jspb.Message.setField(this, 1, value);
+  return jspb.Message.setField(this, 1, value);
 };
 
 
 /**
  * Clears the field making it undefined.
+ * @return {!proto.pyatdl.Timestamp} returns this
  */
 proto.pyatdl.Timestamp.prototype.clearCtime = function() {
-  jspb.Message.setField(this, 1, undefined);
+  return jspb.Message.setField(this, 1, undefined);
 };
 
 
@@ -2097,17 +2169,21 @@ proto.pyatdl.Timestamp.prototype.getDtime = function() {
 };
 
 
-/** @param {string} value */
+/**
+ * @param {string} value
+ * @return {!proto.pyatdl.Timestamp} returns this
+ */
 proto.pyatdl.Timestamp.prototype.setDtime = function(value) {
-  jspb.Message.setField(this, 2, value);
+  return jspb.Message.setField(this, 2, value);
 };
 
 
 /**
  * Clears the field making it undefined.
+ * @return {!proto.pyatdl.Timestamp} returns this
  */
 proto.pyatdl.Timestamp.prototype.clearDtime = function() {
-  jspb.Message.setField(this, 2, undefined);
+  return jspb.Message.setField(this, 2, undefined);
 };
 
 
@@ -2129,17 +2205,21 @@ proto.pyatdl.Timestamp.prototype.getMtime = function() {
 };
 
 
-/** @param {string} value */
+/**
+ * @param {string} value
+ * @return {!proto.pyatdl.Timestamp} returns this
+ */
 proto.pyatdl.Timestamp.prototype.setMtime = function(value) {
-  jspb.Message.setField(this, 3, value);
+  return jspb.Message.setField(this, 3, value);
 };
 
 
 /**
  * Clears the field making it undefined.
+ * @return {!proto.pyatdl.Timestamp} returns this
  */
 proto.pyatdl.Timestamp.prototype.clearMtime = function() {
-  jspb.Message.setField(this, 3, undefined);
+  return jspb.Message.setField(this, 3, undefined);
 };
 
 
@@ -2293,17 +2373,21 @@ proto.pyatdl.Metadata.prototype.getName = function() {
 };
 
 
-/** @param {string} value */
+/**
+ * @param {string} value
+ * @return {!proto.pyatdl.Metadata} returns this
+ */
 proto.pyatdl.Metadata.prototype.setName = function(value) {
-  jspb.Message.setField(this, 1, value);
+  return jspb.Message.setField(this, 1, value);
 };
 
 
 /**
  * Clears the field making it undefined.
+ * @return {!proto.pyatdl.Metadata} returns this
  */
 proto.pyatdl.Metadata.prototype.clearName = function() {
-  jspb.Message.setField(this, 1, undefined);
+  return jspb.Message.setField(this, 1, undefined);
 };
 
 
@@ -2325,17 +2409,21 @@ proto.pyatdl.Metadata.prototype.getNote = function() {
 };
 
 
-/** @param {string} value */
+/**
+ * @param {string} value
+ * @return {!proto.pyatdl.Metadata} returns this
+ */
 proto.pyatdl.Metadata.prototype.setNote = function(value) {
-  jspb.Message.setField(this, 2, value);
+  return jspb.Message.setField(this, 2, value);
 };
 
 
 /**
  * Clears the field making it undefined.
+ * @return {!proto.pyatdl.Metadata} returns this
  */
 proto.pyatdl.Metadata.prototype.clearNote = function() {
-  jspb.Message.setField(this, 2, undefined);
+  return jspb.Message.setField(this, 2, undefined);
 };
 
 
@@ -2517,17 +2605,21 @@ proto.pyatdl.Common.prototype.getUid = function() {
 };
 
 
-/** @param {string} value */
+/**
+ * @param {string} value
+ * @return {!proto.pyatdl.Common} returns this
+ */
 proto.pyatdl.Common.prototype.setUid = function(value) {
-  jspb.Message.setField(this, 4, value);
+  return jspb.Message.setField(this, 4, value);
 };
 
 
 /**
  * Clears the field making it undefined.
+ * @return {!proto.pyatdl.Common} returns this
  */
 proto.pyatdl.Common.prototype.clearUid = function() {
-  jspb.Message.setField(this, 4, undefined);
+  return jspb.Message.setField(this, 4, undefined);
 };
 
 
@@ -2549,17 +2641,21 @@ proto.pyatdl.Common.prototype.getIsDeleted = function() {
 };
 
 
-/** @param {boolean} value */
+/**
+ * @param {boolean} value
+ * @return {!proto.pyatdl.Common} returns this
+ */
 proto.pyatdl.Common.prototype.setIsDeleted = function(value) {
-  jspb.Message.setField(this, 1, value);
+  return jspb.Message.setField(this, 1, value);
 };
 
 
 /**
  * Clears the field making it undefined.
+ * @return {!proto.pyatdl.Common} returns this
  */
 proto.pyatdl.Common.prototype.clearIsDeleted = function() {
-  jspb.Message.setField(this, 1, undefined);
+  return jspb.Message.setField(this, 1, undefined);
 };
 
 
@@ -2582,17 +2678,21 @@ proto.pyatdl.Common.prototype.getTimestamp = function() {
 };
 
 
-/** @param {?proto.pyatdl.Timestamp|undefined} value */
+/**
+ * @param {?proto.pyatdl.Timestamp|undefined} value
+ * @return {!proto.pyatdl.Common} returns this
+*/
 proto.pyatdl.Common.prototype.setTimestamp = function(value) {
-  jspb.Message.setWrapperField(this, 2, value);
+  return jspb.Message.setWrapperField(this, 2, value);
 };
 
 
 /**
  * Clears the message field making it undefined.
+ * @return {!proto.pyatdl.Common} returns this
  */
 proto.pyatdl.Common.prototype.clearTimestamp = function() {
-  this.setTimestamp(undefined);
+  return this.setTimestamp(undefined);
 };
 
 
@@ -2615,17 +2715,21 @@ proto.pyatdl.Common.prototype.getMetadata = function() {
 };
 
 
-/** @param {?proto.pyatdl.Metadata|undefined} value */
+/**
+ * @param {?proto.pyatdl.Metadata|undefined} value
+ * @return {!proto.pyatdl.Common} returns this
+*/
 proto.pyatdl.Common.prototype.setMetadata = function(value) {
-  jspb.Message.setWrapperField(this, 3, value);
+  return jspb.Message.setWrapperField(this, 3, value);
 };
 
 
 /**
  * Clears the message field making it undefined.
+ * @return {!proto.pyatdl.Common} returns this
  */
 proto.pyatdl.Common.prototype.clearMetadata = function() {
-  this.setMetadata(undefined);
+  return this.setMetadata(undefined);
 };
 
 
@@ -2782,17 +2886,21 @@ proto.pyatdl.Context.prototype.getCommon = function() {
 };
 
 
-/** @param {?proto.pyatdl.Common|undefined} value */
+/**
+ * @param {?proto.pyatdl.Common|undefined} value
+ * @return {!proto.pyatdl.Context} returns this
+*/
 proto.pyatdl.Context.prototype.setCommon = function(value) {
-  jspb.Message.setWrapperField(this, 1, value);
+  return jspb.Message.setWrapperField(this, 1, value);
 };
 
 
 /**
  * Clears the message field making it undefined.
+ * @return {!proto.pyatdl.Context} returns this
  */
 proto.pyatdl.Context.prototype.clearCommon = function() {
-  this.setCommon(undefined);
+  return this.setCommon(undefined);
 };
 
 
@@ -2814,17 +2922,21 @@ proto.pyatdl.Context.prototype.getIsActive = function() {
 };
 
 
-/** @param {boolean} value */
+/**
+ * @param {boolean} value
+ * @return {!proto.pyatdl.Context} returns this
+ */
 proto.pyatdl.Context.prototype.setIsActive = function(value) {
-  jspb.Message.setField(this, 2, value);
+  return jspb.Message.setField(this, 2, value);
 };
 
 
 /**
  * Clears the field making it undefined.
+ * @return {!proto.pyatdl.Context} returns this
  */
 proto.pyatdl.Context.prototype.clearIsActive = function() {
-  jspb.Message.setField(this, 2, undefined);
+  return jspb.Message.setField(this, 2, undefined);
 };
 
 
@@ -2993,17 +3105,21 @@ proto.pyatdl.Action.prototype.getCommon = function() {
 };
 
 
-/** @param {?proto.pyatdl.Common|undefined} value */
+/**
+ * @param {?proto.pyatdl.Common|undefined} value
+ * @return {!proto.pyatdl.Action} returns this
+*/
 proto.pyatdl.Action.prototype.setCommon = function(value) {
-  jspb.Message.setWrapperField(this, 1, value);
+  return jspb.Message.setWrapperField(this, 1, value);
 };
 
 
 /**
  * Clears the message field making it undefined.
+ * @return {!proto.pyatdl.Action} returns this
  */
 proto.pyatdl.Action.prototype.clearCommon = function() {
-  this.setCommon(undefined);
+  return this.setCommon(undefined);
 };
 
 
@@ -3025,17 +3141,21 @@ proto.pyatdl.Action.prototype.getIsComplete = function() {
 };
 
 
-/** @param {boolean} value */
+/**
+ * @param {boolean} value
+ * @return {!proto.pyatdl.Action} returns this
+ */
 proto.pyatdl.Action.prototype.setIsComplete = function(value) {
-  jspb.Message.setField(this, 3, value);
+  return jspb.Message.setField(this, 3, value);
 };
 
 
 /**
  * Clears the field making it undefined.
+ * @return {!proto.pyatdl.Action} returns this
  */
 proto.pyatdl.Action.prototype.clearIsComplete = function() {
-  jspb.Message.setField(this, 3, undefined);
+  return jspb.Message.setField(this, 3, undefined);
 };
 
 
@@ -3057,17 +3177,21 @@ proto.pyatdl.Action.prototype.getCtxUid = function() {
 };
 
 
-/** @param {string} value */
+/**
+ * @param {string} value
+ * @return {!proto.pyatdl.Action} returns this
+ */
 proto.pyatdl.Action.prototype.setCtxUid = function(value) {
-  jspb.Message.setField(this, 5, value);
+  return jspb.Message.setField(this, 5, value);
 };
 
 
 /**
  * Clears the field making it undefined.
+ * @return {!proto.pyatdl.Action} returns this
  */
 proto.pyatdl.Action.prototype.clearCtxUid = function() {
-  jspb.Message.setField(this, 5, undefined);
+  return jspb.Message.setField(this, 5, undefined);
 };
 
 
@@ -3294,17 +3418,21 @@ proto.pyatdl.Project.prototype.getCommon = function() {
 };
 
 
-/** @param {?proto.pyatdl.Common|undefined} value */
+/**
+ * @param {?proto.pyatdl.Common|undefined} value
+ * @return {!proto.pyatdl.Project} returns this
+*/
 proto.pyatdl.Project.prototype.setCommon = function(value) {
-  jspb.Message.setWrapperField(this, 1, value);
+  return jspb.Message.setWrapperField(this, 1, value);
 };
 
 
 /**
  * Clears the message field making it undefined.
+ * @return {!proto.pyatdl.Project} returns this
  */
 proto.pyatdl.Project.prototype.clearCommon = function() {
-  this.setCommon(undefined);
+  return this.setCommon(undefined);
 };
 
 
@@ -3326,17 +3454,21 @@ proto.pyatdl.Project.prototype.getIsComplete = function() {
 };
 
 
-/** @param {boolean} value */
+/**
+ * @param {boolean} value
+ * @return {!proto.pyatdl.Project} returns this
+ */
 proto.pyatdl.Project.prototype.setIsComplete = function(value) {
-  jspb.Message.setField(this, 2, value);
+  return jspb.Message.setField(this, 2, value);
 };
 
 
 /**
  * Clears the field making it undefined.
+ * @return {!proto.pyatdl.Project} returns this
  */
 proto.pyatdl.Project.prototype.clearIsComplete = function() {
-  jspb.Message.setField(this, 2, undefined);
+  return jspb.Message.setField(this, 2, undefined);
 };
 
 
@@ -3358,17 +3490,21 @@ proto.pyatdl.Project.prototype.getIsActive = function() {
 };
 
 
-/** @param {boolean} value */
+/**
+ * @param {boolean} value
+ * @return {!proto.pyatdl.Project} returns this
+ */
 proto.pyatdl.Project.prototype.setIsActive = function(value) {
-  jspb.Message.setField(this, 3, value);
+  return jspb.Message.setField(this, 3, value);
 };
 
 
 /**
  * Clears the field making it undefined.
+ * @return {!proto.pyatdl.Project} returns this
  */
 proto.pyatdl.Project.prototype.clearIsActive = function() {
-  jspb.Message.setField(this, 3, undefined);
+  return jspb.Message.setField(this, 3, undefined);
 };
 
 
@@ -3391,9 +3527,12 @@ proto.pyatdl.Project.prototype.getActionsList = function() {
 };
 
 
-/** @param {!Array<!proto.pyatdl.Action>} value */
+/**
+ * @param {!Array<!proto.pyatdl.Action>} value
+ * @return {!proto.pyatdl.Project} returns this
+*/
 proto.pyatdl.Project.prototype.setActionsList = function(value) {
-  jspb.Message.setRepeatedWrapperField(this, 4, value);
+  return jspb.Message.setRepeatedWrapperField(this, 4, value);
 };
 
 
@@ -3409,9 +3548,10 @@ proto.pyatdl.Project.prototype.addActions = function(opt_value, opt_index) {
 
 /**
  * Clears the list making it empty but non-null.
+ * @return {!proto.pyatdl.Project} returns this
  */
 proto.pyatdl.Project.prototype.clearActionsList = function() {
-  this.setActionsList([]);
+  return this.setActionsList([]);
 };
 
 
@@ -3424,17 +3564,21 @@ proto.pyatdl.Project.prototype.getMaxSecondsBeforeReview = function() {
 };
 
 
-/** @param {number} value */
+/**
+ * @param {number} value
+ * @return {!proto.pyatdl.Project} returns this
+ */
 proto.pyatdl.Project.prototype.setMaxSecondsBeforeReview = function(value) {
-  jspb.Message.setField(this, 5, value);
+  return jspb.Message.setField(this, 5, value);
 };
 
 
 /**
  * Clears the field making it undefined.
+ * @return {!proto.pyatdl.Project} returns this
  */
 proto.pyatdl.Project.prototype.clearMaxSecondsBeforeReview = function() {
-  jspb.Message.setField(this, 5, undefined);
+  return jspb.Message.setField(this, 5, undefined);
 };
 
 
@@ -3456,17 +3600,21 @@ proto.pyatdl.Project.prototype.getLastReviewEpochSeconds = function() {
 };
 
 
-/** @param {number} value */
+/**
+ * @param {number} value
+ * @return {!proto.pyatdl.Project} returns this
+ */
 proto.pyatdl.Project.prototype.setLastReviewEpochSeconds = function(value) {
-  jspb.Message.setField(this, 6, value);
+  return jspb.Message.setField(this, 6, value);
 };
 
 
 /**
  * Clears the field making it undefined.
+ * @return {!proto.pyatdl.Project} returns this
  */
 proto.pyatdl.Project.prototype.clearLastReviewEpochSeconds = function() {
-  jspb.Message.setField(this, 6, undefined);
+  return jspb.Message.setField(this, 6, undefined);
 };
 
 
@@ -3488,17 +3636,21 @@ proto.pyatdl.Project.prototype.getDefaultContextUid = function() {
 };
 
 
-/** @param {string} value */
+/**
+ * @param {string} value
+ * @return {!proto.pyatdl.Project} returns this
+ */
 proto.pyatdl.Project.prototype.setDefaultContextUid = function(value) {
-  jspb.Message.setField(this, 7, value);
+  return jspb.Message.setField(this, 7, value);
 };
 
 
 /**
  * Clears the field making it undefined.
+ * @return {!proto.pyatdl.Project} returns this
  */
 proto.pyatdl.Project.prototype.clearDefaultContextUid = function() {
-  jspb.Message.setField(this, 7, undefined);
+  return jspb.Message.setField(this, 7, undefined);
 };
 
 
@@ -3652,17 +3804,21 @@ proto.pyatdl.Note.prototype.getName = function() {
 };
 
 
-/** @param {string} value */
+/**
+ * @param {string} value
+ * @return {!proto.pyatdl.Note} returns this
+ */
 proto.pyatdl.Note.prototype.setName = function(value) {
-  jspb.Message.setField(this, 1, value);
+  return jspb.Message.setField(this, 1, value);
 };
 
 
 /**
  * Clears the field making it undefined.
+ * @return {!proto.pyatdl.Note} returns this
  */
 proto.pyatdl.Note.prototype.clearName = function() {
-  jspb.Message.setField(this, 1, undefined);
+  return jspb.Message.setField(this, 1, undefined);
 };
 
 
@@ -3684,17 +3840,21 @@ proto.pyatdl.Note.prototype.getNote = function() {
 };
 
 
-/** @param {string} value */
+/**
+ * @param {string} value
+ * @return {!proto.pyatdl.Note} returns this
+ */
 proto.pyatdl.Note.prototype.setNote = function(value) {
-  jspb.Message.setField(this, 2, value);
+  return jspb.Message.setField(this, 2, value);
 };
 
 
 /**
  * Clears the field making it undefined.
+ * @return {!proto.pyatdl.Note} returns this
  */
 proto.pyatdl.Note.prototype.clearNote = function() {
-  jspb.Message.setField(this, 2, undefined);
+  return jspb.Message.setField(this, 2, undefined);
 };
 
 
@@ -3847,9 +4007,12 @@ proto.pyatdl.NoteList.prototype.getNotesList = function() {
 };
 
 
-/** @param {!Array<!proto.pyatdl.Note>} value */
+/**
+ * @param {!Array<!proto.pyatdl.Note>} value
+ * @return {!proto.pyatdl.NoteList} returns this
+*/
 proto.pyatdl.NoteList.prototype.setNotesList = function(value) {
-  jspb.Message.setRepeatedWrapperField(this, 2, value);
+  return jspb.Message.setRepeatedWrapperField(this, 2, value);
 };
 
 
@@ -3865,9 +4028,10 @@ proto.pyatdl.NoteList.prototype.addNotes = function(opt_value, opt_index) {
 
 /**
  * Clears the list making it empty but non-null.
+ * @return {!proto.pyatdl.NoteList} returns this
  */
 proto.pyatdl.NoteList.prototype.clearNotesList = function() {
-  this.setNotesList([]);
+  return this.setNotesList([]);
 };
 
 
@@ -4025,17 +4189,21 @@ proto.pyatdl.ContextList.prototype.getCommon = function() {
 };
 
 
-/** @param {?proto.pyatdl.Common|undefined} value */
+/**
+ * @param {?proto.pyatdl.Common|undefined} value
+ * @return {!proto.pyatdl.ContextList} returns this
+*/
 proto.pyatdl.ContextList.prototype.setCommon = function(value) {
-  jspb.Message.setWrapperField(this, 1, value);
+  return jspb.Message.setWrapperField(this, 1, value);
 };
 
 
 /**
  * Clears the message field making it undefined.
+ * @return {!proto.pyatdl.ContextList} returns this
  */
 proto.pyatdl.ContextList.prototype.clearCommon = function() {
-  this.setCommon(undefined);
+  return this.setCommon(undefined);
 };
 
 
@@ -4058,9 +4226,12 @@ proto.pyatdl.ContextList.prototype.getContextsList = function() {
 };
 
 
-/** @param {!Array<!proto.pyatdl.Context>} value */
+/**
+ * @param {!Array<!proto.pyatdl.Context>} value
+ * @return {!proto.pyatdl.ContextList} returns this
+*/
 proto.pyatdl.ContextList.prototype.setContextsList = function(value) {
-  jspb.Message.setRepeatedWrapperField(this, 2, value);
+  return jspb.Message.setRepeatedWrapperField(this, 2, value);
 };
 
 
@@ -4076,9 +4247,10 @@ proto.pyatdl.ContextList.prototype.addContexts = function(opt_value, opt_index) 
 
 /**
  * Clears the list making it empty but non-null.
+ * @return {!proto.pyatdl.ContextList} returns this
  */
 proto.pyatdl.ContextList.prototype.clearContextsList = function() {
-  this.setContextsList([]);
+  return this.setContextsList([]);
 };
 
 
@@ -4251,17 +4423,21 @@ proto.pyatdl.Folder.prototype.getCommon = function() {
 };
 
 
-/** @param {?proto.pyatdl.Common|undefined} value */
+/**
+ * @param {?proto.pyatdl.Common|undefined} value
+ * @return {!proto.pyatdl.Folder} returns this
+*/
 proto.pyatdl.Folder.prototype.setCommon = function(value) {
-  jspb.Message.setWrapperField(this, 1, value);
+  return jspb.Message.setWrapperField(this, 1, value);
 };
 
 
 /**
  * Clears the message field making it undefined.
+ * @return {!proto.pyatdl.Folder} returns this
  */
 proto.pyatdl.Folder.prototype.clearCommon = function() {
-  this.setCommon(undefined);
+  return this.setCommon(undefined);
 };
 
 
@@ -4284,9 +4460,12 @@ proto.pyatdl.Folder.prototype.getFoldersList = function() {
 };
 
 
-/** @param {!Array<!proto.pyatdl.Folder>} value */
+/**
+ * @param {!Array<!proto.pyatdl.Folder>} value
+ * @return {!proto.pyatdl.Folder} returns this
+*/
 proto.pyatdl.Folder.prototype.setFoldersList = function(value) {
-  jspb.Message.setRepeatedWrapperField(this, 2, value);
+  return jspb.Message.setRepeatedWrapperField(this, 2, value);
 };
 
 
@@ -4302,9 +4481,10 @@ proto.pyatdl.Folder.prototype.addFolders = function(opt_value, opt_index) {
 
 /**
  * Clears the list making it empty but non-null.
+ * @return {!proto.pyatdl.Folder} returns this
  */
 proto.pyatdl.Folder.prototype.clearFoldersList = function() {
-  this.setFoldersList([]);
+  return this.setFoldersList([]);
 };
 
 
@@ -4318,9 +4498,12 @@ proto.pyatdl.Folder.prototype.getProjectsList = function() {
 };
 
 
-/** @param {!Array<!proto.pyatdl.Project>} value */
+/**
+ * @param {!Array<!proto.pyatdl.Project>} value
+ * @return {!proto.pyatdl.Folder} returns this
+*/
 proto.pyatdl.Folder.prototype.setProjectsList = function(value) {
-  jspb.Message.setRepeatedWrapperField(this, 3, value);
+  return jspb.Message.setRepeatedWrapperField(this, 3, value);
 };
 
 
@@ -4336,9 +4519,10 @@ proto.pyatdl.Folder.prototype.addProjects = function(opt_value, opt_index) {
 
 /**
  * Clears the list making it empty but non-null.
+ * @return {!proto.pyatdl.Folder} returns this
  */
 proto.pyatdl.Folder.prototype.clearProjectsList = function() {
-  this.setProjectsList([]);
+  return this.setProjectsList([]);
 };
 
 
@@ -4516,17 +4700,21 @@ proto.pyatdl.ToDoList.prototype.getInbox = function() {
 };
 
 
-/** @param {?proto.pyatdl.Project|undefined} value */
+/**
+ * @param {?proto.pyatdl.Project|undefined} value
+ * @return {!proto.pyatdl.ToDoList} returns this
+*/
 proto.pyatdl.ToDoList.prototype.setInbox = function(value) {
-  jspb.Message.setWrapperField(this, 1, value);
+  return jspb.Message.setWrapperField(this, 1, value);
 };
 
 
 /**
  * Clears the message field making it undefined.
+ * @return {!proto.pyatdl.ToDoList} returns this
  */
 proto.pyatdl.ToDoList.prototype.clearInbox = function() {
-  this.setInbox(undefined);
+  return this.setInbox(undefined);
 };
 
 
@@ -4549,17 +4737,21 @@ proto.pyatdl.ToDoList.prototype.getRoot = function() {
 };
 
 
-/** @param {?proto.pyatdl.Folder|undefined} value */
+/**
+ * @param {?proto.pyatdl.Folder|undefined} value
+ * @return {!proto.pyatdl.ToDoList} returns this
+*/
 proto.pyatdl.ToDoList.prototype.setRoot = function(value) {
-  jspb.Message.setWrapperField(this, 2, value);
+  return jspb.Message.setWrapperField(this, 2, value);
 };
 
 
 /**
  * Clears the message field making it undefined.
+ * @return {!proto.pyatdl.ToDoList} returns this
  */
 proto.pyatdl.ToDoList.prototype.clearRoot = function() {
-  this.setRoot(undefined);
+  return this.setRoot(undefined);
 };
 
 
@@ -4582,17 +4774,21 @@ proto.pyatdl.ToDoList.prototype.getCtxList = function() {
 };
 
 
-/** @param {?proto.pyatdl.ContextList|undefined} value */
+/**
+ * @param {?proto.pyatdl.ContextList|undefined} value
+ * @return {!proto.pyatdl.ToDoList} returns this
+*/
 proto.pyatdl.ToDoList.prototype.setCtxList = function(value) {
-  jspb.Message.setWrapperField(this, 3, value);
+  return jspb.Message.setWrapperField(this, 3, value);
 };
 
 
 /**
  * Clears the message field making it undefined.
+ * @return {!proto.pyatdl.ToDoList} returns this
  */
 proto.pyatdl.ToDoList.prototype.clearCtxList = function() {
-  this.setCtxList(undefined);
+  return this.setCtxList(undefined);
 };
 
 
@@ -4615,17 +4811,21 @@ proto.pyatdl.ToDoList.prototype.getNoteList = function() {
 };
 
 
-/** @param {?proto.pyatdl.NoteList|undefined} value */
+/**
+ * @param {?proto.pyatdl.NoteList|undefined} value
+ * @return {!proto.pyatdl.ToDoList} returns this
+*/
 proto.pyatdl.ToDoList.prototype.setNoteList = function(value) {
-  jspb.Message.setWrapperField(this, 5, value);
+  return jspb.Message.setWrapperField(this, 5, value);
 };
 
 
 /**
  * Clears the message field making it undefined.
+ * @return {!proto.pyatdl.ToDoList} returns this
  */
 proto.pyatdl.ToDoList.prototype.clearNoteList = function() {
-  this.setNoteList(undefined);
+  return this.setNoteList(undefined);
 };
 
 

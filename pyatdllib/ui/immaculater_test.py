@@ -152,7 +152,7 @@ dump""")) as f:
     gold = r"""<todolist>
     <inbox>
         <project is_deleted="False" is_complete="False" is_active="True" name="inbox">
-        
+""" + '        ' + r"""
         </project>
     </inbox>
     <folder is_deleted="False" name="">
@@ -166,7 +166,7 @@ dump""")) as f:
         </folder>
         <folder is_deleted="False" name="F1">
             <project is_deleted="False" is_complete="False" is_active="True" name="PF1">
-            
+""" + ' ' * 12 + r"""
             </project>
         </folder>
         <project is_deleted="False" is_complete="False" is_active="True" name="Ptop0">
@@ -174,7 +174,7 @@ dump""")) as f:
             <action is_deleted="False" is_complete="False" name="action1Ptop0" ctx="uid=15"/>
         </project>
         <project is_deleted="False" is_complete="False" is_active="True" max_seconds_before_review="86401.0" name="Ptop1">
-        
+""" + '        ' + r"""
         </project>
     </folder>
     <contexts>
@@ -2027,7 +2027,7 @@ dump""")) as f:
 <todolist>
     <inbox>
         <project is_deleted="False" is_complete="False" is_active="True" name="inbox">
-        
+""".lstrip() + '        ' + r"""
         </project>
     </inbox>
     <folder is_deleted="False" name="">
@@ -2040,17 +2040,17 @@ dump""")) as f:
     </folder>
     <contexts>
         <context_list is_deleted="False" name="Contexts">
-        
+""" + '        ' + r"""
         </context_list>
     </contexts>
-</todolist>""".lstrip(),
+</todolist>""",
       'Err re: rmdir F0',
       'Cannot delete because a descendant is not deleted.  descendant=\n<project is_deleted="False" is_complete="False" is_active="True" name="P1">\n\n</project>',
       'dump2:',
       r"""<todolist>
     <inbox>
         <project is_deleted="False" is_complete="False" is_active="True" name="inbox">
-        
+""" + '        ' + r"""
         </project>
     </inbox>
     <folder is_deleted="False" name="">
@@ -2060,13 +2060,13 @@ dump""")) as f:
                 <action is_deleted="True" is_complete="False" name="A1" ctx=""/>
             </project>
             <project is_deleted="True" is_complete="False" is_active="True" name="P1">
-            
+""" + '            ' + r"""
             </project>
         </folder>
     </folder>
     <contexts>
         <context_list is_deleted="False" name="Contexts">
-        
+""" + '        ' + r"""
         </context_list>
     </contexts>
 </todolist>""",
@@ -2575,7 +2575,7 @@ dump""")) as f:
       r"""<todolist>
     <inbox>
         <project is_deleted="False" is_complete="False" is_active="True" name="inbox">
-        
+""" + '        ' + r"""
         </project>
     </inbox>
     <folder is_deleted="False" name="">
@@ -2586,7 +2586,7 @@ dump""")) as f:
     </folder>
     <contexts>
         <context_list is_deleted="False" name="Contexts">
-        
+""" + '        ' + r"""
         </context_list>
     </contexts>
 </todolist>""",
@@ -3581,12 +3581,12 @@ it and use this view filter. Note: this is ignored in --show_all mode""",
 <todolist>
     <inbox>
         <project is_deleted="False" is_complete="False" is_active="True" name="inbox">
-        
+""".lstrip() + '        ' + r"""
         </project>
     </inbox>
     <folder is_deleted="False" name="">
         <project is_deleted="False" is_complete="False" is_active="True" name="Pa">
-        
+""" + '        ' + r"""
         </project>
         <folder is_deleted="True" name="Fb">
             <folder is_deleted="True" name="Fbb">
@@ -3595,7 +3595,7 @@ it and use this view filter. Note: this is ignored in --show_all mode""",
                     <action is_deleted="True" is_complete="False" name="foo" ctx=""/>
                 </project>
                 <folder is_deleted="True" name="oow">
-                
+""" + '                ' + r"""
                 </folder>
             </folder>
         </folder>
@@ -3605,7 +3605,7 @@ it and use this view filter. Note: this is ignored in --show_all mode""",
             <context is_deleted="False" is_active="True" name="Ca"/>
         </context_list>
     </contexts>
-</todolist>""".lstrip()
+</todolist>"""
     ]
     self.helpTest(inputs, golden_printed)
 
@@ -3693,21 +3693,20 @@ it and use this view filter. Note: this is ignored in --show_all mode""",
 <todolist>
     <inbox>
         <project is_deleted="False" is_complete="False" is_active="True" name="inbox">
-        
+""".lstrip() + '        ' + r"""
         </project>
     </inbox>
     <folder is_deleted="False" name="">
         <project is_deleted="False" is_complete="False" is_active="True" name="Pa">
-        
+""" + '        ' + r"""
         </project>
     </folder>
     <contexts>
         <context_list is_deleted="False" name="Contexts">
-        
+""" + '        ' + r"""
         </context_list>
     </contexts>
-</todolist>
-""".strip()])
+</todolist>"""])
     HelpHelpTest(['cd .'], [])
 
     HelpHelpTest(
@@ -3717,12 +3716,12 @@ it and use this view filter. Note: this is ignored in --show_all mode""",
 <todolist>
     <inbox>
         <project is_deleted="False" is_complete="False" is_active="True" name="inbox">
-        
+""".lstrip() + '        ' + r"""
         </project>
     </inbox>
     <folder is_deleted="False" name="">
         <project is_deleted="False" is_complete="False" is_active="True" name="Pa">
-        
+""" + '        ' + r"""
         </project>
     </folder>
     <contexts>
@@ -3730,8 +3729,7 @@ it and use this view filter. Note: this is ignored in --show_all mode""",
             <context is_deleted="False" is_active="True" name="Ca"/>
         </context_list>
     </contexts>
-</todolist>
-""".strip()])
+</todolist>"""])
 
     HelpHelpTest(
       ['cd /',
@@ -3748,12 +3746,12 @@ it and use this view filter. Note: this is ignored in --show_all mode""",
 <todolist>
     <inbox>
         <project is_deleted="False" is_complete="False" is_active="True" name="inbox">
-        
+""".lstrip() + '        ' + r"""
         </project>
     </inbox>
     <folder is_deleted="False" name="">
         <project is_deleted="False" is_complete="False" is_active="True" name="Pa">
-        
+""" + '        ' + r"""
         </project>
         <folder is_deleted="False" name="Fb">
             <folder is_deleted="False" name="Fbb">
@@ -3768,8 +3766,7 @@ it and use this view filter. Note: this is ignored in --show_all mode""",
             <context is_deleted="False" is_active="True" name="Ca"/>
         </context_list>
     </contexts>
-</todolist>
-""".strip()])
+</todolist>"""])
 
     HelpHelpTest(['lsctx'],
                  ['--context-- ---active--- \'<none>\'',
@@ -4552,7 +4549,7 @@ it and use this view filter. Note: this is ignored in --show_all mode""",
       '--action--- --incomplete-- \'clean the garage @home\' --in-context-- @home',
     ]
     self.helpTest(inputs, golden_printed)
-    
+
   def testMv3(self):
     inputs = ['mkprj /p',
               'do a/b',
@@ -4574,7 +4571,7 @@ it and use this view filter. Note: this is ignored in --show_all mode""",
       # UID notation? See TODO in state._ChildObject.
     ]
     self.helpTest(inputs, golden_printed)
-    
+
   def testAscension(self):
     inputs = ['mkprj /p',
               'cd /inbox',
@@ -4585,7 +4582,7 @@ it and use this view filter. Note: this is ignored in --show_all mode""",
       '--project-- --incomplete-- ---active--- p',
     ]
     self.helpTest(inputs, golden_printed)
-    
+
   def testCat(self):
     inputs = ['echo nop:',
               'cat /inbox',
@@ -4637,7 +4634,7 @@ it and use this view filter. Note: this is ignored in --show_all mode""",
       'Needs a single positional argument; found these: [u\'0\', u\'1\']',
     ]
     self.helpTest(inputs, golden_printed)
-    
+
   def testNote(self):
     save_path = self._CreateTmpFile('')
     inputs = ['echo wrong args:',
@@ -5769,7 +5766,7 @@ it and use this view filter. Note: this is ignored in --show_all mode""",
       "Save complete.",
       "Load complete.",
       "ls after save:",
-      "--action--- --incomplete-- foo@work --in-context-- @WorK",
+      "--action--- --incomplete-- foo@work --in-context-- @WorK",  # TODO(chandler37): This should be foo@WorK
     ]
     self.helpTest(inputs, golden_printed)
 
@@ -6113,6 +6110,33 @@ it and use this view filter. Note: this is ignored in --show_all mode""",
       "--action--- --incomplete-- AinboxLoadTest98 --in-context-- '<none>'",
       "--action--- --incomplete-- AinboxLoadTest99 --in-context-- '<none>'",
       '--action--- --incomplete-- ALongName' + ('LoadTest' * 100) + " --in-context-- '<none>'",
+    ]
+    self.helpTest(inputs, golden_printed)
+
+  def testChctxEditsActionNameWhenOldContextAppearsInActionName(self):
+    save_path = self._CreateTmpFile('')
+    inputs = ['mkctx @home',
+              'mkctx @work',
+              'do "foo @home bar"',
+              'echo ls:',
+              'ls /inbox',
+              'chctx @work "/inbox/foo @home bar"',
+              'echo ls after @work change:',
+              'ls /inbox',
+              'save %s' % pipes.quote(save_path),
+              'load %s' % pipes.quote(save_path),
+              'echo ls after save:',
+              'ls /inbox',
+              ]
+    golden_printed = [
+      'ls:',
+      "--action--- --incomplete-- 'foo @home bar' --in-context-- @home",
+      'ls after @work change:',
+      "--action--- --incomplete-- 'foo @home bar' --in-context-- @work",  # TODO(chandler37): This should be 'foo @work bar'
+      'Save complete.',
+      'Load complete.',
+      'ls after save:',
+      "--action--- --incomplete-- 'foo @home bar' --in-context-- @work"  # TODO(chandler37): This should be 'foo @work bar'
     ]
     self.helpTest(inputs, golden_printed)
 

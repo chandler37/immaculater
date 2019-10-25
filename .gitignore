@@ -13,12 +13,6 @@ __pycache__/
 *.py[cod]
 *.swp
 
-/.*
-!/.gitignore
-!/.gitattributes
-!/.gitmodules
-!/.flake8
-
 # C extensions
 *.so
 

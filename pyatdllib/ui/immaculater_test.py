@@ -6231,6 +6231,37 @@ it and use this view filter. Note: this is ignored in --show_all mode""",
     ]
     self.helpTest(inputs, golden_printed)
 
+  def testSortingChronologicallyInThePresenceOfRandomUids(self):
+    FLAGS.pyatdl_randomize_uids = True
+    FLAGS.pyatdl_show_uid = True
+    random.seed(37)
+    inputs = ['chclock 1137',
+              'reset --annihilate',
+              'do a0',
+              'do a1',
+              'do a2',
+              'do a3',
+              'do a4',
+              'cd /inbox',
+              'ls -R /',
+              ]
+    golden_printed = [
+      'Reset complete.',
+      '--project-- uid=1 --incomplete-- ---active--- inbox',
+      '',
+      '/inbox:',
+      "--action--- uid=277028180750618930 --incomplete-- a0 --in-context-- '<none>'",
+      '--action--- uid=8923216991658685487 --incomplete-- a1 --in-context-- '
+      "'<none>'",
+      '--action--- uid=7844860928174339221 --incomplete-- a2 --in-context-- '
+      "'<none>'",
+      '--action--- uid=4355858073736897916 --incomplete-- a3 --in-context-- '
+      "'<none>'",
+      '--action--- uid=-8310047117500551536 --incomplete-- a4 --in-context-- '
+      "'<none>'"
+    ]
+    self.helpTest(inputs, golden_printed)
+
 
 if __name__ == '__main__':
   test_helper.main()

@@ -5396,7 +5396,7 @@ it and use this view filter. Note: this is ignored in --show_all mode""",
               'save %s' % pipes.quote(save_path),
               'load %s' % pipes.quote(save_path),
               'mkctx @higherstilluid',
-              # TODO(chandler): Should we be reusing UIDs?
+              # Reusing UIDs is questionable, but unimportant -- in production we generate random UIDs.
               'echo uid=15 reused for @higherstilluid:',
               'lsctx -l',
               ]
@@ -6127,16 +6127,37 @@ it and use this view filter. Note: this is ignored in --show_all mode""",
               'load %s' % pipes.quote(save_path),
               'echo ls after save:',
               'ls /inbox',
+              'chctx uid=0 "/inbox/foo @work bar"',
+              'echo ls after removing the context which should s/@/at /:',
+              'ls /inbox',
+              'do "@workk"',
+              'chctx @home "/inbox/@workk"',
+              'do "@work"',
+              'chctx @home "/inbox/@work"',
+              'do "something @work"',
+              'chctx @home "/inbox/something @work"',
+              'do "@work something"',
+              'chctx --noautorename @home "/inbox/@work something"',
+              'echo ls after more:',
+              'ls /inbox',
               ]
     golden_printed = [
       'ls:',
       "--action--- --incomplete-- 'foo @home bar' --in-context-- @home",
       'ls after @work change:',
-      "--action--- --incomplete-- 'foo @home bar' --in-context-- @work",  # TODO(chandler37): This should be 'foo @work bar'
+      "--action--- --incomplete-- 'foo @work bar' --in-context-- @work",
       'Save complete.',
       'Load complete.',
       'ls after save:',
-      "--action--- --incomplete-- 'foo @home bar' --in-context-- @work"  # TODO(chandler37): This should be 'foo @work bar'
+      "--action--- --incomplete-- 'foo @work bar' --in-context-- @work",
+      'ls after removing the context which should s/@/at /:',
+      "--action--- --incomplete-- 'foo at work bar' --in-context-- '<none>'",
+      'ls after more:',
+      "--action--- --incomplete-- 'foo at work bar' --in-context-- '<none>'",
+      '--action--- --incomplete-- @workk --in-context-- @home',
+      '--action--- --incomplete-- @home --in-context-- @home',
+      "--action--- --incomplete-- 'something @home' --in-context-- @home",
+      "--action--- --incomplete-- '@work something' --in-context-- @home"
     ]
     self.helpTest(inputs, golden_printed)
 

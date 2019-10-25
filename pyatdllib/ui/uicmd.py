@@ -1126,6 +1126,10 @@ class UICmdChctx(UndoableUICmd):
   -- it means to delete the context. You may also use the notation 'uid=0' to
   delete the context.
   """
+  def __init__(self, name, flag_values, **kargs):
+    super(UICmdChctx, self).__init__(name, flag_values, **kargs)
+    flags.DEFINE_bool('autorename', True, 'Change Action name to match the new context?', flag_values=flag_values)
+
   def Run(self, args):  # pylint: disable=missing-docstring,no-self-use
     state = FLAGS.pyatdl_internal_state
     self.RaiseUnlessNArgumentsGiven(2, args)
@@ -1136,10 +1140,17 @@ class UICmdChctx(UndoableUICmd):
       raise BadArgsError('No such Context "%s"' % ctx_name)
     try:
       an_action, unused_project = _LookupAction(state, action_name)
-      assert delete_ctx or context.uid != 0, ctx_name
-      an_action.ctx_uid = None if delete_ctx else context.uid
     except NoSuchContainerError as e:
       raise BadArgsError(e)
+    assert delete_ctx or context.uid != 0, ctx_name
+    old_ctx_uid = an_action.ctx_uid
+    an_action.ctx_uid = None if delete_ctx else context.uid
+    if FLAGS.autorename and old_ctx_uid is not None:
+      old_ctx = _LookupContext(state, f'uid={old_ctx_uid}')
+      an_action.name = re.sub(
+        re.escape(old_ctx.name) + r'\b',
+        old_ctx.name.replace('@', 'at ', 1) if context is None else context.name,
+        an_action.name)
 
 
 class UICmdChdefaultctx(UndoableUICmd):
@@ -1384,7 +1395,7 @@ class UICmdInctx(UICmd):
                       'creation. Sorting naturally gives an arbitrary but '
                       'deterministic order.',
                       short_name='s', flag_values=flag_values)
-    
+
   def Run(self, args):  # pylint: disable=missing-docstring,no-self-use
     state = FLAGS.pyatdl_internal_state
     self.RaiseUnlessNArgumentsGiven(1, args)
@@ -1778,7 +1789,7 @@ class UICmdDeactivateprj(UndoableUICmd):
 def _ContextFromActionName(state, action_name):
   def ModifiedString(s):
     return s.replace(' ', '').replace('_', '').replace('-', '').lower()
-  
+
   contexts = state.ToDoList().ctx_list.items
   contexts_longest_name_first = sorted(
       contexts,

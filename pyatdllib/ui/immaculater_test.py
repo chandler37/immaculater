@@ -309,15 +309,15 @@ dump""")) as f:
               'mkact -c a /inbox/3',
               'echo sorting naturally:',
               'inctx a',
-              'echo sorting by uid:',
-              'inctx --sort_by uid a',
+              'echo sorting by ctime:',
+              'inctx --sort_by ctime a',
               ]
     golden_printed = [
       "sorting naturally:",
       "--action--- --incomplete-- 1",
       "--action--- --incomplete-- 3",
       "--action--- --incomplete-- 2",
-      "sorting by uid:",
+      "sorting by ctime:",
       "--action--- --incomplete-- 1",
       "--action--- --incomplete-- 2",
       "--action--- --incomplete-- 3",
@@ -6244,6 +6244,10 @@ it and use this view filter. Note: this is ignored in --show_all mode""",
               'do a4',
               'cd /inbox',
               'ls -R /',
+              'echo inctx uid=0:',
+              'inctx uid=0',
+              'echo inctx --sort_by ctime --json uid=0:',
+              'inctx --sort_by ctime --json uid=0',
               ]
     golden_printed = [
       'Reset complete.',
@@ -6258,7 +6262,15 @@ it and use this view filter. Note: this is ignored in --show_all mode""",
       '--action--- uid=4355858073736897916 --incomplete-- a3 --in-context-- '
       "'<none>'",
       '--action--- uid=-8310047117500551536 --incomplete-- a4 --in-context-- '
-      "'<none>'"
+      "'<none>'",
+      'inctx uid=0:',
+      '--action--- uid=277028180750618930 --incomplete-- a0',
+      '--action--- uid=8923216991658685487 --incomplete-- a1',
+      '--action--- uid=7844860928174339221 --incomplete-- a2',
+      '--action--- uid=4355858073736897916 --incomplete-- a3',
+      '--action--- uid=-8310047117500551536 --incomplete-- a4',
+      'inctx --sort_by ctime --json uid=0:',
+      '[{"ctime":1137.0,"dtime":null,"in_context":"<none>","in_context_uid":null,"in_prj":"inbox","is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"a0","number_of_items":1,"uid":"277028180750618930"},{"ctime":1137.0,"dtime":null,"in_context":"<none>","in_context_uid":null,"in_prj":"inbox","is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"a1","number_of_items":1,"uid":"8923216991658685487"},{"ctime":1137.0,"dtime":null,"in_context":"<none>","in_context_uid":null,"in_prj":"inbox","is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"a2","number_of_items":1,"uid":"7844860928174339221"},{"ctime":1137.0,"dtime":null,"in_context":"<none>","in_context_uid":null,"in_prj":"inbox","is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"a3","number_of_items":1,"uid":"4355858073736897916"},{"ctime":1137.0,"dtime":null,"in_context":"<none>","in_context_uid":null,"in_prj":"inbox","is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"a4","number_of_items":1,"uid":"-8310047117500551536"}]'
     ]
     self.helpTest(inputs, golden_printed)
 

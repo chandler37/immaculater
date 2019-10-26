@@ -1437,9 +1437,9 @@ class UICmdInctx(UICmd):
   def __init__(self, name, flag_values, **kargs):
     super(UICmdInctx, self).__init__(name, flag_values, **kargs)
     flags.DEFINE_bool('json', False, 'Output JSON', flag_values=flag_values)
-    flags.DEFINE_enum('sort_by', 'natural', ['natural', 'uid'],
-                      'Sort by what? Sorting by uid sorts by time of '
-                      'creation. Sorting naturally gives an arbitrary but '
+    flags.DEFINE_enum('sort_by', 'natural', ['natural', 'ctime'],
+                      'Sort by what? Sorting by ctime (creation time) sorts '
+                      'intuitively. Sorting naturally gives an arbitrary but '
                       'deterministic order.',
                       short_name='s', flag_values=flag_values)
 
@@ -1461,8 +1461,8 @@ class UICmdInctx(UICmd):
         except ctx.NoSuchNameError as e:
           raise BadArgsError(e)
     action_prj_tuples = list(state.ToDoList().ActionsInContext(ctx_uid))
-    if FLAGS.sort_by == 'uid':
-      action_prj_tuples.sort(key=lambda a_p: a_p[0].uid)
+    if FLAGS.sort_by == 'ctime':
+      action_prj_tuples.sort(key=lambda a_p: a_p[0].ctime)
     to_be_json = []
     for a, p in action_prj_tuples:
       if state.ViewFilter().ShowAction(a):

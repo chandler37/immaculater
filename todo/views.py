@@ -806,7 +806,7 @@ def context(request, uid):
 
 def _context_get(request, uid, template_dict, cookie_value):  # mutates template_dict
   inctx = _apply_batch_of_commands(
-    request.user, ['inctx --sort_by uid --json %s' % ('uid=%d' % uid)],
+    request.user, ['inctx --sort_by ctime --json %s' % ('uid=%d' % uid)],
     read_only=True,
     saved_read=None, cookie=cookie_value)
   assert len(inctx['printed']) == 1, inctx['printed']

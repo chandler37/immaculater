@@ -54,6 +54,9 @@ class Mergeprotobufs(TestCase):
         pb = pyatdl_pb2.ToDoList()
         pb.ctx_list.common.uid = -1
         pb.ctx_list.common.metadata.name = "We ❤ Contexts"
+        pb.ctx_list.common.timestamp.ctime = 1500000000000000
+        pb.ctx_list.common.timestamp.dtime = -1
+        pb.ctx_list.common.timestamp.mtime = 1500000000000000
         pb.root.common.uid = 2
         pb.inbox.common.uid = 1
         a = pb.inbox.actions.add()
@@ -80,6 +83,11 @@ root {
 }
 ctx_list {
   common {
+    timestamp {
+      ctime: 1500000000000000
+      dtime: -1
+      mtime: 1500000000000000
+    }
     metadata {
       name: "We \342\235\244 Contexts"
     }
@@ -167,7 +175,7 @@ ctx_list {
         pbresp = pyatdl_pb2.MergeToDoListResponse.FromString(response.content)
         assert not pbresp.starter_template
         assert text_format.MessageToString(pbresp) == r"""
-sha1_checksum: "a6ea548d7e459793745ab4b5a5ce0fb351da7c04"
+sha1_checksum: "32d20be5b6e144d5b665e5690310a0e92ddd70e3"
 to_do_list {
   inbox {
     common {
@@ -218,9 +226,9 @@ to_do_list {
     common {
       is_deleted: false
       timestamp {
-        ctime: 37000037
+        ctime: 1500000000000000
         dtime: -1
-        mtime: 37000037
+        mtime: 1500000000000000
       }
       metadata {
         name: "We \342\235\244 Contexts"

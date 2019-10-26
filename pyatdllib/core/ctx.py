@@ -178,5 +178,6 @@ class CtxList(container.Container):
     cl = cls(the_uid=pb.common.uid, name=pb.common.metadata.name)
     for pbc in pb.contexts:
       cl.items.append(Ctx.DeserializedProtobuf(pbc.SerializeToString()))
+    cl.SetFieldsBasedOnProtobuf(pb.common)
     cl.CheckIsWellFormed()
     return cl

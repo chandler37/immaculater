@@ -50,6 +50,17 @@ class Action(auditable_object.AuditableObject):
   def __repr__(self):
     return '<action_proto>\n%s\n</action_proto>' % str(self.AsProto())
 
+  def AlmostPurge(self):
+    """Almost purges. A complete removal would be disastrous if you are using multiple devices. The next time some other
+    device syncs it will seem that it has new items. So we leave the UID in place but clear all metadata and remove
+    from the context, if any.
+
+    To truly purge the data, once you're certain that everyone is in sync, call PurgeDeleted().
+    """
+    self.name = ''
+    self.is_deleted = True
+    self.ctx_uid = None
+
   def AsProto(self, pb=None):
     if pb is None:
       pb = pyatdl_pb2.Action()

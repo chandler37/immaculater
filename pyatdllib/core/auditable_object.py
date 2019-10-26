@@ -64,7 +64,7 @@ class AuditableObject(object):
 
   Invariants:
     ctime == min(ctime, mtime, dtime if dtime is not None else +infinity)
-    2**63 > uid >= 1
+    2**63 > uid >= -(2**63)
   """
 
   def __init__(self, the_uid=None):  # the_uid only for deserialization

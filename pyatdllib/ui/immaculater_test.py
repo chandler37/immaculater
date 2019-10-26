@@ -3330,6 +3330,7 @@ dump""")) as f:
   * ?
   * activatectx
   * activateprj
+  * almostpurgeallactionsincontext
   * aspire
   * astaskpaper
   * cat
@@ -5919,7 +5920,7 @@ it and use this view filter. Note: this is ignored in --show_all mode""",
       '  common {\n'
       '    is_deleted: false\n'
       '    timestamp {\n'
-      '      ctime: 38000000\n'
+      '      ctime: 36000000\n'
       '      dtime: -1\n'
       '      mtime: 38000000\n'
       '    }\n'
@@ -6271,6 +6272,238 @@ it and use this view filter. Note: this is ignored in --show_all mode""",
       '--action--- uid=-8310047117500551536 --incomplete-- a4',
       'inctx --sort_by ctime --json uid=0:',
       '[{"ctime":1137.0,"dtime":null,"in_context":"<none>","in_context_uid":null,"in_prj":"inbox","is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"a0","number_of_items":1,"uid":"277028180750618930"},{"ctime":1137.0,"dtime":null,"in_context":"<none>","in_context_uid":null,"in_prj":"inbox","is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"a1","number_of_items":1,"uid":"8923216991658685487"},{"ctime":1137.0,"dtime":null,"in_context":"<none>","in_context_uid":null,"in_prj":"inbox","is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"a2","number_of_items":1,"uid":"7844860928174339221"},{"ctime":1137.0,"dtime":null,"in_context":"<none>","in_context_uid":null,"in_prj":"inbox","is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"a3","number_of_items":1,"uid":"4355858073736897916"},{"ctime":1137.0,"dtime":null,"in_context":"<none>","in_context_uid":null,"in_prj":"inbox","is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"a4","number_of_items":1,"uid":"-8310047117500551536"}]'
+    ]
+    self.helpTest(inputs, golden_printed)
+
+  def testAlmostPurgeAllActionsInContext(self):
+    FLAGS.pyatdl_randomize_uids = True
+    FLAGS.pyatdl_show_uid = True
+    random.seed(37)
+    save_path = self._CreateTmpFile('')
+    inputs = ['chclock 1137',
+              'reset --annihilate',
+              'mkctx @c',
+              'do a0 @c',
+              'do a1 @c',
+              'echo ls /inbox:',
+              'ls /inbox',
+              'chclock 2222',
+              'almostpurgeallactionsincontext @c',
+              'do aa2 @c',
+              'echo ls /inbox:',
+              'ls /inbox',
+              'echo dumpprotobuf:',
+              'dumpprotobuf',
+              'save %s' % pipes.quote(save_path),
+              'load %s' % pipes.quote(save_path),
+              'echo dumpprotobuf:',
+              'dumpprotobuf',
+              'purgedeleted',
+              'echo dumpprotobuf after purgedeleted:',
+              'dumpprotobuf',
+              ]
+    # TODO(chandler37): we could shrink the size of the proto quite a bit, leaving just the UID in place.
+    dumped = [
+      'inbox {\n'
+      '  common {\n'
+      '    is_deleted: false\n'
+      '    timestamp {\n'
+      '      ctime: 1137000000\n'
+      '      dtime: -1\n'
+      '      mtime: 2222000000\n'
+      '    }\n'
+      '    metadata {\n'
+      '      name: "inbox"\n'
+      '    }\n'
+      '    uid: 1\n'
+      '  }\n'
+      '  is_complete: false\n'
+      '  is_active: true\n'
+      '  actions {\n'
+      '    common {\n'
+      '      is_deleted: true\n'
+      '      timestamp {\n'
+      '        ctime: 1137000000\n'
+      '        dtime: 2222000000\n'
+      '        mtime: 2222000000\n'
+      '      }\n'
+      '      metadata {\n'
+      '        name: ""\n'
+      '      }\n'
+      '      uid: 8923216991658685487\n'
+      '    }\n'
+      '    is_complete: false\n'
+      '  }\n'
+      '  actions {\n'
+      '    common {\n'
+      '      is_deleted: true\n'
+      '      timestamp {\n'
+      '        ctime: 1137000000\n'
+      '        dtime: 2222000000\n'
+      '        mtime: 2222000000\n'
+      '      }\n'
+      '      metadata {\n'
+      '        name: ""\n'
+      '      }\n'
+      '      uid: 7844860928174339221\n'
+      '    }\n'
+      '    is_complete: false\n'
+      '  }\n'
+      '  actions {\n'
+      '    common {\n'
+      '      is_deleted: false\n'
+      '      timestamp {\n'
+      '        ctime: 2222000000\n'
+      '        dtime: -1\n'
+      '        mtime: 2222000000\n'
+      '      }\n'
+      '      metadata {\n'
+      '        name: "aa2 @c"\n'
+      '      }\n'
+      '      uid: 4355858073736897916\n'
+      '    }\n'
+      '    is_complete: false\n'
+      '    ctx_uid: 277028180750618930\n'
+      '  }\n'
+      '}\n'
+      'root {\n'
+      '  common {\n'
+      '    is_deleted: false\n'
+      '    timestamp {\n'
+      '      ctime: 1137000000\n'
+      '      dtime: -1\n'
+      '      mtime: 1137000000\n'
+      '    }\n'
+      '    metadata {\n'
+      '      name: ""\n'
+      '    }\n'
+      '    uid: 2\n'
+      '  }\n'
+      '}\n'
+      'ctx_list {\n'
+      '  common {\n'
+      '    is_deleted: false\n'
+      '    timestamp {\n'
+      '      ctime: 1137000000\n'
+      '      dtime: -1\n'
+      '      mtime: 1137000000\n'
+      '    }\n'
+      '    metadata {\n'
+      '      name: "Contexts"\n'
+      '    }\n'
+      '    uid: 1987761140110186971\n'
+      '  }\n'
+      '  contexts {\n'
+      '    common {\n'
+      '      is_deleted: false\n'
+      '      timestamp {\n'
+      '        ctime: 1137000000\n'
+      '        dtime: -1\n'
+      '        mtime: 1137000000\n'
+      '      }\n'
+      '      metadata {\n'
+      '        name: "@c"\n'
+      '      }\n'
+      '      uid: 277028180750618930\n'
+      '    }\n'
+      '    is_active: true\n'
+      '  }\n'
+      '}\n'
+    ]
+    dumped_after_purgedeleted = (
+      'inbox {\n'
+      '  common {\n'
+      '    is_deleted: false\n'
+      '    timestamp {\n'
+      '      ctime: 1137000000\n'
+      '      dtime: -1\n'
+      '      mtime: 2222000000\n'
+      '    }\n'
+      '    metadata {\n'
+      '      name: "inbox"\n'
+      '    }\n'
+      '    uid: 1\n'
+      '  }\n'
+      '  is_complete: false\n'
+      '  is_active: true\n'
+      '  actions {\n'
+      '    common {\n'
+      '      is_deleted: false\n'
+      '      timestamp {\n'
+      '        ctime: 2222000000\n'
+      '        dtime: -1\n'
+      '        mtime: 2222000000\n'
+      '      }\n'
+      '      metadata {\n'
+      '        name: "aa2 @c"\n'
+      '      }\n'
+      '      uid: 4355858073736897916\n'
+      '    }\n'
+      '    is_complete: false\n'
+      '    ctx_uid: 277028180750618930\n'
+      '  }\n'
+      '}\n'
+      'root {\n'
+      '  common {\n'
+      '    is_deleted: false\n'
+      '    timestamp {\n'
+      '      ctime: 1137000000\n'
+      '      dtime: -1\n'
+      '      mtime: 2222000000\n'
+      '    }\n'
+      '    metadata {\n'
+      '      name: ""\n'
+      '    }\n'
+      '    uid: 2\n'
+      '  }\n'
+      '}\n'
+      'ctx_list {\n'
+      '  common {\n'
+      '    is_deleted: false\n'
+      '    timestamp {\n'
+      '      ctime: 1137000000\n'
+      '      dtime: -1\n'
+      '      mtime: 2222000000\n'
+      '    }\n'
+      '    metadata {\n'
+      '      name: "Contexts"\n'
+      '    }\n'
+      '    uid: 1987761140110186971\n'
+      '  }\n'
+      '  contexts {\n'
+      '    common {\n'
+      '      is_deleted: false\n'
+      '      timestamp {\n'
+      '        ctime: 1137000000\n'
+      '        dtime: -1\n'
+      '        mtime: 1137000000\n'
+      '      }\n'
+      '      metadata {\n'
+      '        name: "@c"\n'
+      '      }\n'
+      '      uid: 277028180750618930\n'
+      '    }\n'
+      '    is_active: true\n'
+      '  }\n'
+      '}\n'
+    )
+    self.assertFalse('8923216991658685487' in dumped_after_purgedeleted)
+    self.assertFalse('7844860928174339221' in dumped_after_purgedeleted)
+    golden_printed = [
+      'Reset complete.',
+      'ls /inbox:',
+      "--action--- uid=8923216991658685487 --incomplete-- 'a0 @c' --in-context-- @c",
+      "--action--- uid=7844860928174339221 --incomplete-- 'a1 @c' --in-context-- @c",
+      'ls /inbox:',
+      "--action--- uid=4355858073736897916 --incomplete-- 'aa2 @c' --in-context-- @c",
+      'dumpprotobuf:',
+    ] + dumped + [
+      'Save complete.',
+      'Load complete.',
+      'dumpprotobuf:'
+    ] + dumped + [
+      'dumpprotobuf after purgedeleted:',
+      dumped_after_purgedeleted
     ]
     self.helpTest(inputs, golden_printed)
 

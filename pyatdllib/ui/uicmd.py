@@ -1794,6 +1794,36 @@ class UICmdCat(UICmd):
       state.Print(auditable_object.note)
 
 
+class UICmdAlmostPurgeAllActionsInContext(UICmd):
+  """For each Action associated with the given Context, truly delete (i.e., purge) the Action.
+
+  Afterwards the Context will still exist but will be empty.
+  """
+  def Run(self, args):  # pylint: disable=missing-docstring,no-self-use
+    state = FLAGS.pyatdl_internal_state
+    self.RaiseUnlessNArgumentsGiven(1, args)
+    ctx_name = args[-1]
+    ctx_uid = None
+    # UIDs start at 1, but we say UID 0 refers to the Context that contains
+    # Actions without any Context.
+    errmsg = "Purging actions without context is weird and, well, how dare you."
+    if ctx_name == FLAGS.no_context_display_string or ctx_name == 'uid=0':
+      raise BadArgsError(errmsg)
+    try:
+      ctx_uid = lexer.ParseSyntaxForUID(ctx_name)
+    except lexer.Error as e:
+      raise BadArgsError(e)
+    if ctx_uid is None:
+      try:
+        ctx_uid = state.ToDoList().ctx_list.ContextUIDFromName(ctx_name)
+      except ctx.NoSuchNameError as e:
+        raise BadArgsError(e)
+    if ctx_uid is None:
+      raise BadArgsError(errmsg)
+    for a, p in state.ToDoList().ActionsInContext(ctx_uid):
+      a.AlmostPurge()
+
+
 def _PerformActivatectx(state, ctx_name, is_active):
   """Performs 'activatectx'/'deactivatectx'."""
   context = _LookupContext(state, ctx_name)
@@ -2594,6 +2624,7 @@ def RegisterAppcommands(cloud_only, appcommands_namespace):  # pylint: disable=t
   appcommands_namespace.AddCmd('note', UICmdNote)
   appcommands_namespace.AddCmd('prjify', UICmdPrjify)
   appcommands_namespace.AddCmd('purgedeleted', UICmdPurgedeleted)
+  appcommands_namespace.AddCmd('almostpurgeallactionsincontext', UICmdAlmostPurgeAllActionsInContext)
   appcommands_namespace.AddCmd('pwd', UICmdPwd)
   if not cloud_only:
     appcommands_namespace.AddCmd('quit', UICmdExit)

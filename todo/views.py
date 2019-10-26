@@ -614,7 +614,7 @@ def as_text(request, the_view_filter):
   try:
     x = _apply_batch_of_commands(
       request.user,
-      ["view %s" % ("all" if the_view_filter is None else the_view_filter,),
+      ["view %s" % ("all_even_deleted" if the_view_filter is None else the_view_filter,),
        "sort alpha",
        "astaskpaper"],
       read_only=True)

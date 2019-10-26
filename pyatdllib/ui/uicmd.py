@@ -1332,16 +1332,18 @@ class UICmdUncomplete(UndoableUICmd):
 class UICmdSort(UICmd):
   """Displays or changes how folders, projects, and contexts are sorted.
 
-  Actions within a project are always sorted chronologically because so often
-  they are entered in sequence.
+  Actions within a project are always sorted chronologically because so often they are entered in sequence. They are
+  sorted reverse chronologically because the most recently entered item is often the one you want, so we save you from
+  scrolling down.
 
   Your choices are:
 
   * alpha: Sorts alphabetically, case-sensitively.
-  * chrono: Sorts chronologically.
+  * chrono: Sorts reverse chronologically.
 
   Without arguments, prints the current setting. With a single argument, changes
   the setting.
+
   """
   def Run(self, args):  # pylint: disable=missing-docstring,no-self-use
     state = FLAGS.pyatdl_internal_state
@@ -1462,7 +1464,7 @@ class UICmdInctx(UICmd):
           raise BadArgsError(e)
     action_prj_tuples = list(state.ToDoList().ActionsInContext(ctx_uid))
     if FLAGS.sort_by == 'ctime':
-      action_prj_tuples.sort(key=lambda a_p: a_p[0].ctime)
+      action_prj_tuples.sort(reverse=True, key=lambda a_p: a_p[0].ctime)
     to_be_json = []
     for a, p in action_prj_tuples:
       if state.ViewFilter().ShowAction(a):
@@ -1710,10 +1712,13 @@ class UICmdNeedsreview(UICmd):
 class UICmdNote(UICmd):
   """Creates or edits or prints a note on a Folder/Prj/Ctx/Action.
 
-  With a single positional argument, prints the note for the given object.
+  With a single positional argument, prints the note for the given object, or, if --inboxize is true, replaces the note
+  for the given object with a small note indicating that each line of the note has been transformed into a new Action
+  in the Inbox.
 
   With two positional arguments, the second argument is a note to either
   replace the note or extend the existing note based on --replace.
+
   """
   def __init__(self, name, flag_values, **kargs):
     super(UICmdNote, self).__init__(name, flag_values, **kargs)

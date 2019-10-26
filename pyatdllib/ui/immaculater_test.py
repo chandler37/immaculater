@@ -318,9 +318,9 @@ dump""")) as f:
       "--action--- --incomplete-- 3",
       "--action--- --incomplete-- 2",
       "sorting by ctime:",
-      "--action--- --incomplete-- 1",
-      "--action--- --incomplete-- 2",
       "--action--- --incomplete-- 3",
+      "--action--- --incomplete-- 2",
+      "--action--- --incomplete-- 1",
     ]
     self.helpTest(inputs, golden_printed)
 

@@ -598,7 +598,7 @@ class UICmdEcho(UICmd):
   This is helpful for documenting lists of commands.
   """
   def __init__(self, name, flag_values, **kargs):
-    super(UICmdEcho, self).__init__(name, flag_values, **kargs)
+    super().__init__(name, flag_values, **kargs)
     flags.DEFINE_bool('stdout', False,
                       'For debugging, output directly to stdout.',
                       flag_values=flag_values)
@@ -675,7 +675,7 @@ class UICmdLs(UICmd):
   * dtime: Time of deletion
   """
   def __init__(self, name, flag_values, **kargs):
-    super(UICmdLs, self).__init__(name, flag_values, **kargs)
+    super().__init__(name, flag_values, **kargs)
     flags.DEFINE_bool('show_all', False,
                       'Additionally lists everything, even hidden objects, '
                       'overriding the view filter',
@@ -829,7 +829,7 @@ class UICmdLsctx(UICmd):
   * dtime: Time of deletion
   """
   def __init__(self, name, flag_values, **kargs):
-    super(UICmdLsctx, self).__init__(name, flag_values, **kargs)
+    super().__init__(name, flag_values, **kargs)
     flags.DEFINE_bool('show_timestamps', False,
                       'Additionally lists timestamps ctime, dtime, mtime',
                       short_name='l', flag_values=flag_values)
@@ -888,7 +888,7 @@ class UICmdLsprj(UICmd):
   See also command 'ls'.
   """
   def __init__(self, name, flag_values, **kargs):
-    super(UICmdLsprj, self).__init__(name, flag_values, **kargs)
+    super().__init__(name, flag_values, **kargs)
     flags.DEFINE_bool('json', False, 'Output JSON', flag_values=flag_values)
 
   def Run(self, args):  # pylint: disable=missing-docstring,no-self-use
@@ -937,7 +937,7 @@ class UICmdLoadtest(UICmd):
   """Helps perform a load test, i.e. creates N Projects, N Actions, N Contexts,
   etc."""
   def __init__(self, name, flag_values, **kargs):
-    super(UICmdLoadtest, self).__init__(name, flag_values, **kargs)
+    super().__init__(name, flag_values, **kargs)
     flags.DEFINE_string('name', 'LoadTest', 'Name fragment',
                         flag_values=flag_values)
     flags.DEFINE_integer('n', None, 'Number of Actions and Projects etc.',
@@ -1005,7 +1005,7 @@ class UICmdConfigurereview(UndoableUICmd):
   Usage: configurereview --max_seconds_before_review=86400 ProjectName
   """
   def __init__(self, name, flag_values, **kargs):
-    super(UICmdConfigurereview, self).__init__(name, flag_values, **kargs)
+    super().__init__(name, flag_values, **kargs)
     flags.DEFINE_float('max_seconds_before_review', None,
                        'How long can this project go without a review?',
                        flag_values=flag_values)
@@ -1033,7 +1033,7 @@ class UICmdDump(UICmd):
   This misses some things, e.g. the ctime/dtime/mtime timestamps.
   """
   def __init__(self, name, flag_values, **kargs):
-    super(UICmdDump, self).__init__(name, flag_values, **kargs)
+    super().__init__(name, flag_values, **kargs)
     flags.DEFINE_bool('multi', False,
                       'For internal use only. Calls State.Print() once per line'
                       ' instead of once per string',
@@ -1134,7 +1134,7 @@ class UICmdAsTaskPaper(UICmd):  # astaskpaper a.k.a. txt
 class UICmdHypertext(UICmd):
   """Prints a hypertext version of your to-do list."""
   def __init__(self, name, flag_values, **kargs):
-    super(UICmdHypertext, self).__init__(name, flag_values, **kargs)
+    super().__init__(name, flag_values, **kargs)
     flags.DEFINE_string('search_query', None,
                         'Search query, case-insensitive',
                         short_name='q', flag_values=flag_values)
@@ -1174,7 +1174,7 @@ class UICmdChctx(UndoableUICmd):
   delete the context.
   """
   def __init__(self, name, flag_values, **kargs):
-    super(UICmdChctx, self).__init__(name, flag_values, **kargs)
+    super().__init__(name, flag_values, **kargs)
     flags.DEFINE_bool('autorename', True, 'Change Action name to match the new context?', flag_values=flag_values)
 
   def Run(self, args):  # pylint: disable=missing-docstring,no-self-use
@@ -1233,7 +1233,7 @@ class UICmdLsact(UndoableUICmd):
   Ignores the view filter.
   """
   def __init__(self, name, flag_values, **kargs):
-    super(UICmdLsact, self).__init__(name, flag_values, **kargs)
+    super().__init__(name, flag_values, **kargs)
     flags.DEFINE_bool('json', False, 'Output JSON', flag_values=flag_values)
 
   def Run(self, args):  # pylint: disable=missing-docstring,no-self-use
@@ -1308,7 +1308,7 @@ def _PerformComplete(state, item_name, mark_complete, force):
 class UICmdComplete(UndoableUICmd):
   """Marks as "complete" an Action or Prj."""
   def __init__(self, name, flag_values, **kargs):
-    super(UICmdComplete, self).__init__(name, flag_values, **kargs)
+    super().__init__(name, flag_values, **kargs)
     flags.DEFINE_bool('force',
                       False,
                       'First marks all descendant actions complete',
@@ -1377,7 +1377,7 @@ class UICmdTodo(UICmd):
   filter using the '-v' flag.
   """
   def __init__(self, name, flag_values, **kargs):
-    super(UICmdTodo, self).__init__(name, flag_values, **kargs)
+    super().__init__(name, flag_values, **kargs)
     flags.DEFINE_enum('view_filter', None, sorted(view_filter.CLS_BY_UI_NAME),
                       'View filter',
                       short_name='v', flag_values=flag_values)
@@ -1437,7 +1437,7 @@ class UICmdView(UICmd):
 class UICmdInctx(UICmd):
   """Prints Actions in the given Context."""
   def __init__(self, name, flag_values, **kargs):
-    super(UICmdInctx, self).__init__(name, flag_values, **kargs)
+    super().__init__(name, flag_values, **kargs)
     flags.DEFINE_bool('json', False, 'Output JSON', flag_values=flag_values)
     flags.DEFINE_enum('sort_by', 'natural', ['natural', 'ctime'],
                       'Sort by what? Sorting by ctime (creation time) sorts '
@@ -1482,7 +1482,7 @@ class UICmdInctx(UICmd):
 class UICmdInprj(UICmd):
   """Prints Actions in the given Project."""
   def __init__(self, name, flag_values, **kargs):
-    super(UICmdInprj, self).__init__(name, flag_values, **kargs)
+    super().__init__(name, flag_values, **kargs)
     flags.DEFINE_bool('json', False, 'Output JSON', flag_values=flag_values)
 
   def Run(self, args):  # pylint: disable=missing-docstring,no-self-use
@@ -1517,7 +1517,7 @@ class UICmdCd(UndoableUICmd):  # undoable because 'mkact A' must know its CWD
   will change to the folder or project named "Px".
   """
   def __init__(self, name, flag_values, **kargs):
-    super(UICmdCd, self).__init__(name, flag_values, **kargs)
+    super().__init__(name, flag_values, **kargs)
     flags.DEFINE_bool('recursive', False,
                       'Instead of looking only in the current working directory'
                       ' (see "help pwd"), look at all directories',
@@ -1652,7 +1652,7 @@ class UICmdMkdir(UndoableUICmd):
 class UICmdMkprj(UndoableUICmd):
   """Makes a Project with the given name."""
   def __init__(self, name, flag_values, **kargs):
-    super(UICmdMkprj, self).__init__(name, flag_values, **kargs)
+    super().__init__(name, flag_values, **kargs)
     flags.DEFINE_boolean('allow_slashes', False,
                          'Do not treat directory separators as directory separators',
                          flag_values=flag_values)
@@ -1667,7 +1667,7 @@ class UICmdMkprj(UndoableUICmd):
 class UICmdMkctx(UndoableUICmd):
   """Makes a Context with the given name."""
   def __init__(self, name, flag_values, **kargs):
-    super(UICmdMkctx, self).__init__(name, flag_values, **kargs)
+    super().__init__(name, flag_values, **kargs)
     flags.DEFINE_bool('ignore_existing', False,
                       'Ignore trying to create an existing Context',
                       flag_values=flag_values)
@@ -1690,7 +1690,7 @@ class UICmdMkctx(UndoableUICmd):
 class UICmdNeedsreview(UICmd):
   """Prints all Projects in need of review. Takes no arguments."""
   def __init__(self, name, flag_values, **kargs):
-    super(UICmdNeedsreview, self).__init__(name, flag_values, **kargs)
+    super().__init__(name, flag_values, **kargs)
     flags.DEFINE_bool('json', False, 'Output JSON', flag_values=flag_values)
 
   def Run(self, args):  # pylint: disable=missing-docstring,no-self-use
@@ -1721,7 +1721,7 @@ class UICmdNote(UICmd):
 
   """
   def __init__(self, name, flag_values, **kargs):
-    super(UICmdNote, self).__init__(name, flag_values, **kargs)
+    super().__init__(name, flag_values, **kargs)
     flags.DEFINE_bool('replace',
                       False,
                       'Replace instead of append',
@@ -1964,7 +1964,7 @@ class UICmdTouch(UndoableUICmd):  # 'mkact', 'touch'
   Takes one argument, the name of the Action.
   """
   def __init__(self, name, flag_values, **kargs):
-    super(UICmdTouch, self).__init__(name, flag_values, **kargs)
+    super().__init__(name, flag_values, **kargs)
     flags.DEFINE_string('context', '', 'Optional Context',
                         short_name='c',
                         flag_values=flag_values)
@@ -2113,7 +2113,7 @@ class UICmdRename(UndoableUICmd):
   Usage: rename "old name" "new name"
   """
   def __init__(self, name, flag_values, **kargs):
-    super(UICmdRename, self).__init__(name, flag_values, **kargs)
+    super().__init__(name, flag_values, **kargs)
     flags.DEFINE_boolean('allow_slashes', False,
                          'Do not treat directory separators as directory separators',
                          flag_values=flag_values)
@@ -2226,7 +2226,7 @@ class UICmdReset(UICmd):
   Usage: Takes no arguments.
   """
   def __init__(self, name, flag_values, **kargs):
-    super(UICmdReset, self).__init__(name, flag_values, **kargs)
+    super().__init__(name, flag_values, **kargs)
     flags.DEFINE_bool('annihilate', False,
                       'Yes, really destroy all my hard work.',
                       flag_values=flag_values)
@@ -2357,7 +2357,7 @@ class UICmdRmdir(UndoableUICmd):
 class UICmdRmprj(UndoableUICmd):
   """Deletes the given Project.  See also "view all_even_deleted"."""
   def __init__(self, name, flag_values, **kargs):
-    super(UICmdRmprj, self).__init__(name, flag_values, **kargs)
+    super().__init__(name, flag_values, **kargs)
     flags.DEFINE_bool('force',
                       False,
                       'First deletes all descendant actions',
@@ -2412,7 +2412,7 @@ class UICmdRoll(UICmd):
   between actionable actions inside a context.
   """
   def __init__(self, name, flag_values, **kargs):
-    super(UICmdRoll, self).__init__(name, flag_values, **kargs)
+    super().__init__(name, flag_values, **kargs)
     # TODO(chandler):
     # flags.DEFINE_bool('advantaged', False,
     #                   'Roll with advantage.',

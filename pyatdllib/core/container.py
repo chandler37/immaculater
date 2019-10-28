@@ -50,7 +50,7 @@ class Container(auditable_object.AuditableObject):
     raise NotImplementedError
 
   def __init__(self, the_uid=None, items=None):  # items=[] is a python foible
-    super(Container, self).__init__(the_uid=the_uid)
+    super().__init__(the_uid=the_uid)
     if items is None:
       self.items = []
     else:
@@ -150,6 +150,6 @@ class Container(auditable_object.AuditableObject):
 
   def AsProto(self, pb):
     """Args: pb: pyatdl_pb2.Common.  Returns: pb."""
-    super(Container, self).AsProto(pb)
+    super().AsProto(pb)
     assert self.uid == pb.uid
     return pb

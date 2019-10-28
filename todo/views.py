@@ -221,7 +221,7 @@ class LogoutView(views.LogoutView):
   """
   @method_decorator(never_cache)
   def dispatch(self, request, *args, **kwargs):
-    response = super(LogoutView, self).dispatch(request, *args, **kwargs)
+    response = super().dispatch(request, *args, **kwargs)
     response.delete_cookie(_COOKIE_NAME)
     request.session.flush()
     return response

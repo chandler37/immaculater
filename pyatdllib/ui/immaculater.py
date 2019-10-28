@@ -183,7 +183,7 @@ class Cmd(appcommands.Cmd):  # pylint: disable=too-few-public-methods
 class Interactive(Cmd):  # pylint: disable=too-few-public-methods
   """Run interactively, reading from stdin and printing to stdout."""
   def Run(self, argv):
-    super(Interactive, self).Run(argv)
+    super().Run(argv)
     if len(argv) != 1:
       raise app.UsageError('Too many args: %s' % repr(argv))
     try:
@@ -253,7 +253,7 @@ class Batch(Cmd):  # pylint: disable=too-few-public-methods
   'load'/'save' commands are available to you.
   """
   def Run(self, argv):
-    super(Batch, self).Run(argv)
+    super().Run(argv)
     if len(argv) != 2:
       raise app.UsageError('Needs one argument, the filename of the file '
                            'where each line is a command.')
@@ -279,7 +279,7 @@ class ResetDatabase(Cmd):  # pylint: disable=too-few-public-methods
   and giving it the 'reset' command.
   """
   def Run(self, argv):
-    super(ResetDatabase, self).Run(argv)
+    super().Run(argv)
     if len(argv) != 1:
       raise app.UsageError('Too many args: %s' % repr(argv))
     if os.path.exists(FLAGS.database_filename):
@@ -294,7 +294,7 @@ class DumpRawProtobuf(Cmd):  # pylint: disable=too-few-public-methods
   Uses the flag --database_filename.
   """
   def Run(self, argv):
-    super(DumpRawProtobuf, self).Run(argv)
+    super().Run(argv)
     if len(argv) != 1:
       raise app.UsageError('Too many args: %s' % repr(argv))
     pb = serialization.GetRawProtobuf(FLAGS.database_filename)

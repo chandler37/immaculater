@@ -41,7 +41,7 @@ class Folder(container.Container):
 
   # items=[] is a python foible but strings are immutable:
   def __init__(self, the_uid=None, name=None, note='', items=None):
-    super(Folder, self).__init__(the_uid=the_uid, items=items)
+    super().__init__(the_uid=the_uid, items=items)
     self.name = name
     self.note = note
 
@@ -65,7 +65,7 @@ class Folder(container.Container):
     if pb is None:
       pb = pyatdl_pb2.Folder()
     # pylint: disable=maybe-no-member
-    super(Folder, self).AsProto(pb.common)
+    super().AsProto(pb.common)
     pb.common.metadata.name = self.name
     if self.note:
       pb.common.metadata.note = self.note

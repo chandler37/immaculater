@@ -50,7 +50,7 @@ class Prj(container.Container):
                max_seconds_before_review=None, is_complete=False,
                is_active=True, last_review_epoch_sec=0.0, note='',
                default_context_uid=None):
-    super(Prj, self).__init__(the_uid=the_uid, items=items)
+    super().__init__(the_uid=the_uid, items=items)
     self.name = name
     self.note = note
     if max_seconds_before_review is not None:
@@ -199,7 +199,7 @@ class Prj(container.Container):
     # pylint: disable=maybe-no-member
     if pb is None:
       pb = pyatdl_pb2.Project()
-    super(Prj, self).AsProto(pb.common)
+    super().AsProto(pb.common)
     pb.common.metadata.name = self.name
     if self.note:
       pb.common.metadata.note = self.note

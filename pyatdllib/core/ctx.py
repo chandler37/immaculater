@@ -44,7 +44,7 @@ class Ctx(auditable_object.AuditableObject):
   """
 
   def __init__(self, the_uid=None, name=None, is_active=True, note=''):
-    super(Ctx, self).__init__(the_uid=the_uid)
+    super().__init__(the_uid=the_uid)
     self.name = name
     self.note = note
     self.is_active = is_active
@@ -64,7 +64,7 @@ class Ctx(auditable_object.AuditableObject):
     # pylint: disable=maybe-no-member
     if pb is None:
       pb = pyatdl_pb2.Context()
-    super(Ctx, self).AsProto(pb.common)
+    super().AsProto(pb.common)
     assert self.name
     pb.common.metadata.name = self.name
     if self.note:
@@ -113,7 +113,7 @@ class CtxList(container.Container):
     return (Ctx,)
 
   def __init__(self, the_uid=None, name=None, items=None):  # items=[] is a python foible
-    super(CtxList, self).__init__(the_uid=the_uid, items=items)
+    super().__init__(the_uid=the_uid, items=items)
     self.name = name
 
   def __unicode__(self):
@@ -153,7 +153,7 @@ class CtxList(container.Container):
     # pylint: disable=maybe-no-member
     if pb is None:
       pb = pyatdl_pb2.ContextList()
-    super(CtxList, self).AsProto(pb.common)
+    super().AsProto(pb.common)
     assert self.uid == pb.common.uid
     assert self.name
     pb.common.metadata.name = self.name

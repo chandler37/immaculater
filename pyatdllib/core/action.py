@@ -31,7 +31,7 @@ class Action(auditable_object.AuditableObject):
   """
 
   def __init__(self, the_uid=None, name=None, ctx_uid=None, note=''):
-    super(Action, self).__init__(the_uid=the_uid)
+    super().__init__(the_uid=the_uid)
     self.is_complete = False
     self.name = name
     self.note = note
@@ -65,7 +65,7 @@ class Action(auditable_object.AuditableObject):
     if pb is None:
       pb = pyatdl_pb2.Action()
     # pylint: disable=maybe-no-member
-    super(Action, self).AsProto(pb.common)
+    super().AsProto(pb.common)
     pb.is_complete = self.is_complete
     pb.common.metadata.name = self.name
     if self.note:

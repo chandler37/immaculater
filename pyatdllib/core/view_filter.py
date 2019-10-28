@@ -123,7 +123,7 @@ class SearchFilter(ViewFilter):
     return tuple()
 
   def __init__(self, action_to_project, action_to_context, query):
-    super(SearchFilter, self).__init__(action_to_project, action_to_context)
+    super().__init__(action_to_project, action_to_context)
     assert query
     self.query = query
 
@@ -199,7 +199,7 @@ class ShowNotFinalized(ViewFilter):
     return ('incomplete',)
 
   def __init__(self, *args):
-    super(ShowNotFinalized, self).__init__(*args)
+    super().__init__(*args)
     self.deleted_viewfilter = ShowNotDeleted(*args)
 
   def ShowAction(self, an_action):
@@ -227,7 +227,7 @@ class ShowActionable(ViewFilter):
     return ('actionable',)
 
   def __init__(self, *args):
-    super(ShowActionable, self).__init__(*args)
+    super().__init__(*args)
     self.not_finalized_viewfilter = ShowNotFinalized(*args)
 
   def ShowAction(self, an_action):
@@ -259,7 +259,7 @@ class ShowNeedingReview(ViewFilter):
     return ('needing_review',)
 
   def __init__(self, *args):
-    super(ShowNeedingReview, self).__init__(*args)
+    super().__init__(*args)
     self.not_finalized_viewfilter = ShowNotFinalized(*args)
 
   def ShowAction(self, an_action):
@@ -284,7 +284,7 @@ class ShowInactiveIncomplete(ViewFilter):
     return ('inactive_and_incomplete',)
 
   def __init__(self, *args):
-    super(ShowInactiveIncomplete, self).__init__(*args)
+    super().__init__(*args)
     self.not_finalized_viewfilter = ShowNotFinalized(*args)
 
   def ShowAction(self, an_action):

@@ -1493,7 +1493,34 @@ class UICmdInprj(UICmd):
     except NoSuchContainerError as e:
       raise BadArgsError(e)
     to_be_json = []
-    for a in the_project.items:
+
+    def ActionToContext(an_action):
+      if an_action.ctx_uid is None:
+        return None
+      for c in state.ToDoList().ctx_list.items:
+        if c.uid == an_action.ctx_uid:
+          return c
+      raise ValueError(
+        'No Context found for action "%s" even though that action has a context UID of "%s"'
+        % (an_action.uid, an_action.ctx_uid))
+
+    def SecondaryKey(an_action):
+      return -an_action.ctime  # reverse chronological
+
+    def PrimaryKey(an_action):
+      if an_action.is_deleted:
+        return 100
+      if an_action.is_complete:
+        return 90
+      c = ActionToContext(an_action)
+      if c is None:
+        return 0
+      if c.is_deleted or not c.is_active:
+        return 80
+      return 10
+
+    s = sorted(the_project.items, key=SecondaryKey)  # Python's sorting is stable
+    for a in sorted(s, key=PrimaryKey):
       if state.ViewFilter().ShowAction(a):
         if FLAGS.json:
           to_be_json.append(_JsonForOneItem(a, state.ToDoList(), 1))

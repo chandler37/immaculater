@@ -796,6 +796,70 @@ dump""")) as f:
     ]
     self.helpTest(inputs, golden_printed)
 
+  def testInprjSorting(self):
+    inputs = ['chclock 1137',
+              'inprj /inbox',
+              'echo after empty',
+
+              'mkctx @inactive',
+              'deactivatectx @inactive',
+              'mkctx @active',
+
+              'do complete',
+              'complete /inbox/complete',
+
+              'chclock +1',
+              'do complete2',
+              'complete /inbox/complete2',
+
+              'chclock +1',
+              'do deleted',
+              'rmact /inbox/deleted',
+
+              'chclock +1',
+              'do @inactive item',
+
+              'chclock +1',
+              'do @active item',
+
+              'chclock +1',
+              'do withoutcontext',
+
+              'chclock +1',
+              'do @active item created later',
+
+              'view all_even_deleted',
+              'echo',
+              'echo all_even_deleted inprj /inbox:',
+              'inprj /inbox',
+
+              'view incomplete',
+              'echo',
+              'echo incomplete view inprj /inbox:',
+              'inprj /inbox',
+              ]
+    golden_printed = [
+      'after empty',
+      '',
+      'all_even_deleted inprj /inbox:',
+      "--action--- --incomplete-- withoutcontext --in-context-- '<none>'",
+      "--action--- --incomplete-- '@active item created later' --in-context-- "
+      '@active',
+      "--action--- --incomplete-- '@active item' --in-context-- @active",
+      "--action--- --incomplete-- '@inactive item' --in-context-- @inactive",
+      "--action--- ---COMPLETE--- complete2 --in-context-- '<none>'",
+      "--action--- ---COMPLETE--- complete --in-context-- '<none>'",
+      "--action--- --DELETED-- --incomplete-- deleted --in-context-- '<none>'",
+      '',
+      'incomplete view inprj /inbox:',
+      "--action--- --incomplete-- withoutcontext --in-context-- '<none>'",
+      "--action--- --incomplete-- '@active item created later' --in-context-- "
+      '@active',
+      "--action--- --incomplete-- '@active item' --in-context-- @active",
+      "--action--- --incomplete-- '@inactive item' --in-context-- @inactive"
+    ]
+    self.helpTest(inputs, golden_printed)
+
   def testMv(self):
     FLAGS.pyatdl_show_uid = True
     save_path = self._CreateTmpFile('')

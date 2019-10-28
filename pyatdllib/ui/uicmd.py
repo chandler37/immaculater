@@ -1140,15 +1140,54 @@ class UICmdHypertext(UICmd):
                         short_name='q', flag_values=flag_values)
 
   def Run(self, args):  # pylint: disable=missing-docstring,no-self-use
+    lines = []
+
+    def DoIt(*, show_active, show_done):
+      the_view_filter = state.ViewFilter()
+      if FLAGS.search_query:
+        the_view_filter = state.SearchFilter(
+          query=FLAGS.search_query, show_active=show_active, show_done=show_done)
+
+      def PostfilterOut(a_or_p):
+        if FLAGS.search_query:
+          return True
+        if bool(a_or_p.is_active) is not bool(show_active):
+          return False
+        if bool(a_or_p.is_complete or a_or_p.is_deleted) is not bool(show_done):
+          return False
+        return True
+
+      def ShowProject(p):
+        if not the_view_filter.ShowProject(p):
+          return False
+        return PostfilterOut(p)
+
+      def ShowAction(a):
+        if not the_view_filter.ShowAction(a):
+          return False
+        return PostfilterOut(a)
+
+      state.ToDoList().AsTaskPaper(lines,
+                                   show_project=ShowProject,
+                                   show_action=the_view_filter.ShowAction,
+                                   hypertext_prefix=args[-1],
+                                   html_escaper=state.HTMLEscaper(),
+                                   output_empty_projects=not FLAGS.search_query)
+
     state = FLAGS.pyatdl_internal_state
     self.RaiseUnlessNArgumentsGiven(1, args)
-    lines = []
-    the_view_filter = state.SearchFilter(FLAGS.search_query) if FLAGS.search_query else state.ViewFilter()
-    state.ToDoList().AsTaskPaper(lines,
-                                 show_project=the_view_filter.ShowProject,
-                                 show_action=the_view_filter.ShowAction,
-                                 hypertext_prefix=args[-1],
-                                 html_escaper=state.HTMLEscaper())
+
+    def Header(s):
+      lines.append(f'<h2>{s}</h2>')
+
+    Header('Active and not yet done items:')
+    DoIt(show_active=True, show_done=False)
+    Header('Inactive and not yet done items:')
+    DoIt(show_active=False, show_done=False)
+    Header('Active, already done items:')
+    DoIt(show_active=True, show_done=True)
+    Header('Inactive, already done items:')
+    DoIt(show_active=False, show_done=True)
     for i, line in enumerate(lines):
       if i != 0 or line:  # skips blank first line
         state.Print('%s<br>' % line)

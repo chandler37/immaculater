@@ -55,9 +55,7 @@ start the original CLI.
 
 ## Python 3
 
-pyatdl proper used to support both 2.7 and 3.6+ (using the `six` library), but
-Python 3 has crept in over time.  Immaculater and pyatdl require 3.6+ because
-DJango 2 requires Python 3.
+Immaculater and pyatdl require 3.6+ because DJango 2 and pyatdl require Python 3.
 
 The file './runtime.txt' names a version of Python that is particularly well
 tested because it's used in production (on Heroku).

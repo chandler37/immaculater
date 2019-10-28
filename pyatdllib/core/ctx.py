@@ -60,6 +60,9 @@ class Ctx(auditable_object.AuditableObject):
   def __repr__(self):
     return '<ctx_proto>\n%s\n</ctx_proto>' % str(self.AsProto())
 
+  def IsDone(self):
+    return self.is_deleted
+
   def AsProto(self, pb=None):
     # pylint: disable=maybe-no-member
     if pb is None:

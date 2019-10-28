@@ -50,6 +50,9 @@ class Action(auditable_object.AuditableObject):
   def __repr__(self):
     return '<action_proto>\n%s\n</action_proto>' % str(self.AsProto())
 
+  def IsDone(self):
+    return self.is_complete or self.is_deleted
+
   def AlmostPurge(self):
     """Almost purges. A complete removal would be disastrous if you are using multiple devices. The next time some other
     device syncs it will seem that it has new items. So we leave the UID in place but clear all metadata and remove

@@ -99,7 +99,7 @@ class ToDoList(object):
 
   def AsTaskPaper(self, lines, show_project=lambda _: True,
                   show_action=lambda _: True, hypertext_prefix=None,
-                  html_escaper=None):
+                  html_escaper=None, output_empty_projects=True):
     """Appends lines of text to lines in TaskPaper format.
 
     Args:
@@ -109,6 +109,7 @@ class ToDoList(object):
       hypertext_prefix: None|unicode  # URL fragment e.g. "/todo". if None,
                                       # output plain text
       html_escaper: lambda unicode: unicode
+      output_empty_projects: bool
     Returns:
       None
     """
@@ -118,10 +119,22 @@ class ToDoList(object):
           return six.text_type(i.name)
       return 'impossible error so file a bug report please'
 
-    # TODO(chandler): respect sort alpha|chrono
+    pairs = []
     for p, path in self.Projects():
-      if not show_project(p):
-        continue
+      if show_project(p):
+        pairs.append((p, path))
+
+    def Key(pair):
+      p, path = pair
+      if p.uid == 1:  # inbox
+        return ""
+      prefix = six.text_type(FLAGS.pyatdl_separator).join(f.name for f in reversed(path))
+      return FLAGS.pyatdl_separator.join([prefix, p.name])
+
+    pairs.sort(key=Key)
+    # TODO(chandler): make it possible to sort chronologically as well as what we do now, which is sorting
+    # alphabetically.
+    for p, path in pairs:
       prefix = six.text_type(FLAGS.pyatdl_separator).join(f.name for f in reversed(path))
       if prefix and not prefix.endswith(FLAGS.pyatdl_separator):
         prefix += six.text_type(FLAGS.pyatdl_separator)
@@ -131,9 +144,13 @@ class ToDoList(object):
         prefix = '@done ' + prefix
       if not p.is_active:
         prefix = '@inactive ' + prefix
-      p.AsTaskPaper(lines, context_name=ContextName, project_name_prefix=prefix,
-                    show_action=show_action, hypertext_prefix=hypertext_prefix,
-                    html_escaper=html_escaper)
+      p.AsTaskPaper(lines,
+                    context_name=ContextName,
+                    project_name_prefix=prefix,
+                    show_action=show_action,
+                    hypertext_prefix=hypertext_prefix,
+                    html_escaper=html_escaper,
+                    output_empty_projects=output_empty_projects)
 
   def PurgeDeleted(self):
     self.inbox.PurgeDeleted()

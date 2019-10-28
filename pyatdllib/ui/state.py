@@ -96,7 +96,7 @@ class State(object):  # pylint: disable=too-many-instance-attributes,too-many-pu
     """
     self._todolist = td
     self._current_working_container = self._todolist.root
-    self._view_filter = self.NewViewFilter()
+    self._view_filter = self.NewViewFilter(view_filter.CLS_BY_UI_NAME['default'])
     # TODO(chandler37): Perhaps we need to raise TooBigToSaveError if this is
     # too big? But really it'd be better to just delete the original undo/redo
     # code (see RewindForUndoRedo e.g.) which only worked in the command-line
@@ -131,7 +131,25 @@ class State(object):  # pylint: disable=too-many-instance-attributes,too-many-pu
     assert ui_name in State.AllSortingOptions(), ui_name
     self._sorting_ui_name = ui_name
 
-  def NewViewFilter(self, filter_cls=None, search_query=None):
+  def _ActionToProject(self, an_action):
+    a = self.ToDoList().ActionByUID(an_action.uid)
+    if a is None:
+      raise ValueError('No action with uid "%s" exists.' % an_action.uid)
+    found_action, project = a
+    assert found_action is an_action, 'Is it a deep copy?'
+    return project
+
+  def _ActionToContext(self, an_action):
+    if an_action.ctx_uid is None:
+      return None
+    for c in self.ToDoList().ctx_list.items:
+      if c.uid == an_action.ctx_uid:
+        return c
+    raise ValueError(
+      'No Context found for action "%s" even though that action has a context UID of "%s"'
+      % (an_action.uid, an_action.ctx_uid))
+
+  def NewViewFilter(self, filter_cls):
     """Returns a view filter that holds an internal reference to the given todolist.
 
     Args:
@@ -139,30 +157,9 @@ class State(object):  # pylint: disable=too-many-instance-attributes,too-many-pu
     Returns:
       view_filter.ViewFilter
     """
-    def ActionToProject(an_action):  # pylint: disable=missing-docstring
-      a = self.ToDoList().ActionByUID(an_action.uid)
-      if a is None:
-        raise ValueError('No action with uid "%s" exists.' % an_action.uid)
-      found_action, project = a
-      assert found_action is an_action, 'Is it a deep copy?'
-      return project
-
-    def ActionToContext(an_action):  # pylint: disable=missing-docstring
-      if an_action.ctx_uid is None:
-        return None
-      for c in self.ToDoList().ctx_list.items:
-        if c.uid == an_action.ctx_uid:
-          return c
-      raise ValueError(
-        'No Context found for action "%s" even though that action has a context UID of "%s"'
-        % (an_action.uid, an_action.ctx_uid))
-
-    if search_query:
-      assert filter_cls is None
-      return view_filter.SearchFilter(ActionToProject, ActionToContext, query=search_query)
-    if filter_cls is None:
-      filter_cls = view_filter.CLS_BY_UI_NAME['default']
-    return filter_cls(ActionToProject, ActionToContext)
+    return filter_cls(
+      lambda a: self._ActionToProject(a),
+      lambda a: self._ActionToContext(a))
 
   def CurrentWorkingContainer(self):
     """Returns the Folder/Prj operations are relative to.
@@ -412,13 +409,18 @@ class State(object):  # pylint: disable=too-many-instance-attributes,too-many-pu
          common.Indented('..'),
          common.Indented('\n'.join(i.name for i in cwc.items if isinstance(i, container.Container)))))
 
-  def SearchFilter(self, query):
+  def SearchFilter(self, *, query, show_active, show_done):
     """Creates a ViewFilter that searches.
 
     Returns:
       ViewFilter
     """
-    return self.NewViewFilter(search_query=query)
+    return view_filter.SearchFilter(
+      lambda a: self._ActionToProject(a),
+      lambda a: self._ActionToContext(a),
+      query=query,
+      show_active=show_active,
+      show_done=show_done)
 
   def ViewFilter(self):
     """Returns the current ViewFilter.

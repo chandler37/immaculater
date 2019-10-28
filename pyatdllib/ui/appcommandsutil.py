@@ -208,7 +208,6 @@ class Namespace(object):
             raise
         except Exception as e:
           msg = 'For the following error, note that argv=%s. Error: %s' % (argv, six.text_type(e))
-          # This requires python 3; the 'six' module has 'reraise' if you must use Python 2.7:
           raise type(e)(msg) from e
         return uc
       except app.UsageError as error:

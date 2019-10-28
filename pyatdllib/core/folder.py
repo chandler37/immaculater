@@ -55,6 +55,9 @@ class Folder(container.Container):
       uid_str, self.is_deleted, self.name,
       common.Indented('\n'.join(six.text_type(a) for a in self.items)))
 
+  def IsDone(self):
+    return self.is_deleted
+
   def Projects(self):
     """Override."""
     for c, path in self.ContainersPreorder():

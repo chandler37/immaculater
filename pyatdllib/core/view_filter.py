@@ -116,26 +116,48 @@ class ViewFilter(object):
 class SearchFilter(ViewFilter):
   """Views only items matching the given search query or projects/folders
   containing matched items.
+
+  TODO(chandler37): support "/f[^:]+b/" as "case-insensitive regex r'f[^:]+b' where dot matches newline"
   """
 
   @classmethod
   def ViewFilterUINames(cls):
     return tuple()
 
-  def __init__(self, action_to_project, action_to_context, query):
+  def __init__(self, action_to_project, action_to_context, *, query, show_active, show_done):
     super().__init__(action_to_project, action_to_context)
     assert query
     self.query = query
+    self.show_done = show_done
+    self.show_active = show_active
 
   def ShowAction(self, an_action):
-    return self.query.lower() in an_action.name.lower() or (
-      an_action.note and self.query.lower() in an_action.note.lower())
+    containing_context = self.action_to_context(an_action)
+    if bool(self.show_active) is not bool(containing_context is None or containing_context.is_active):
+      return False
+    if bool(self.show_done) is not bool(an_action.IsDone()):
+      return False
+    if self.query.lower() in an_action.name.lower():
+      return True
+    return an_action.note and self.query.lower() in an_action.note.lower()
 
+  # TODO(chandler37): needs ShowNote as well -- we should not show notes that do not match the query. Further TODO: For
+  # 'hypertext' commands without a search query, we should do better UI to elide notes in HTML collapsed divs if they
+  # are beyond 80 characters.
   def ShowProject(self, project):
-    return self.ProjectContainsShownAction(project) or self.query.lower() in project.name.lower() or (
-      project.note and self.query.lower() in project.note.lower())
+    if self.ProjectContainsShownAction(project):
+      return True
+    if bool(self.show_active) is not bool(project.is_active):
+      return False
+    if bool(self.show_done) is not bool(project.IsDone()):
+      return False
+    if self.query.lower() in project.name.lower():
+      return True
+    return project.note and self.query.lower() in project.note.lower()
 
   def ShowFolder(self, a_folder):
+    if bool(self.show_done) is not bool(a_folder.IsDone()):
+      return False
     return self.FolderContainsShownProject(a_folder) or self.query.lower() in folder.name.lower() or (
       folder.note and self.query.lower() in folder.note.lower())
 
@@ -143,6 +165,10 @@ class SearchFilter(ViewFilter):
     """Override. You could argue that we should show the context if any action
     within it matches but that doesn't matter for our AsTaskPaper view of things.
     """
+    if bool(self.show_active) is not bool(context.is_active):
+      return False
+    if bool(self.show_done) is not bool(context.IsDone()):
+      return False
     return self.query.lower() in context.name.lower() or (
       context.note and self.query.lower() in context.note.lower())
 
@@ -316,7 +342,7 @@ _VIEW_FILTER_CLASSES = (
   ShowNotFinalized,
   ShowActionable,
   ShowNeedingReview,
-  ShowInactiveIncomplete)
+  ShowInactiveIncomplete)  # SearchFilter need not be here
 
 for view_filter_cls in _VIEW_FILTER_CLASSES:
   for name in view_filter_cls.ViewFilterUINames():

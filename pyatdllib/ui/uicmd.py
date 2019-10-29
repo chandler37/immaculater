@@ -2716,18 +2716,28 @@ APP_NAMESPACE = appcommandsutil.Namespace()
 def ParsePyatdlPromptAndExecute(the_state, space_delimited_argv):
   """Finds the appropriate UICmd and executes it.
 
+  A leading '+' will cause two commands, one an echo of the command, and the next the command itself (everything but
+  the '+').
+
   Args:
     the_state: state.State
     space_delimited_argv: str
   Raises:
     Error
+
   """
   try:
     argv = lexer.SplitCommandLineIntoArgv(space_delimited_argv)
   except lexer.Error as e:
     raise BadArgsError(e)
+  cmds = []
+  if argv and argv[0] and argv[0][0] == '+':
+    argv[0] = argv[0][1:]
+    cmds.append(['echo', *(pipes.quote(x) for x in argv[:-1]), f'{pipes.quote(argv[-1])}:'])
+  cmds.append(argv)
   try:
-    APP_NAMESPACE.FindCmdAndExecute(the_state, argv)
+    for cmd in cmds:
+      APP_NAMESPACE.FindCmdAndExecute(the_state, cmd)
   except appcommandsutil.CmdNotFoundError as e:
     raise BadArgsError(e)
   except appcommandsutil.InvalidUsageError as e:

@@ -121,8 +121,10 @@ unfreezeplus:
 	$(ACTIVATE_VENV) && pip3 install -r requirements.txt
 	$(ACTIVATE_VENV) && pip3 freeze > requirements.txt
 
+
 .PHONY: cov
 cov: venv
+	@echo "There is also the todo/ directory and its pytest tests but we ignore those. TODO(chandler37): Include **/*.py"
 	cd pyatdllib && make cov
 
 .PHONY: pychecker

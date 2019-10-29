@@ -1148,24 +1148,16 @@ class UICmdHypertext(UICmd):
         the_view_filter = state.SearchFilter(
           query=FLAGS.search_query, show_active=show_active, show_done=show_done)
 
-      def PostfilterOut(a_or_p):
-        if FLAGS.search_query:
-          return True
-        if bool(a_or_p.is_active) is not bool(show_active):
-          return False
-        if bool(a_or_p.is_complete or a_or_p.is_deleted) is not bool(show_done):
-          return False
-        return True
-
       def ShowProject(p):
         if not the_view_filter.ShowProject(p):
           return False
-        return PostfilterOut(p)
-
-      def ShowAction(a):
-        if not the_view_filter.ShowAction(a):
+        if FLAGS.search_query:
+          return True
+        if bool(p.is_active) is not bool(show_active):
           return False
-        return PostfilterOut(a)
+        if bool(p.is_complete or p.is_deleted) is not bool(show_done):
+          return False
+        return True
 
       state.ToDoList().AsTaskPaper(lines,
                                    show_project=ShowProject,

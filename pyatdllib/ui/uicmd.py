@@ -1159,9 +1159,17 @@ class UICmdHypertext(UICmd):
           return False
         return True
 
+      def ShowNote(n):
+        if not FLAGS.search_query:
+          return True
+        if not n:
+          return False
+        return FLAGS.search_query.lower() in n.lower()
+
       state.ToDoList().AsTaskPaper(lines,
                                    show_project=ShowProject,
                                    show_action=the_view_filter.ShowAction,
+                                   show_note=ShowNote,
                                    hypertext_prefix=args[-1],
                                    html_escaper=state.HTMLEscaper())
 

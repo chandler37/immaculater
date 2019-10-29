@@ -84,9 +84,8 @@ class Prj(container.Container):
   def IsDone(self):
     return self.is_complete or self.is_deleted
 
-  def AsTaskPaper(self, lines, context_name=None, project_name_prefix='',
-                  show_action=lambda _: True, hypertext_prefix=None,
-                  html_escaper=None):
+  def AsTaskPaper(self, lines, context_name=None, project_name_prefix='', show_action=lambda _: True,
+                  show_note=lambda _: True, hypertext_prefix=None, html_escaper=None):
     """Appends lines of text to lines.
 
     Args:
@@ -118,15 +117,15 @@ class Prj(container.Container):
                       '<s>' if self.IsDone() else '',
                       Escaped(full_name),
                       '</s>' if self.IsDone() else ''))
-    if self.note:
-      for line in self.note.replace('\r', '').split('\n'):
+    if self.note and show_note(self.note):
+      for line in self.note.replace('\r', '').replace('\\n', ', ').split('\n'):
         lines.append(Escaped(line))
     for item in self.items:
       if not show_action(item):
         continue
       hypernote = ''
       note_suffix = ''
-      if item.note:
+      if item.note and show_note(item.note):
         n = six.text_type(item.note).replace('\r', '').replace('\\n', '\n').strip('\n')
         if hypertext_prefix is None:
           note_suffix = '\tnote: ' + '\t'.join(n.split('\n'))

@@ -97,15 +97,15 @@ class ToDoList(object):
        common.Indented(six.text_type(self.ctx_list), 2))
     return t.strip()
 
-  def AsTaskPaper(self, lines, show_project=lambda _: True,
-                  show_action=lambda _: True, hypertext_prefix=None,
-                  html_escaper=None):
+  def AsTaskPaper(self, lines, show_project=lambda _: True, show_action=lambda _: True, show_note=lambda _: True,
+                  hypertext_prefix=None, html_escaper=None):
     """Appends lines of text to lines in TaskPaper format.
 
     Args:
       lines: [unicode]
       show_project: lambda Prj: bool
       show_action: lambda Action: bool
+      show_note: lambda str: bool
       hypertext_prefix: None|unicode  # URL fragment e.g. "/todo". if None,
                                       # output plain text
       html_escaper: lambda unicode: unicode
@@ -147,6 +147,7 @@ class ToDoList(object):
                     context_name=ContextName,
                     project_name_prefix=prefix,
                     show_action=show_action,
+                    show_note=show_note,
                     hypertext_prefix=hypertext_prefix,
                     html_escaper=html_escaper)
 

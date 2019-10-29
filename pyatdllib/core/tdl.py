@@ -99,7 +99,7 @@ class ToDoList(object):
 
   def AsTaskPaper(self, lines, show_project=lambda _: True,
                   show_action=lambda _: True, hypertext_prefix=None,
-                  html_escaper=None, output_empty_projects=True):
+                  html_escaper=None):
     """Appends lines of text to lines in TaskPaper format.
 
     Args:
@@ -109,7 +109,6 @@ class ToDoList(object):
       hypertext_prefix: None|unicode  # URL fragment e.g. "/todo". if None,
                                       # output plain text
       html_escaper: lambda unicode: unicode
-      output_empty_projects: bool
     Returns:
       None
     """
@@ -149,8 +148,7 @@ class ToDoList(object):
                     project_name_prefix=prefix,
                     show_action=show_action,
                     hypertext_prefix=hypertext_prefix,
-                    html_escaper=html_escaper,
-                    output_empty_projects=output_empty_projects)
+                    html_escaper=html_escaper)
 
   def PurgeDeleted(self):
     self.inbox.PurgeDeleted()

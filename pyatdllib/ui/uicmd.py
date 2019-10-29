@@ -1163,8 +1163,7 @@ class UICmdHypertext(UICmd):
                                    show_project=ShowProject,
                                    show_action=the_view_filter.ShowAction,
                                    hypertext_prefix=args[-1],
-                                   html_escaper=state.HTMLEscaper(),
-                                   output_empty_projects=not FLAGS.search_query)
+                                   html_escaper=state.HTMLEscaper())
 
     state = FLAGS.pyatdl_internal_state
     self.RaiseUnlessNArgumentsGiven(1, args)

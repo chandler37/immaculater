@@ -5677,6 +5677,8 @@ it and use this view filter. Note: this is ignored in --show_all mode""",
       '<h2>Active and not yet done items:</h2><br>',
       '<h2>Inactive and not yet done items:</h2><br>',
       '<h2>Active, already done items:</h2><br>',
+      '<br>',
+      '<a href="/project/12"><s>@deleted pdeleted:</s></a><br>',
       '<h2>Inactive, already done items:</h2><br>',
     ]
     self.helpTest(inputs, golden_printed)

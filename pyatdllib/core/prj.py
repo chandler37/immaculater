@@ -86,7 +86,7 @@ class Prj(container.Container):
 
   def AsTaskPaper(self, lines, context_name=None, project_name_prefix='',
                   show_action=lambda _: True, hypertext_prefix=None,
-                  html_escaper=None, output_empty_projects=True):
+                  html_escaper=None):
     """Appends lines of text to lines.
 
     Args:
@@ -96,7 +96,6 @@ class Prj(container.Container):
       show_action: lambda Action: bool
       hypertext_prefix: None|unicode  # None means to output plain text
       html_escaper: lambda unicode: unicode
-      output_empty_projects: bool
     Returns:
       None
     """
@@ -109,28 +108,19 @@ class Prj(container.Container):
       else:
         return html_escaper(txt)
 
-    has_output_header = [False]
-
-    def OutputHeader():
-      if has_output_header[0]:
-        return
-      lines.append('')
-      full_name = '%s%s:' % (project_name_prefix, self.name)
-      if hypertext_prefix is None:
-        lines.append(full_name)
-      else:
-        lines.append('<a href="%s/project/%s">%s%s%s</a>'
-                     % (hypertext_prefix, self.uid,
-                        '<s>' if self.IsDone() else '',
-                        Escaped(full_name),
-                        '</s>' if self.IsDone() else ''))
-      if self.note:
-        for line in self.note.replace('\r', '').split('\n'):
-          lines.append(Escaped(line))
-      has_output_header[0] = True
-
-    if output_empty_projects:
-      OutputHeader()
+    lines.append('')
+    full_name = '%s%s:' % (project_name_prefix, self.name)
+    if hypertext_prefix is None:
+      lines.append(full_name)
+    else:
+      lines.append('<a href="%s/project/%s">%s%s%s</a>'
+                   % (hypertext_prefix, self.uid,
+                      '<s>' if self.IsDone() else '',
+                      Escaped(full_name),
+                      '</s>' if self.IsDone() else ''))
+    if self.note:
+      for line in self.note.replace('\r', '').split('\n'):
+        lines.append(Escaped(line))
     for item in self.items:
       if not show_action(item):
         continue
@@ -162,7 +152,6 @@ class Prj(container.Container):
         deleted_suffix = ''
       action_text = '%s%s%s%s%s' % (item.name, note_suffix, context_suffix,
                                     done_suffix, deleted_suffix)
-      OutputHeader()
       if hypertext_prefix is None:
         lines.append('\t- %s' % action_text)
       else:

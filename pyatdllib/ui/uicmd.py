@@ -918,7 +918,26 @@ class UICmdLsprj(UICmd):
       to_be_json = []  # pylint: disable=redefined-variable-type
       sorted_projects = list(state.ToDoList().Projects())
       if state.CurrentSorting() == 'alpha':
-        sorted_projects.sort(key=lambda p_path: '' if p_path[0].uid == 1 else p_path[0].name)
+        def AlphaKey(p_path):
+          p, path = p_path
+          return '' if p.uid == 1 else p.name
+
+        sorted_projects.sort(key=AlphaKey)  # secondary key (stable sort)
+      else:
+        def ReverseChronoKey(p_path):
+          p, path = p_path
+          return float('-inf') if p.uid == 1 else -p.ctime
+
+        sorted_projects.sort(key=ReverseChronoKey)  # secondary key (stable sort)
+
+      def ActiveDoneKey(p_path):
+        p, path = p_path
+        return (
+          1 if p.is_deleted else 0,
+          1 if p.is_complete else 0,
+          0 if p.is_active else 1)
+
+      sorted_projects.sort(key=ActiveDoneKey)  # primary key
       for project, path_leaf_first in sorted_projects:
         if state.ViewFilter().ShowProject(project):
           if FLAGS.json:

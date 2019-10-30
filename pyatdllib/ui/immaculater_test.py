@@ -4,6 +4,7 @@ from __future__ import absolute_import
 from __future__ import unicode_literals
 from __future__ import print_function
 
+import json
 import pipes
 import random
 import six
@@ -673,6 +674,54 @@ dump""")) as f:
       '{"ctime":1137.0,"default_context_uid":"0","dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"max_seconds_before_review":604800.0,"mtime":1137.0,"name":"p2_in_dir0","needsreview":false,"number_of_items":0,"parent_path":"/dir0","uid":"7"}',
       'after --json p2_in_dir0',
     ]
+    self.helpTest(inputs, golden_printed)
+
+  def testLsprjJsonSorting(self):
+    inputs = ['chclock 1137',
+              'reset --annihilate',
+              'view all_even_deleted',
+              'mkdir /a',
+              'mkprj /a/alive',
+              'chclock +1',
+              'mkprj /a/aaalive_also',
+              'chclock +1',
+              'mkprj /b_alive',
+              'chclock +1',
+              'mkprj /inactive',
+              'chclock +1',
+              'deactivateprj /inactive',
+              'mkprj /pcompletej',
+              'chclock +1',
+              'complete /pcompletej',
+              'mkprj /pcompleteinactive',
+              'chclock +1',
+              'deactivateprj /pcompleteinactive',
+              'complete /pcompleteinactive',
+              'mkprj /pdeleted',
+              'chclock +1',
+              'rmprj /pdeleted',
+              '+sort chrono',
+              '+lsprj --json',
+              '+sort alpha',
+              '+lsprj --json',
+              ]
+    golden_printed = [
+      'Reset complete.',
+      'sort chrono:',
+      'lsprj --json:',
+      '[{"ctime":1137.0,"default_context_uid":"0","dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"inbox","needsreview":false,"number_of_items":0,"path":"/","uid":"1"},{"ctime":1139.0,"default_context_uid":"0","dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":1139.0,"name":"b_alive","needsreview":false,"number_of_items":0,"path":"/","uid":"7"},{"ctime":1138.0,"default_context_uid":"0","dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":1138.0,"name":"aaalive_also","needsreview":false,"number_of_items":0,"path":"/a","uid":"6"},{"ctime":1137.0,"default_context_uid":"0","dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"alive","needsreview":false,"number_of_items":0,"path":"/a","uid":"5"},{"ctime":1140.0,"default_context_uid":"0","dtime":null,"is_active":false,"is_complete":false,"is_deleted":false,"mtime":1141.0,"name":"inactive","needsreview":false,"number_of_items":0,"path":"/","uid":"8"},{"ctime":1141.0,"default_context_uid":"0","dtime":null,"is_active":true,"is_complete":true,"is_deleted":false,"mtime":1142.0,"name":"pcompletej","needsreview":false,"number_of_items":0,"path":"/","uid":"9"},{"ctime":1142.0,"default_context_uid":"0","dtime":null,"is_active":false,"is_complete":true,"is_deleted":false,"mtime":1143.0,"name":"pcompleteinactive","needsreview":false,"number_of_items":0,"path":"/","uid":"10"},{"ctime":1143.0,"default_context_uid":"0","dtime":1144.0,"is_active":true,"is_complete":false,"is_deleted":true,"mtime":1144.0,"name":"pdeleted","needsreview":false,"number_of_items":0,"path":"/","uid":"11"}]',
+      'sort alpha:',
+      'lsprj --json:',
+      '[{"ctime":1137.0,"default_context_uid":"0","dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"inbox","needsreview":false,"number_of_items":0,"path":"/","uid":"1"},{"ctime":1138.0,"default_context_uid":"0","dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":1138.0,"name":"aaalive_also","needsreview":false,"number_of_items":0,"path":"/a","uid":"6"},{"ctime":1137.0,"default_context_uid":"0","dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"alive","needsreview":false,"number_of_items":0,"path":"/a","uid":"5"},{"ctime":1139.0,"default_context_uid":"0","dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":1139.0,"name":"b_alive","needsreview":false,"number_of_items":0,"path":"/","uid":"7"},{"ctime":1140.0,"default_context_uid":"0","dtime":null,"is_active":false,"is_complete":false,"is_deleted":false,"mtime":1141.0,"name":"inactive","needsreview":false,"number_of_items":0,"path":"/","uid":"8"},{"ctime":1141.0,"default_context_uid":"0","dtime":null,"is_active":true,"is_complete":true,"is_deleted":false,"mtime":1142.0,"name":"pcompletej","needsreview":false,"number_of_items":0,"path":"/","uid":"9"},{"ctime":1142.0,"default_context_uid":"0","dtime":null,"is_active":false,"is_complete":true,"is_deleted":false,"mtime":1143.0,"name":"pcompleteinactive","needsreview":false,"number_of_items":0,"path":"/","uid":"10"},{"ctime":1143.0,"default_context_uid":"0","dtime":1144.0,"is_active":true,"is_complete":false,"is_deleted":true,"mtime":1144.0,"name":"pdeleted","needsreview":false,"number_of_items":0,"path":"/","uid":"11"}]'
+    ]
+    j = json.loads(golden_printed[-1])  # sort alpha
+    self.assertEqual(
+      [x["name"] for x in j],
+      ['inbox', 'aaalive_also', 'alive', 'b_alive', 'inactive', 'pcompletej', 'pcompleteinactive', 'pdeleted'])
+    j = json.loads(golden_printed[-4])  # sort chrono
+    self.assertEqual(
+      [x["name"] for x in j],
+      ['inbox', 'b_alive', 'aaalive_also', 'alive', 'inactive', 'pcompletej', 'pcompleteinactive', 'pdeleted'])
     self.helpTest(inputs, golden_printed)
 
   def testChctxUid0(self):

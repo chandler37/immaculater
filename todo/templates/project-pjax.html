@@ -97,6 +97,16 @@ var i;
 for (i = 0; i < inprj.length; i++) {
     var node = document.createElement("div");
     node.setAttribute("class", "row spaced-row");
+    var nameHtml = "<s>" + HTMLescape(inprj[i].name) + "</s>";
+    if (!inprj[i].is_complete && !inprj[i].is_deleted) {
+        if (inprj[i].name.indexOf(inprj[i].in_context) === -1) {
+            nameHtml = HTMLescape(
+                inprj[i].name +
+                    ((inprj[i].in_context_uid === null) ? "" : " — " + inprj[i].in_context));
+        } else {
+            nameHtml = HTMLescape(inprj[i].name);
+        }
+    }
     node.innerHTML = `
 <div class="col-2 left-side">
 <form class="form-inline i-pjax-form float-right"
@@ -131,9 +141,7 @@ for (i = 0; i < inprj.length; i++) {
      role="button"
      class="btn btn-info btn-md btn-block text-left"
      style="white-space: normal;">
-  ${(inprj[i].is_complete || inprj[i].is_deleted)
-    ? "<s>" + HTMLescape(inprj[i].name) + "</s>"
-    : HTMLescape(inprj[i].name)}
+    ${nameHtml}
   </a>
 </div>`;
     buttonDiv.appendChild(node);

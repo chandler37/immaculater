@@ -99,12 +99,16 @@ for (i = 0; i < inprj.length; i++) {
     node.setAttribute("class", "row spaced-row");
     var nameHtml = "<s>" + HTMLescape(inprj[i].name) + "</s>";
     if (!inprj[i].is_complete && !inprj[i].is_deleted) {
-        if (inprj[i].name.indexOf(inprj[i].in_context) === -1) {
-            nameHtml = HTMLescape(
-                inprj[i].name +
-                    ((inprj[i].in_context_uid === null) ? "" : " — " + inprj[i].in_context));
+        if (inprj[i].has_note && inprj[i].name.indexOf("(see note)") === -1) {
+            nameHtml = inprj[i].name + " (see note)";
         } else {
-            nameHtml = HTMLescape(inprj[i].name);
+            nameHtml = inprj[i].name;
+        }
+
+        if (inprj[i].name.indexOf(inprj[i].in_context) === -1) {
+            nameHtml = HTMLescape(nameHtml + ((inprj[i].in_context_uid === null) ? "" : " — " + inprj[i].in_context));
+        } else {
+            nameHtml = HTMLescape(nameHtml);
         }
     }
     node.innerHTML = `

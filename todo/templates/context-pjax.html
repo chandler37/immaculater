@@ -206,7 +206,11 @@ var i;
 var buttonDiv = document.getElementById("verticalContextButtonGroup");
 buttonDiv.innerHTML = "";
 for (i = 0; i < inctx.length; i++) {
-    var nameText = inctx[i].name + " \u2014 " + inctx[i].in_prj;
+    var seeNote = "";
+    if (inctx[i].has_note && inctx[i].name.indexOf("(see note)") === -1) {
+        seeNote += " (see note)";
+    }
+    var nameText = inctx[i].name + seeNote + " \u2014 " + inctx[i].in_prj;
     var node = document.createElement("div");
     node.setAttribute("class", "row spaced-row");
     node.innerHTML = `
@@ -252,11 +256,11 @@ ${(inctx[i].is_complete || inctx[i].is_deleted)
 }
 if (!inctx.length) {
     if ("{{ViewFilter}}" == "all") {
-	buttonDiv.innerHTML = "<p class=\"text-center\">No actions are visible under the current view filter. Set View Filter to 'Truly all, even deleted' to see everything.</p>";
+        buttonDiv.innerHTML = "<p class=\"text-center\">No actions are visible under the current view filter. Set View Filter to 'Truly all, even deleted' to see everything.</p>";
     } else if ("{{ViewFilter}}" == "all_even_deleted") {
-	buttonDiv.innerHTML = "<p class=\"text-center\">You have not yet created actions in this context. You may do so using the 'Create Action in Inbox' button.</p>";
+        buttonDiv.innerHTML = "<p class=\"text-center\">You have not yet created actions in this context. You may do so using the 'Create Action in Inbox' button.</p>";
     } else {
-	buttonDiv.innerHTML = "<p class=\"text-center\">No actions are visible under the current view filter. Set View Filter to 'All' to see all but deleted actions.</p>";
+        buttonDiv.innerHTML = "<p class=\"text-center\">No actions are visible under the current view filter. Set View Filter to 'All' to see all but deleted actions.</p>";
     }
 }
 

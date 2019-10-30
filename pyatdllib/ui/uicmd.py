@@ -220,6 +220,8 @@ def _JsonForOneItem(item, to_do_list, number_of_items,
     rv['is_active'] = True
   if hasattr(item, 'is_active'):
     rv['is_active'] = item.is_active
+  if hasattr(item, 'note'):
+    rv['has_note'] = bool(item.note)
   if path_leaf_first is not None:
     rv['path'] = FLAGS.pyatdl_separator.join(
       state_module.State.SlashEscaped(x.name) for x in reversed(path_leaf_first))

@@ -376,15 +376,15 @@ dump""")) as f:
       'Reset complete.',
       '[{"ctime":0,"dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":0,"name":"<none>","number_of_items":0,"uid":"0"}]',
       'after len==0',
-      '[{"ctime":0,"dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":0,"name":"<none>","number_of_items":0,"uid":"0"},{"ctime":1137.0,"dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"653","number_of_items":0,"uid":"4"}]',
+      '[{"ctime":0,"dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":0,"name":"<none>","number_of_items":0,"uid":"0"},{"ctime":1137.0,"dtime":null,"has_note":false,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"653","number_of_items":0,"uid":"4"}]',
       'after len==1',
       'Save complete.',
       'Load complete.',
-      '[{"ctime":0,"dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":0,"name":"<none>","number_of_items":0,"uid":"0"},{"ctime":1137.0,"dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"653","number_of_items":0,"uid":"4"},{"ctime":1137.0,"dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"at 654}]","number_of_items":0,"uid":"5"}]',
+      '[{"ctime":0,"dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":0,"name":"<none>","number_of_items":0,"uid":"0"},{"ctime":1137.0,"dtime":null,"has_note":false,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"653","number_of_items":0,"uid":"4"},{"ctime":1137.0,"dtime":null,"has_note":false,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"at 654}]","number_of_items":0,"uid":"5"}]',
       'after len==2',
       'Takes zero or one arguments; found these arguments: [u\'0\', u\'1\']',
       'after too many args',
-      '{"ctime":1137.0,"dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"653","number_of_items":0,"uid":"4"}',
+      '{"ctime":1137.0,"dtime":null,"has_note":false,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"653","number_of_items":0,"uid":"4"}',
       'after --json 653',
       '--context-- ---active--- 653',
       'after 653',
@@ -458,17 +458,17 @@ dump""")) as f:
       'after --json not-an-action',
       'Needs a single positional argument; found none',
       'after no args',
-      '{"ctime":1137.0,"display_project_path":"inbox","dtime":null,"in_context":"<none>","in_context_uid":null,"is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"a 0","number_of_items":1,"project_path":"/inbox","project_uid":"1","uid":"4"}',
+      '{"ctime":1137.0,"display_project_path":"inbox","dtime":null,"has_note":false,"in_context":"<none>","in_context_uid":null,"is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"a 0","number_of_items":1,"project_path":"/inbox","project_uid":"1","uid":"4"}',
       'after --json uid=4',
-      '{"ctime":1137.0,"display_project_path":"inbox","dtime":null,"in_context":"<none>","in_context_uid":null,"is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"a 0","number_of_items":1,"project_path":"/inbox","project_uid":"1","uid":"4"}',
+      '{"ctime":1137.0,"display_project_path":"inbox","dtime":null,"has_note":false,"in_context":"<none>","in_context_uid":null,"is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"a 0","number_of_items":1,"project_path":"/inbox","project_uid":"1","uid":"4"}',
       'after --json /inbox/a 0',
-      '{"ctime":1137.0,"display_project_path":"inbox","dtime":null,"in_context":"c0","in_context_uid":"5","is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"a 0","number_of_items":1,"project_path":"/inbox","project_uid":"1","uid":"4"}',
+      '{"ctime":1137.0,"display_project_path":"inbox","dtime":null,"has_note":false,"in_context":"c0","in_context_uid":"5","is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"a 0","number_of_items":1,"project_path":"/inbox","project_uid":"1","uid":"4"}',
       'after --json uid=4 chctx c0',
       'before mv uid=4',
       'after mv uid=4',
-      '{"ctime":1137.0,"display_project_path":"D0/P0","dtime":null,"in_context":"c0","in_context_uid":"5","is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"a 0","number_of_items":1,"project_path":"/D0/P0","project_uid":"7","uid":"4"}',
+      '{"ctime":1137.0,"display_project_path":"D0/P0","dtime":null,"has_note":false,"in_context":"c0","in_context_uid":"5","is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"a 0","number_of_items":1,"project_path":"/D0/P0","project_uid":"7","uid":"4"}',
       'after --json uid=4 chctx c0 /D0/P0',
-      '{"ctime":1137.0,"display_project_path":"D0/P0","dtime":null,"in_context":"c0","in_context_uid":"5","is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"a 0","number_of_items":1,"project_path":"/D0/P0","project_uid":"7","uid":"4"}',
+      '{"ctime":1137.0,"display_project_path":"D0/P0","dtime":null,"has_note":false,"in_context":"c0","in_context_uid":"5","is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"a 0","number_of_items":1,"project_path":"/D0/P0","project_uid":"7","uid":"4"}',
       'after running from root',
     ]
     self.helpTest(inputs, golden_printed)
@@ -537,20 +537,20 @@ dump""")) as f:
       '',
       '/D0/P0:',
       'after ls -R /',
-      '{"ctime":1137.0,"display_project_path":"inbox","dtime":null,"in_context":"<none>","in_context_uid":null,"is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"action with id -8310047117500551536","number_of_items":1,"project_path":"/inbox","project_uid":"1","uid":"-8310047117500551536"}',
+      '{"ctime":1137.0,"display_project_path":"inbox","dtime":null,"has_note":false,"in_context":"<none>","in_context_uid":null,"is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"action with id -8310047117500551536","number_of_items":1,"project_path":"/inbox","project_uid":"1","uid":"-8310047117500551536"}',
       'after --json uid=-8310047117500551536',
-      '{"ctime":1137.0,"display_project_path":"inbox","dtime":null,"in_context":"<none>","in_context_uid":null,"is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"action with id +8923216991658685487","number_of_items":1,"project_path":"/inbox","project_uid":"1","uid":"8923216991658685487"}',
+      '{"ctime":1137.0,"display_project_path":"inbox","dtime":null,"has_note":false,"in_context":"<none>","in_context_uid":null,"is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"action with id +8923216991658685487","number_of_items":1,"project_path":"/inbox","project_uid":"1","uid":"8923216991658685487"}',
       'after --json uid=8923216991658685487',
-      '{"ctime":1137.0,"display_project_path":"inbox","dtime":null,"in_context":"c0","in_context_uid":"7926615695106819409","is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"action with id -8310047117500551536","number_of_items":1,"project_path":"/inbox","project_uid":"1","uid":"-8310047117500551536"}',
+      '{"ctime":1137.0,"display_project_path":"inbox","dtime":null,"has_note":false,"in_context":"c0","in_context_uid":"7926615695106819409","is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"action with id -8310047117500551536","number_of_items":1,"project_path":"/inbox","project_uid":"1","uid":"-8310047117500551536"}',
       'after --json uid=-8310047117500551536 chctx c0',
       'before mv uid=-8310047117500551536',
       'after mv uid=-8310047117500551536',
       r"""With current working Folder/Project "/inbox", there is no such child "a 0".  Choices:
     ..
 """,
-      '{"ctime":1137.0,"display_project_path":"inbox","dtime":null,"in_context":"c0","in_context_uid":"7926615695106819409","is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"action with id -8310047117500551536","number_of_items":1,"project_path":"/inbox","project_uid":"1","uid":"-8310047117500551536"}',
+      '{"ctime":1137.0,"display_project_path":"inbox","dtime":null,"has_note":false,"in_context":"c0","in_context_uid":"7926615695106819409","is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"action with id -8310047117500551536","number_of_items":1,"project_path":"/inbox","project_uid":"1","uid":"-8310047117500551536"}',
       'after --json uid=-8310047117500551536 chctx c0 /D0/P0',
-      '{"ctime":1137.0,"display_project_path":"inbox","dtime":null,"in_context":"c0","in_context_uid":"7926615695106819409","is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"action with id -8310047117500551536","number_of_items":1,"project_path":"/inbox","project_uid":"1","uid":"-8310047117500551536"}',
+      '{"ctime":1137.0,"display_project_path":"inbox","dtime":null,"has_note":false,"in_context":"c0","in_context_uid":"7926615695106819409","is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"action with id -8310047117500551536","number_of_items":1,"project_path":"/inbox","project_uid":"1","uid":"-8310047117500551536"}',
       'after running from root',
     ]
     self.helpTest(inputs, golden_printed)
@@ -609,11 +609,11 @@ dump""")) as f:
       'Reset complete.',
       '[]',
       'after null',
-      '[{"ctime":1137.0,"dtime":null,"in_context":"<none>","in_context_uid":null,"in_prj":"inbox","is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"a0_655","number_of_items":1,"uid":"5"},{"ctime":1137.0,"dtime":null,"in_context":"<none>","in_context_uid":null,"in_prj":"inbox","is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"a1_655","number_of_items":1,"uid":"6"}]',
+      '[{"ctime":1137.0,"dtime":null,"has_note":false,"in_context":"<none>","in_context_uid":null,"in_prj":"inbox","is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"a0_655","number_of_items":1,"uid":"5"},{"ctime":1137.0,"dtime":null,"has_note":false,"in_context":"<none>","in_context_uid":null,"in_prj":"inbox","is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"a1_655","number_of_items":1,"uid":"6"}]',
       'after 2',
-      '[{"ctime":1137.0,"dtime":null,"in_context":"655","in_context_uid":"4","in_prj":"inbox","is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"a0_655","number_of_items":1,"uid":"5"}]',
+      '[{"ctime":1137.0,"dtime":null,"has_note":false,"in_context":"655","in_context_uid":"4","in_prj":"inbox","is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"a0_655","number_of_items":1,"uid":"5"}]',
       'after len==1',
-      '[{"ctime":1137.0,"dtime":null,"in_context":"655","in_context_uid":"4","in_prj":"inbox","is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"a0_655","number_of_items":1,"uid":"5"},{"ctime":1137.0,"dtime":null,"in_context":"655","in_context_uid":"4","in_prj":"inbox","is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"a1_655","number_of_items":1,"uid":"6"}]',
+      '[{"ctime":1137.0,"dtime":null,"has_note":false,"in_context":"655","in_context_uid":"4","in_prj":"inbox","is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"a0_655","number_of_items":1,"uid":"5"},{"ctime":1137.0,"dtime":null,"has_note":false,"in_context":"655","in_context_uid":"4","in_prj":"inbox","is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"a1_655","number_of_items":1,"uid":"6"}]',
       'after len==2',
     ]
     self.helpTest(inputs, golden_printed)
@@ -652,11 +652,11 @@ dump""")) as f:
       'Reset complete.',
       '/inbox',
       'after nothing but inbox default',
-      '[{"ctime":1137.0,"default_context_uid":"0","dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"inbox","needsreview":false,"number_of_items":0,"path":"/","uid":"1"}]',
+      '[{"ctime":1137.0,"default_context_uid":"0","dtime":null,"has_note":false,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"inbox","needsreview":false,"number_of_items":0,"path":"/","uid":"1"}]',
       'after nothing but inbox --json',
       '/inbox',
       'after nothing but inbox --nojson',
-      '[{"ctime":1137.0,"default_context_uid":"0","dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"inbox","needsreview":false,"number_of_items":0,"path":"/","uid":"1"},{"ctime":1137.0,"default_context_uid":"0","dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"p 0","needsreview":false,"number_of_items":0,"path":"/","uid":"4"},{"ctime":1137.0,"default_context_uid":"0","dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"p1","needsreview":false,"number_of_items":0,"path":"/","uid":"5"},{"ctime":1137.0,"default_context_uid":"0","dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"p2_in_dir0","needsreview":false,"number_of_items":0,"path":"/dir0","uid":"7"}]',
+      '[{"ctime":1137.0,"default_context_uid":"0","dtime":null,"has_note":false,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"inbox","needsreview":false,"number_of_items":0,"path":"/","uid":"1"},{"ctime":1137.0,"default_context_uid":"0","dtime":null,"has_note":false,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"p 0","needsreview":false,"number_of_items":0,"path":"/","uid":"4"},{"ctime":1137.0,"default_context_uid":"0","dtime":null,"has_note":false,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"p1","needsreview":false,"number_of_items":0,"path":"/","uid":"5"},{"ctime":1137.0,"default_context_uid":"0","dtime":null,"has_note":false,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"p2_in_dir0","needsreview":false,"number_of_items":0,"path":"/dir0","uid":"7"}]',
       'after several --json',
       '/inbox',
       '/p 0',
@@ -667,11 +667,11 @@ dump""")) as f:
       'after two args',
       'With an argument, --json is required',
       'after uid=1',
-      '{"ctime":1137.0,"default_context_uid":"0","dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"max_seconds_before_review":604800.0,"mtime":1137.0,"name":"inbox","needsreview":false,"number_of_items":0,"parent_path":"/","uid":"1"}',
+      '{"ctime":1137.0,"default_context_uid":"0","dtime":null,"has_note":false,"is_active":true,"is_complete":false,"is_deleted":false,"max_seconds_before_review":604800.0,"mtime":1137.0,"name":"inbox","needsreview":false,"number_of_items":0,"parent_path":"/","uid":"1"}',
       'after --json uid=1',
-      '{"ctime":1137.0,"default_context_uid":"0","dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"max_seconds_before_review":604800.0,"mtime":1137.0,"name":"inbox","needsreview":false,"number_of_items":0,"parent_path":"/","uid":"1"}',
+      '{"ctime":1137.0,"default_context_uid":"0","dtime":null,"has_note":false,"is_active":true,"is_complete":false,"is_deleted":false,"max_seconds_before_review":604800.0,"mtime":1137.0,"name":"inbox","needsreview":false,"number_of_items":0,"parent_path":"/","uid":"1"}',
       'after --json /inbox',
-      '{"ctime":1137.0,"default_context_uid":"0","dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"max_seconds_before_review":604800.0,"mtime":1137.0,"name":"p2_in_dir0","needsreview":false,"number_of_items":0,"parent_path":"/dir0","uid":"7"}',
+      '{"ctime":1137.0,"default_context_uid":"0","dtime":null,"has_note":false,"is_active":true,"is_complete":false,"is_deleted":false,"max_seconds_before_review":604800.0,"mtime":1137.0,"name":"p2_in_dir0","needsreview":false,"number_of_items":0,"parent_path":"/dir0","uid":"7"}',
       'after --json p2_in_dir0',
     ]
     self.helpTest(inputs, golden_printed)
@@ -709,10 +709,10 @@ dump""")) as f:
       'Reset complete.',
       'sort chrono:',
       'lsprj --json:',
-      '[{"ctime":1137.0,"default_context_uid":"0","dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"inbox","needsreview":false,"number_of_items":0,"path":"/","uid":"1"},{"ctime":1139.0,"default_context_uid":"0","dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":1139.0,"name":"b_alive","needsreview":false,"number_of_items":0,"path":"/","uid":"7"},{"ctime":1138.0,"default_context_uid":"0","dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":1138.0,"name":"aaalive_also","needsreview":false,"number_of_items":0,"path":"/a","uid":"6"},{"ctime":1137.0,"default_context_uid":"0","dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"alive","needsreview":false,"number_of_items":0,"path":"/a","uid":"5"},{"ctime":1140.0,"default_context_uid":"0","dtime":null,"is_active":false,"is_complete":false,"is_deleted":false,"mtime":1141.0,"name":"inactive","needsreview":false,"number_of_items":0,"path":"/","uid":"8"},{"ctime":1141.0,"default_context_uid":"0","dtime":null,"is_active":true,"is_complete":true,"is_deleted":false,"mtime":1142.0,"name":"pcompletej","needsreview":false,"number_of_items":0,"path":"/","uid":"9"},{"ctime":1142.0,"default_context_uid":"0","dtime":null,"is_active":false,"is_complete":true,"is_deleted":false,"mtime":1143.0,"name":"pcompleteinactive","needsreview":false,"number_of_items":0,"path":"/","uid":"10"},{"ctime":1143.0,"default_context_uid":"0","dtime":1144.0,"is_active":true,"is_complete":false,"is_deleted":true,"mtime":1144.0,"name":"pdeleted","needsreview":false,"number_of_items":0,"path":"/","uid":"11"}]',
+      '[{"ctime":1137.0,"default_context_uid":"0","dtime":null,"has_note":false,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"inbox","needsreview":false,"number_of_items":0,"path":"/","uid":"1"},{"ctime":1139.0,"default_context_uid":"0","dtime":null,"has_note":false,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":1139.0,"name":"b_alive","needsreview":false,"number_of_items":0,"path":"/","uid":"7"},{"ctime":1138.0,"default_context_uid":"0","dtime":null,"has_note":false,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":1138.0,"name":"aaalive_also","needsreview":false,"number_of_items":0,"path":"/a","uid":"6"},{"ctime":1137.0,"default_context_uid":"0","dtime":null,"has_note":false,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"alive","needsreview":false,"number_of_items":0,"path":"/a","uid":"5"},{"ctime":1140.0,"default_context_uid":"0","dtime":null,"has_note":false,"is_active":false,"is_complete":false,"is_deleted":false,"mtime":1141.0,"name":"inactive","needsreview":false,"number_of_items":0,"path":"/","uid":"8"},{"ctime":1141.0,"default_context_uid":"0","dtime":null,"has_note":false,"is_active":true,"is_complete":true,"is_deleted":false,"mtime":1142.0,"name":"pcompletej","needsreview":false,"number_of_items":0,"path":"/","uid":"9"},{"ctime":1142.0,"default_context_uid":"0","dtime":null,"has_note":false,"is_active":false,"is_complete":true,"is_deleted":false,"mtime":1143.0,"name":"pcompleteinactive","needsreview":false,"number_of_items":0,"path":"/","uid":"10"},{"ctime":1143.0,"default_context_uid":"0","dtime":1144.0,"has_note":false,"is_active":true,"is_complete":false,"is_deleted":true,"mtime":1144.0,"name":"pdeleted","needsreview":false,"number_of_items":0,"path":"/","uid":"11"}]',
       'sort alpha:',
       'lsprj --json:',
-      '[{"ctime":1137.0,"default_context_uid":"0","dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"inbox","needsreview":false,"number_of_items":0,"path":"/","uid":"1"},{"ctime":1138.0,"default_context_uid":"0","dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":1138.0,"name":"aaalive_also","needsreview":false,"number_of_items":0,"path":"/a","uid":"6"},{"ctime":1137.0,"default_context_uid":"0","dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"alive","needsreview":false,"number_of_items":0,"path":"/a","uid":"5"},{"ctime":1139.0,"default_context_uid":"0","dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":1139.0,"name":"b_alive","needsreview":false,"number_of_items":0,"path":"/","uid":"7"},{"ctime":1140.0,"default_context_uid":"0","dtime":null,"is_active":false,"is_complete":false,"is_deleted":false,"mtime":1141.0,"name":"inactive","needsreview":false,"number_of_items":0,"path":"/","uid":"8"},{"ctime":1141.0,"default_context_uid":"0","dtime":null,"is_active":true,"is_complete":true,"is_deleted":false,"mtime":1142.0,"name":"pcompletej","needsreview":false,"number_of_items":0,"path":"/","uid":"9"},{"ctime":1142.0,"default_context_uid":"0","dtime":null,"is_active":false,"is_complete":true,"is_deleted":false,"mtime":1143.0,"name":"pcompleteinactive","needsreview":false,"number_of_items":0,"path":"/","uid":"10"},{"ctime":1143.0,"default_context_uid":"0","dtime":1144.0,"is_active":true,"is_complete":false,"is_deleted":true,"mtime":1144.0,"name":"pdeleted","needsreview":false,"number_of_items":0,"path":"/","uid":"11"}]'
+      '[{"ctime":1137.0,"default_context_uid":"0","dtime":null,"has_note":false,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"inbox","needsreview":false,"number_of_items":0,"path":"/","uid":"1"},{"ctime":1138.0,"default_context_uid":"0","dtime":null,"has_note":false,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":1138.0,"name":"aaalive_also","needsreview":false,"number_of_items":0,"path":"/a","uid":"6"},{"ctime":1137.0,"default_context_uid":"0","dtime":null,"has_note":false,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"alive","needsreview":false,"number_of_items":0,"path":"/a","uid":"5"},{"ctime":1139.0,"default_context_uid":"0","dtime":null,"has_note":false,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":1139.0,"name":"b_alive","needsreview":false,"number_of_items":0,"path":"/","uid":"7"},{"ctime":1140.0,"default_context_uid":"0","dtime":null,"has_note":false,"is_active":false,"is_complete":false,"is_deleted":false,"mtime":1141.0,"name":"inactive","needsreview":false,"number_of_items":0,"path":"/","uid":"8"},{"ctime":1141.0,"default_context_uid":"0","dtime":null,"has_note":false,"is_active":true,"is_complete":true,"is_deleted":false,"mtime":1142.0,"name":"pcompletej","needsreview":false,"number_of_items":0,"path":"/","uid":"9"},{"ctime":1142.0,"default_context_uid":"0","dtime":null,"has_note":false,"is_active":false,"is_complete":true,"is_deleted":false,"mtime":1143.0,"name":"pcompleteinactive","needsreview":false,"number_of_items":0,"path":"/","uid":"10"},{"ctime":1143.0,"default_context_uid":"0","dtime":1144.0,"has_note":false,"is_active":true,"is_complete":false,"is_deleted":true,"mtime":1144.0,"name":"pdeleted","needsreview":false,"number_of_items":0,"path":"/","uid":"11"}]'
     ]
     j = json.loads(golden_printed[-1])  # sort alpha
     self.assertEqual(
@@ -803,9 +803,9 @@ dump""")) as f:
       'after ls',
       '[]',
       'after uid=4 p0',
-      '[{"ctime":1137.0,"dtime":null,"in_context":"<none>","in_context_uid":null,"is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"a0_in_p1","number_of_items":1,"uid":"6"}]',
+      '[{"ctime":1137.0,"dtime":null,"has_note":false,"in_context":"<none>","in_context_uid":null,"is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"a0_in_p1","number_of_items":1,"uid":"6"}]',
       'after uid=5 p1',
-      '[{"ctime":1137.0,"dtime":null,"in_context":"<none>","in_context_uid":null,"is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"a0_in_p2_in_dir0","number_of_items":1,"uid":"9"},{"ctime":1137.0,"dtime":null,"in_context":"<none>","in_context_uid":null,"is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"a1_in_p2_in_dir0","number_of_items":1,"uid":"10"}]',
+      '[{"ctime":1137.0,"dtime":null,"has_note":false,"in_context":"<none>","in_context_uid":null,"is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"a0_in_p2_in_dir0","number_of_items":1,"uid":"9"},{"ctime":1137.0,"dtime":null,"has_note":false,"in_context":"<none>","in_context_uid":null,"is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"a1_in_p2_in_dir0","number_of_items":1,"uid":"10"}]',
       'after uid=8 p2_in_dir0',
       '--action--- uid=9 --incomplete-- a0_in_p2_in_dir0 --in-context-- \'<none>\'',
       '--action--- uid=10 --incomplete-- a1_in_p2_in_dir0 --in-context-- \'<none>\'',
@@ -3188,7 +3188,7 @@ dump""")) as f:
       "--context-- uid=0 ---active--- '<none>'",
       '--context-- uid=4 ---active--- c',
       'lsact:',
-      '{"ctime":1137008.0,"display_project_path":"inbox","dtime":null,"in_context":"C","in_context_uid":"4","is_complete":false,"is_deleted":false,"mtime":1137008.0,"name":"a","number_of_items":1,"project_path":"/inbox","project_uid":"1","uid":"5"}',
+      '{"ctime":1137008.0,"display_project_path":"inbox","dtime":null,"has_note":false,"in_context":"C","in_context_uid":"4","is_complete":false,"is_deleted":false,"mtime":1137008.0,"name":"a","number_of_items":1,"project_path":"/inbox","project_uid":"1","uid":"5"}',
     ]
     self.helpTest(inputs, golden_printed)
 
@@ -3789,6 +3789,7 @@ it and use this view filter. Note: this is ignored in --show_all mode""",
       self.helpTest(['chclock 111'] + inputs, golden)
 
     inputs = ['mkprj Pa',
+              'note Pa "i can haz not?"',
               'ls -a',
               'cd Pa',
               'ls -a',
@@ -3913,7 +3914,7 @@ it and use this view filter. Note: this is ignored in --show_all mode""",
     HelpHelpTest(['chclock 999999999', 'needsreview'],
                  ['/inbox', '/Pa', '/Fb/Fbb/Pbb'])
     HelpHelpTest(['chclock 999999999', 'needsreview --json'],
-                 ['[{"ctime":36,"default_context_uid":"0","dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":36,"name":"inbox","needsreview":true,"number_of_items":0,"uid":"1"},{"ctime":111.0,"default_context_uid":"0","dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":111.0,"name":"Pa","needsreview":true,"number_of_items":0,"uid":"4"},{"ctime":111.0,"default_context_uid":"0","dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":111.0,"name":"Pbb","needsreview":true,"number_of_items":1,"uid":"8"}]'])
+                 ['[{"ctime":36,"default_context_uid":"0","dtime":null,"has_note":false,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":36,"name":"inbox","needsreview":true,"number_of_items":0,"uid":"1"},{"ctime":111.0,"default_context_uid":"0","dtime":null,"has_note":true,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":111.0,"name":"Pa","needsreview":true,"number_of_items":0,"uid":"4"},{"ctime":111.0,"default_context_uid":"0","dtime":null,"has_note":false,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":111.0,"name":"Pbb","needsreview":true,"number_of_items":1,"uid":"8"}]'])
     HelpHelpTest(['chclock 999999998', 'completereview /Fb/Fbb/Pbb'],
                  [])
     # TODO(chandler): Should we treat the review of the inbox specially? You
@@ -4568,11 +4569,11 @@ it and use this view filter. Note: this is ignored in --show_all mode""",
       '/bDthird:',
       'lsprj:',
       # inbox always first:
-      '[{"ctime":1137.0,"default_context_uid":"0","dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"inbox","needsreview":false,"number_of_items":3,"path":"/","uid":"1"},{"ctime":1137.0,"default_context_uid":"0","dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"asecond","needsreview":false,"number_of_items":0,"path":"/","uid":"8"},{"ctime":1137.0,"default_context_uid":"0","dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"bthird","needsreview":false,"number_of_items":0,"path":"/","uid":"9"},{"ctime":1137.0,"default_context_uid":"0","dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"cfirst","needsreview":false,"number_of_items":0,"path":"/","uid":"7"}]',
+      '[{"ctime":1137.0,"default_context_uid":"0","dtime":null,"has_note":false,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"inbox","needsreview":false,"number_of_items":3,"path":"/","uid":"1"},{"ctime":1137.0,"default_context_uid":"0","dtime":null,"has_note":false,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"asecond","needsreview":false,"number_of_items":0,"path":"/","uid":"8"},{"ctime":1137.0,"default_context_uid":"0","dtime":null,"has_note":false,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"bthird","needsreview":false,"number_of_items":0,"path":"/","uid":"9"},{"ctime":1137.0,"default_context_uid":"0","dtime":null,"has_note":false,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"cfirst","needsreview":false,"number_of_items":0,"path":"/","uid":"7"}]',
       'lsctx alpha:',
-      '[{"ctime":0,"dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":0,"name":"<none>","number_of_items":3,"uid":"0"},{"ctime":1137.0,"dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"@asecond","number_of_items":0,"uid":"14"},{"ctime":1137.0,"dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"@cfirst","number_of_items":0,"uid":"13"}]',
+      '[{"ctime":0,"dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":0,"name":"<none>","number_of_items":3,"uid":"0"},{"ctime":1137.0,"dtime":null,"has_note":false,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"@asecond","number_of_items":0,"uid":"14"},{"ctime":1137.0,"dtime":null,"has_note":false,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"@cfirst","number_of_items":0,"uid":"13"}]',
       'lsctx chrono:',
-      '[{"ctime":0,"dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":0,"name":"<none>","number_of_items":3,"uid":"0"},{"ctime":1137.0,"dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"@cfirst","number_of_items":0,"uid":"13"},{"ctime":1137.0,"dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"@asecond","number_of_items":0,"uid":"14"}]',
+      '[{"ctime":0,"dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":0,"name":"<none>","number_of_items":3,"uid":"0"},{"ctime":1137.0,"dtime":null,"has_note":false,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"@cfirst","number_of_items":0,"uid":"13"},{"ctime":1137.0,"dtime":null,"has_note":false,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"@asecond","number_of_items":0,"uid":"14"}]',
     ]
     self.helpTest(inputs, golden_printed)
 
@@ -5412,7 +5413,7 @@ it and use this view filter. Note: this is ignored in --show_all mode""",
       "inactive_and_incomplete inprj inbox:",
       "[]",
       "all inprj inbox:",
-      '[{"ctime":37.0,"dtime":null,"in_context":"<none>","in_context_uid":null,"is_complete":false,"is_deleted":false,"mtime":37.0,"name":"active_and_incomplete_in_inbox","number_of_items":1,"uid":"16"}]',
+      '[{"ctime":37.0,"dtime":null,"has_note":false,"in_context":"<none>","in_context_uid":null,"is_complete":false,"is_deleted":false,"mtime":37.0,"name":"active_and_incomplete_in_inbox","number_of_items":1,"uid":"16"}]',
     ]
     self.helpTest(inputs, golden_printed)
 
@@ -5569,7 +5570,7 @@ it and use this view filter. Note: this is ignored in --show_all mode""",
       "--action--- uid=10 --incomplete-- afternewname --in-context-- '<none>'",
       "--action--- uid=12 --incomplete-- afterrmctx --in-context-- '<none>'",
       "lsprj --json uid=1",
-      '{"ctime":36.0,"default_context_uid":"14","dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"max_seconds_before_review":604800.0,"mtime":1137.0,"name":"inbox","needsreview":false,"number_of_items":3,"parent_path":"/","uid":"1"}',
+      '{"ctime":36.0,"default_context_uid":"14","dtime":null,"has_note":false,"is_active":true,"is_complete":false,"is_deleted":false,"max_seconds_before_review":604800.0,"mtime":1137.0,"name":"inbox","needsreview":false,"number_of_items":3,"parent_path":"/","uid":"1"}',
       "uid=15 for @highestuid:",
       "--context-- uid=0 mtime=1969/12/31-19:00:00 ctime=1969/12/31-19:00:00 ---active--- '<none>'",
       "--context-- uid=14 mtime=1969/12/31-19:18:57 ctime=1969/12/31-19:18:57 ---active--- @foobar",
@@ -6445,7 +6446,7 @@ it and use this view filter. Note: this is ignored in --show_all mode""",
       '--action--- uid=4355858073736897916 --incomplete-- a3',
       '--action--- uid=-8310047117500551536 --incomplete-- a4',
       'inctx --sort_by ctime --json uid=0:',
-      '[{"ctime":1137.0,"dtime":null,"in_context":"<none>","in_context_uid":null,"in_prj":"inbox","is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"a0","number_of_items":1,"uid":"277028180750618930"},{"ctime":1137.0,"dtime":null,"in_context":"<none>","in_context_uid":null,"in_prj":"inbox","is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"a1","number_of_items":1,"uid":"8923216991658685487"},{"ctime":1137.0,"dtime":null,"in_context":"<none>","in_context_uid":null,"in_prj":"inbox","is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"a2","number_of_items":1,"uid":"7844860928174339221"},{"ctime":1137.0,"dtime":null,"in_context":"<none>","in_context_uid":null,"in_prj":"inbox","is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"a3","number_of_items":1,"uid":"4355858073736897916"},{"ctime":1137.0,"dtime":null,"in_context":"<none>","in_context_uid":null,"in_prj":"inbox","is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"a4","number_of_items":1,"uid":"-8310047117500551536"}]'
+      '[{"ctime":1137.0,"dtime":null,"has_note":false,"in_context":"<none>","in_context_uid":null,"in_prj":"inbox","is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"a0","number_of_items":1,"uid":"277028180750618930"},{"ctime":1137.0,"dtime":null,"has_note":false,"in_context":"<none>","in_context_uid":null,"in_prj":"inbox","is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"a1","number_of_items":1,"uid":"8923216991658685487"},{"ctime":1137.0,"dtime":null,"has_note":false,"in_context":"<none>","in_context_uid":null,"in_prj":"inbox","is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"a2","number_of_items":1,"uid":"7844860928174339221"},{"ctime":1137.0,"dtime":null,"has_note":false,"in_context":"<none>","in_context_uid":null,"in_prj":"inbox","is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"a3","number_of_items":1,"uid":"4355858073736897916"},{"ctime":1137.0,"dtime":null,"has_note":false,"in_context":"<none>","in_context_uid":null,"in_prj":"inbox","is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"a4","number_of_items":1,"uid":"-8310047117500551536"}]'
     ]
     self.helpTest(inputs, golden_printed)
 

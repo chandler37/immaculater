@@ -602,8 +602,6 @@ def five_hundred(request):
     division_by_zero = 1 / 0  # # noqa: F841
 
 
-# TODO(chandler): For inactive, incomplete i'm not seeing 'foo @someday/maybe'
-# in the inbox; i see only inactive projects.
 @xframe_options_sameorigin
 @never_cache
 @login_required

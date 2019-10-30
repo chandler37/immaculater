@@ -51,7 +51,7 @@ createOption('all', 'All', currentlySelected) +
 createOption('actionable', 'Actionable', currentlySelected) +
 createOption('needing_review', 'Needing review', currentlySelected) +
 createOption('incomplete', 'Incomplete, even if inactive', currentlySelected) +
-createOption('inactive_and_incomplete', 'Inactive, incomplete', currentlySelected) +
+createOption('inactive_and_incomplete', 'Back burner (pending and inactive)', currentlySelected) +
 createOption('all_even_deleted', 'Truly all, even deleted', currentlySelected) +
 '<input type="submit" value="Set View Filter" class="btn btn-primary">' +
 '</div></form>';

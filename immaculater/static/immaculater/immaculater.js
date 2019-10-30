@@ -17,7 +17,7 @@ function Linkify(unescapedHtml) {
 
     return unescapedHtml.replace(
         regex,
-        '<a href="$&" rel="noreferrer">$&</a>');
+        '<a href="$&" rel="noreferrer noopener" target="_blank">$&</a>');
 }
 
 function createButton(servlet, csrfToken, uid, hiddenValues, buttonText, labelText) {

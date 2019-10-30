@@ -75,7 +75,7 @@ for (i = 0; i < prjs.length; i++) {
     node.setAttribute("href", "project/" + prjs[i].uid.toString());
     node.setAttribute("class", "btn btn-info btn-md col-lg-12");
     node.setAttribute("style", "margin-bottom:4px;white-space: normal;");
-    if (prjs[i].is_complete) {
+    if (prjs[i].is_complete || prjs[i].is_deleted) {
         node.innerHTML = "<s>" + HTMLescape(nameText) + "</s>";
     } else {
         node.innerHTML = HTMLescape(nameText +

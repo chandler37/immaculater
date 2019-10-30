@@ -8,7 +8,8 @@ function HTMLescape(unsafe) {
         .replace(/"/g, "&quot;")
         .replace(/'/g, "&#039;");
 }
-var regexpression = /http(s)?:\/\/[-a-z0-9]+(\.[-a-z0-9]+)+(\/\S*)?\b/gi;
+
+var regexpression = /http(s)?:\/\/[-a-z0-9]+(\.[-a-z0-9]+)+(\/\S*)?/gi;
 // a good test case is
 // 'https://www.google.com/search?client=firefox-b-1-d&q=rel+noreferrer' since
 // it involves a replacement in HTMLescape:

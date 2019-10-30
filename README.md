@@ -92,7 +92,7 @@ tested because it's used in production (on Heroku).
 
  - `heroku create -a <yourprj>`
  - Or, if you already created your project but you're working from a new
-   `pyatdl` directory, run `heroku git:remote -a <yourprj>` and then run `git
+   `immaculater` directory, run `heroku git:remote -a <yourprj>` and then run `git
    remote add` as directed.
  - Folow the steps below for 'Heroku Deployment'
  - Generate two encryption keys as follows:
@@ -166,6 +166,30 @@ pg:backups:capture --app <YOUR APP NAME>`.
 You should not need to put your app in maintenance mode via `heroku
 maintenance:on -a <YOUR APP NAME>` but if you are ignoring best practices and
 mixing a database change with a code change, it's probably best.
+
+If you want to poke around at the production postgresql database, do something like the following:
+
+```
+USEFUL:
+/i$ heroku pg:psql
+--> Connecting to postgresql-...
+immaculater::DATABASE=> \dt
+       List of relations
+ Schema |                 Name                 | Type  |     Owner
+--------+--------------------------------------+-------+----------------
+ public | account_emailaddress                 | table | ...
+immaculater::DATABASE=> select * from auth_user order by last_login desc;
+...
+immaculater::DATABASE=> select * from todo_todolist limit 1;
+ user_id | contents |          created_at           |          updated_at           | encrypted_contents | encrypted_contents2
+---------+----------+-------------------------------+-------------------------------+--------------------+---------------------
+       1 | ........ | 2017-07-05 02:34:30.285521+00 | 2017-07-05 02:34:30.285538+00 |                    |
+immaculater::DATABASE=> select pg_column_size(encrypted_contents2), octet_length(encrypted_contents2) from todo_todolist where user_id = 51919;
+ pg_column_size | octet_length
+----------------+--------------
+     110540 |       110540
+(1 row)
+```
 
 ## Upgrading Third-Party Dependencies
 

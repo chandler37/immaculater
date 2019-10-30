@@ -1,11 +1,23 @@
 "use strict";
 // JavaScript routines common to many servlets.
-var HTMLescapeText = document.createTextNode("");
-var HTMLescapeNative = document.createElement("span");
-HTMLescapeNative.appendChild(HTMLescapeText);
-function HTMLescape(html) {
-    HTMLescapeText.nodeValue = html;
-    return HTMLescapeNative.innerHTML;
+function HTMLescape(unsafe) {
+    return unsafe
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+var regexpression = /http(s)?:\/\/[-a-z0-9]+(\.[-a-z0-9]+)+(\/\S*)?\b/gi;
+// a good test case is
+// 'https://www.google.com/search?client=firefox-b-1-d&q=rel+noreferrer' since
+// it involves a replacement in HTMLescape:
+function Linkify(unescapedHtml) {
+    var regex = new RegExp(regexpression);
+
+    return unescapedHtml.replace(
+        regex,
+        '<a href="$&" rel="noreferrer">$&</a>');
 }
 
 function createButton(servlet, csrfToken, uid, hiddenValues, buttonText, labelText) {
@@ -48,7 +60,7 @@ function pjaxifyForms() {
     $('.i-pjax-form').submit(function(event) {
         $.pjax.submit(event, '#main', {type: "POST", push: false, cache: false});
     });
-    
+
     $('.i-submits-when-changed').change(function(event) {
         $(this).closest('form').submit();
     });

@@ -95,7 +95,7 @@ if (lsact.is_deleted) {
     document.getElementById("newnametext").value = lsact.name;
 }
 document.getElementById("title").innerHTML =
-    "{{Title}} &lsquo;" + HTMLescape(lsact.name) + "&rsquo;";
+    "{{Title}} &lsquo;" + Linkify(HTMLescape(lsact.name)) + "&rsquo;";
 
 if (lsact.is_deleted) {
     var f = document.getElementById("completeCheckbox");

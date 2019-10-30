@@ -206,7 +206,7 @@ action.
 simplemde.value(note_value);
 
 document.getElementById("title").innerHTML =
-    (lsprj.uid === 1) ? "Inbox" : ("{{Title}} &lsquo;" + HTMLescape(lsprj.name) + "&rsquo;");
+    (lsprj.uid === 1) ? "Inbox" : ("{{Title}} &lsquo;" + Linkify(HTMLescape(lsprj.name)) + "&rsquo;");
 
 if (lsprj.is_deleted || lsprj.uid === 1) {
     var f = document.getElementById("active");

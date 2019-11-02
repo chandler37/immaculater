@@ -35,9 +35,9 @@ class Container(auditable_object.AuditableObject):
 
   Fields:
     uid: int
-    ctime: int  # seconds since the epoch
-    dtime: int|None  # seconds since the epoch, or None if not deleted.
-    mtime: int  # seconds since the epoch
+    ctime: float  # seconds since the epoch
+    dtime: float|None  # seconds since the epoch, or None if not deleted.
+    mtime: float  # seconds since the epoch
     is_deleted: bool
     items: [object]
   """

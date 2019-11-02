@@ -57,9 +57,9 @@ class AuditableObject(object):
 
   Fields:
     uid: int  # No two AuditableObjects have the same unique identifier
-    ctime: int  # seconds since the epoch
-    dtime: int|None  # seconds since the epoch, or None if not deleted.
-    mtime: int  # seconds since the epoch
+    ctime: float  # seconds since the epoch
+    dtime: float|None  # seconds since the epoch, or None if not deleted.
+    mtime: float  # seconds since the epoch
     is_deleted: bool
 
   Invariants:
@@ -113,7 +113,8 @@ class AuditableObject(object):
     self.__dict__[name] = value
     if name == 'is_deleted' and value:
       self.__dict__['dtime'] = time.time()
-    self.NoteModification()
+    if name != 'mtime':
+      self.NoteModification()
 
   def AsProto(self, pb):
     """Serializes this object by mutating pb.
@@ -131,25 +132,30 @@ class AuditableObject(object):
     return pb
 
   def SetFieldsBasedOnProtobuf(self, pb):
-    """Overwrites fields based on the given protobuf.
+    """Overwrites fields based on the given protobuf. You must call this at the very last.
+
+    At the very last because any manipulation of this object afterwards will overwrite mtime.
 
     Args:
       pb: pyatdl_pb2.Common
     Returns:
       None
+
     """
     self.__dict__['is_deleted'] = pb.is_deleted
     self.__dict__['ctime'] = _FloatingPointTimestamp(pb.timestamp.ctime)
     self.__dict__['dtime'] = _FloatingPointTimestamp(pb.timestamp.dtime)
-    self.__dict__['mtime'] = _FloatingPointTimestamp(pb.timestamp.mtime)
-    if os.environ.get('DJANGO_DEBUG') == "True":
-      # See comment above for why we don't run this in production.
-      assert self.__dict__['mtime'] >= self.__dict__['ctime'], str(self.__dict__)
+    # self.__dict__['mtime'] must be set last because setting anything else triggers NoteModification which overwrites
+    # it based on time.time().
     assert 2**63 > pb.uid >= -2**63, str(pb)
     assert pb.uid != 0
     if self.__dict__['uid'] != pb.uid:
       uid.singleton_factory.NoteExistingUID(pb.uid)
     self.__dict__['uid'] = pb.uid
+    self.__dict__['mtime'] = _FloatingPointTimestamp(pb.timestamp.mtime)  # because __setattr__ tramples mtime, this comes last
+    if os.environ.get('DJANGO_DEBUG') == "True":
+      # See comment above for why we don't run this in production.
+      assert self.__dict__['mtime'] >= self.__dict__['ctime'], str(self.__dict__)
 
   def __str__(self):
     return self.__unicode__().encode('utf-8') if six.PY2 else self.__unicode__()

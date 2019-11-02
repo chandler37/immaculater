@@ -4,6 +4,7 @@ import time
 
 import gflags as flags  # https://code.google.com/p/python-gflags/
 
+from pyatdllib.core import action
 from pyatdllib.core import uid
 from pyatdllib.core import unitjest
 
@@ -18,10 +19,13 @@ class ActionTestCase(unitjest.TestCase):  # pylint: disable=missing-docstring,to
     FLAGS.pyatdl_randomize_uids = False
     uid.ResetNotesOfExistingUIDs()
 
-  def testAsProto(self):  # pylint: disable=missing-docstring
+  def testToAndFromProto(self):  # pylint: disable=missing-docstring
 
     def MockTime():  # pylint: disable=missing-docstring
       return 373737373
+
+    def MockLater():  # pylint: disable=missing-docstring
+      return MockTime() + 100 * 1000 * 1000
 
     saved_time = time.time
     time.time = MockTime
@@ -64,6 +68,14 @@ is_complete: false
 is_complete: false
 ctx_uid: -9223372036854775808
 """)
+
+      time.time = MockLater
+      uid.ResetNotesOfExistingUIDs()
+      a = action.Action.DeserializedProtobuf(pb1.SerializeToString())
+      self.assertEqual(
+        a.mtime * 1000 * 1000.0,
+        373737373000000.0)
+
     finally:
       time.time = saved_time
 

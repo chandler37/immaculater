@@ -242,8 +242,8 @@ class Prj(container.Container):
             default_context_uid=pb.default_context_uid,
             max_seconds_before_review=max_seconds_before_review,
             last_review_epoch_sec=pb.last_review_epoch_seconds)
-    p.SetFieldsBasedOnProtobuf(pb.common)
     for pb_action in pb.actions:
       p.items.append(action.Action.DeserializedProtobuf(
         pb_action.SerializeToString()))
+    p.SetFieldsBasedOnProtobuf(pb.common)  # must be last
     return p

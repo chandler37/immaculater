@@ -25,6 +25,7 @@ class Mergeprotobufs(TestCase):
         random.seed(37)
         self._saved_time = time.time
         time.time = lambda: 37.000037
+
         self.email = 'foo@example.com'
         self.username = 'foo'
         self.password = 'password'
@@ -198,7 +199,7 @@ to_do_list {
         timestamp {
           ctime: 0
           dtime: 0
-          mtime: 37000037
+          mtime: 0
         }
         metadata {
           name: "increase the tests\' branch coverage"

@@ -34,9 +34,9 @@ class Ctx(auditable_object.AuditableObject):
 
   Fields:
     uid: int
-    ctime: int  # seconds since the epoch
-    dtime: int|None  # seconds since the epoch, or None if not deleted.
-    mtime: int  # seconds since the epoch
+    ctime: float  # seconds since the epoch
+    dtime: float|None  # seconds since the epoch, or None if not deleted.
+    mtime: float  # seconds since the epoch
     is_deleted: bool
     is_active: bool  # "someday/maybe" would be inactive.  Most are active.
     name: None|basestring
@@ -91,7 +91,7 @@ class Ctx(auditable_object.AuditableObject):
             name=pb.common.metadata.name,
             is_active=pb.is_active,
             note=pb.common.metadata.note)
-    c.SetFieldsBasedOnProtobuf(pb.common)
+    c.SetFieldsBasedOnProtobuf(pb.common)  # must be last
     assert c.uid == pb.common.uid
     return c
 
@@ -101,9 +101,9 @@ class CtxList(container.Container):
 
   Fields:
     uid: int
-    ctime: int  # seconds since the epoch
-    dtime: int|None  # seconds since the epoch, or None if not deleted.
-    mtime: int  # seconds since the epoch
+    ctime: float  # seconds since the epoch
+    dtime: float|None  # seconds since the epoch, or None if not deleted.
+    mtime: float  # seconds since the epoch
     is_deleted: bool
     name: None|str|unicode
     items: [Ctx]
@@ -181,6 +181,6 @@ class CtxList(container.Container):
     cl = cls(the_uid=pb.common.uid, name=pb.common.metadata.name)
     for pbc in pb.contexts:
       cl.items.append(Ctx.DeserializedProtobuf(pbc.SerializeToString()))
-    cl.SetFieldsBasedOnProtobuf(pb.common)
+    cl.SetFieldsBasedOnProtobuf(pb.common)  # must be last mutation
     cl.CheckIsWellFormed()
     return cl

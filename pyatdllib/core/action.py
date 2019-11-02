@@ -20,9 +20,9 @@ class Action(auditable_object.AuditableObject):
 
   Fields:
     uid: int
-    ctime: int  # seconds since the epoch
-    dtime: int|None  # seconds since the epoch, or None if not deleted.
-    mtime: int  # seconds since the epoch
+    ctime: float  # seconds since the epoch
+    dtime: float|None  # seconds since the epoch, or None if not deleted.
+    mtime: float  # seconds since the epoch
     is_complete: bool
     is_deleted: bool
     name: None|basestring  # e.g., "Buy milk"
@@ -94,6 +94,6 @@ class Action(auditable_object.AuditableObject):
             name=pb.common.metadata.name,
             note=pb.common.metadata.note,
             ctx_uid=ctx_uid)
-    a.SetFieldsBasedOnProtobuf(pb.common)
     a.is_complete = pb.is_complete
+    a.SetFieldsBasedOnProtobuf(pb.common)  # must be last mutation
     return a

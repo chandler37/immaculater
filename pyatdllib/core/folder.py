@@ -25,9 +25,9 @@ class Folder(container.Container):
     note: str|unicode
     items: [Folder|Prj]
     is_deleted: bool
-    ctime: int  # seconds since the epoch
-    dtime: int|None  # seconds since the epoch, or None if not deleted.
-    mtime: int  # seconds since the epoch
+    ctime: float  # seconds since the epoch
+    dtime: float|None  # seconds since the epoch, or None if not deleted.
+    mtime: float  # seconds since the epoch
 
   If you touch a field, you touch this object.  Use copy.deepcopy if
   you do not want to mutate the project.
@@ -94,7 +94,6 @@ class Folder(container.Container):
     p = cls(the_uid=pb.common.uid,
             name=pb.common.metadata.name,
             note=pb.common.metadata.note)
-    p.SetFieldsBasedOnProtobuf(pb.common)
     for pb_folder in pb.folders:
       p.items.append(
         cls.DeserializedProtobuf(pb_folder.SerializeToString()))
@@ -102,4 +101,5 @@ class Folder(container.Container):
       p.items.append(
         prj.Prj.DeserializedProtobuf(pb_project.SerializeToString()))
     p.items.sort(key=lambda i: i.uid)
+    p.SetFieldsBasedOnProtobuf(pb.common)  # must be last
     return p

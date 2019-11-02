@@ -5832,7 +5832,7 @@ it and use this view filter. Note: this is ignored in --show_all mode""",
       "Load complete.",
       "ls after save/load:"] + subgolden + [
       "and is dtime set correctly?",
-      "--action--- mtime=1969/12/31-19:00:38 ctime=1969/12/31-19:00:37 --incomplete-- foo --in-context-- '<none>'",
+      "--action--- mtime=1969/12/31-19:00:37 ctime=1969/12/31-19:00:37 --incomplete-- foo --in-context-- '<none>'",
       "--action--- --DELETED-- mtime=1969/12/31-19:00:38 ctime=1969/12/31-19:00:37 dtime=1969/12/31-19:00:38 ---COMPLETE--- bar --in-context-- '<none>'",
     ]
     self.helpTest(inputs, golden_printed)
@@ -5990,11 +5990,19 @@ it and use this view filter. Note: this is ignored in --show_all mode""",
               'mkdir newfolder',
               'mkctx @newctx',
               'note :__foo foo',
+              'chclock +1',
+              'mkact newprj/action_in_newprj',
               'echo ls /inbox:',
               'ls /inbox',
               'echo dumpprotobuf:',
               'dumpprotobuf',
               'save %s' % pipes.quote(save_path),
+              'chclock 998',
+              'load %s' % pipes.quote(save_path),
+              'dumpprotobuf',
+              # is mtime correct if we do this again?
+              'save %s' % pipes.quote(save_path),
+              'chclock +1',
               'load %s' % pipes.quote(save_path),
               'dumpprotobuf',
               ]
@@ -6080,7 +6088,7 @@ it and use this view filter. Note: this is ignored in --show_all mode""",
       '      timestamp {\n'
       '        ctime: 38000000\n'
       '        dtime: -1\n'
-      '        mtime: 38000000\n'
+      '        mtime: 39000000\n'
       '      }\n'
       '      metadata {\n'
       '        name: "newprj"\n'
@@ -6089,6 +6097,21 @@ it and use this view filter. Note: this is ignored in --show_all mode""",
       '    }\n'
       '    is_complete: false\n'
       '    is_active: true\n'
+      '    actions {\n'
+      '      common {\n'
+      '        is_deleted: false\n'
+      '        timestamp {\n'
+      '          ctime: 39000000\n'
+      '          dtime: -1\n'
+      '          mtime: 39000000\n'
+      '        }\n'
+      '        metadata {\n'
+      '          name: "action_in_newprj"\n'
+      '        }\n'
+      '        uid: -2964499413571781909\n'
+      '      }\n'
+      '      is_complete: false\n'
+      '    }\n'
       '  }\n'
       '}\n'
       'ctx_list {\n'
@@ -6169,6 +6192,9 @@ it and use this view filter. Note: this is ignored in --show_all mode""",
       '--action--- uid=7577081113976058321 --incomplete-- newaction --in-context-- '
       "'<none>'",
       'dumpprotobuf:',
+    ] + gold_pb + [
+      'Save complete.',
+      'Load complete.',
     ] + gold_pb + [
       'Save complete.',
       'Load complete.',

@@ -1708,13 +1708,19 @@ def mergeprotobufs(request):
     hr['Content-Transfer-Encoding'] = 'binary'
     return hr
 
+  def write_db(bytes_of_pyatdl_todolist):
+    _write_database(
+      user,
+      serialization.SerializedWithChecksum(bytes_of_pyatdl_todolist),
+      serialization.Sha1Checksum(bytes_of_pyatdl_todolist))
+
   if db_result is None:
-    if pbreq.HasField('latest'):
+    if pbreq.HasField('latest'):  # We must merge with nothing. We write latest to the DB.
       if pbreq.new_data:
         # TODO(chandler37): based on a FLAG for performance reasons,
         # deserialize-and-then-serialize to make sure it's valid and not too
         # large to process
-        _write_database(user, pbreq.latest.payload, pbreq.sha1_checksum)
+        write_db(pbreq.latest.payload)
         pbresponse.sha1_checksum = pbreq.latest.sha1_checksum
         # Leave pbresponse.to_do_list unset for performance reasons. (If this
         # complicates some apps, then we can add a boolean to
@@ -1726,9 +1732,10 @@ def mergeprotobufs(request):
     db_result = uicmd.NewToDoList()
     pbresponse.starter_template = True
     pbresponse.to_do_list.CopyFrom(db_result.AsProto())
+    serialized_tdl = pbresponse.to_do_list.SerializeToString()
     pbresponse.sha1_checksum = serialization.Sha1Checksum(
-        pbresponse.to_do_list.SerializeToString())
-    _write_database(user, pbresponse.to_do_list.SerializeToString(), None)
+        serialized_tdl)
+    write_db(serialized_tdl)
     return protobuf_response()
 
   if pbreq.HasField('latest'):
@@ -1739,8 +1746,8 @@ def mergeprotobufs(request):
       return JsonResponse({"error": "The given to-do list did not serialize. Hint: %s" % str(e)},  # TODO(chandler37): test
                           status=409)
     merged_tdl_pb = Merge(db_result, deserialized_latest)
-    pbresponse.sha1_checksum = _write_database(
-        user, merged_tdl_pb.SerializeToString(), None)  # TODO(chandler37): verify that this serializes and deserializes via _TestDeserializationOfChecksumWithData
+    pbresponse.sha1_checksum = write_db(
+      merged_tdl_pb.SerializeToString())  # TODO(chandler37): verify that this serializes and deserializes via _TestDeserializationOfChecksumWithData
     assert len(pbresponse.sha1_checksum) == 40, pbresponse.sha1_checksum
     pbresponse.to_do_list.CopyFrom(merged_tdl_pb)
     return protobuf_response()

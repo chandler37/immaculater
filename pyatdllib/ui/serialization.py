@@ -91,13 +91,13 @@ def _GetPayloadAfterVerifyingChecksum(file_contents, path, sha1_checksum_list=No
   return pb.payload
 
 
-def _SerializedWithChecksum(payload):
+def SerializedWithChecksum(payload):
   """Returns a serialized ChecksumAndData wrapping the given byte sequence.
 
   Args:
-    payload: bytes
+    payload: bytes  # from pyatdl_pb2.ToDoList().SerializeToString()
   Returns:
-    bytes
+    bytes  # from pyatdl_pb2.ChecksumAndData().SerializeToString()
   """
   pb = pyatdl_pb2.ChecksumAndData()
   pb.payload_is_zlib_compressed = False
@@ -163,7 +163,7 @@ def SerializeToDoList2(todolist, writer):
     None
   """
   todolist.CheckIsWellFormed()
-  writer.write(_SerializedWithChecksum(todolist.AsProto().SerializeToString()))
+  writer.write(SerializedWithChecksum(todolist.AsProto().SerializeToString()))
 
 
 def SerializeToDoList(todolist, path):

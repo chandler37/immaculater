@@ -100,6 +100,5 @@ class Folder(container.Container):
     for pb_project in pb.projects:
       p.items.append(
         prj.Prj.DeserializedProtobuf(pb_project.SerializeToString()))
-    p.items.sort(key=lambda i: i.uid)
     p.SetFieldsBasedOnProtobuf(pb.common)  # must be last
     return p

@@ -797,6 +797,7 @@ def _PerformLs(current_obj, location, state, recursive, show_uid, show_all,  # p
     items = [current_obj]
   if state.CurrentSorting() == 'alpha' and not isinstance(current_obj, prj.Prj):
     items.sort(key=lambda x: '' if x.uid == 1 else x.name)
+  items.sort(key=lambda x: 0 if isinstance(x, folder.Folder) or x.uid == 1 else 1)
   to_recurse = []
   for item in items:
     the_view_filter = view_filter_override if view_filter_override is not None else state.ViewFilter()

@@ -23,6 +23,7 @@ from pyatdllib.ui import serialization
 from pyatdllib.ui import uicmd
 from pyatdllib.core import pyatdl_pb2
 from pyatdllib.core import tdl
+from pyatdllib.core import uid
 from pyatdllib.core import view_filter
 from pyatdllib.core.mergeprotobufs import Merge
 from django.contrib.auth import authenticate
@@ -1731,8 +1732,14 @@ def mergeprotobufs(request):
     assert not pbreq.new_data
     db_result = uicmd.NewToDoList()
     pbresponse.starter_template = True
-    pbresponse.to_do_list.CopyFrom(db_result.AsProto())
-    serialized_tdl = pbresponse.to_do_list.SerializeToString()
+    serialized_tdl = db_result.AsProto(pb=pbresponse.to_do_list).SerializeToString()
+    uid.ResetNotesOfExistingUIDs()
+    deserialized_tdl = tdl.ToDoList.DeserializedProtobuf(serialized_tdl)
+    reserialized_tdl = deserialized_tdl.AsProto().SerializeToString()
+    if serialized_tdl != reserialized_tdl:
+      raise AssertionError(
+        'Cannot round trip starter template. This is not a key constraint but clients will find it easier if they can '
+        'get back the same thing with the same sha1_checksum the next time they read.')
     pbresponse.sha1_checksum = serialization.Sha1Checksum(
         serialized_tdl)
     write_db(serialized_tdl)

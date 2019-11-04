@@ -76,14 +76,17 @@ MERGETODOLISTREQUEST_CONTENT_TYPE = 'application/x-protobuf; messageType="pyatdl
 MERGETODOLISTREQUEST_SANITY_CHECK = 18369614221190020847
 
 
-# TODO(chandler): Support redo/undo. Put the commands in the protobuf.
+# TODO(chandler37): Support redo/undo. Put the commands in the protobuf. Be aware of the mergeprotobufs API if you do
+# this. But probably don't do this; do it on the client in such a way that you cannot undo the action done on another
+# device.
 
 
 def _encrypted_todolist_protobuf(some_bytes):
   return _protobuf_fernet().encrypt(some_bytes).decode('utf-8')
 
 
-def _unencrypted_todolist_protobuf(pb):
+def _decrypted_todolist_protobuf(pb):
+  """Args: pb: bytes; Returns the serialized bytes of a pyatdl_pb2.ChecksumAndData."""
   # We should never see InvalidToken. If we see it, let it become a 500.
   try:
     return _protobuf_fernet().decrypt(pb)
@@ -184,13 +187,13 @@ class SerializationReader(object):
     x = models.ToDoList.objects.filter(user__id=user_id)
     if len(x) > 0:
       if x[0].encrypted_contents2:
-        unencrypted_contents = _unencrypted_todolist_protobuf(
+        decrypted_contents = _decrypted_todolist_protobuf(
           bytes(x[0].encrypted_contents2, 'utf-8') if six.PY3 else bytes(x[0].encrypted_contents2))
       else:
-        _debug_log('reading old unencrypted contents')
-        unencrypted_contents = x[0].contents
-      self._place_to_save_read['saved_read'] = unencrypted_contents
-      return unencrypted_contents
+        _debug_log('reading old decrypted contents')
+        decrypted_contents = x[0].contents
+      self._place_to_save_read['saved_read'] = decrypted_contents
+      return decrypted_contents
     else:
       self._place_to_save_read['saved_read'] = None
       return ''
@@ -1533,7 +1536,8 @@ def _read_database(user, sha1_checksum):
   assert len(sha1_checksum_list) <= 1, sha1_checksum_list
   if sha1_checksum_list and sha1_checksum_list[0] == sha1_checksum:
     return None, sha1_checksum
-  return a_tdl, sha1_checksum_list[0] if sha1_checksum_list else None
+  rhs = sha1_checksum_list[0] if sha1_checksum_list else None
+  return a_tdl, rhs
 
 
 @never_cache
@@ -1715,6 +1719,7 @@ def mergeprotobufs(request):
       # TODO(chandler37): consider adding a FLAG to opt out for performance reasons.
       deserialized_tdl = tdl.ToDoList.DeserializedProtobuf(bytes_of_pyatdl_todolist)
       deserialized_tdl.AsProto().SerializeToString()
+      deserialized_tdl.CheckIsWellFormed()
     except (MemoryError, NameError, SystemExit, KeyboardInterrupt):
       raise
     except Exception:
@@ -1738,10 +1743,12 @@ def mergeprotobufs(request):
                           status=409)
     assert not pbreq.new_data
     db_result = uicmd.NewToDoList()
+    db_result.CheckIsWellFormed()
     pbresponse.starter_template = True
-    serialized_tdl = db_result.AsProto(pb=pbresponse.to_do_list).SerializeToString()
+    serialized_tdl = db_result.AsProto(pb=pbresponse.to_do_list).SerializeToString()  # AsProto returns its argument
     uid.ResetNotesOfExistingUIDs()
     deserialized_tdl = tdl.ToDoList.DeserializedProtobuf(serialized_tdl)
+    deserialized_tdl.CheckIsWellFormed()
     reserialized_tdl = deserialized_tdl.AsProto().SerializeToString()
     if serialized_tdl != reserialized_tdl:
       raise AssertionError(
@@ -1761,7 +1768,7 @@ def mergeprotobufs(request):
     if pbreq.previous_sha1_checksum:
       # TODO(chandler37): See comments in _write_database regarding performance optimizations from storing SHA1
       # checksums in the database.
-      if pbreq.previous_sha1_checksum == db_sha1:
+      if pbreq.previous_sha1_checksum == db_sha1:  # yes, db_sha1 is for the uncompressed pyatdl.ToDoList
         write_db(pbreq.latest.payload)
         pbresponse.sha1_checksum = pbreq.latest.sha1_checksum
         assert not pbresponse.HasField('to_do_list')

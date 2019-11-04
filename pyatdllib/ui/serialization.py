@@ -64,7 +64,7 @@ def _GetPayloadAfterVerifyingChecksum(file_contents, path, sha1_checksum_list=No
   Args:
     file_contents: bytes  # serialized form of ChecksumAndData
     path: str  # save file location used only in error messages
-    sha1_checksum_list: None|list to which we append the SHA1 checksum
+    sha1_checksum_list: None|list to which we append the SHA1 checksum of the uncompressed pyatdl_pb2.ToDoList serialization
   Returns:
     bytes
   Raises:
@@ -84,11 +84,18 @@ def _GetPayloadAfterVerifyingChecksum(file_contents, path, sha1_checksum_list=No
   if Sha1Checksum(pb.payload) != pb.sha1_checksum:
     raise DeserializationError(
       'Invalid save file %s: Checksum mismatch' % (path,))
-  if sha1_checksum_list is not None:
-    sha1_checksum_list.append(pb.sha1_checksum)
   if pb.payload_is_zlib_compressed:
-    return zlib.decompress(pb.payload)
-  return pb.payload
+    uncompressed_payload = zlib.decompress(pb.payload)
+    if sha1_checksum_list is not None:
+      # TODO(chandler37): As a performance optimization, store this sha1_checksum inside ChecksumAndData in addition to
+      # the current payload checksum. But for mergeprotobufs to be fastest, we'll need to also/instead store it outside
+      # of todo_todolist.encrypted_contents2.
+      sha1_checksum_list.append(Sha1Checksum(uncompressed_payload))
+  else:
+    uncompressed_payload = pb.payload
+    if sha1_checksum_list is not None:
+      sha1_checksum_list.append(pb.sha1_checksum)
+  return uncompressed_payload
 
 
 def SerializedWithChecksum(payload):
@@ -202,7 +209,7 @@ def DeserializeToDoList2(reader, tdl_factory, sha1_checksum_list=None):
   Args:
     reader: object with 'read(self)' method and 'name' attribute
     tdl_factory: None|callable function ()->tdl.ToDoList
-    sha1_checksum_list: None|list to which we append the SHA1 checksum
+    sha1_checksum_list: None|list to which we append the SHA1 checksum of the uncompressed pyatdl_pb2.ToDoList serialization
   Returns:
     None|tdl.ToDoList  # None only if tdl_factory is None and would have been used
   Raises:

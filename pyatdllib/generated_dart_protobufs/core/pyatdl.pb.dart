@@ -83,10 +83,10 @@ class VisitorInfo0 extends $pb.GeneratedMessage {
 
 class MergeToDoListRequest extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo('MergeToDoListRequest', package: const $pb.PackageName('pyatdl'), createEmptyInstance: create)
-    ..aOM<ChecksumAndData>(1, 'latest', subBuilder: ChecksumAndData.create)
     ..aOS(2, 'previousSha1Checksum')
     ..aOB(3, 'newData')
     ..a<$fixnum.Int64>(15, 'sanityCheck', $pb.PbFieldType.OF6, defaultOrMaker: $fixnum.Int64.ZERO)
+    ..aOM<ChecksumAndData>(16, 'latest', subBuilder: ChecksumAndData.create)
   ;
 
   MergeToDoListRequest._() : super();
@@ -104,43 +104,43 @@ class MergeToDoListRequest extends $pb.GeneratedMessage {
   static MergeToDoListRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<MergeToDoListRequest>(create);
   static MergeToDoListRequest _defaultInstance;
 
-  @$pb.TagNumber(1)
-  ChecksumAndData get latest => $_getN(0);
-  @$pb.TagNumber(1)
-  set latest(ChecksumAndData v) { setField(1, v); }
-  @$pb.TagNumber(1)
-  $core.bool hasLatest() => $_has(0);
-  @$pb.TagNumber(1)
-  void clearLatest() => clearField(1);
-  @$pb.TagNumber(1)
-  ChecksumAndData ensureLatest() => $_ensure(0);
-
   @$pb.TagNumber(2)
-  $core.String get previousSha1Checksum => $_getSZ(1);
+  $core.String get previousSha1Checksum => $_getSZ(0);
   @$pb.TagNumber(2)
-  set previousSha1Checksum($core.String v) { $_setString(1, v); }
+  set previousSha1Checksum($core.String v) { $_setString(0, v); }
   @$pb.TagNumber(2)
-  $core.bool hasPreviousSha1Checksum() => $_has(1);
+  $core.bool hasPreviousSha1Checksum() => $_has(0);
   @$pb.TagNumber(2)
   void clearPreviousSha1Checksum() => clearField(2);
 
   @$pb.TagNumber(3)
-  $core.bool get newData => $_getBF(2);
+  $core.bool get newData => $_getBF(1);
   @$pb.TagNumber(3)
-  set newData($core.bool v) { $_setBool(2, v); }
+  set newData($core.bool v) { $_setBool(1, v); }
   @$pb.TagNumber(3)
-  $core.bool hasNewData() => $_has(2);
+  $core.bool hasNewData() => $_has(1);
   @$pb.TagNumber(3)
   void clearNewData() => clearField(3);
 
   @$pb.TagNumber(15)
-  $fixnum.Int64 get sanityCheck => $_getI64(3);
+  $fixnum.Int64 get sanityCheck => $_getI64(2);
   @$pb.TagNumber(15)
-  set sanityCheck($fixnum.Int64 v) { $_setInt64(3, v); }
+  set sanityCheck($fixnum.Int64 v) { $_setInt64(2, v); }
   @$pb.TagNumber(15)
-  $core.bool hasSanityCheck() => $_has(3);
+  $core.bool hasSanityCheck() => $_has(2);
   @$pb.TagNumber(15)
   void clearSanityCheck() => clearField(15);
+
+  @$pb.TagNumber(16)
+  ChecksumAndData get latest => $_getN(3);
+  @$pb.TagNumber(16)
+  set latest(ChecksumAndData v) { setField(16, v); }
+  @$pb.TagNumber(16)
+  $core.bool hasLatest() => $_has(3);
+  @$pb.TagNumber(16)
+  void clearLatest() => clearField(16);
+  @$pb.TagNumber(16)
+  ChecksumAndData ensureLatest() => $_ensure(3);
 }
 
 class MergeToDoListResponse extends $pb.GeneratedMessage {

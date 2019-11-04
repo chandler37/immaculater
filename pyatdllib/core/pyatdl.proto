@@ -35,9 +35,9 @@ message MergeToDoListRequest {
   // the only one that has modified the user's to-do list (that is, if
   // previous_sha1_checksum still describes the most recent version of the
   // user's to-do list):
-  optional ChecksumAndData latest = 1;  // where payload_is_zlib_compressed
-                                        // must be false (use HTTP compression
-                                        // if you care)
+  optional ChecksumAndData latest = 16;  // where payload_is_zlib_compressed
+                                         // must be false (use HTTP compression
+                                         // if you care)
 
   // What version of the uncompressed ToDoList did you start with? Optional
   // when and only when new_data is true:

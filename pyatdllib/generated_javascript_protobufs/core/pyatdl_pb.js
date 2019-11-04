@@ -1146,7 +1146,7 @@ proto.pyatdl.MergeToDoListRequest.deserializeBinaryFromReader = function(msg, re
     }
     var field = reader.getFieldNumber();
     switch (field) {
-    case 1:
+    case 16:
       var value = new proto.pyatdl.ChecksumAndData;
       reader.readMessage(value,proto.pyatdl.ChecksumAndData.deserializeBinaryFromReader);
       msg.setLatest(value);
@@ -1195,7 +1195,7 @@ proto.pyatdl.MergeToDoListRequest.serializeBinaryToWriter = function(message, wr
   f = message.getLatest();
   if (f != null) {
     writer.writeMessage(
-      1,
+      16,
       f,
       proto.pyatdl.ChecksumAndData.serializeBinaryToWriter
     );
@@ -1225,12 +1225,12 @@ proto.pyatdl.MergeToDoListRequest.serializeBinaryToWriter = function(message, wr
 
 
 /**
- * optional ChecksumAndData latest = 1;
+ * optional ChecksumAndData latest = 16;
  * @return {?proto.pyatdl.ChecksumAndData}
  */
 proto.pyatdl.MergeToDoListRequest.prototype.getLatest = function() {
   return /** @type{?proto.pyatdl.ChecksumAndData} */ (
-    jspb.Message.getWrapperField(this, proto.pyatdl.ChecksumAndData, 1));
+    jspb.Message.getWrapperField(this, proto.pyatdl.ChecksumAndData, 16));
 };
 
 
@@ -1239,7 +1239,7 @@ proto.pyatdl.MergeToDoListRequest.prototype.getLatest = function() {
  * @return {!proto.pyatdl.MergeToDoListRequest} returns this
 */
 proto.pyatdl.MergeToDoListRequest.prototype.setLatest = function(value) {
-  return jspb.Message.setWrapperField(this, 1, value);
+  return jspb.Message.setWrapperField(this, 16, value);
 };
 
 
@@ -1257,7 +1257,7 @@ proto.pyatdl.MergeToDoListRequest.prototype.clearLatest = function() {
  * @return {boolean}
  */
 proto.pyatdl.MergeToDoListRequest.prototype.hasLatest = function() {
-  return jspb.Message.getField(this, 1) != null;
+  return jspb.Message.getField(this, 16) != null;
 };
 
 

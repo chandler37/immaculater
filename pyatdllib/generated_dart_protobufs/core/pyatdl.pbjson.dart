@@ -29,7 +29,7 @@ const VisitorInfo0$json = const {
 const MergeToDoListRequest$json = const {
   '1': 'MergeToDoListRequest',
   '2': const [
-    const {'1': 'latest', '3': 1, '4': 1, '5': 11, '6': '.pyatdl.ChecksumAndData', '10': 'latest'},
+    const {'1': 'latest', '3': 16, '4': 1, '5': 11, '6': '.pyatdl.ChecksumAndData', '10': 'latest'},
     const {'1': 'previous_sha1_checksum', '3': 2, '4': 1, '5': 9, '10': 'previousSha1Checksum'},
     const {'1': 'new_data', '3': 3, '4': 1, '5': 8, '7': 'false', '10': 'newData'},
     const {

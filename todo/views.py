@@ -81,6 +81,14 @@ MERGETODOLISTREQUEST_SANITY_CHECK = 18369614221190020847
 # device.
 
 
+class Error(Exception):
+  pass
+
+
+class ReserializationError(Error):
+  pass
+
+
 def _encrypted_todolist_protobuf(some_bytes):
   return _protobuf_fernet().encrypt(some_bytes).decode('utf-8')
 
@@ -1714,7 +1722,9 @@ def mergeprotobufs(request):
     return hr
 
   def write_db(bytes_of_pyatdl_todolist):
+    """Returns sha1_checksum of (uncompressed) pyatdl.ToDoList. Raises ReserializationError."""
     # First, make sure it's valid input and not so large that we run out of memory (MemoryError).
+    uid.ResetNotesOfExistingUIDs()
     try:
       # TODO(chandler37): consider adding a FLAG to opt out for performance reasons.
       deserialized_tdl = tdl.ToDoList.DeserializedProtobuf(bytes_of_pyatdl_todolist)
@@ -1722,72 +1732,77 @@ def mergeprotobufs(request):
       deserialized_tdl.CheckIsWellFormed()
     except (MemoryError, NameError, SystemExit, KeyboardInterrupt):
       raise
-    except Exception:
-      return JsonResponse({"error": "Your input did not properly deserialize and reserialize, so you must have some garbage or some backwards-incompatible data from what this backend considers to be the future."},
-                          status=422)
+    except Exception as e:
+      raise ReserializationError
+    cksum = serialization.Sha1Checksum(bytes_of_pyatdl_todolist)
     _write_database(
       user,
       serialization.SerializedWithChecksum(bytes_of_pyatdl_todolist),
-      serialization.Sha1Checksum(bytes_of_pyatdl_todolist))
+      cksum)
+    return cksum
 
-  if db_result is None:
-    if pbreq.HasField('latest'):  # We must merge with nothing. We write latest to the DB.
-      if pbreq.new_data:
-        write_db(pbreq.latest.payload)
-        pbresponse.sha1_checksum = pbreq.latest.sha1_checksum
-        # Leave pbresponse.to_do_list unset for performance reasons. (If this
-        # complicates some apps, then we can add a boolean to
-        # MergeToDoListRequest to be verbose.)
-        return protobuf_response()
-      return JsonResponse({"error": "This backend has no to-do list. You passed one in but did not set the 'new_data' boolean to true. We are aborting out of an abundance of caution. You might wish to call this API once with different arguments to trigger the creation of the default to-do list for new users."},
-                          status=409)
-    assert not pbreq.new_data
-    db_result = uicmd.NewToDoList()
-    db_result.CheckIsWellFormed()
-    pbresponse.starter_template = True
-    serialized_tdl = db_result.AsProto(pb=pbresponse.to_do_list).SerializeToString()  # AsProto returns its argument
-    uid.ResetNotesOfExistingUIDs()
-    deserialized_tdl = tdl.ToDoList.DeserializedProtobuf(serialized_tdl)
-    deserialized_tdl.CheckIsWellFormed()
-    reserialized_tdl = deserialized_tdl.AsProto().SerializeToString()
-    if serialized_tdl != reserialized_tdl:
-      raise AssertionError(
-        'Cannot round trip starter template. This is not a key constraint but clients will find it easier if they can '
-        'get back the same thing with the same sha1_checksum the next time they read.')
-    pbresponse.sha1_checksum = serialization.Sha1Checksum(
-        serialized_tdl)
-    write_db(serialized_tdl)
-    return protobuf_response()
+  try:
+    if db_result is None:
+      if pbreq.HasField('latest'):  # We must merge with nothing. We write latest to the DB.
+        if pbreq.new_data:
+          cksum = write_db(pbreq.latest.payload)
+          assert pbreq.latest.sha1_checksum == cksum, f'Checksum mismatch after writing to the database; this is not terrible thanks to @transaction.atomic which will roll back the so-called write: req.sha1={pbreq.latest.sha1_checksum} db={cksum}'
+          pbresponse.sha1_checksum = pbreq.latest.sha1_checksum
+          # Leave pbresponse.to_do_list unset for performance reasons. (If this
+          # complicates some apps, then we can add a boolean to
+          # MergeToDoListRequest to be verbose.)
+          return protobuf_response()
+        return JsonResponse({"error": "This backend has no to-do list. You passed one in but did not set the 'new_data' boolean to true. We are aborting out of an abundance of caution. You might wish to call this API once with different arguments to trigger the creation of the default to-do list for new users."},
+                            status=409)
+      assert not pbreq.new_data
+      db_result = uicmd.NewToDoList()
+      db_result.CheckIsWellFormed()
+      pbresponse.starter_template = True
+      serialized_tdl = db_result.AsProto(pb=pbresponse.to_do_list).SerializeToString()  # AsProto returns its argument
+      uid.ResetNotesOfExistingUIDs()
+      deserialized_tdl = tdl.ToDoList.DeserializedProtobuf(serialized_tdl)
+      deserialized_tdl.CheckIsWellFormed()
+      reserialized_tdl = deserialized_tdl.AsProto().SerializeToString()
+      if serialized_tdl != reserialized_tdl:
+        raise AssertionError(
+          'Cannot round trip starter template. This is not a key constraint but clients will find it easier if they can '
+          'get back the same thing with the same sha1_checksum the next time they read.')
+      pbresponse.sha1_checksum = write_db(serialized_tdl)
+      return protobuf_response()
 
-  if pbreq.HasField('latest'):
-    try:
-      deserialized_latest = pyatdl_pb2.ToDoList.FromString(pbreq.latest.payload)
-    except message.Error as e:
-      return JsonResponse({"error": "The given to-do list did not serialize. Hint: %s" % str(e)},  # TODO(chandler37): test
-                          status=409)
-    if pbreq.previous_sha1_checksum:
-      # TODO(chandler37): See comments in _write_database regarding performance optimizations from storing SHA1
-      # checksums in the database.
-      if pbreq.previous_sha1_checksum == db_sha1:  # yes, db_sha1 is for the uncompressed pyatdl.ToDoList
-        write_db(pbreq.latest.payload)
-        pbresponse.sha1_checksum = pbreq.latest.sha1_checksum
-        assert not pbresponse.HasField('to_do_list')
-        assert not pbresponse.HasField('starter_template')
-        return protobuf_response()
-      else:
-        pass  # we must merge, fall through...
-    # It does not match what is in the db; we must merge. If a client has a very old to-do list, merging could
-    # resurrect anything that has been purged. TODO(chandler37): Think about Lamport clocks and vector clocks and design a truly paranoid system, perhaps one that worked like 'git rebase'.
-    merged_tdl_pb = Merge(db_result, deserialized_latest)
-    pbresponse.sha1_checksum = write_db(
-      merged_tdl_pb.SerializeToString())  # TODO(chandler37): verify that this serializes and deserializes via _TestDeserializationOfChecksumWithData
-    assert len(pbresponse.sha1_checksum) == 40, pbresponse.sha1_checksum
-    pbresponse.to_do_list.CopyFrom(merged_tdl_pb)
+    if pbreq.HasField('latest'):
+      try:
+        deserialized_latest = pyatdl_pb2.ToDoList.FromString(pbreq.latest.payload)
+      except message.Error as e:
+        return JsonResponse({"error": "The given to-do list did not serialize. Hint: %s" % str(e)},  # TODO(chandler37): test
+                            status=409)
+      if pbreq.previous_sha1_checksum:
+        # TODO(chandler37): See comments in _write_database regarding performance optimizations from storing SHA1
+        # checksums in the database.
+        if pbreq.previous_sha1_checksum == db_sha1:  # yes, db_sha1 is for the uncompressed pyatdl.ToDoList
+          cksum = write_db(pbreq.latest.payload)
+          pbresponse.sha1_checksum = pbreq.latest.sha1_checksum
+          assert pbreq.latest.sha1_checksum == cksum, f'Checksum mismatch after writing to the database; this is not terrible thanks to @transaction.atomic which will roll back the so-called write: req.sha1={pbreq.latest.sha1_checksum} db={cksum}'
+          assert not pbresponse.HasField('to_do_list')
+          assert not pbresponse.HasField('starter_template')
+          return protobuf_response()
+        else:
+          pass  # we must merge, fall through...
+      # It does not match what is in the db; we must merge. If a client has a very old to-do list, merging could
+      # resurrect anything that has been purged. TODO(chandler37): Think about Lamport clocks and vector clocks and design a truly paranoid system, perhaps one that worked like 'git rebase'.
+      merged_tdl_pb = Merge(db_result, deserialized_latest)
+      pbresponse.sha1_checksum = write_db(merged_tdl_pb.SerializeToString())
+      assert pbresponse.sha1_checksum and len(pbresponse.sha1_checksum) == 40, f'pbresponse.sha1_checksum={pbresponse.sha1_checksum}'
+      assert len(pbresponse.sha1_checksum) == 40, pbresponse.sha1_checksum
+      pbresponse.to_do_list.CopyFrom(merged_tdl_pb)
+      return protobuf_response()
+    assert len(db_sha1) == 40, db_sha1
+    pbresponse.sha1_checksum = db_sha1
+    pbresponse.to_do_list.CopyFrom(db_result.AsProto())
     return protobuf_response()
-  assert len(db_sha1) == 40, db_sha1
-  pbresponse.sha1_checksum = db_sha1
-  pbresponse.to_do_list.CopyFrom(db_result.AsProto())
-  return protobuf_response()
+  except ReserializationError:
+    return JsonResponse({"error": "Your input did not properly deserialize and reserialize, so you must have some garbage or some backwards-incompatible data from what this backend considers to be the future."},
+                        status=422)
 
 
 @never_cache

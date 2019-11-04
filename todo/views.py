@@ -1732,7 +1732,7 @@ def mergeprotobufs(request):
       deserialized_tdl.CheckIsWellFormed()
     except (MemoryError, NameError, SystemExit, KeyboardInterrupt):
       raise
-    except Exception as e:
+    except Exception:
       raise ReserializationError
     cksum = serialization.Sha1Checksum(bytes_of_pyatdl_todolist)
     _write_database(

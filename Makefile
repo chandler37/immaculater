@@ -94,8 +94,8 @@ clean: distclean
 distclean:
 	rm -f *.pyc **/*.pyc
 	cd pyatdllib && make clean
-	rm -f db.sqlite3
-	rm -fr venv
+	rm -f db.sqlite3 .coverage
+	rm -fr venv htmlcov
 	@echo "Print deactivate your virtualenv if you manually activated it (unlikely because the Makefile does it for you). Exit the shell if you do not know how."
 
 # test and run the flake8 linter (unless ARGS is --nolint):
@@ -124,8 +124,12 @@ unfreezeplus:
 
 .PHONY: cov
 cov: venv
-	@echo "There is also the todo/ directory and its pytest tests but we ignore those. TODO(chandler37): Include **/*.py"
+	@echo "We produce two htmlcov directories, one in the root directory for the pytest tests for the Django app, and one in pyatdllib for the other tests."
+	cd pyatdllib && make protoc_middleman
+	$(ACTIVATE_VENV) && DJANGO_DEBUG=True python ./run_django_tests.py $(ARGS)
 	cd pyatdllib && make cov
+	@echo "Try this: open htmlcov/index.html; open pyatdllib/htmlcov/index.html"
+
 
 .PHONY: pychecker
 pychecker: venv

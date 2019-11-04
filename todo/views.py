@@ -1531,7 +1531,7 @@ def _write_database(user, some_bytes, sha1_checksum):
 
 
 def _read_database(user, sha1_checksum):
-  """Returns (None|tdl.ToDoList, None|str); raises serialization.DeserializationError"""
+  """Returns {"tdl":None|tdl.ToDoList, "sha1":None|str, "they_have_the_latest":bool}; raises serialization.DeserializationError"""
   # TODO(chandler37): After making the "huge performance optimization" in
   # _write_database, change this function too. Stop reading the ToDoList data
   # from the database if sha1_checksum is present and matches the database.
@@ -1542,10 +1542,12 @@ def _read_database(user, sha1_checksum):
       tdl_factory=None,
       sha1_checksum_list=sha1_checksum_list)
   assert len(sha1_checksum_list) <= 1, sha1_checksum_list
-  if sha1_checksum_list and sha1_checksum_list[0] == sha1_checksum:
-    return None, sha1_checksum
-  rhs = sha1_checksum_list[0] if sha1_checksum_list else None
-  return a_tdl, rhs
+  result = {
+    "tdl": a_tdl,
+    "sha1": sha1_checksum_list[0] if sha1_checksum_list else None,
+    "they_have_the_latest": bool(sha1_checksum_list and sha1_checksum_list[0] == sha1_checksum)
+  }
+  return result
 
 
 @never_cache
@@ -1692,24 +1694,22 @@ def mergeprotobufs(request):
     return error_response
 
   try:
-    db_result, db_sha1 = _read_database(user, pbreq.latest.sha1_checksum)
+    read_result = _read_database(user, pbreq.latest.sha1_checksum)
   except serialization.DeserializationError:
     return JsonResponse(
         {"error": "Cannot read existing to-do list from the database!"},
         status=500)
 
-  if pbreq.latest.sha1_checksum and db_sha1 == pbreq.latest.sha1_checksum:
-    assert db_result is None, db_result
+  if read_result["they_have_the_latest"]:
     return HttpResponse(status=204)  # you are in sync
 
-  if db_result is not None and pbreq.new_data:
+  if read_result["tdl"] is not None and pbreq.new_data:
     return JsonResponse(
         {"error": "You set the new_data bit, but there is already a to-do list in the database. Maybe we should overwrite it? Maybe we should do a potentially ugly merge (ugly because two or more applications are competing to get the user started)? For now we abort and await your pull request."},
         status=409)  # CONFLICT
 
   pbresponse = pyatdl_pb2.MergeToDoListResponse()
   pbresponse.sanity_check = 18369614221190021342
-  assert db_result is None or isinstance(db_result, tdl.ToDoList), 'weird type %s' % type(db_result)
 
   def protobuf_response():
     serialized_result = pbresponse.SerializeToString()
@@ -1742,7 +1742,7 @@ def mergeprotobufs(request):
     return cksum
 
   try:
-    if db_result is None:
+    if read_result["tdl"] is None:
       if pbreq.HasField('latest'):  # We must merge with nothing. We write latest to the DB.
         if pbreq.new_data:
           cksum = write_db(pbreq.latest.payload)
@@ -1755,10 +1755,10 @@ def mergeprotobufs(request):
         return JsonResponse({"error": "This backend has no to-do list. You passed one in but did not set the 'new_data' boolean to true. We are aborting out of an abundance of caution. You might wish to call this API once with different arguments to trigger the creation of the default to-do list for new users."},
                             status=409)
       assert not pbreq.new_data
-      db_result = uicmd.NewToDoList()
-      db_result.CheckIsWellFormed()
+      new_tdl = uicmd.NewToDoList()
+      new_tdl.CheckIsWellFormed()
       pbresponse.starter_template = True
-      serialized_tdl = db_result.AsProto(pb=pbresponse.to_do_list).SerializeToString()  # AsProto returns its argument
+      serialized_tdl = new_tdl.AsProto(pb=pbresponse.to_do_list).SerializeToString()  # AsProto returns its argument
       uid.ResetNotesOfExistingUIDs()
       deserialized_tdl = tdl.ToDoList.DeserializedProtobuf(serialized_tdl)
       deserialized_tdl.CheckIsWellFormed()
@@ -1779,7 +1779,7 @@ def mergeprotobufs(request):
       if pbreq.previous_sha1_checksum:
         # TODO(chandler37): See comments in _write_database regarding performance optimizations from storing SHA1
         # checksums in the database.
-        if pbreq.previous_sha1_checksum == db_sha1:  # yes, db_sha1 is for the uncompressed pyatdl.ToDoList
+        if pbreq.previous_sha1_checksum == read_result["sha1"]:  # yes, read_result["sha1"] is for the uncompressed pyatdl.ToDoList
           cksum = write_db(pbreq.latest.payload)
           pbresponse.sha1_checksum = pbreq.latest.sha1_checksum
           assert pbreq.latest.sha1_checksum == cksum, f'Checksum mismatch after writing to the database; this is not terrible thanks to @transaction.atomic which will roll back the so-called write: req.sha1={pbreq.latest.sha1_checksum} db={cksum}'
@@ -1790,15 +1790,15 @@ def mergeprotobufs(request):
           pass  # we must merge, fall through...
       # It does not match what is in the db; we must merge. If a client has a very old to-do list, merging could
       # resurrect anything that has been purged. TODO(chandler37): Think about Lamport clocks and vector clocks and design a truly paranoid system, perhaps one that worked like 'git rebase'.
-      merged_tdl_pb = Merge(db_result, deserialized_latest)
+      merged_tdl_pb = Merge(read_result["tdl"], deserialized_latest)
       pbresponse.sha1_checksum = write_db(merged_tdl_pb.SerializeToString())
       assert pbresponse.sha1_checksum and len(pbresponse.sha1_checksum) == 40, f'pbresponse.sha1_checksum={pbresponse.sha1_checksum}'
       assert len(pbresponse.sha1_checksum) == 40, pbresponse.sha1_checksum
       pbresponse.to_do_list.CopyFrom(merged_tdl_pb)
       return protobuf_response()
-    assert len(db_sha1) == 40, db_sha1
-    pbresponse.sha1_checksum = db_sha1
-    pbresponse.to_do_list.CopyFrom(db_result.AsProto())
+    assert len(read_result["sha1"]) == 40, read_result["sha1"]
+    pbresponse.sha1_checksum = read_result["sha1"]
+    read_result["tdl"].AsProto(pb=pbresponse.to_do_list)
     return protobuf_response()
   except ReserializationError:
     return JsonResponse({"error": "Your input did not properly deserialize and reserialize, so you must have some garbage or some backwards-incompatible data from what this backend considers to be the future."},

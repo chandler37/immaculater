@@ -1693,6 +1693,12 @@ def mergeprotobufs(request):
   if error_response:
     return error_response
 
+  if pbreq.HasField('latest'):
+    actual_cksum = serialization.Sha1Checksum(pbreq.latest.payload)
+    if actual_cksum != pbreq.latest.sha1_checksum:
+      return JsonResponse({"error": f"request.latest.sha1_checksum={pbreq.latest.sha1_checksum} mismatches with {actual_cksum}"},
+                          status=422)
+
   try:
     read_result = _read_database(user, pbreq.latest.sha1_checksum)
   except serialization.DeserializationError:

@@ -119,10 +119,20 @@ WSGI_APPLICATION = 'immaculater.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.10/ref/settings/#databases
 
+# TODO(chandler37): Test that ATOMIC_REQUESTS is working.
+#
+# If you don't think you need transactions, run multiple django servers against the same database and run many clients
+# in parallel all trying to add actions with unique Action.Common.Metadata.Name fields. Record which ones the django
+# app said succeeded and then stop writing and read and make sure all the actions you added are there. Without txns,
+# you'll see that some updates make it to the database but are then overwritten.
+#
+# TODO(chandler37): We further need row locking like select_for_update provides. Atomicity may not be sufficient if we
+# read v1, someone else writes v2, and we write a delta of v1 as v3, removing the delta from v1 to v2.
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ATOMIC_REQUESTS': True,
     }
 }
 
@@ -252,11 +262,3 @@ if os.environ.get("SENTRY_DSN"):
       dsn=os.environ.get("SENTRY_DSN"),
       integrations=[DjangoIntegration()]
   )
-
-# TODO(chandler37): Set ATOMIC_REQUESTS to True and remove uses of
-# @transaction.atomic? (If you don't think you need transactions, run multiple
-# django servers against the same database and run many clients in parallel all
-# trying to add actions with unique Action.Common.Metadata.Name fields. Record
-# which ones the django app said succeeded and then stop writing and read and
-# make sure all the actions you added are there. Without txns, you'll see that
-# some updates make it to the database but are then overwritten.)

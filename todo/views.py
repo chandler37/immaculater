@@ -1029,7 +1029,7 @@ def _deactivate_all_shares_for_user(user):
     model.save()
 
 
-@transaction.atomic
+@transaction.atomic  # These nest with ATOMIC_REQUESTS. I'm just being explicit.
 def _create_share(user, slug):
   _deactivate_all_shares_for_user(user)
   new_model = models.Share(user=user, is_active=True, slug=slug)
@@ -1552,7 +1552,6 @@ def _read_database(user, sha1_checksum):
 
 @never_cache
 @csrf_exempt
-@transaction.atomic  # TODO(chandler37): Let's use select_for_update() on models.ToDoList
 def mergeprotobufs(request):
   """`mergeprotobufs` (which can merely read or merely write as well) receives
   an octet-stream that is a pyatdl.MergeToDoListRequest and returns various
@@ -1752,7 +1751,7 @@ def mergeprotobufs(request):
       if pbreq.HasField('latest'):  # We must merge with nothing. We write latest to the DB.
         if pbreq.new_data:
           cksum = write_db(pbreq.latest.payload)
-          assert pbreq.latest.sha1_checksum == cksum, f'Checksum mismatch after writing to the database; this is not terrible thanks to @transaction.atomic which will roll back the so-called write: req.sha1={pbreq.latest.sha1_checksum} db={cksum}'
+          assert pbreq.latest.sha1_checksum == cksum, f'Checksum mismatch after writing to the database; this is not terrible thanks to ATOMIC_REQUESTS which will roll back the so-called write: req.sha1={pbreq.latest.sha1_checksum} db={cksum}'
           pbresponse.sha1_checksum = pbreq.latest.sha1_checksum
           # Leave pbresponse.to_do_list unset for performance reasons. (If this
           # complicates some apps, then we can add a boolean to
@@ -1788,7 +1787,7 @@ def mergeprotobufs(request):
         if pbreq.previous_sha1_checksum == read_result["sha1"]:  # yes, read_result["sha1"] is for the uncompressed pyatdl.ToDoList
           cksum = write_db(pbreq.latest.payload)
           pbresponse.sha1_checksum = pbreq.latest.sha1_checksum
-          assert pbreq.latest.sha1_checksum == cksum, f'Checksum mismatch after writing to the database; this is not terrible thanks to @transaction.atomic which will roll back the so-called write: req.sha1={pbreq.latest.sha1_checksum} db={cksum}'
+          assert pbreq.latest.sha1_checksum == cksum, f'Checksum mismatch after writing to the database; this is not terrible thanks to ATOMIC_REQUESTS which will roll back the so-called write: req.sha1={pbreq.latest.sha1_checksum} db={cksum}'
           assert not pbresponse.HasField('to_do_list')
           assert not pbresponse.HasField('starter_template')
           return protobuf_response()
@@ -1807,6 +1806,7 @@ def mergeprotobufs(request):
     read_result["tdl"].AsProto(pb=pbresponse.to_do_list)
     return protobuf_response()
   except ReserializationError:
+    transaction.set_rollback(True)  # TODO(chandler37): Verify that ATOMIC_REQUESTS aborts when I do this
     return JsonResponse({"error": "Your input did not properly deserialize and reserialize, so you must have some garbage or some backwards-incompatible data from what this backend considers to be the future."},
                         status=422)
 

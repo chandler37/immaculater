@@ -98,9 +98,11 @@ ctx_list {
 """.lstrip()
         return pb
 
-    def _cksum(self):
+    def _cksum(self, pb=None):
+        if pb is None:
+            pb = self._existing_todolist_protobuf()
         cksum = pyatdl_pb2.ChecksumAndData()
-        cksum.payload = self._existing_todolist_protobuf().SerializeToString()
+        cksum.payload = pb.SerializeToString()
         cksum.payload_length = len(cksum.payload)
         cksum.sha1_checksum = serialization.Sha1Checksum(cksum.payload)
         return cksum
@@ -240,6 +242,25 @@ to_do_list {
 }
 sanity_check: 18369614221190021342
 """.lstrip()
+
+    def test_post_previous_sha1_given_for_existing_user(self):
+        self._populate_todolist()
+        req = pyatdl_pb2.MergeToDoListRequest()
+        req.sanity_check = views.MERGETODOLISTREQUEST_SANITY_CHECK
+        pb = self._existing_todolist_protobuf()
+        a = pb.inbox.actions.add()
+        a.common.metadata.name = "testing10013"
+        a.common.uid = 373737
+        req.latest.CopyFrom(self._cksum(pb))
+        req.previous_sha1_checksum = self._cksum().sha1_checksum
+        response = self._happy_post(req.SerializeToString())
+        assert response.status_code == 200
+        pbresp = pyatdl_pb2.MergeToDoListResponse.FromString(response.content)
+        assert not pbresp.starter_template
+        assert text_format.MessageToString(pbresp) == r"""
+sha1_checksum: "%s"
+sanity_check: 18369614221190021342
+""".lstrip() % req.latest.sha1_checksum
 
     def test_post_new_user_without_data_without_setting_new_data(self):
         # The database has no to-do list yet but it will create a starter template

@@ -1480,7 +1480,7 @@ def _parse_mergeprotobufs_request(request):
   if req.new_data and not req.latest.sha1_checksum:
     return None, JsonResponse({"error": "new data should come with req.latest.sha1_checksum"},
                               status=422)
-  if len(req.previous_sha1_checksum) and req.previous_sha1_checksum == req.latest.sha1_checksum:
+  if req.previous_sha1_checksum and req.previous_sha1_checksum == req.latest.sha1_checksum:
     return None, JsonResponse({"error": "req.previous_sha1_checksum equals req.latest.sha1_checksum which means you are just asking for changes from other devices, I presume, since nothing changed on your end. The only way to ask for that is to omit the 'latest' field which saves network bandwidth."},
                               status=409)
   if req.latest.payload_is_zlib_compressed:
@@ -1710,6 +1710,16 @@ def mergeprotobufs(request):
     return hr
 
   def write_db(bytes_of_pyatdl_todolist):
+    # First, make sure it's valid input and not so large that we run out of memory (MemoryError).
+    try:
+      # TODO(chandler37): consider adding a FLAG to opt out for performance reasons.
+      deserialized_tdl = tdl.ToDoList.DeserializedProtobuf(bytes_of_pyatdl_todolist)
+      deserialized_tdl.AsProto().SerializeToString()
+    except (MemoryError, NameError, SystemExit, KeyboardInterrupt):
+      raise
+    except Exception:
+      return JsonResponse({"error": "Your input did not properly deserialize and reserialize, so you must have some garbage or some backwards-incompatible data from what this backend considers to be the future."},
+                          status=422)
     _write_database(
       user,
       serialization.SerializedWithChecksum(bytes_of_pyatdl_todolist),
@@ -1718,9 +1728,6 @@ def mergeprotobufs(request):
   if db_result is None:
     if pbreq.HasField('latest'):  # We must merge with nothing. We write latest to the DB.
       if pbreq.new_data:
-        # TODO(chandler37): based on a FLAG for performance reasons,
-        # deserialize-and-then-serialize to make sure it's valid and not too
-        # large to process
         write_db(pbreq.latest.payload)
         pbresponse.sha1_checksum = pbreq.latest.sha1_checksum
         # Leave pbresponse.to_do_list unset for performance reasons. (If this
@@ -1746,12 +1753,24 @@ def mergeprotobufs(request):
     return protobuf_response()
 
   if pbreq.HasField('latest'):
-    # It does not match what is in the db; we must merge.
     try:
       deserialized_latest = pyatdl_pb2.ToDoList.FromString(pbreq.latest.payload)
     except message.Error as e:
       return JsonResponse({"error": "The given to-do list did not serialize. Hint: %s" % str(e)},  # TODO(chandler37): test
                           status=409)
+    if pbreq.previous_sha1_checksum:
+      # TODO(chandler37): See comments in _write_database regarding performance optimizations from storing SHA1
+      # checksums in the database.
+      if pbreq.previous_sha1_checksum == db_sha1:
+        write_db(pbreq.latest.payload)
+        pbresponse.sha1_checksum = pbreq.latest.sha1_checksum
+        assert not pbresponse.HasField('to_do_list')
+        assert not pbresponse.HasField('starter_template')
+        return protobuf_response()
+      else:
+        pass  # we must merge, fall through...
+    # It does not match what is in the db; we must merge. If a client has a very old to-do list, merging could
+    # resurrect anything that has been purged. TODO(chandler37): Think about Lamport clocks and vector clocks and design a truly paranoid system, perhaps one that worked like 'git rebase'.
     merged_tdl_pb = Merge(db_result, deserialized_latest)
     pbresponse.sha1_checksum = write_db(
       merged_tdl_pb.SerializeToString())  # TODO(chandler37): verify that this serializes and deserializes via _TestDeserializationOfChecksumWithData

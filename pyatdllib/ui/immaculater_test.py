@@ -845,7 +845,7 @@ dump""")) as f:
     ]
     self.helpTest(inputs, golden_printed)
 
-  def testInprjSorting(self):
+  def testInprjSortingInbox(self):
     inputs = ['chclock 1137',
               'inprj /inbox',
               'echo after empty',
@@ -891,6 +891,71 @@ dump""")) as f:
       'after empty',
       '',
       'all_even_deleted inprj /inbox:',
+      "--action--- --incomplete-- '@active item created later' --in-context-- "
+      '@active',
+      "--action--- --incomplete-- withoutcontext --in-context-- '<none>'",
+      "--action--- --incomplete-- '@active item' --in-context-- @active",
+      "--action--- --incomplete-- '@inactive item' --in-context-- @inactive",
+      "--action--- ---COMPLETE--- complete2 --in-context-- '<none>'",
+      "--action--- ---COMPLETE--- complete --in-context-- '<none>'",
+      "--action--- --DELETED-- --incomplete-- deleted --in-context-- '<none>'",
+      '',
+      'incomplete view inprj /inbox:',
+      "--action--- --incomplete-- '@active item created later' --in-context-- "
+      '@active',
+      "--action--- --incomplete-- withoutcontext --in-context-- '<none>'",
+      "--action--- --incomplete-- '@active item' --in-context-- @active",
+      "--action--- --incomplete-- '@inactive item' --in-context-- @inactive"
+    ]
+    self.helpTest(inputs, golden_printed)
+
+  def testInprjSortingNotTheInbox(self):
+    inputs = ['chclock 1137',
+              'mkprj /P',
+              'inprj /P',
+              'echo after empty',
+
+              'mkctx @inactive',
+              'deactivatectx @inactive',
+              'mkctx @active',
+
+              'mkact --autoprj /P/complete',
+              'complete /P/complete',
+
+              'chclock +1',
+              'mkact --autoprj /P/complete2',
+              'complete /P/complete2',
+
+              'chclock +1',
+              'mkact --autoprj /P/deleted',
+              'rmact /P/deleted',
+
+              'chclock +1',
+              'mkact --autoprj "/P/@inactive item"',
+
+              'chclock +1',
+              'mkact --autoprj "/P/@active item"',
+
+              'chclock +1',
+              'mkact --autoprj "/P/withoutcontext"',
+
+              'chclock +1',
+              'mkact --autoprj "/P/@active item created later"',
+
+              'view all_even_deleted',
+              'echo',
+              'echo all_even_deleted inprj /P:',
+              'inprj /P',
+
+              'view incomplete',
+              'echo',
+              'echo incomplete view inprj /P:',
+              'inprj /P',
+              ]
+    golden_printed = [
+      'after empty',
+      '',
+      'all_even_deleted inprj /P:',
       "--action--- --incomplete-- withoutcontext --in-context-- '<none>'",
       "--action--- --incomplete-- '@active item created later' --in-context-- "
       '@active',
@@ -900,7 +965,7 @@ dump""")) as f:
       "--action--- ---COMPLETE--- complete --in-context-- '<none>'",
       "--action--- --DELETED-- --incomplete-- deleted --in-context-- '<none>'",
       '',
-      'incomplete view inprj /inbox:',
+      'incomplete view inprj /P:',
       "--action--- --incomplete-- withoutcontext --in-context-- '<none>'",
       "--action--- --incomplete-- '@active item created later' --in-context-- "
       '@active',

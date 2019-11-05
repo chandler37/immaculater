@@ -1572,11 +1572,12 @@ class UICmdInprj(UICmd):
         return 100
       if an_action.is_complete:
         return 90
-      c = ActionToContext(an_action)
-      if c is None:
-        return 0
-      if c.is_deleted or not c.is_active:
-        return 80
+      if the_project.uid != 1:  # the inbox is special because primary=done, secondary=chrono is more intuitive there
+        c = ActionToContext(an_action)
+        if c is None:
+          return 0
+        if c.is_deleted or not c.is_active:
+          return 80
       return 10
 
     s = sorted(the_project.items, key=SecondaryKey)  # Python's sorting is stable

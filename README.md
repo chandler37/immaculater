@@ -12,6 +12,9 @@ cloud hosting provider). It's a *P*ython implementation of *Y*et *A*nother
 *T*o-*D*o *L*ist. Immaculater is the application; pyatdl (pronounced "PEE-ott")
 is the Python library underneath it (see the `pyatdllib/` subdirectory).
 
+Thanks to <https://github.com/chandler37/immaculater_dart> there is now access
+from Dart (the language used by Flutter iOS/Android/desktop/web apps).
+
 Why yet another to-do list? This one is inspired by David Allen's book _Getting
 Things Done_, so it has Next Actions, Projects, Contexts and support for
 Reviews. It is open source. It has a command-line interface. It is meant to be

@@ -243,6 +243,20 @@ to_do_list {
 sanity_check: 18369614221190021342
 """.lstrip()
 
+    def test_post_existing_user_but_requires_merge(self):
+        self._populate_todolist()
+        req = pyatdl_pb2.MergeToDoListRequest()
+        req.sanity_check = views.MERGETODOLISTREQUEST_SANITY_CHECK
+        pb = self._existing_todolist_protobuf()
+        a = pb.inbox.actions.add()
+        a.common.metadata.name = "testing10013"
+        a.common.uid = 373737
+        req.latest.CopyFrom(self._cksum(pb))
+        req.previous_sha1_checksum = "37" * 20
+        response = self._happy_post(req.SerializeToString())
+        assert response.status_code == 500
+        assert response.content == b'{"error": "The server does not yet implement merging, but merging is required because the sha1_checksum of the todolist prior to your input is \'3737373737373737373737373737373737373737\' and the sha1_checksum of the database is \'32d20be5b6e144d5b665e5690310a0e92ddd70e3\'"}'
+
     def test_post_previous_sha1_given_for_existing_user(self):
         self._populate_todolist()
         req = pyatdl_pb2.MergeToDoListRequest()

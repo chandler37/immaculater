@@ -1782,6 +1782,16 @@ def mergeprotobufs(request):
         pass  # we must merge, fall through...
     # It does not match what is in the db; we must merge. If a client has a very old to-do list, merging could
     # resurrect anything that has been purged. TODO(chandler37): Think about Lamport clocks and vector clocks and design a truly paranoid system, perhaps one that worked like 'git rebase'.
+    error_quickly = True
+    if error_quickly:
+      errmsg = ''.join(f"""
+The server does not yet implement merging, but merging is
+ required because the sha1_checksum of the todolist prior to your input is
+ {pbreq.previous_sha1_checksum!r} and the sha1_checksum of the database is
+ {read_result["sha1"]!r}
+""".split('\n')).strip()
+      return JsonResponse({"error": errmsg}, status=500)
+    # DEAD CODE... until we implement Merge:
     merged_tdl_pb = Merge(read_result["tdl"], deserialized_latest)
     pbresponse.sha1_checksum = write_db(merged_tdl_pb.SerializeToString())
     assert pbresponse.sha1_checksum and len(pbresponse.sha1_checksum) == 40, f'pbresponse.sha1_checksum={pbresponse.sha1_checksum}'

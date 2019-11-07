@@ -484,6 +484,10 @@ class ToDoList(object):
     # gflags.exceptions.DuplicateFlagError: The flag 'json' is defined twice. First from <unknown>, Second from pyatdllib.ui.appcommandsutil.  Description from first occurrence: Output JSON
 
     pb = pyatdl_pb2.ToDoList.FromString(bytestring)  # pylint: disable=no-member
+    if not pb.HasField('inbox'):
+      raise errors.DataError(f"protocol buffer error: the Inbox project, with UID={uid.INBOX_UID}, is required")
+    if not pb.HasField('root'):
+      raise errors.DataError(f"protocol buffer error: the root folder, with UID={uid.ROOT_FOLDER_UID}, is required")
     inbox = prj.Prj.DeserializedProtobuf(
       pb.inbox.SerializeToString())
     root = folder.Folder.DeserializedProtobuf(

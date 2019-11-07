@@ -10,6 +10,7 @@ import gflags as flags
 
 from . import common
 from . import container
+from . import errors
 from . import prj
 from . import pyatdl_pb2
 
@@ -89,7 +90,8 @@ class Folder(container.Container):
     Returns:
       Folder
     """
-    assert bytestring
+    if not bytestring:
+      raise errors.DataError("empty folder in the protocol buffer -- not even a UID is present")
     pb = pyatdl_pb2.Folder.FromString(bytestring)  # pylint: disable=no-member
     p = cls(the_uid=pb.common.uid,
             name=pb.common.metadata.name,

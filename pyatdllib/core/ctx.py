@@ -87,7 +87,8 @@ class Ctx(auditable_object.AuditableObject):
     Returns:
       Ctx
     """
-    assert bytestring
+    if not bytestring:
+      raise errors.DataError("A Context must be nonempty -- add a UID.")
     pb = pyatdl_pb2.Context.FromString(bytestring)  # pylint: disable=no-member
     c = cls(the_uid=pb.common.uid,
             name=pb.common.metadata.name,
@@ -174,7 +175,8 @@ class CtxList(container.Container):
     Returns:
       CtxList
     """
-    assert bytestring
+    if not bytestring:
+      raise errors.DataError("A ContextList must be nonempty -- add a name.")
     pb = pyatdl_pb2.ContextList.FromString(bytestring)  # pylint: disable=no-member
     assert pb.common.metadata.name, (
       'No name for ContextList. pb=<%s> len(bytestring)=%s'  # TODO(chandler37): why require it?

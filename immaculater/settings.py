@@ -73,6 +73,7 @@ if USE_ALLAUTH:
 SITE_ID = 1
 
 MIDDLEWARE = [
+    'todo.middleware.exception_middleware.ExceptionMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',

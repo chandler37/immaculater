@@ -14,6 +14,7 @@ import gflags as flags
 from . import auditable_object
 from . import common
 from . import container
+from . import errors
 from . import pyatdl_pb2
 
 FLAGS = flags.FLAGS
@@ -45,6 +46,8 @@ class Ctx(auditable_object.AuditableObject):
 
   def __init__(self, the_uid=None, name=None, is_active=True, note=''):
     super().__init__(the_uid=the_uid)
+    if not name:
+      raise errors.DataError("Every Context must have a name.")  # TODO(chandler37): why?
     self.name = name
     self.note = note
     self.is_active = is_active
@@ -68,8 +71,7 @@ class Ctx(auditable_object.AuditableObject):
     if pb is None:
       pb = pyatdl_pb2.Context()
     super().AsProto(pb.common)
-    assert self.name
-    pb.common.metadata.name = self.name
+    pb.common.metadata.name = self.name if self.name else ""
     if self.note:
       pb.common.metadata.note = self.note
     pb.is_active = self.is_active
@@ -158,8 +160,7 @@ class CtxList(container.Container):
       pb = pyatdl_pb2.ContextList()
     super().AsProto(pb.common)
     assert self.uid == pb.common.uid
-    assert self.name
-    pb.common.metadata.name = self.name
+    pb.common.metadata.name = self.name if self.name else ""
     for c in self.items:
       c.AsProto(pb.contexts.add())
     return pb
@@ -176,7 +177,7 @@ class CtxList(container.Container):
     assert bytestring
     pb = pyatdl_pb2.ContextList.FromString(bytestring)  # pylint: disable=no-member
     assert pb.common.metadata.name, (
-      'No name for ContextList. pb=<%s> len(bytestring)=%s'
+      'No name for ContextList. pb=<%s> len(bytestring)=%s'  # TODO(chandler37): why require it?
       % (str(pb), len(bytestring)))
     cl = cls(the_uid=pb.common.uid, name=pb.common.metadata.name)
     for pbc in pb.contexts:

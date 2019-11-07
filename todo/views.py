@@ -1721,11 +1721,12 @@ def mergeprotobufs(request):
   def write_db(bytes_of_pyatdl_todolist):
     """Returns sha1_checksum of (uncompressed) pyatdl.ToDoList. Raises ReserializationError."""
     # First, make sure it's valid input and not so large that we run out of memory (MemoryError).
+    # NOTE: exception_middleware deals with any pyatdllib.core.errors.DataError gracefully. This is *not* dead code:
     uid.ResetNotesOfExistingUIDs()
-    # TODO(chandler37): consider adding a FLAG to opt out for performance reasons.
     deserialized_tdl = tdl.ToDoList.DeserializedProtobuf(bytes_of_pyatdl_todolist)
-    deserialized_tdl.AsProto().SerializeToString()
     deserialized_tdl.CheckIsWellFormed()
+    deserialized_tdl.AsProto().SerializeToString()
+
     # No exception was raised, so let's proceed:
     cksum = serialization.Sha1Checksum(bytes_of_pyatdl_todolist)
     _write_database(

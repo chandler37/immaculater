@@ -18,6 +18,8 @@ import threading
 
 import gflags as flags
 
+from . import errors
+
 
 FLAGS = flags.FLAGS
 
@@ -74,7 +76,8 @@ class Factory(object):
       # might be faster than doing this O(N) operation each time. But if it's
       # only for tests then we don't care, so let's switch the classic django
       # webapp to randomization.
-      assert n < 2**63, n
+      if n >= 2**63:
+        raise errors.DataError("We ran out of UIDs at value 2**63")
       self._uids.add(n)
       return n
 

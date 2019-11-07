@@ -8,7 +8,7 @@ import time
 import pytest
 
 from google.protobuf import text_format
-from django.test import TestCase
+from django.test import TestCase, modify_settings
 from django.test.client import Client
 from django.contrib.auth.models import User
 from pyatdllib.core import pyatdl_pb2
@@ -256,6 +256,23 @@ sanity_check: 18369614221190021342
         response = self._happy_post(req.SerializeToString())
         assert response.status_code == 500
         assert response.content == b'{"error": "The server does not yet implement merging, but merging is required because the sha1_checksum of the todolist prior to your input is \'3737373737373737373737373737373737373737\' and the sha1_checksum of the database is \'32d20be5b6e144d5b665e5690310a0e92ddd70e3\'"}'
+
+    @modify_settings(MIDDLEWARE={
+        'prepend': 'todo.middleware.exception_middleware.ExceptionMiddleware',
+    })
+    def test_ill_formed_input(self):
+        self._populate_todolist()
+        req = pyatdl_pb2.MergeToDoListRequest()
+        req.sanity_check = views.MERGETODOLISTREQUEST_SANITY_CHECK
+        pb = self._existing_todolist_protobuf()
+        a = pb.inbox.actions.add()
+        a.common.metadata.name = "testing10013"
+        # SKIP a.common.uid = 373737
+        req.latest.CopyFrom(self._cksum(pb))
+        req.previous_sha1_checksum = self._cksum().sha1_checksum
+        response = self._happy_post(req.SerializeToString())
+        assert response.status_code == 422
+        assert response.content == b'{"error": "The given to-do list is ill-formed: Illegal UID value 0 from metadata {\\n  name: \\"testing10013\\"\\n}\\n: not in range [-2**63, 0) or (0, 2**63)"}'
 
     def test_post_previous_sha1_given_for_existing_user(self):
         self._populate_todolist()

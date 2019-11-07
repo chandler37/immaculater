@@ -4,6 +4,7 @@ import random
 
 import gflags as flags  # https://code.google.com/p/python-gflags/
 
+from pyatdllib.core import errors
 from pyatdllib.core import uid
 from pyatdllib.core import unitjest
 
@@ -46,7 +47,7 @@ class UIDTestCase(unitjest.TestCase):
     raised = False
     try:
       uid.singleton_factory.NextUID()
-    except AssertionError:
+    except errors.DataError:
       raised = True
 
   def testRandomizedUIDs(self):
@@ -72,7 +73,7 @@ class UIDTestCase(unitjest.TestCase):
     except ValueError:
       raised = True
     self.assertEqual(raised, True)
-      
+
 
 if __name__ == '__main__':
   unitjest.main()

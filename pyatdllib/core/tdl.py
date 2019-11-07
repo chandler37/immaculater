@@ -18,6 +18,7 @@ from google.protobuf.pyext._message import SetAllowOversizeProtos
 from . import action
 from . import common
 from . import ctx
+from . import errors
 from . import folder
 from . import note
 from . import prj
@@ -68,9 +69,11 @@ class ToDoList(object):
 
   def __init__(self, inbox=None, root=None, ctx_list=None, note_list=None):
     self.inbox = inbox if inbox is not None else prj.Prj(name=FLAGS.inbox_project_name, the_uid=uid.INBOX_UID)
-    assert self.inbox.uid == uid.INBOX_UID, self.inbox.uid
+    if self.inbox.uid != uid.INBOX_UID:
+      raise errors.DataError(f"Inbox UID is not {uid.INBOX_UID}, it is {self.inbox.uid}")
     self.root = root if root is not None else folder.Folder(name='', the_uid=uid.ROOT_FOLDER_UID)
-    assert self.root.uid == uid.ROOT_FOLDER_UID, self.inbox.uid
+    if self.root.uid != uid.ROOT_FOLDER_UID:
+      raise errors.DataError(f"Root folder UID is not {uid.ROOT_FOLDER_UID}, it is {self.root.uid}")
     self.ctx_list = ctx_list if ctx_list is not None else ctx.CtxList(name='Contexts')
     self.note_list = note_list if note_list is not None else note.NoteList()
 
@@ -405,7 +408,7 @@ class ToDoList(object):
     this method.
 
     Raises:
-      AssertionError: Find a new programmer.
+      errors.DataError: A "foreign key" does not exists; a UID is missing/duplicated; etc.
     """
     if FLAGS.pyatdl_break_glass_and_skip_wellformedness_check:
       return
@@ -424,20 +427,20 @@ class ToDoList(object):
     uids = set()
     for item in self.Items():
       if not item.uid:
-        raise AssertionError(
+        raise errors.DataError(
           'Missing UID for item "%s". self=%s' % (str(item), SelfStr()))
       if item.uid in uids:
-        raise AssertionError(
+        raise errors.DataError(
           'UID %s was used for two different objects' % item.uid)
       uids.add(item.uid)
     for item in self.Items():
       if hasattr(item, 'default_context_uid'):
         if item.default_context_uid is not None and item.default_context_uid not in uids:
-          raise AssertionError(
+          raise errors.DataError(
             'UID %s is a default_context_uid but that UID does not exist.' % item.default_context_uid)
       if hasattr(item, 'ctx_uid'):
         if item.ctx_uid is not None and item.ctx_uid not in uids:
-          raise AssertionError(
+          raise errors.DataError(
             "UID %s is an action's context UID but that context does not exist." % item.ctx_uid)
 
   def AsProto(self, pb=None):

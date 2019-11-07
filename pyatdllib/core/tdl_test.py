@@ -9,6 +9,7 @@ import gflags as flags
 from google.protobuf import text_format
 
 from pyatdllib.core import pyatdl_pb2
+from pyatdllib.core import errors
 from pyatdllib.core import tdl
 from pyatdllib.core import uid
 from pyatdllib.core import unitjest
@@ -33,19 +34,19 @@ class TdlTestCase(unitjest.TestCase):
     self.assertEqual(lst.root.items, [])
     # pylint: disable=trailing-whitespace
     self._AssertEqualWithDiff(
-      r"""
+      """
 <todolist>
     <inbox>
         <project is_deleted="False" is_complete="False" is_active="True" name="inbox">
-        
+       \x20
         </project>
     </inbox>
     <folder is_deleted="False" name="">
-    
+   \x20
     </folder>
     <contexts>
         <context_list is_deleted="False" name="Contexts">
-        
+       \x20
         </context_list>
     </contexts>
 </todolist>
@@ -481,7 +482,7 @@ note_list {
     raised = False
     try:
       tdl.ToDoList.DeserializedProtobuf(pb.SerializeToString())
-    except AssertionError as e:
+    except errors.DataError as e:
       self.assertEqual("UID -13 is an action's context UID but that context does not exist.", str(e))
       raised = True
     self.assertTrue(raised)
@@ -498,7 +499,7 @@ note_list {
     text_format.Merge(text, pb)
     try:
       tdl.ToDoList.DeserializedProtobuf(pb.SerializeToString())
-    except AssertionError as e:
+    except errors.DataError as e:
       self.assertEqual("UID -14 is a default_context_uid but that UID does not exist.", str(e))
       raised = True
 

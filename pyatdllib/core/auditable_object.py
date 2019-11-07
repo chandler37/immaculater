@@ -10,6 +10,7 @@ import time
 
 import gflags as flags
 
+from . import errors
 from . import uid
 
 flags.DEFINE_bool('pyatdl_show_uid', True,
@@ -40,6 +41,8 @@ def _Int64Timestamp(float_time):
   epsilon = 1e-5
   if float_time is None or -1.0 - epsilon <= float_time <= -1.0 + epsilon:
     return -1
+  if float_time < 0.0:
+    raise errors.DataError(f"A timestamp was negative: {float_time}")
   assert float_time >= 0.0, float_time
   return int(float_time * 1e6)
 
@@ -93,8 +96,9 @@ class AuditableObject(object):
     # 'default_context_uid': None, 'is_complete': False,
     # 'ctime': 1512402694.178005}
     #
-    # which I got by creating a project and immediately clicking through to it
-    # and deactivating it. This was on localhost. TODO(chandler): reproduce.
+    # which I got by creating a project and immediately clicking through to it and deactivating it. This was on
+    # localhost. This is likely now impossible to reproduce because the culprit was probably calling NoteModification
+    # after setting timestamps, which was fixed.
 
   # NOTE(chandler): __setattr__ attempts to enforce invariants, including the
   # mtime timestamp, but __setattr__ is flawed, so note: modification of a list
@@ -123,6 +127,8 @@ class AuditableObject(object):
       pb: pyatdl_pb2.Common
     Returns:
       pb
+    Raises:
+      errors.DataError
     """
     pb.is_deleted = self.is_deleted
     pb.timestamp.ctime = _Int64Timestamp(self.ctime)
@@ -147,8 +153,8 @@ class AuditableObject(object):
     self.__dict__['dtime'] = _FloatingPointTimestamp(pb.timestamp.dtime)
     # self.__dict__['mtime'] must be set last because setting anything else triggers NoteModification which overwrites
     # it based on time.time().
-    assert 2**63 > pb.uid >= -2**63, str(pb)
-    assert pb.uid != 0
+    if pb.uid == 0 or pb.uid < -2**63 or pb.uid >= 2**63:
+      raise errors.DataError(f"Illegal UID value {pb.uid} from {pb}: not in range [-2**63, 0) or (0, 2**63)")
     if self.__dict__['uid'] != pb.uid:
       uid.singleton_factory.NoteExistingUID(pb.uid)
     self.__dict__['uid'] = pb.uid

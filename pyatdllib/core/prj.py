@@ -12,6 +12,7 @@ import gflags as flags
 from . import action
 from . import common
 from . import container
+from . import errors
 from . import pyatdl_pb2
 
 FLAGS = flags.FLAGS
@@ -226,9 +227,11 @@ class Prj(container.Container):
       bytestring: str
     Returns:
       Prj
+    Raises:
+      errors.DataError
     """
     if not bytestring:
-      raise ValueError("bad compression algorithm?")
+      raise errors.DataError("empty project in the protocol buffer -- not even a UID is present")
     pb = pyatdl_pb2.Project.FromString(bytestring)  # pylint: disable=no-member
     if pb.HasField('max_seconds_before_review'):
       max_seconds_before_review = pb.max_seconds_before_review

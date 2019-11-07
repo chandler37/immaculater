@@ -89,7 +89,7 @@ class Factory(object):
     """
     with self._lock:
       if existing_uid in self._uids:
-        raise ValueError("A UID %s is duplicated!" % existing_uid)
+        raise errors.DataError("A UID %s is duplicated!" % existing_uid)
       self._uids.add(existing_uid)
 
 

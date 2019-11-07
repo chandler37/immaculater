@@ -17,6 +17,7 @@ from google.protobuf import message
 
 from pyatdllib.ui import immaculater
 from pyatdllib.ui import test_helper
+from pyatdllib.core import errors
 from pyatdllib.core import uid
 
 FLAGS = flags.FLAGS
@@ -214,7 +215,7 @@ dump""")) as f:
     try:
       with open(self._CreateTmpFile('dump')) as f:
         immaculater.ApplyBatchOfCommands(f)
-    except (message.DecodeError, ValueError):
+    except (message.DecodeError, errors.DataError):
       pass
     else:
       raise AssertionError('Poisoning decompression did not cause a failure.')

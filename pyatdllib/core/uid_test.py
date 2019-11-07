@@ -32,7 +32,7 @@ class UIDTestCase(unitjest.TestCase):
     raised = False
     try:
       uid.singleton_factory.NoteExistingUID(2)
-    except ValueError:
+    except errors.DataError:
       raised = True
     self.assertTrue(raised)
 
@@ -64,13 +64,13 @@ class UIDTestCase(unitjest.TestCase):
     raised = False
     try:
       uid.singleton_factory.NoteExistingUID(4355858073736897916)
-    except ValueError:
+    except errors.DataError:
       raised = True
     self.assertEqual(raised, True)
     raised = False
     try:
       uid.singleton_factory.NoteExistingUID(10)
-    except ValueError:
+    except errors.DataError:
       raised = True
     self.assertEqual(raised, True)
 

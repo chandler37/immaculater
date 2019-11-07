@@ -4,6 +4,7 @@ Folders contain Containers (but not CtxLists).  Prj contains Actions.
 """
 
 from . import auditable_object
+from . import errors
 
 
 class Error(Exception):
@@ -118,13 +119,13 @@ class Container(auditable_object.AuditableObject):
       child: object
     Raises:
       IllegalOperationError: An undeleted descendant exists
-      ValueError: child is not really a child
+      errors.DataError: child is not really a child
     """
     for item in self.items:
       if child is item:
         break
     else:
-      raise ValueError(
+      raise errors.DataError(
         'The suppposed "child" is not really a child of this container.'
         ' self=%s child=%s'
         % (str(self), str(child)))

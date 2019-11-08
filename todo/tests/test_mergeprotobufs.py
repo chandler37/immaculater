@@ -272,7 +272,7 @@ sanity_check: 18369614221190021342
         req.previous_sha1_checksum = self._cksum().sha1_checksum
         response = self._happy_post(req.SerializeToString())
         assert response.status_code == 422
-        assert response.content == b'{"error": "The given to-do list is ill-formed: Illegal UID value 0 from metadata {\\n  name: \\"testing10013\\"\\n}\\n: not in range [-2**63, 0) or (0, 2**63)"}'
+        assert response.content == b'{"error": "The given to-do list is ill-formed: A UID is missing from or explicitly zero in the protocol buffer!"}'
 
     def test_post_previous_sha1_given_for_existing_user(self):
         self._populate_todolist()

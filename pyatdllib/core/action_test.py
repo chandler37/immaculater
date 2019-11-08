@@ -47,7 +47,7 @@ class ActionTestCase(unitjest.TestCase):  # pylint: disable=missing-docstring,to
   metadata {
     name: "Buy milk"
   }
-  uid: 2
+  uid: 1
 }
 is_complete: false
 """)
@@ -63,7 +63,7 @@ is_complete: false
   metadata {
     name: "Oranges"
   }
-  uid: 3
+  uid: 2
 }
 is_complete: false
 ctx_uid: -9223372036854775808

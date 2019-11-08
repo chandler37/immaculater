@@ -29,10 +29,10 @@ class FolderTestCase(unitjest.TestCase):
     FLAGS.pyatdl_show_uid = False
     self._AssertEqualWithDiff(
       [str(outer)],
-      [r"""
+      ["""
 <folder is_deleted="False" name="outer">
     <folder is_deleted="False" name="F0">
-    
+   \x20
     </folder>
     <project is_deleted="False" is_complete="False" is_active="True" name="myname">
         <action is_deleted="False" is_complete="False" name="Buy milk" ctx=""/>
@@ -43,14 +43,14 @@ class FolderTestCase(unitjest.TestCase):
     FLAGS.pyatdl_show_uid = True
     self._AssertEqualWithDiff(
       [str(outer)],
-      [r"""
-<folder uid=7 is_deleted="False" name="outer">
-    <folder uid=3 is_deleted="False" name="F0">
-    
+      ["""
+<folder uid=6 is_deleted="False" name="outer">
+    <folder uid=2 is_deleted="False" name="F0">
+   \x20
     </folder>
-    <project uid=6 is_deleted="False" is_complete="False" is_active="True" name="myname">
-        <action uid=4 is_deleted="False" is_complete="False" name="Buy milk" ctx=""/>
-        <action uid=5 is_deleted="False" is_complete="False" name="Oranges" ctx="uid=-9223372036854775808"/>
+    <project uid=5 is_deleted="False" is_complete="False" is_active="True" name="myname">
+        <action uid=3 is_deleted="False" is_complete="False" name="Buy milk" ctx=""/>
+        <action uid=4 is_deleted="False" is_complete="False" name="Oranges" ctx="uid=-9223372036854775808"/>
     </project>
 </folder>
 """.strip()])

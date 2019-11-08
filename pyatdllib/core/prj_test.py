@@ -62,7 +62,7 @@ class PrjTestCase(unitjest.TestCase):
   metadata {
     name: "myname"
   }
-  uid: 4
+  uid: 3
 }
 is_complete: false
 is_active: true
@@ -77,7 +77,7 @@ actions {
     metadata {
       name: "Buy milk"
     }
-    uid: 2
+    uid: 1
   }
   is_complete: false
 }
@@ -92,7 +92,7 @@ actions {
     metadata {
       name: "Oranges"
     }
-    uid: 3
+    uid: 2
   }
   is_complete: false
   ctx_uid: -9223372036854775808

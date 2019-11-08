@@ -75,11 +75,14 @@ class AuditableObject(object):
     self.mtime = self.ctime
     self.dtime = None
     self.is_deleted = False
-    # If we are deserializing, we will call SetFieldsBasedOnProtobuf and
-    # overwrite this value. UIDs are inexpensive and we don't care if we waste
-    # some during deserialization.
+    # If we are deserializing, we could call SetFieldsBasedOnProtobuf and overwrite this value. UIDs are inexpensive
+    # and we don't care if we waste some during deserialization. But the DataError for mergeprotobufs' sake is
+    # important, so we take care to set the_uid in the __init__ method when deserializing.
     if the_uid is None:
-      self.uid = uid.singleton_factory.NextUID()
+      try:
+        self.uid = uid.singleton_factory.NextUID()
+      except errors.DataError as e:
+        raise errors.DataError(f"In the process of instantiating an object of type {type(e)}: {e}")
     else:
       uid.singleton_factory.NoteExistingUID(the_uid)
       self.uid = the_uid

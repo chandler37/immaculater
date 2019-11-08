@@ -1722,7 +1722,7 @@ def mergeprotobufs(request):
     """Returns sha1_checksum of (uncompressed) pyatdl.ToDoList. Raises ReserializationError."""
     # First, make sure it's valid input and not so large that we run out of memory (MemoryError).
     # NOTE: exception_middleware deals with any pyatdllib.core.errors.DataError gracefully. This is *not* dead code:
-    uid.ResetNotesOfExistingUIDs()
+    uid.ResetNotesOfExistingUIDs(raise_data_error_upon_next_uid=True)  # let the error propagate
     deserialized_tdl = tdl.ToDoList.DeserializedProtobuf(bytes_of_pyatdl_todolist)
     deserialized_tdl.CheckIsWellFormed()
     deserialized_tdl.AsProto().SerializeToString()
@@ -1752,7 +1752,7 @@ def mergeprotobufs(request):
     new_tdl.CheckIsWellFormed()
     pbresponse.starter_template = True
     serialized_tdl = new_tdl.AsProto(pb=pbresponse.to_do_list).SerializeToString()  # AsProto returns its argument
-    uid.ResetNotesOfExistingUIDs()
+    uid.ResetNotesOfExistingUIDs(raise_data_error_upon_next_uid=True)
     deserialized_tdl = tdl.ToDoList.DeserializedProtobuf(serialized_tdl)
     deserialized_tdl.CheckIsWellFormed()
     reserialized_tdl = deserialized_tdl.AsProto().SerializeToString()

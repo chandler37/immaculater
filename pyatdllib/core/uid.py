@@ -35,6 +35,7 @@ INBOX_UID = 1
 # Similarly with the root Folder:
 ROOT_FOLDER_UID = INBOX_UID + 1
 assert ROOT_FOLDER_UID == 2
+# TODO(chandler37): Change pyatdl.proto so that ContextList has no 'common' field.
 
 # pyatdl.proto can say 'int64 uid = 1 [default = 37]' but it is zero by default:
 DEFAULT_PROTOBUF_VALUE_FOR_ABSENT_UID = 0
@@ -59,11 +60,15 @@ class Factory(object):
     """
     with self._lock:
       if FLAGS.pyatdl_randomize_uids:
+        reserved = (
+          INBOX_UID,
+          ROOT_FOLDER_UID,
+          DEFAULT_PROTOBUF_VALUE_FOR_ABSENT_UID,
+          UICMD_JSON_UID_VALUE_REPRESENTING_NONE)
         while True:
           # The following is (inclusive, exclusive):
           n = random.randrange(-2**63, 2**63)
-          # 0 is the default value in the protobuf so we reserve it.
-          if n != DEFAULT_PROTOBUF_VALUE_FOR_ABSENT_UID and n != UICMD_JSON_UID_VALUE_REPRESENTING_NONE and n != 1 and n not in self._uids:
+          if n not in reserved and n not in self._uids:
             self._uids.add(n)
             return n
 
@@ -71,13 +76,14 @@ class Factory(object):
       if self._uids:
         n = max(self._uids) + 1
       else:
-        n = INBOX_UID + 1
+        n = INBOX_UID
       # TODO(chandler37): https://github.com/grantjenks/python-sortedcontainers
       # might be faster than doing this O(N) operation each time. But if it's
       # only for tests then we don't care, so let's switch the classic django
       # webapp to randomization.
       if n >= 2**63:
         raise errors.DataError("We ran out of UIDs at value 2**63")
+      assert n not in self._uids, f'{n} is in self._uids'
       self._uids.add(n)
       return n
 
@@ -88,14 +94,21 @@ class Factory(object):
       existing_uid: int
     """
     with self._lock:
+      if existing_uid == DEFAULT_PROTOBUF_VALUE_FOR_ABSENT_UID:
+        raise errors.DataError("A UID is missing from or explicitly zero in the protocol buffer!")
       if existing_uid in self._uids:
         raise errors.DataError("A UID %s is duplicated!" % existing_uid)
       self._uids.add(existing_uid)
 
 
-def ResetNotesOfExistingUIDs():
+class FactoryThatRaisesDataErrorUponNextUID(Factory):
+  def NextUID(self):
+    raise errors.DataError("A UID is missing!")
+
+
+def ResetNotesOfExistingUIDs(raise_data_error_upon_next_uid=False):
   global singleton_factory
-  singleton_factory = Factory()
+  singleton_factory = FactoryThatRaisesDataErrorUponNextUID() if raise_data_error_upon_next_uid else Factory()
 
 
 ResetNotesOfExistingUIDs()

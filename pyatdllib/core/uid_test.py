@@ -25,9 +25,9 @@ class UIDTestCase(unitjest.TestCase):
     uid.ResetNotesOfExistingUIDs()
 
   def testTestModeSequentialUIDs(self):
+    self.assertEqual(uid.singleton_factory.NextUID(), 1)
     self.assertEqual(uid.singleton_factory.NextUID(), 2)
     self.assertEqual(uid.singleton_factory.NextUID(), 3)
-    self.assertEqual(uid.singleton_factory.NextUID(), 4)
 
     raised = False
     try:
@@ -49,6 +49,19 @@ class UIDTestCase(unitjest.TestCase):
       uid.singleton_factory.NextUID()
     except errors.DataError:
       raised = True
+
+  def testRaisingUponNextUID(self):
+    FLAGS.pyatdl_randomize_uids = True
+    random.seed(37)
+    uid.ResetNotesOfExistingUIDs(True)
+    raised = False
+    try:
+      uid.singleton_factory.NextUID()
+    except errors.DataError:
+      raised = True
+    self.assertTrue(raised)
+    uid.ResetNotesOfExistingUIDs(False)
+    uid.singleton_factory.NextUID()
 
   def testRandomizedUIDs(self):
     FLAGS.pyatdl_randomize_uids = True

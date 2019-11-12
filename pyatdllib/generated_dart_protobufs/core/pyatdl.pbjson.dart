@@ -32,6 +32,8 @@ const MergeToDoListRequest$json = const {
     const {'1': 'latest', '3': 16, '4': 1, '5': 11, '6': '.pyatdl.ChecksumAndData', '10': 'latest'},
     const {'1': 'previous_sha1_checksum', '3': 2, '4': 1, '5': 9, '10': 'previousSha1Checksum'},
     const {'1': 'new_data', '3': 3, '4': 1, '5': 8, '7': 'false', '10': 'newData'},
+    const {'1': 'overwrite_instead_of_merge', '3': 4, '4': 1, '5': 8, '7': 'false', '10': 'overwriteInsteadOfMerge'},
+    const {'1': 'abort_if_merge_is_required', '3': 5, '4': 1, '5': 8, '7': 'false', '10': 'abortIfMergeIsRequired'},
     const {
       '1': 'sanity_check',
       '3': 15,

@@ -47,6 +47,17 @@ message MergeToDoListRequest {
   // you're saving it for the first time to the database:
   optional bool new_data = 3 [default = false];
 
+  // In the special case of an App that does not share well with other Apps and
+  // instead is the only writer, set this to true and we will overwrite the
+  // contents of the database (if any exist). This is an expedient (hacky hack
+  // hack hack) until merging is implemented.
+  optional bool overwrite_instead_of_merge = 4 [default = false];
+
+  // If you are an App that knows you are alone in the Immaculater universe for
+  // this User, then a merge should never be required. This aborts if it is,
+  // instead of merging:
+  optional bool abort_if_merge_is_required = 5 [default = false];
+
   optional fixed64 sanity_check = 15 [jstype = JS_STRING];  // Must be 18369614221190020847
 }
 

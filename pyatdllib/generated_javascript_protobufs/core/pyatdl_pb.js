@@ -1109,6 +1109,8 @@ proto.pyatdl.MergeToDoListRequest.toObject = function(includeInstance, msg) {
     latest: (f = msg.getLatest()) && proto.pyatdl.ChecksumAndData.toObject(includeInstance, f),
     previousSha1Checksum: (f = jspb.Message.getField(msg, 2)) == null ? undefined : f,
     newData: jspb.Message.getBooleanFieldWithDefault(msg, 3, false),
+    overwriteInsteadOfMerge: jspb.Message.getBooleanFieldWithDefault(msg, 4, false),
+    abortIfMergeIsRequired: jspb.Message.getBooleanFieldWithDefault(msg, 5, false),
     sanityCheck: (f = jspb.Message.getField(msg, 15)) == null ? undefined : f
   };
 
@@ -1158,6 +1160,14 @@ proto.pyatdl.MergeToDoListRequest.deserializeBinaryFromReader = function(msg, re
     case 3:
       var value = /** @type {boolean} */ (reader.readBool());
       msg.setNewData(value);
+      break;
+    case 4:
+      var value = /** @type {boolean} */ (reader.readBool());
+      msg.setOverwriteInsteadOfMerge(value);
+      break;
+    case 5:
+      var value = /** @type {boolean} */ (reader.readBool());
+      msg.setAbortIfMergeIsRequired(value);
       break;
     case 15:
       var value = /** @type {string} */ (reader.readFixed64String());
@@ -1211,6 +1221,20 @@ proto.pyatdl.MergeToDoListRequest.serializeBinaryToWriter = function(message, wr
   if (f != null) {
     writer.writeBool(
       3,
+      f
+    );
+  }
+  f = /** @type {boolean} */ (jspb.Message.getField(message, 4));
+  if (f != null) {
+    writer.writeBool(
+      4,
+      f
+    );
+  }
+  f = /** @type {boolean} */ (jspb.Message.getField(message, 5));
+  if (f != null) {
+    writer.writeBool(
+      5,
       f
     );
   }
@@ -1330,6 +1354,78 @@ proto.pyatdl.MergeToDoListRequest.prototype.clearNewData = function() {
  */
 proto.pyatdl.MergeToDoListRequest.prototype.hasNewData = function() {
   return jspb.Message.getField(this, 3) != null;
+};
+
+
+/**
+ * optional bool overwrite_instead_of_merge = 4;
+ * @return {boolean}
+ */
+proto.pyatdl.MergeToDoListRequest.prototype.getOverwriteInsteadOfMerge = function() {
+  return /** @type {boolean} */ (jspb.Message.getBooleanFieldWithDefault(this, 4, false));
+};
+
+
+/**
+ * @param {boolean} value
+ * @return {!proto.pyatdl.MergeToDoListRequest} returns this
+ */
+proto.pyatdl.MergeToDoListRequest.prototype.setOverwriteInsteadOfMerge = function(value) {
+  return jspb.Message.setField(this, 4, value);
+};
+
+
+/**
+ * Clears the field making it undefined.
+ * @return {!proto.pyatdl.MergeToDoListRequest} returns this
+ */
+proto.pyatdl.MergeToDoListRequest.prototype.clearOverwriteInsteadOfMerge = function() {
+  return jspb.Message.setField(this, 4, undefined);
+};
+
+
+/**
+ * Returns whether this field is set.
+ * @return {boolean}
+ */
+proto.pyatdl.MergeToDoListRequest.prototype.hasOverwriteInsteadOfMerge = function() {
+  return jspb.Message.getField(this, 4) != null;
+};
+
+
+/**
+ * optional bool abort_if_merge_is_required = 5;
+ * @return {boolean}
+ */
+proto.pyatdl.MergeToDoListRequest.prototype.getAbortIfMergeIsRequired = function() {
+  return /** @type {boolean} */ (jspb.Message.getBooleanFieldWithDefault(this, 5, false));
+};
+
+
+/**
+ * @param {boolean} value
+ * @return {!proto.pyatdl.MergeToDoListRequest} returns this
+ */
+proto.pyatdl.MergeToDoListRequest.prototype.setAbortIfMergeIsRequired = function(value) {
+  return jspb.Message.setField(this, 5, value);
+};
+
+
+/**
+ * Clears the field making it undefined.
+ * @return {!proto.pyatdl.MergeToDoListRequest} returns this
+ */
+proto.pyatdl.MergeToDoListRequest.prototype.clearAbortIfMergeIsRequired = function() {
+  return jspb.Message.setField(this, 5, undefined);
+};
+
+
+/**
+ * Returns whether this field is set.
+ * @return {boolean}
+ */
+proto.pyatdl.MergeToDoListRequest.prototype.hasAbortIfMergeIsRequired = function() {
+  return jspb.Message.getField(this, 5) != null;
 };
 
 

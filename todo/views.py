@@ -1769,10 +1769,10 @@ def mergeprotobufs(request):
     except message.Error as e:
       return JsonResponse({"error": "The given to-do list did not serialize. Hint: %s" % str(e)},  # TODO(chandler37): test
                           status=409)
-    if pbreq.previous_sha1_checksum:
+    if pbreq.previous_sha1_checksum or pbreq.overwrite_instead_of_merge:
       # TODO(chandler37): See comments in _write_database regarding performance optimizations from storing SHA1
       # checksums in the database.
-      if pbreq.previous_sha1_checksum == read_result["sha1"]:  # yes, read_result["sha1"] is for the uncompressed pyatdl.ToDoList
+      if pbreq.overwrite_instead_of_merge or pbreq.previous_sha1_checksum == read_result["sha1"]:  # yes, read_result["sha1"] is for the uncompressed pyatdl.ToDoList
         cksum = write_db(pbreq.latest.payload)
         pbresponse.sha1_checksum = pbreq.latest.sha1_checksum
         assert pbreq.latest.sha1_checksum == cksum, f'Checksum mismatch after writing to the database; this is not terrible thanks to ATOMIC_REQUESTS which will roll back the so-called write: req.sha1={pbreq.latest.sha1_checksum} db={cksum}'
@@ -1783,6 +1783,14 @@ def mergeprotobufs(request):
         pass  # we must merge, fall through...
     # It does not match what is in the db; we must merge. If a client has a very old to-do list, merging could
     # resurrect anything that has been purged. TODO(chandler37): Think about Lamport clocks and vector clocks and design a truly paranoid system, perhaps one that worked like 'git rebase'.
+    if pbreq.abort_if_merge_is_required:
+      errmsg = ''.join(f"""
+The server needs to merge, but you set abort_if_merge_is_required to true, so we are aborting.
+ Merging is required because the sha1_checksum of the todolist prior to your input is
+ {pbreq.previous_sha1_checksum!r} and the sha1_checksum of the database is
+ {read_result["sha1"]!r}
+""".split('\n')).strip()
+      return JsonResponse({"error": errmsg}, status=400)  # DLC
     error_quickly = True
     if error_quickly:
       errmsg = ''.join(f"""

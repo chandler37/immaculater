@@ -1790,7 +1790,7 @@ The server needs to merge, but you set abort_if_merge_is_required to true, so we
  {pbreq.previous_sha1_checksum!r} and the sha1_checksum of the database is
  {read_result["sha1"]!r}
 """.split('\n')).strip()
-      return JsonResponse({"error": errmsg}, status=400)  # DLC
+      return JsonResponse({"error": errmsg}, status=409)
     error_quickly = True
     if error_quickly:
       errmsg = ''.join(f"""

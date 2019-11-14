@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 
 import json
 import pytest
+import re
 from django.test import TestCase
 from django.test.client import Client
 from django.contrib.auth.models import User
@@ -13,6 +14,7 @@ from jwt_auth import settings
 # place?
 jwt_payload_handler = settings.JWT_PAYLOAD_HANDLER
 jwt_encode_handler = settings.JWT_ENCODE_HANDLER
+jwt_decode_handler = settings.JWT_DECODE_HANDLER
 
 
 @pytest.mark.django_db
@@ -27,6 +29,7 @@ class V1Projects(TestCase):
 
         payload = jwt_payload_handler(self.user)
         self.token = jwt_encode_handler(payload)
+        assert re.match(r"^{'user_id': 1, 'exp': \d{10,}}$", f"{jwt_decode_handler(self.token)}")
         self.auth_headers = {
             'HTTP_AUTHORIZATION': 'Bearer ' + self.token
         }

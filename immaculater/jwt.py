@@ -20,6 +20,11 @@ def jwt_payload_handler(user):
     # need to be planet-scale you'd be foolish to put things like 'is this User
     # a SuperUser?' inside a JWT because the crypto can be broken and you want
     # to limit the damage if it is.
+    #
+    # If you don't do the above, you have something else to do: TODO(chandler37): JWT payloads are unencrypted. Do not
+    # use the real user ID because it tells how fast the site is growing. Use a random 64-bit number from a new table
+    # user_random_id with columns (user.id, 64-bit number) and an index on each. This is better than encrypting the
+    # JWT, in my opinion, because that can be cracked.
     return {
         'user_id': user.pk,
         'exp': datetime.utcnow() + settings.JWT_EXPIRATION_DELTA

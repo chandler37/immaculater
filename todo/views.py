@@ -1368,10 +1368,9 @@ def _active_authenticated_user_via_jwt(request):
     raise PermissionDenied()
   if sessions[0].expires_at < timezone.now():
     # TODO(chandler37): Keep statsd statistics of the number of occurrences of each of these rejection criteria.
-    assert not f'TODO(chandler37): here 000 {sessions[0].expires_at} {timezone.now()}'
     raise PermissionDenied()
   user_id = sessions[0].user_id
-  users = models.ToDoList.objects.filter(pk=user_id)
+  users = User.objects.filter(pk=user_id)
   assert len(users) in (0, 1)
   if not users:
     assert not 'TODO(chandler37): here 100'

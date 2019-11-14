@@ -1,4 +1,4 @@
-import datetime
+from django.utils import timezone
 
 
 def jwt_payload_handler(user):
@@ -26,7 +26,7 @@ def jwt_payload_handler(user):
   from todo import models
   from jwt_auth import settings as jwt_auth_settings
   slug = immaculater.Base64RandomSlug(64)
-  expiry = datetime.datetime.utcnow() + jwt_auth_settings.JWT_EXPIRATION_DELTA
+  expiry = timezone.now() + jwt_auth_settings.JWT_EXPIRATION_DELTA
   new_model = models.JwtSession(
     user=user,
     slug=slug,

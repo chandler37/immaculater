@@ -29,4 +29,4 @@ class JwtSession(models.Model):
       max_length=11, null=False, blank=False, unique=True, primary_key=True)
     created_at = models.DateTimeField('date created', auto_now_add=True)
     updated_at = models.DateTimeField('date updated', auto_now=True)
-    expires_at = models.DateTimeField('date created', auto_now_add=True)
+    expires_at = models.DateTimeField('date created', null=False, blank=False)

@@ -42,6 +42,7 @@ from django.http import HttpResponseBadRequest
 from django.http import JsonResponse
 from django.shortcuts import redirect
 from django.template.response import TemplateResponse
+from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.utils.encoding import escape_uri_path
 from django.utils.html import escape
@@ -1365,7 +1366,7 @@ def _active_authenticated_user_via_jwt(request):
   assert len(sessions) in (0, 1)
   if not sessions:
     raise PermissionDenied()
-  if sessions[0].expires_at < datetime.datetime.now():
+  if sessions[0].expires_at < timezone.now():
     raise PermissionDenied()
   user_id = sessions[0].user_id
   users = models.ToDoList.objects.filter(pk=user_id)

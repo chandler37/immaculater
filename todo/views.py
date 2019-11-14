@@ -1448,11 +1448,13 @@ def api(request):
 
   curl -X POST -d 'cmd=view needing_review' -d 'cmd=ls' -u foo:bar http://127.0.0.1:5000/todo/api
 
-  curl -X POST -d 'cmdro=cd /inbox' -d 'cmdro=ls' -u foo:bar http://127.0.0.1:5000/todo/api
+  curl -X POST -d 'cmdro=cd /inbox' -d 'cmdro=ls' -H 'Authorization:Bearer my.json.web.token' http://127.0.0.1:5000/todo/api
   """
   if request.method != 'POST':
     raise Http404()
-  user = _active_authenticated_user_via_basic_auth(request)
+  user = _active_authenticated_user_via_jwt(request)
+  if user is None:
+    user = _active_authenticated_user_via_basic_auth(request)
   assert user is not None
   read_only = False
   cmd_list = request.POST.getlist('cmdro', [])
@@ -1734,8 +1736,6 @@ def mergeprotobufs(request):
     return JsonResponse({"error": "Use https, not http"},
                         status=426)
   user = _active_authenticated_user_via_jwt(request)
-
-  # TODO(chandler37): maybe use JWTs instead? See //immaculater/jwt.py:
   if user is None:
     user = _active_authenticated_user_via_basic_auth(request)
 

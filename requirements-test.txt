@@ -1,5 +1,6 @@
 coverage==5.0a8
 flake8==3.7.7
+freezegun==0.3.12
 pytest-cov==2.8.1
 pytest-django==3.4.8
 pytest==4.3.0

@@ -21,3 +21,12 @@ class Share(models.Model):
       max_length=11, null=False, blank=False, unique=True, primary_key=True)
     created_at = models.DateTimeField('date created', auto_now_add=True)
     updated_at = models.DateTimeField('date updated', auto_now=True)
+
+
+class JwtSession(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    slug = models.CharField(
+      max_length=11, null=False, blank=False, unique=True, primary_key=True)
+    created_at = models.DateTimeField('date created', auto_now_add=True)
+    updated_at = models.DateTimeField('date updated', auto_now=True)
+    expires_at = models.DateTimeField('date created', auto_now_add=True)

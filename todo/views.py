@@ -9,6 +9,7 @@ import codecs
 import datetime
 import hashlib
 import json
+import jwt as pyjwt
 import io
 import os
 import pipes
@@ -34,7 +35,6 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.exceptions import PermissionDenied
-from django.core.serializers.json import DjangoJSONEncoder
 from django.db import transaction
 from django.http import Http404
 from django.http import HttpResponse
@@ -44,16 +44,15 @@ from django.shortcuts import redirect
 from django.template.response import TemplateResponse
 from django.utils.decorators import method_decorator
 from django.utils.encoding import escape_uri_path
-from django.utils.encoding import smart_text
 from django.utils.html import escape
 from django.views.decorators.cache import never_cache
 from django.views.decorators.clickjacking import xframe_options_sameorigin
 from django.views.decorators.csrf import csrf_exempt
-from django.views.generic import View
 from cryptography.fernet import Fernet, InvalidToken
 from google.protobuf import message
 from allauth.socialaccount import models as allauth_models
-from jwt_auth import mixins
+from jwt_auth import settings as jwt_auth_settings
+from immaculater import jwt
 
 from . import models
 
@@ -1341,6 +1340,43 @@ def _authenticated_user_via_discord_bot_custom_auth(request):
   raise PermissionDenied()
 
 
+def _active_authenticated_user_via_jwt(request):
+  if not request.is_secure() and os.environ.get('DJANGO_DEBUG') != "True":
+    # We do this at a higher level with SECURE_SSL_REDIRECT, but enforce it
+    # here too, just in case.
+    raise PermissionDenied()  # really a 426 would be best
+  auth = request.META.get('HTTP_AUTHORIZATION', '').split()
+  if not auth or auth[0].lower() != 'bearer':
+    return None
+  if len(auth) != 2:
+    raise PermissionDenied()
+  try:
+    auth_payload = jwt_auth_settings.JWT_DECODE_HANDLER(auth[-1])
+  except pyjwt.PyJWTError:
+    raise PermissionDenied()
+  if not auth_payload['expiry']:
+    raise PermissionDenied()
+  epoch_seconds = int(auth_payload['expiry'], 10)
+  if int(datetime.datetime.utcnow().strftime('%s'), 10) >= epoch_seconds:
+    raise PermissionDenied()
+  if not auth_payload['slug']:
+    raise PermissionDenied()
+  sessions = models.JwtSession.objects.filter(pk=auth_payload['slug'])
+  assert len(sessions) in (0, 1)
+  if not sessions:
+    raise PermissionDenied()
+  if sessions[0].expired_at < datetime.datetime.utcnow():
+    raise PermissionDenied()
+  user_id = sessions[0].user_id
+  users = models.ToDoList.objects.filter(pk=user_id)
+  assert len(users) in (0, 1)
+  if not users:
+    raise PermissionDenied()
+  if not users[0].is_active:
+    raise PermissionDenied()
+  return users[0]
+
+
 def _active_authenticated_user_via_basic_auth(request):
   auth = request.META.get('HTTP_AUTHORIZATION', '').split()
   if not auth or auth[0].lower() != 'basic' or len(auth) != 2:
@@ -1455,6 +1491,24 @@ def api(request):
                          'view': results['view']})
   except immaculater.Error as error:
     return JsonResponse({'immaculater_error': six.text_type(error)}, status=422)
+
+
+@never_cache
+@csrf_exempt
+def create_jwt(request):
+  """`create_jwt` is how you trade a username and password for a JSON Web Token (JWT)."""
+  if request.method != 'POST':
+    raise Http404()
+  if not request.is_secure() and os.environ.get('DJANGO_DEBUG') != "True":
+    # We do this at a higher level with SECURE_SSL_REDIRECT, but enforce it here too, just in case. TODO(chandler37):
+    # DRY this up with mergeprotobufs via a decorator.
+    return JsonResponse({"error": "Use https, not http"},
+                        status=426)
+  user = _active_authenticated_user_via_basic_auth(request)
+  # Now create the row in jwt_session:
+  encoder = jwt_auth_settings.JWT_ENCODE_HANDLER
+  token = encoder(jwt.jwt_payload_handler(user))
+  return JsonResponse({"token": token}, status=201)
 
 
 def _is_valid_sha1_checksum(s):
@@ -1675,9 +1729,12 @@ def mergeprotobufs(request):
     # here too, just in case.
     return JsonResponse({"error": "Use https, not http"},
                         status=426)
+  user = _active_authenticated_user_via_jwt(request)
 
   # TODO(chandler37): maybe use JWTs instead? See //immaculater/jwt.py:
-  user = _active_authenticated_user_via_basic_auth(request)
+  if user is None:
+    user = _active_authenticated_user_via_basic_auth(request)
+
   pbreq, error_response = _parse_mergeprotobufs_request(request)
   assert pbreq is None or error_response is None
   assert pbreq is not None or error_response is not None
@@ -1893,46 +1950,6 @@ def slackapi(request):
     if request.POST.get('team_id', '') not in allowed_teams:
       raise PermissionDenied()
   return _slackapi(request)
-
-
-class V1View(mixins.JSONWebTokenAuthMixin, View):
-  error_response_dict = {'errors': ['Improperly formatted request']}
-  json_encoder_class = DjangoJSONEncoder
-
-  @method_decorator([never_cache, csrf_exempt])
-  def dispatch(self, request, *args, **kwargs):
-    try:
-      return super().dispatch(request, *args, **kwargs)
-    except ValueError:
-      return self.render_bad_request_response()
-
-  def request_json(self, request):
-    return json.loads(smart_text(request.body))
-
-  def render_bad_request_response(self, error_dict=None):
-    if error_dict is None:
-      error_dict = self.error_response_dict
-
-    json_context = json.dumps(error_dict, cls=self.json_encoder_class)
-
-    return HttpResponseBadRequest(json_context, content_type='application/json')
-
-
-class V1ProjectsView(V1View):
-  def get(self, request):
-    cookie = _default_cookie_value(request.user.username)
-    # TODO(chandler): Set cookie.view based on UI params
-    batch = ['lsprj --json']
-    result = _apply_batch_of_commands(request.user, batch, True, cookie=cookie)
-    assert len(result['printed']) == 1, result['printed']
-    # top-level javascript arrays are a security no-no:
-    data = json.dumps({'result': json.loads(result['printed'][0])})
-    return HttpResponse(data)
-
-  def post(self, request):
-    # TODO(chandler): finish and test this.
-    json_input = json.dumps(self.request_json(request), cls=self.json_encoder_class)
-    return HttpResponse(json_input, content_type='application/json')
 
 
 immaculater.InitFlags()

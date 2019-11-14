@@ -28,7 +28,7 @@ urlpatterns = [
     url(r'^text$', views.as_text2, name='as_text2'),
     url(r'^search$', views.search, name='search'),
     url(r'^privacy.html$', views.privacy, name='privacy'),
-    url(r'^v1/projects$', views.V1ProjectsView.as_view(), name='v1_projects'),
+    url(r'^v1/create_jwt$', views.create_jwt, name='create_jwt'),
     url(r'^mergeprotobufs$', views.mergeprotobufs, name='mergeprotobufs'),
 ]
 

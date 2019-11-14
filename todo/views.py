@@ -1365,7 +1365,7 @@ def _active_authenticated_user_via_jwt(request):
   assert len(sessions) in (0, 1)
   if not sessions:
     raise PermissionDenied()
-  if sessions[0].expired_at < datetime.datetime.utcnow():
+  if sessions[0].expires_at < datetime.datetime.utcnow():
     raise PermissionDenied()
   user_id = sessions[0].user_id
   users = models.ToDoList.objects.filter(pk=user_id)

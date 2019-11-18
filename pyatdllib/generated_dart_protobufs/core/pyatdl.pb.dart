@@ -286,6 +286,68 @@ class ChecksumAndData extends $pb.GeneratedMessage {
   void clearPayload() => clearField(10123);
 }
 
+class UserInfoAndToDoList extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo('UserInfoAndToDoList', package: const $pb.PackageName('pyatdl'), createEmptyInstance: create)
+    ..aOS(1, 'personaName')
+    ..aOS(2, 'username')
+    ..aOS(3, 'jsonWebToken')
+    ..aOM<ChecksumAndData>(10123, 'checksumAndData', subBuilder: ChecksumAndData.create)
+  ;
+
+  UserInfoAndToDoList._() : super();
+  factory UserInfoAndToDoList() => create();
+  factory UserInfoAndToDoList.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory UserInfoAndToDoList.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  UserInfoAndToDoList clone() => UserInfoAndToDoList()..mergeFromMessage(this);
+  UserInfoAndToDoList copyWith(void Function(UserInfoAndToDoList) updates) => super.copyWith((message) => updates(message as UserInfoAndToDoList));
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static UserInfoAndToDoList create() => UserInfoAndToDoList._();
+  UserInfoAndToDoList createEmptyInstance() => create();
+  static $pb.PbList<UserInfoAndToDoList> createRepeated() => $pb.PbList<UserInfoAndToDoList>();
+  @$core.pragma('dart2js:noInline')
+  static UserInfoAndToDoList getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<UserInfoAndToDoList>(create);
+  static UserInfoAndToDoList _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get personaName => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set personaName($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasPersonaName() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearPersonaName() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get username => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set username($core.String v) { $_setString(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasUsername() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearUsername() => clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.String get jsonWebToken => $_getSZ(2);
+  @$pb.TagNumber(3)
+  set jsonWebToken($core.String v) { $_setString(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasJsonWebToken() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearJsonWebToken() => clearField(3);
+
+  @$pb.TagNumber(10123)
+  ChecksumAndData get checksumAndData => $_getN(3);
+  @$pb.TagNumber(10123)
+  set checksumAndData(ChecksumAndData v) { setField(10123, v); }
+  @$pb.TagNumber(10123)
+  $core.bool hasChecksumAndData() => $_has(3);
+  @$pb.TagNumber(10123)
+  void clearChecksumAndData() => clearField(10123);
+  @$pb.TagNumber(10123)
+  ChecksumAndData ensureChecksumAndData() => $_ensure(3);
+}
+
 class Timestamp extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo('Timestamp', package: const $pb.PackageName('pyatdl'), createEmptyInstance: create)
     ..aInt64(1, 'ctime')

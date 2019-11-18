@@ -82,6 +82,16 @@ const ChecksumAndData$json = const {
   ],
 };
 
+const UserInfoAndToDoList$json = const {
+  '1': 'UserInfoAndToDoList',
+  '2': const [
+    const {'1': 'persona_name', '3': 1, '4': 1, '5': 9, '10': 'personaName'},
+    const {'1': 'username', '3': 2, '4': 1, '5': 9, '10': 'username'},
+    const {'1': 'json_web_token', '3': 3, '4': 1, '5': 9, '10': 'jsonWebToken'},
+    const {'1': 'checksum_and_data', '3': 10123, '4': 1, '5': 11, '6': '.pyatdl.ChecksumAndData', '10': 'checksumAndData'},
+  ],
+};
+
 const Timestamp$json = const {
   '1': 'Timestamp',
   '2': const [

@@ -1373,10 +1373,8 @@ def _active_authenticated_user_via_jwt(request):
   users = User.objects.filter(pk=user_id)
   assert len(users) in (0, 1)
   if not users:
-    assert not 'TODO(chandler37): here 100'
     raise PermissionDenied()
   if not users[0].is_active:
-    assert not 'TODO(chandler37): here 200'
     raise PermissionDenied()
   return users[0]
 

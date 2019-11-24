@@ -256,7 +256,7 @@ DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'noreply@localhost')
 
 JWT_PAYLOAD_HANDLER = jwt.jwt_payload_handler
 
-JWT_EXPIRATION_DELTA = datetime.timedelta(seconds=60 * 60 * 24)
+JWT_EXPIRATION_DELTA = datetime.timedelta(seconds=60 * 60 * 24 * 14)
 
 if os.environ.get("SENTRY_DSN"):
   sentry_sdk.init(

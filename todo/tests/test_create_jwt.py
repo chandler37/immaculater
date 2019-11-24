@@ -59,7 +59,7 @@ class CreateJwt(TestCase):
       assert re.match(
         r'^eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9\.[^.]+\.[^.]+$',
         response_content['token'])
-      assert jwt_decode_handler(response_content['token']) == {'slug': slug, 'expiry': '571881600'}
+      assert jwt_decode_handler(response_content['token']) == {'slug': slug, 'expiry': '573004800'}
       response_content = json.loads(response.content)
 
       # Now see if the database has it...

@@ -228,22 +228,28 @@ else:
 
 if DEBUG:
     LOGGING = {
-        'version': 1,
-        'handlers': {
-            'console': {
-                'level': 'DEBUG',
-                'class': 'logging.StreamHandler',
-            },
+      'version': 1,
+      'disable_existing_loggers': False,
+      'handlers': {
+        'my_log_handler': {
+          'level': 'DEBUG',
+          'class': 'logging.FileHandler',
+          'filename': os.path.join(BASE_DIR, 'django.log'),
         },
-        'loggers': {
-            'django.request': {
-                'handlers': ['console'],
-                'propagate': True,
-                'level': 'DEBUG',
-            }
+      },
+      'loggers': {
+        'django': {
+          'handlers': ['my_log_handler'],
+          'level': 'DEBUG',
+          'propagate': True,
         },
+        'django.utils.autoreload': {
+          'handlers': ['my_log_handler'],
+          'level': 'INFO',
+          'propagate': True,
+        },
+      },
     }
-
 if os.environ.get('SENDGRID_API_KEY'):
     EMAIL_BACKEND = 'sendgrid_backend.SendgridBackend'
     ACCOUNT_EMAIL_VERIFICATION = "optional"

@@ -70,7 +70,7 @@ web: local
 
 .PHONY: local
 local: venv/local-migrations-performed
-	$(ACTIVATE_VENV) && DJANGO_DEBUG=True python manage.py runserver 5000
+	$(ACTIVATE_VENV) && DJANGO_DEBUG=True python manage.py runserver -v 3 5000
 
 venv/protoc-has-run:
 	cd pyatdllib && make protoc_middleman

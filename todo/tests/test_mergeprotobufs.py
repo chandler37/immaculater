@@ -131,7 +131,7 @@ ctx_list {
 
     def test_post_unauthenticated(self):
         response = self.client.post('/todo/mergeprotobufs')
-        assert response.content == b'<h1>403 Forbidden</h1>\n\n'
+        assert response.content == b'<h1>403 Forbidden</h1>\n\n  <p>missing &quot;Authorization&quot; header</p>\n\n'
         assert response.status_code == 403
 
     def test_post_misauthenticated(self):

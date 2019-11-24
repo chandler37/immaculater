@@ -1354,7 +1354,7 @@ def _active_authenticated_user_via_jwt(request):
   try:
     auth_payload = jwt_auth_settings.JWT_DECODE_HANDLER(auth[-1])
   except pyjwt.PyJWTError:
-    raise PermissionDenied()
+    raise PermissionDenied("Cannot decode JSON Web Token")
   if not auth_payload['expiry']:
     raise PermissionDenied()
   epoch_seconds = int(auth_payload['expiry'], 10)
@@ -1381,8 +1381,10 @@ def _active_authenticated_user_via_jwt(request):
 
 def _active_authenticated_user_via_basic_auth(request):
   auth = request.META.get('HTTP_AUTHORIZATION', '').split()
-  if not auth or auth[0].lower() != 'basic' or len(auth) != 2:
-    raise PermissionDenied()
+  if not auth:
+    raise PermissionDenied('missing "Authorization" header')
+  if auth[0].lower() != 'basic' or len(auth) != 2:
+    raise PermissionDenied('invalidly formatted "Authorization" header')
   try:
     userid, password = base64.b64decode(auth[1]).decode('iso-8859-1').split(':', 1)
   except (ValueError, TypeError, UnicodeDecodeError, binascii.Error):
@@ -1392,10 +1394,9 @@ def _active_authenticated_user_via_basic_auth(request):
     'password': password
   }
   user = authenticate(request=request, **credentials)
-  if user is None:  # which may be because user.is_active is False in the case of the ModelBackend
-    raise PermissionDenied()
-  if not user.is_active:  # but you can't be too careful...
-    raise PermissionDenied()
+  # None may be because user.is_active is False (in the case of the ModelBackend) but you can't be too careful.
+  if user is None or not user.is_active:
+    raise PermissionDenied('The properly formatted "Authorization" header has an invalid username or password.')
   return user
 
 

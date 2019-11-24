@@ -150,6 +150,22 @@ ctx_list {
         assert response.content == b'<h1>403 Forbidden</h1>\n\n'
         assert response.status_code == 403
 
+    def test_post_misauthenticated_terrible_jwt(self):
+        misauth_headers = {
+            'HTTP_AUTHORIZATION': 'Bearer x'
+        }
+        response = self.client.post('/todo/mergeprotobufs', **misauth_headers)
+        assert response.content == b'<h1>403 Forbidden</h1>\n\n  <p>Cannot decode JSON Web Token</p>\n\n'
+        assert response.status_code == 403
+
+    def test_post_misauthenticated_sort_of_close_jwt(self):
+        misauth_headers = {
+            'HTTP_AUTHORIZATION': 'Bearer x.y.z'
+        }
+        response = self.client.post('/todo/mergeprotobufs', **misauth_headers)
+        assert response.content == b'<h1>403 Forbidden</h1>\n\n  <p>Cannot decode JSON Web Token</p>\n\n'
+        assert response.status_code == 403
+
     def test_post_existing_user_but_inactive(self):
         self._populate_todolist()
         self.user.is_active = False

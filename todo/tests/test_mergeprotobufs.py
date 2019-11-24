@@ -185,6 +185,20 @@ ctx_list {
         assert response.content == b'{"error": "Got a valid MergeToDoListRequest but sanity_check was 0"}'
         assert response.status_code == 422
 
+    def test_post_inactive_user(self):
+        self._populate_todolist()
+        did_it = False
+        for model in User.objects.filter(pk=self.user.pk):
+          model.is_active = False
+          model.save()
+          did_it = True
+        assert did_it
+        req = pyatdl_pb2.MergeToDoListRequest()
+        req.sanity_check = views.MERGETODOLISTREQUEST_SANITY_CHECK
+        response = self._happy_post(req.SerializeToString())
+        assert response.status_code == 403
+        assert response.content == b'<h1>403 Forbidden</h1>\n\n  <p>The properly formatted &quot;Authorization&quot; header has an invalid username or password.</p>\n\n'
+
     def test_post_existing_user(self):
         self._populate_todolist()
         req = pyatdl_pb2.MergeToDoListRequest()

@@ -2643,6 +2643,18 @@ class UICmdUndo(UICmd):
       raise NothingToUndoSlashRedoError(e)
 
 
+class UICmdRecent(UICmd):
+  """Displays recent activity.
+
+  Usage: recent
+  """
+  def Run(self, args):
+    state = FLAGS.pyatdl_internal_state
+    self.RaiseIfAnyArgumentsGiven(args)
+    latest = state.ToDoList().RecentActivity()
+    state.Print(json.dumps(latest, sort_keys=True, separators=(',', ':')))
+
+
 class UICmdRedo(UICmd):
   """Undoes the last 'undo' operation so long as no undoable commands have
   been executed since the last 'undo'.
@@ -2716,6 +2728,7 @@ def RegisterAppcommands(cloud_only, appcommands_namespace):  # pylint: disable=t
   appcommands_namespace.AddCmd('pwd', UICmdPwd)
   if not cloud_only:
     appcommands_namespace.AddCmd('quit', UICmdExit)
+  appcommands_namespace.AddCmd('recent', UICmdRecent)
   if not cloud_only:
     appcommands_namespace.AddCmd('redo', UICmdRedo)
   appcommands_namespace.AddCmd('rename', UICmdRename)

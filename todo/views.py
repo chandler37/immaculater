@@ -1190,9 +1190,15 @@ def dl(request):
       flash = "Deleted everything that was completed. You may now use the &quot;<strong>Purge Deleted</strong>&quot; command to remove deleted items. You can see deleted items using the &quot;<strong>Truly all, even deleted</strong>&quot; view filter."
     else:
       return _error_page(request, 'invalid command')
+  latest_activity = _apply_batch_of_commands(
+    request.user,
+    ['recent'],
+    read_only=True)['printed']
+  assert len(latest_activity) == 1, latest_activity
   return _render(request, "dl.html",
                  {"Title": "Download Your Data",
-                  "Flash": flash})
+                  "Flash": flash,
+                  "LatestActivity": latest_activity[0]})
 
 
 @djpjax.pjax()

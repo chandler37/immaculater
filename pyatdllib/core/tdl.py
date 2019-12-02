@@ -8,6 +8,9 @@ from __future__ import absolute_import
 from __future__ import unicode_literals
 from __future__ import print_function
 
+from dateutil import tz
+import datetime
+import heapq
 import six
 import time
 
@@ -240,7 +243,7 @@ class ToDoList(object):
     """Iterates through all CtxLists, Actions, Projects, Contexts, and Folders.
 
     Yields:
-      Action/Ctx/Folder/Prj
+      Action/Ctx/Folder/Prj/CtxList
     """
     yield self.ctx_list
     for i in self.ctx_list.items:
@@ -397,6 +400,20 @@ class ToDoList(object):
       raise NoSuchParentFolderError(
         'No such parent folder with UID %s. project_or_folder=%s'
         % (parent_folder_uid, str(project_or_folder)))
+
+  def RecentActivity(self, num_items=5, max_name_length=79):
+    # TODO(chandler37): This sorts the whole list; it's slower than necessary.
+    def Key(item):
+      return max(item.mtime, item.ctime, 0.0 if item.dtime is None else item.dtime)
+
+    return [
+      {
+        "timestamp": Key(item),
+        "pretty_timestamp_in_utc": str(datetime.datetime.fromtimestamp(Key(item), tz.tzutc())),
+        "name": item.name[:max_name_length]
+      }
+      for item in heapq.nlargest(num_items, self.Items(), key=Key)
+    ]
 
   def CheckIsWellFormed(self):
     """A noop unless the programmer made an error.

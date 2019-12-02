@@ -3554,6 +3554,7 @@ dump""")) as f:
   * purgedeleted
   * pwd
   * quit
+  * recent
   * redo
   * rename
   * renamectx

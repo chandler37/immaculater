@@ -10,24 +10,12 @@ import time
 
 import gflags as flags
 
+from . import common
 from . import errors
 from . import uid
 
 flags.DEFINE_bool('pyatdl_show_uid', True,
                   'When displaying objects, include unique identifiers?')
-
-
-def _FloatingPointTimestamp(microseconds_since_the_epoch):
-  """Converts microseconds since the epoch to seconds since the epoch, or None for -1.
-
-  Args:
-    microseconds_since_the_epoch: int
-  Returns:
-    float|None
-  """
-  if microseconds_since_the_epoch == -1:
-    return None
-  return (microseconds_since_the_epoch // 10**6) + ((microseconds_since_the_epoch % 10**6) / 1e6)
 
 
 def _Int64Timestamp(float_time):
@@ -152,8 +140,8 @@ class AuditableObject(object):
 
     """
     self.__dict__['is_deleted'] = pb.is_deleted
-    self.__dict__['ctime'] = _FloatingPointTimestamp(pb.timestamp.ctime)
-    self.__dict__['dtime'] = _FloatingPointTimestamp(pb.timestamp.dtime)
+    self.__dict__['ctime'] = common.FloatingPointTimestamp(pb.timestamp.ctime)
+    self.__dict__['dtime'] = common.FloatingPointTimestamp(pb.timestamp.dtime)
     # self.__dict__['mtime'] must be set last because setting anything else triggers NoteModification which overwrites
     # it based on time.time().
     if pb.uid == 0 or pb.uid < -2**63 or pb.uid >= 2**63:
@@ -161,7 +149,7 @@ class AuditableObject(object):
     if self.__dict__['uid'] != pb.uid:
       uid.singleton_factory.NoteExistingUID(pb.uid)
     self.__dict__['uid'] = pb.uid
-    self.__dict__['mtime'] = _FloatingPointTimestamp(pb.timestamp.mtime)  # because __setattr__ tramples mtime, this comes last
+    self.__dict__['mtime'] = common.FloatingPointTimestamp(pb.timestamp.mtime)  # because __setattr__ tramples mtime, this comes last
     if os.environ.get('DJANGO_DEBUG') == "True":
       # See comment above for why we don't run this in production.
       assert self.__dict__['mtime'] >= self.__dict__['ctime'], str(self.__dict__)

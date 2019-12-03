@@ -117,7 +117,8 @@ unfreezeplus:
 	rm -f venv/requirements-test-installed-by-makefile venv/requirements-installed-by-makefile
 	# If this fails, `deactivate; make distclean` and try again:
 	$(ACTIVATE_VENV) && pip freeze | xargs pip3 uninstall -y
-	$(ACTIVATE_VENV) && sed -i "" -e "s/=.*//" requirements.txt
+	sed -i "" -e "s/=.*//" requirements.txt
+	sed -i "" -e "s/Django/Django<3.0.0/" requirements.txt
 	$(ACTIVATE_VENV) && pip3 install -r requirements.txt
 	$(ACTIVATE_VENV) && pip3 freeze > requirements.txt
 

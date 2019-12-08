@@ -406,10 +406,20 @@ class ToDoList(object):
     def Key(item):
       return max(item.mtime, item.ctime, 0.0 if item.dtime is None else item.dtime)
 
+    now = time.time()
+
     return [
+      {
+        "timestamp": now,
+        "pretty_timestamp_in_utc": str(datetime.datetime.fromtimestamp(now, tz.tzutc())),
+        "pretty_timestamp_in_pst8pdt": str(datetime.datetime.fromtimestamp(now, tz.gettz('America/Los_Angeles'))),
+        "name": "current time"
+      }
+    ] + [
       {
         "timestamp": Key(item),
         "pretty_timestamp_in_utc": str(datetime.datetime.fromtimestamp(Key(item), tz.tzutc())),
+        "pretty_timestamp_in_pst8pdt": str(datetime.datetime.fromtimestamp(Key(item), tz.gettz('America/Los_Angeles'))),
         "name": item.name[:max_name_length]
       }
       for item in heapq.nlargest(num_items, self.Items(), key=Key)

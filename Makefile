@@ -112,7 +112,7 @@ upgrade: unfreezeplus pipinstall test
 	@echo "See the 'Upgrading Third-Party Dependencies' section of ./README.md"
 
 .PHONY: unfreezeplus
-unfreezeplus:
+unfreezeplus: venv/local-migrations-performed
 	@git diff-index --quiet HEAD || { echo "not in a clean git workspace; run 'git status'"; exit 1; }
 	rm -f venv/requirements-test-installed-by-makefile venv/requirements-installed-by-makefile
 	# If this fails, `deactivate; make distclean` and try again:

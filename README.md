@@ -281,7 +281,7 @@ can do a remote commit with the following:
  - `git status` to see any new files and confirm what branch you're on. If you
    see `pyatdllib/core/pyatdl_pb2.py` in the diff but you didn't edit
    `pyatdl.proto`, that's because of differences in the version of the
-   [protocol buffer]((https://developers.google.com/protocol-buffers/))
+   [protocol buffer](https://developers.google.com/protocol-buffers/)
    compiler (we use version 3.5.1). You can revert with `git checkout -- pyatdllib/core/pyatdl_pb2.py`
  - `git diff`
  - `git add X Y Z` for any new files X Y and Z
@@ -303,8 +303,8 @@ When done with your feature, ensure all tests pass (`make test`) and run pylint
 (`make pylint` after `pip3 install pylint` (inside an activated virtualenv))
 and `flake8 .`.  The very best practice is to run `make cov` (first `pip3
 install coverage` (inside an activated virtualenv)) and ensure that your change
-has optimal unittest code coverage (this does not work for the tests run by
-`run_django_tests.py`). You get bonus points for installing pychecker and
+has optimal unittest code coverage (this works differently for the tests run by
+`make test` that use `pytest`). You get bonus points for installing pychecker and
 running `make pychecker`.
 
 The above practices give us the benefit of easy code reviews and ensure that

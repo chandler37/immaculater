@@ -73,12 +73,12 @@ local: venv/local-migrations-performed
 	$(ACTIVATE_VENV) && DJANGO_DEBUG=True python manage.py runserver -v 3 5000
 
 venv/protoc-has-run:
-	cd pyatdllib && make protoc_middleman
+	cd pyatdllib && $(MAKE) protoc_middleman
 	touch $@
 
 .PHONY: sh shell
 shell sh: venv/local-migrations-performed venv/protoc-has-run
-	cd pyatdllib && make sh ARGS="$(ARGS)"
+	cd pyatdllib && $(MAKE) sh ARGS="$(ARGS)"
 
 .PHONY: djsh djshell
 djshell djsh: venv/requirements-installed-by-makefile venv/requirements-test-installed-by-makefile
@@ -93,17 +93,30 @@ clean: distclean
 .PHONY: distclean
 distclean:
 	rm -f *.pyc **/*.pyc
-	cd pyatdllib && make clean
+	cd pyatdllib && $(MAKE) clean
 	rm -f db.sqlite3 .coverage
 	rm -fr venv htmlcov
 	@echo "Print deactivate your virtualenv if you manually activated it (unlikely because the Makefile does it for you). Exit the shell if you do not know how."
 
-# test and run the flake8 linter (unless ARGS is --nolint):
+PYTEST_MARK :=
+PYTEST_ARGS := todo/tests
+PYTEST_FLAGS := --cov=todo --cov-report=html -vv
+
+.PHONY: flake8
+flake8:
+	$(ACTIVATE_VENV) && python -m flake8 immaculater todo pyatdllib
+
+.PHONY: pytest
+pytest:
+	cd pyatdllib && $(MAKE) protoc_middleman
+	$(ACTIVATE_VENV) && DJANGO_DEBUG=True python -m pytest $(PYTEST_MARK) $(PYTEST_FLAGS) $(PYTEST_ARGS)
+
+# test and run the flake8 linter
 .PHONY: test
 test: venv/requirements-installed-by-makefile venv/requirements-test-installed-by-makefile
-	cd pyatdllib && make protoc_middleman
-	$(ACTIVATE_VENV) && DJANGO_DEBUG=True python ./run_django_tests.py $(ARGS)
-	cd pyatdllib && make test
+	$(MAKE) pytest
+	cd pyatdllib && $(MAKE) test
+	$(MAKE) flake8
 	@echo ""
 	@echo "Tests and linters passed".
 
@@ -126,19 +139,19 @@ unfreezeplus: venv/local-migrations-performed
 .PHONY: cov
 cov: venv
 	@echo "We produce two htmlcov directories, one in the root directory for the pytest tests for the Django app, and one in pyatdllib for the other tests."
-	cd pyatdllib && make protoc_middleman
+	cd pyatdllib && $(MAKE) protoc_middleman
 	$(ACTIVATE_VENV) && DJANGO_DEBUG=True python ./run_django_tests.py $(ARGS)
-	cd pyatdllib && make cov
+	cd pyatdllib && $(MAKE) cov
 	@echo "Try this: open htmlcov/index.html; open pyatdllib/htmlcov/index.html"
 
 
 .PHONY: pychecker
 pychecker: venv
-	cd pyatdllib && make pychecker
+	cd pyatdllib && $(MAKE) pychecker
 
 .PHONY: pylint
 pylint: venv
-	cd pyatdllib && make pylint
+	cd pyatdllib && $(MAKE) pylint
 
 # counts lines of code
 .PHONY: dilbert

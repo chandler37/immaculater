@@ -27,9 +27,11 @@ install_tools:
 	pip3 install virtualenv
 	brew tap heroku/brew && brew install heroku
 
+PYTHON := python3
+
 venv:
 	@echo "Install virtualenv system-wide via 'make install_tools' if the following fails:"
-	virtualenv -p python3 venv
+	virtualenv -p $(PYTHON) venv
 	@echo "The virtualenv is not active unless you run the following:"
 	@echo "source venv/bin/activate"
 	@echo ""
@@ -129,7 +131,7 @@ unfreezeplus: venv/local-migrations-performed
 	@git diff-index --quiet HEAD || { echo "not in a clean git workspace; run 'git status'"; exit 1; }
 	rm -f venv/requirements-test-installed-by-makefile venv/requirements-installed-by-makefile
 	# If this fails, `deactivate; make distclean` and try again:
-	$(ACTIVATE_VENV) && pip freeze | xargs pip3 uninstall -y
+	$(ACTIVATE_VENV) && pip3 freeze | xargs pip3 uninstall -y
 	sed -i "" -e "s/=.*//" requirements.txt
 	sed -i "" -e "s/Django/Django<3.0.0/" requirements.txt
 	$(ACTIVATE_VENV) && pip3 install -r requirements.txt

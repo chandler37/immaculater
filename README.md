@@ -270,11 +270,10 @@ https://www.atlassian.com/git/tutorials/comparing-workflows/feature-branch-workf
 can do a remote commit with the following:
 
  - `git checkout master`
- - `git pull`
+ - `git pull --ff-only`
  - `git checkout origin/master -b your_feature_branch_goes_here`
  - Make your edits
- - `source venv/bin/activate`
- - `(cd pyatdllib && make test)`
+ - `make test`
  - Test using `heroku local web` or `DJANGO_DEBUG=True python manage.py runserver 5000`
  - Navigate to [the local server](http://127.0.0.1:5000/) and log in
    as the superuser you created above under 'One-Time Local Server Setup'

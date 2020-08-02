@@ -516,7 +516,7 @@ class ToDoList(object):
     if not pb.HasField('root'):
       raise errors.DataError(f"protocol buffer error: the root folder, with UID={uid.ROOT_FOLDER_UID}, is required")
     if not pb.HasField('ctx_list'):
-      raise errors.DataError(f"protocol buffer error: the ctx_list is required")
+      raise errors.DataError("protocol buffer error: the ctx_list is required")
     inbox = prj.Prj.DeserializedProtobuf(
       pb.inbox.SerializeToString())
     root = folder.Folder.DeserializedProtobuf(

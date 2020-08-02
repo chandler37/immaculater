@@ -13,27 +13,27 @@ ACTIVATE_VENV := source venv/bin/activate
 help:
 	@echo "See README.md but maybe... make test"
 
-# One-time installation of virtualenv and heroku CLI globally.
-#
-# We use `pip3`, not `pip`. On MacOS `pip` is Python 2.7 (either
-# via Homebrew `python@2` or, frigteningly, the stock Python provided by
-# Apple), not Python 3. `pip3` (using python version 3) is courtesy of the
-# `python` package from [Homebrew](https://brew.sh/).
+# One-time installation of heroku CLI globally.
 .PHONY: install_tools
 install_tools:
 	@echo "If brew is not found, you need to install Homebrew; see https://brew.sh/"
 	brew update
-	brew install python
-	pip3 install virtualenv
-	brew tap heroku/brew && brew install heroku
+	brew tap heroku/brew
+	brew install heroku
 
 PYTHON := python3
+PYTHON_INSTALLED := $(shell command -v $(PYTHON) 2> /dev/null)
 
 venv:
-	@echo "Install virtualenv system-wide via 'make install_tools' if the following fails:"
-	virtualenv -p $(PYTHON) venv
+ifndef PYTHON_INSTALLED
+	$(error "$(PYTHON) is not available please install it with Homebrew via 'brew install python' or with pyenv")
+endif
+	cat runtime.txt | grep --silent "\\b3\\.7\\.8\\b" || { echo "You changed the heroku python runtime version and you must now edit the Makefile to match it."; exit 1; }
+	$(PYTHON) --version | grep --silent "\\b3\\.7\\.8\\b" || { echo "You must use python 3.7.8; you might want Homebrew or pyenv to install that."; exit 1; }
+	$(PYTHON) -m venv venv
+	$(ACTIVATE_VENV) && python -m pip install --upgrade pip
 	@echo "The virtualenv is not active unless you run the following:"
-	@echo "source venv/bin/activate"
+	@echo "$(ACTIVATE_VENV)"
 	@echo ""
 	@echo "But if you use the Makefile it activates it for you temporarily."
 
@@ -41,15 +41,15 @@ venv:
 pipinstall: venv/requirements-installed-by-makefile venv/requirements-test-installed-by-makefile
 
 venv/requirements-installed-by-makefile: requirements.txt | venv
-	$(ACTIVATE_VENV) && pip3 install -r $<
+	$(ACTIVATE_VENV) && pip install -r $<
 	touch $@
 
 venv/requirements-test-installed-by-makefile: requirements-test.txt | venv
-	$(ACTIVATE_VENV) && pip3 install -r $<
+	$(ACTIVATE_VENV) && pip install -r $<
 	touch $@
 
 venv/bin/pipdeptree: venv
-	$(ACTIVATE_VENV) && pip3 install pipdeptree
+	$(ACTIVATE_VENV) && pip install pipdeptree
 
 .PHONY: pipdeptree
 pipdeptree: venv/bin/pipdeptree venv/requirements-installed-by-makefile
@@ -94,10 +94,11 @@ clean: distclean
 # TODO: 'make clean' prints out 'To be perfectly clean, see 'immaculater reset_database'.'
 .PHONY: distclean
 distclean:
-	rm -f *.pyc **/*.pyc
 	cd pyatdllib && $(MAKE) clean
-	rm -f db.sqlite3 .coverage
-	rm -fr venv htmlcov
+	rm -f db.sqlite3 .coverage django.log
+	rm -fr venv htmlcov .pytest_cache
+	find . -name '*.pyc' -delete
+	find . -name '__pycache__' -delete
 	@echo "Print deactivate your virtualenv if you manually activated it (unlikely because the Makefile does it for you). Exit the shell if you do not know how."
 
 PYTEST_MARK :=
@@ -131,11 +132,11 @@ unfreezeplus: venv/local-migrations-performed
 	@git diff-index --quiet HEAD || { echo "not in a clean git workspace; run 'git status'"; exit 1; }
 	rm -f venv/requirements-test-installed-by-makefile venv/requirements-installed-by-makefile
 	# If this fails, `deactivate; make distclean` and try again:
-	$(ACTIVATE_VENV) && pip3 freeze | xargs pip3 uninstall -y
+	$(ACTIVATE_VENV) && pip freeze | xargs pip uninstall -y
 	sed -i "" -e "s/=.*//" requirements.txt
 	sed -i "" -e "s/Django/Django<3.0.0/" requirements.txt
-	$(ACTIVATE_VENV) && pip3 install -r requirements.txt
-	$(ACTIVATE_VENV) && pip3 freeze > requirements.txt
+	$(ACTIVATE_VENV) && pip install -r requirements.txt
+	$(ACTIVATE_VENV) && pip freeze > requirements.txt
 
 
 .PHONY: cov

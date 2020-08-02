@@ -128,6 +128,7 @@ import sys
 import traceback
 
 from . import app
+from typing import Dict
 import gflags as flags
 
 FLAGS = flags.FLAGS
@@ -140,8 +141,8 @@ class AppCommandsError(Exception):
 
 
 _cmd_argv = None        # remaining arguments with index 0 = sys.argv[0]
-_cmd_list = {}          # list of commands index by name (_Cmd instances)
-_cmd_alias_list = {}    # list of command_names index by command_alias
+_cmd_list: Dict[str, 'Cmd'] = {}          # list of commands index by name (_Cmd instances)
+_cmd_alias_list: Dict[str, str] = {}    # list of command_names index by command_alias
 _cmd_default = 'help'   # command to execute if none explicitly given
 
 

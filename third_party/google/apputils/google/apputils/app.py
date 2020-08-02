@@ -39,13 +39,16 @@ import sys
 import time
 import traceback
 import gflags as flags
+
+from typing import List
+
 FLAGS = flags.FLAGS
 
-flags.DEFINE_boolean('run_with_pdb', 0, 'Set to true for PDB debug mode')
-flags.DEFINE_boolean('pdb_post_mortem', 0,
+flags.DEFINE_boolean('run_with_pdb', False, 'Set to true for PDB debug mode')
+flags.DEFINE_boolean('pdb_post_mortem', False,
                      'Set to true to handle uncaught exceptions with PDB '
                      'post mortem.')
-flags.DEFINE_boolean('run_with_profiling', 0,
+flags.DEFINE_boolean('run_with_profiling', False,
                      'Set to true for profiling the script. '
                      'Execution will be slower, and the output format might '
                      'change over time.')
@@ -60,7 +63,7 @@ flags.DEFINE_boolean('use_cprofile_for_profiling', True,
 # If main() exits via an abnormal exception, call into these
 # handlers before exiting.
 
-EXCEPTION_HANDLERS = []
+EXCEPTION_HANDLERS: List['ExceptionHandler'] = []
 help_text_wrap = False  # Whether to enable TextWrap in help output
 
 
@@ -88,7 +91,7 @@ class HelpFlag(flags.BooleanFlag):
   NAME = 'help'
 
   def __init__(self):
-    flags.BooleanFlag.__init__(self, self.NAME, 0, 'show this help',
+    flags.BooleanFlag.__init__(self, self.NAME, False, 'show this help',
                                short_name='?', allow_override=1)
 
   def Parse(self, arg):
@@ -109,7 +112,7 @@ class HelpfullFlag(flags.BooleanFlag):
   """Display help for flags in this module and all dependent modules."""
 
   def __init__(self):
-    flags.BooleanFlag.__init__(self, 'helpfull', 0, 'show full help',
+    flags.BooleanFlag.__init__(self, 'helpfull', False, 'show full help',
                                allow_override=1)
 
   def Parse(self, arg):
@@ -136,7 +139,7 @@ class BuildDataFlag(flags.BooleanFlag):
   """Boolean flag that writes build data to stdout and exits."""
 
   def __init__(self):
-    flags.BooleanFlag.__init__(self, 'show_build_data', 0,
+    flags.BooleanFlag.__init__(self, 'show_build_data', False,
                                'show build data and exit')
 
   def Parse(self, arg):
@@ -364,7 +367,7 @@ class ExceptionHandler(object):
     raise NotImplementedError()
 
 
-def InstallExceptionHandler(handler):
+def InstallExceptionHandler(handler: ExceptionHandler) -> None:
   """Install an exception handler.
 
   Args:

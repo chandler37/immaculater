@@ -11,8 +11,10 @@ https://docs.djangoproject.com/en/1.10/ref/settings/
 
 import datetime
 import os
-import dj_database_url
+import dj_database_url  # type: ignore
 import sentry_sdk
+
+from typing import Tuple
 
 from sentry_sdk.integrations.django import DjangoIntegration
 
@@ -86,7 +88,7 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'immaculater.urls'
 
-AUTHENTICATION_BACKENDS = (
+AUTHENTICATION_BACKENDS: Tuple[str, ...] = (
     # Needed to login by username in Django admin, regardless of `allauth`
     'django.contrib.auth.backends.ModelBackend',
 )
@@ -215,7 +217,7 @@ if os.environ.get('MEMCACHEDCLOUD_SERVERS'):
     CACHES = {
         'default': {
             'BACKEND': 'django_bmemcached.memcached.BMemcached',
-            'LOCATION': os.environ.get('MEMCACHEDCLOUD_SERVERS').split(','),
+            'LOCATION': os.environ['MEMCACHEDCLOUD_SERVERS'].split(','),
             'OPTIONS': {
                 'username': os.environ.get('MEMCACHEDCLOUD_USERNAME'),
                 'password': os.environ.get('MEMCACHEDCLOUD_PASSWORD')

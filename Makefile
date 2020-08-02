@@ -24,6 +24,8 @@ install_tools:
 PYTHON := python3
 PYTHON_INSTALLED := $(shell command -v $(PYTHON) 2> /dev/null)
 
+PIP := pip --use-feature=2020-resolver
+
 venv:
 ifndef PYTHON_INSTALLED
 	$(error "$(PYTHON) is not available please install it with Homebrew via 'brew install python' or with pyenv")
@@ -31,7 +33,8 @@ endif
 	cat runtime.txt | grep --silent "\\b3\\.7\\.8\\b" || { echo "You changed the heroku python runtime version and you must now edit the Makefile to match it."; exit 1; }
 	$(PYTHON) --version | grep --silent "\\b3\\.7\\.8\\b" || { echo "You must use python 3.7.8; you might want Homebrew or pyenv to install that."; exit 1; }
 	$(PYTHON) -m venv venv
-	$(ACTIVATE_VENV) && python -m pip install --upgrade pip
+	$(ACTIVATE_VENV) && pip install --upgrade pip
+	cd venv && git clone --depth 1 --recurse-submodules "https://github.com/chandler37/django-stubs.git" && source bin/activate && cd django-stubs && pip install -c ../../requirements.txt -c ../../requirements-test.txt --upgrade .
 	@echo "The virtualenv is not active unless you run the following:"
 	@echo "$(ACTIVATE_VENV)"
 	@echo ""
@@ -41,9 +44,9 @@ endif
 pipinstall: venv/requirements-test-installed-by-makefile
 
 venv/requirements-test-installed-by-makefile: requirements-test.txt requirements.txt | venv
-	$(ACTIVATE_VENV) && pip install -r $<
+	$(ACTIVATE_VENV) && $(PIP) install -r $<
 	echo "Now let's make sure that every dependency, transitive or direct, has a version pinned in" $^
-	$(ACTIVATE_VENV) && diff <(cat $^ | grep -v -e '^-r requirements.txt$$' | sort -f) <(pip freeze | sort -f)
+	$(ACTIVATE_VENV) && diff <(cat $^ | grep -v -e '^-r requirements.txt$$' | sort -f) <($(PIP) freeze | grep -v '^django-stubs @ file://.*/django-stubs$$' | sort -f)
 	touch $@
 
 .PHONY: pipdeptree
@@ -97,6 +100,10 @@ distclean:
 	@echo "Print deactivate your virtualenv if you manually activated it (unlikely because the Makefile does it for you). Exit the shell if you do not know how."
 
 PYTEST_MARK :=
+# TODO(chandler37): convert unittest tests to pytest
+#
+# NOTE: The following runs just mypy: --mypy -m mypy
+PYTEST_MYPY := --mypy
 PYTEST_ARGS := todo/tests
 PYTEST_FLAGS := --cov=todo --cov-report=html -vv
 
@@ -107,7 +114,7 @@ flake8:
 .PHONY: pytest
 pytest:
 	cd pyatdllib && $(MAKE) protoc_middleman
-	$(ACTIVATE_VENV) && DJANGO_DEBUG=True python -m pytest $(PYTEST_MARK) $(PYTEST_FLAGS) $(PYTEST_ARGS)
+	$(ACTIVATE_VENV) && DJANGO_DEBUG=True python -m pytest $(PYTEST_MARK) $(PYTEST_MYPY) $(PYTEST_FLAGS) $(PYTEST_ARGS)
 
 # test and run the flake8 linter
 .PHONY: test
@@ -127,11 +134,11 @@ unfreezeplus: venv/local-migrations-performed
 	@git diff-index --quiet HEAD || { echo "not in a clean git workspace; run 'git status'"; exit 1; }
 	rm -f venv/requirements-test-installed-by-makefile
 	# If this fails, `deactivate; make distclean` and try again:
-	$(ACTIVATE_VENV) && pip freeze | xargs pip uninstall -y
+	$(ACTIVATE_VENV) && $(PIP) freeze | xargs $(PIP) uninstall -y
 	sed -i "" -e "s/=.*//" requirements.txt
 	sed -i "" -e "s/Django/Django<3.0.0/" requirements.txt
-	$(ACTIVATE_VENV) && pip install -r requirements.txt
-	$(ACTIVATE_VENV) && pip freeze > requirements.txt
+	$(ACTIVATE_VENV) && $(PIP) install -r requirements.txt
+	$(ACTIVATE_VENV) && $(PIP) freeze > requirements.txt
 
 
 .PHONY: cov

@@ -342,9 +342,9 @@ _VIEW_FILTER_CLASSES = (
   ShowNotFinalized,
   ShowActionable,
   ShowNeedingReview,
-  ShowInactiveIncomplete)  # SearchFilter need not be here
+  ShowInactiveIncomplete)  # type: ignore # SearchFilter need not be here
 
 for view_filter_cls in _VIEW_FILTER_CLASSES:
-  for name in view_filter_cls.ViewFilterUINames():
+  for name in view_filter_cls.ViewFilterUINames():  # type: ignore
     assert name not in CLS_BY_UI_NAME, name
     CLS_BY_UI_NAME[name] = view_filter_cls

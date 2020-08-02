@@ -25,7 +25,7 @@ clean:
 	echo "To be perfectly clean, see 'immaculater reset_database'."
 
 protoc_middleman: core/pyatdl.proto ~/.pub-cache/bin/protoc-gen-dart | protoc_installed_middleman
-	protoc --python_out=. $<
+	$(ACTIVATE_VENV) && protoc --python_out=. --mypy_out=. $<
 	protoc --js_out=import_style=commonjs,binary:generated_javascript_protobufs $<
 	protoc "--plugin=protoc-gen-dart=${HOME}/.pub-cache/bin/protoc-gen-dart" --dart_out=generated_dart_protobufs $<
 	touch $@

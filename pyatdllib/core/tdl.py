@@ -16,7 +16,7 @@ import time
 
 import gflags as flags  # https://code.google.com/p/python-gflags/
 
-from google.protobuf.pyext._message import SetAllowOversizeProtos
+from google.protobuf.pyext._message import SetAllowOversizeProtos  # type: ignore
 
 from . import action
 from . import common

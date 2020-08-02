@@ -51,8 +51,8 @@ from django.views.decorators.clickjacking import xframe_options_sameorigin
 from django.views.decorators.csrf import csrf_exempt
 from cryptography.fernet import Fernet, InvalidToken
 from google.protobuf import message
-from allauth.socialaccount import models as allauth_models
-from jwt_auth import settings as jwt_auth_settings
+from allauth.socialaccount import models as allauth_models  # type: ignore
+from jwt_auth import settings as jwt_auth_settings  # type: ignore
 from immaculater import jwt
 
 from . import models
@@ -60,7 +60,7 @@ from . import models
 import sys
 if not hasattr(sys.stdout, 'isatty'):
   # TODO(chandler): Add isatty to class Tee. gflags uses sys.stdout.isatty().
-  sys.stdout.isatty = lambda: False
+  sys.stdout.isatty = lambda: False  # type: ignore
 
 immaculater.RegisterUICmds(cloud_only=True)
 

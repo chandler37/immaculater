@@ -7,7 +7,7 @@ import time
 
 import pytest
 
-from google.protobuf import text_format
+from google.protobuf import text_format  # type: ignore
 from django.test import TestCase, modify_settings
 from django.test.client import Client
 from django.contrib.auth.models import User

@@ -24,7 +24,7 @@ def jwt_payload_handler(user):
   """
   from pyatdllib.ui import immaculater
   from todo import models
-  from jwt_auth import settings as jwt_auth_settings
+  from jwt_auth import settings as jwt_auth_settings  # type: ignore
   slug = immaculater.Base64RandomSlug(64)
   expiry = timezone.now() + jwt_auth_settings.JWT_EXPIRATION_DELTA
   new_model = models.JwtSession(

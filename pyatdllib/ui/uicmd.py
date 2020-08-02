@@ -25,7 +25,7 @@ import gflags as flags  # https://github.com/gflags/python-gflags now called abs
 
 from third_party.google.apputils.google.apputils import app
 from third_party.google.apputils.google.apputils import appcommands
-from google.protobuf import text_format
+from google.protobuf import text_format  # type: ignore
 
 from ..core import action
 from ..core import auditable_object

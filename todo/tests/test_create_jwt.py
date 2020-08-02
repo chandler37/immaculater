@@ -2,14 +2,14 @@
 from __future__ import unicode_literals
 
 import base64
-import freezegun
+import freezegun  # type: ignore
 import json
 import pytest
 import re
 from django.test import TestCase
 from django.test.client import Client
 from django.contrib.auth.models import User
-from jwt_auth import settings
+from jwt_auth import settings  # type: ignore
 from pyatdllib.ui import immaculater
 from todo import models
 

@@ -35,7 +35,7 @@ import gflags as flags  # https://code.google.com/p/python-gflags/ now called ab
 
 from third_party.google.apputils.google.apputils import app
 from third_party.google.apputils.google.apputils import appcommands
-from google.protobuf import text_format
+from google.protobuf import text_format  # type: ignore
 
 from . import serialization
 from . import state

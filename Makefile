@@ -38,24 +38,19 @@ endif
 	@echo "But if you use the Makefile it activates it for you temporarily."
 
 .PHONY: pipinstall
-pipinstall: venv/requirements-installed-by-makefile venv/requirements-test-installed-by-makefile
+pipinstall: venv/requirements-test-installed-by-makefile
 
-venv/requirements-installed-by-makefile: requirements.txt | venv
+venv/requirements-test-installed-by-makefile: requirements-test.txt requirements.txt | venv
 	$(ACTIVATE_VENV) && pip install -r $<
+	echo "Now let's make sure that every dependency, transitive or direct, has a version pinned in" $^
+	$(ACTIVATE_VENV) && diff <(cat $^ | grep -v -e '^-r requirements.txt$$' | sort -f) <(pip freeze | sort -f)
 	touch $@
-
-venv/requirements-test-installed-by-makefile: requirements-test.txt | venv
-	$(ACTIVATE_VENV) && pip install -r $<
-	touch $@
-
-venv/bin/pipdeptree: venv
-	$(ACTIVATE_VENV) && pip install pipdeptree
 
 .PHONY: pipdeptree
-pipdeptree: venv/bin/pipdeptree venv/requirements-installed-by-makefile
+pipdeptree: venv/requirements-test-installed-by-makefile
 	$(ACTIVATE_VENV) && ./venv/bin/pipdeptree
 
-venv/local-migrations-performed: todo/migrations/*.py | venv/requirements-installed-by-makefile venv/protoc-has-run
+venv/local-migrations-performed: todo/migrations/*.py | venv/requirements-test-installed-by-makefile venv/protoc-has-run
 	$(ACTIVATE_VENV) && python manage.py migrate
 	touch $@
 
@@ -83,7 +78,7 @@ shell sh: venv/local-migrations-performed venv/protoc-has-run
 	cd pyatdllib && $(MAKE) sh ARGS="$(ARGS)"
 
 .PHONY: djsh djshell
-djshell djsh: venv/requirements-installed-by-makefile venv/requirements-test-installed-by-makefile
+djshell djsh: venv/requirements-test-installed-by-makefile
 	$(ACTIVATE_VENV) && DJANGO_DEBUG=True python manage.py shell
 
 .PHONY: clean
@@ -116,7 +111,7 @@ pytest:
 
 # test and run the flake8 linter
 .PHONY: test
-test: venv/requirements-installed-by-makefile venv/requirements-test-installed-by-makefile
+test: venv/requirements-test-installed-by-makefile
 	$(MAKE) pytest
 	cd pyatdllib && $(MAKE) test
 	$(MAKE) flake8
@@ -130,7 +125,7 @@ upgrade: unfreezeplus pipinstall test
 .PHONY: unfreezeplus
 unfreezeplus: venv/local-migrations-performed
 	@git diff-index --quiet HEAD || { echo "not in a clean git workspace; run 'git status'"; exit 1; }
-	rm -f venv/requirements-test-installed-by-makefile venv/requirements-installed-by-makefile
+	rm -f venv/requirements-test-installed-by-makefile
 	# If this fails, `deactivate; make distclean` and try again:
 	$(ACTIVATE_VENV) && pip freeze | xargs pip uninstall -y
 	sed -i "" -e "s/=.*//" requirements.txt

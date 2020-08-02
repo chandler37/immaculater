@@ -93,8 +93,8 @@ clean: distclean
 .PHONY: distclean
 distclean:
 	cd pyatdllib && $(MAKE) clean
-	rm -f db.sqlite3 .coverage django.log
-	rm -fr venv htmlcov .pytest_cache
+	rm -f db.sqlite3 .coverage django.log pyatdllib/core/pyatdl_pb2.pyi
+	rm -fr venv htmlcov .pytest_cache .mypy_cache
 	find . -name '*.pyc' -delete
 	find . -name '__pycache__' -delete
 	@echo "Print deactivate your virtualenv if you manually activated it (unlikely because the Makefile does it for you). Exit the shell if you do not know how."

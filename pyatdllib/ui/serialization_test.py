@@ -6,7 +6,7 @@ from __future__ import print_function
 
 import gflags as flags  # https://code.google.com/p/python-gflags/
 
-from google.protobuf import text_format
+from google.protobuf import text_format  # type: ignore
 
 from pyatdllib.core import unitjest
 from pyatdllib.ui import serialization

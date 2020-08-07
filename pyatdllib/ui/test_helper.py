@@ -11,7 +11,7 @@ import time
 import zlib
 
 import gflags as flags  # https://github.com/gflags/python-gflags
-from gflags import _helpers
+from gflags import _helpers  # type: ignore
 
 from pyatdllib.ui import immaculater
 from pyatdllib.core import tdl

@@ -6,7 +6,7 @@ from __future__ import print_function
 
 import gflags as flags
 
-from google.protobuf import text_format
+from google.protobuf import text_format  # type: ignore
 
 from pyatdllib.core import pyatdl_pb2
 from pyatdllib.core import errors

@@ -34,7 +34,8 @@ endif
 	$(PYTHON) --version | grep --silent "\\b3\\.7\\.8\\b" || { echo "You must use python 3.7.8; you might want Homebrew or pyenv to install that."; exit 1; }
 	$(PYTHON) -m venv venv
 	$(ACTIVATE_VENV) && pip install --upgrade pip
-	cd venv && git clone --depth 1 --recurse-submodules "https://github.com/chandler37/django-stubs.git" && source bin/activate && cd django-stubs && pip install -c ../../requirements.txt -c ../../requirements-test.txt --upgrade .
+	$(ACTIVATE_VENV) && cd venv && git clone --depth 1 --recurse-submodules "https://github.com/chandler37/pytest-mypy.git" && cd pytest-mypy && pip install -c ../../requirements.txt -c ../../requirements-test.txt --upgrade .
+	$(ACTIVATE_VENV) && cd venv && git clone --depth 1 --recurse-submodules "https://github.com/chandler37/django-stubs.git" && cd django-stubs && pip install -c ../../requirements.txt -c ../../requirements-test.txt --upgrade .
 	@echo "The virtualenv is not active unless you run the following:"
 	@echo "$(ACTIVATE_VENV)"
 	@echo ""
@@ -46,7 +47,12 @@ pipinstall: venv/requirements-test-installed-by-makefile
 venv/requirements-test-installed-by-makefile: requirements-test.txt requirements.txt | venv
 	$(ACTIVATE_VENV) && $(PIP) install -r $<
 	echo "Now let's make sure that every dependency, transitive or direct, has a version pinned in" $^
-	$(ACTIVATE_VENV) && diff <(cat $^ | grep -v -e '^-r requirements.txt$$' | sort -f) <($(PIP) freeze | grep -v '^django-stubs @ file://.*/django-stubs$$' | sort -f)
+	$(ACTIVATE_VENV) \
+		&& diff <(cat $^ | grep -v -e '^-r requirements.txt$$' | sort -f) \
+			<($(PIP) freeze \
+				| grep -v '^django-stubs @ file://.*/django-stubs$$' \
+				| grep -v '^pytest-mypy @ file://.*/pytest-mypy$$' \
+				| sort -f)
 	touch $@
 
 .PHONY: pipdeptree
@@ -105,7 +111,9 @@ PYTEST_MARK :=
 # NOTE: The following runs just mypy: --mypy -m mypy
 PYTEST_MYPY := --mypy
 PYTEST_ARGS := todo/tests
+PYTESTLIB_ARGS := .
 PYTEST_FLAGS := --cov=todo --cov-report=html -vv
+PYTEST_CMD := DJANGO_DEBUG=True python -m pytest $(PYTEST_MARK) $(PYTEST_MYPY) $(PYTEST_FLAGS)
 
 .PHONY: flake8
 flake8:
@@ -114,13 +122,18 @@ flake8:
 .PHONY: pytest
 pytest:
 	cd pyatdllib && $(MAKE) protoc_middleman
-	$(ACTIVATE_VENV) && DJANGO_DEBUG=True python -m pytest $(PYTEST_MARK) $(PYTEST_MYPY) $(PYTEST_FLAGS) $(PYTEST_ARGS)
+	$(ACTIVATE_VENV) && $(PYTEST_CMD) $(PYTEST_ARGS)
+
+.PHONY: pytestlib
+pytestlib: venv/requirements-test-installed-by-makefile
+	cd pyatdllib && $(MAKE) protoc_middleman
+	$(ACTIVATE_VENV) && cd pyatdllib && $(PYTEST_CMD) $(PYTESTLIB_ARGS)
 
 # test and run the flake8 linter
 .PHONY: test
 test: venv/requirements-test-installed-by-makefile
 	$(MAKE) pytest
-	cd pyatdllib && $(MAKE) test
+	$(MAKE) pytestlib
 	$(MAKE) flake8
 	@echo ""
 	@echo "Tests and linters passed".

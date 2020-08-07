@@ -16,7 +16,7 @@ import unittest
 
 import gflags as flags
 
-from google.protobuf import text_format
+from google.protobuf import text_format  # type: ignore
 
 from . import action
 from . import prj
@@ -117,7 +117,7 @@ class TestCase(unittest.TestCase):
         'Diff with left=golden, right=actually-printed is as follows (len left=%s,'
         ' len right=%s):\n%s'
         % (len(gold), len(actual), six.text_type(diffstr)))
-      
+
 
 def main():
   """Serves the same purpose as unittest.main."""

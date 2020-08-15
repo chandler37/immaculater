@@ -19,7 +19,7 @@ python: protoc_middleman
 clean:
 	rm -f protoc_middleman pub_installed_middleman brew_installed_middleman protoc_installed_middleman core/pyatdl.pb.cc core/pyatdl.pb.h core/pyatdl_pb2.py generated_javascript_protobufs/core/*.js generated_dart_protobufs/core/*.dart
 	rm -f *.pyc **/*.pyc
-	rm -fr htmlcov
+	rm -fr htmlcov .mypy_cache
 	rm -f .coverage
 	rm -f TAGS
 	echo "To be perfectly clean, see 'immaculater reset_database'."

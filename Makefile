@@ -124,6 +124,10 @@ pytest:
 	cd pyatdllib && $(MAKE) protoc_middleman
 	$(ACTIVATE_VENV) && $(PYTEST_CMD) $(PYTEST_ARGS)
 
+# TODO(chandler37): The following only runs mypy; we need to tell pytest how to
+# collect all the old-style tests, or we need to convert them to new-style
+# pytest test cases. Consider something like "cd pyatdllib && find . -name
+# '*_test.py' -print0 | xargs -0 echo python -m pytest"
 .PHONY: pytestlib
 pytestlib: venv/requirements-test-installed-by-makefile
 	cd pyatdllib && $(MAKE) protoc_middleman
@@ -134,6 +138,7 @@ pytestlib: venv/requirements-test-installed-by-makefile
 test: venv/requirements-test-installed-by-makefile
 	$(MAKE) pytest
 	$(MAKE) pytestlib
+	cd pyatdllib && $(MAKE) test
 	$(MAKE) flake8
 	@echo ""
 	@echo "Tests and linters passed".

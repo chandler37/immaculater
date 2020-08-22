@@ -30,8 +30,8 @@ venv:
 ifndef PYTHON_INSTALLED
 	$(error "$(PYTHON) is not available please install it with Homebrew via 'brew install python' or with pyenv")
 endif
-	cat runtime.txt | grep --silent "\\b3\\.7\\.8\\b" || { echo "You changed the heroku python runtime version and you must now edit the Makefile to match it."; exit 1; }
-	$(PYTHON) --version | grep --silent "\\b3\\.7\\.8\\b" || { echo "You must use python 3.7.8; you might want Homebrew or pyenv to install that."; exit 1; }
+	cat runtime.txt | grep --silent "\\b3\\.7\\.9\\b" || { echo "You changed the heroku python runtime version and you must now edit the Makefile to match it."; exit 1; }
+	$(PYTHON) --version | grep --silent "\\b3\\.7\\.9\\b" || { echo "You must use python 3.7.9; you might want Homebrew or pyenv to install that."; exit 1; }
 	$(PYTHON) -m venv venv
 	$(ACTIVATE_VENV) && pip install --upgrade pip
 	$(ACTIVATE_VENV) && cd venv && git clone --depth 1 --recurse-submodules "https://github.com/chandler37/pytest-mypy.git" && cd pytest-mypy && pip install -c ../../requirements.txt -c ../../requirements-test.txt --upgrade .

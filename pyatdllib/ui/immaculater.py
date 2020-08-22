@@ -31,7 +31,7 @@ from six.moves import input
 from six.moves import xrange
 import tempfile
 
-import gflags as flags  # https://code.google.com/p/python-gflags/ now called abseil-py
+from absl import flags  # type: ignore
 
 from third_party.google.apputils.google.apputils import app
 from third_party.google.apputils.google.apputils import appcommands
@@ -69,8 +69,8 @@ flags.DEFINE_string(
     'pyatdl_prompt',
     'immaculater> ',
     'During interactive use, what text do you want to appear as the command line prompt (like bash\'s $PS1)?')
-flags.ADOPT_module_key_flags(state)
-flags.ADOPT_module_key_flags(uicmd)
+flags.adopt_module_key_flags(state)
+flags.adopt_module_key_flags(uicmd)
 
 
 class Error(Exception):
@@ -323,7 +323,8 @@ def RegisterUICmds(cloud_only):
 
 def InitFlags():
   """If not running as __main__, use this to initialize the FLAGS module."""
-  FLAGS([])
+  FLAGS(['required_program_name_arg'])  # $0 is always present
+  FLAGS.set_gnu_getopt(False)
 
 
 if __name__ == '__main__':

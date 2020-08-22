@@ -13,7 +13,7 @@ from __future__ import print_function
 import six
 import time
 
-import gflags as flags
+from absl import flags  # type: ignore
 
 from third_party.google.apputils.google.apputils import app
 from third_party.google.apputils.google.apputils import appcommands
@@ -33,7 +33,7 @@ FLAGS = flags.FLAGS
 
 
 class Error(Exception):
-  """Base class for this module's exceptions."""
+  """Base class for this module's exceptions. NB: IncorrectUsageError does not extend this."""
 
 
 class InvalidUsageError(Error):
@@ -67,9 +67,10 @@ def _GenAppcommandsUsage(cmd, printer):
       printer(line)
     # Print out str(FLAGS) for just the UICmd-specific flags.
     tmp_flags = flags.FlagValues()
+    tmp_flags.set_gnu_getopt(False)
     type(cmd)(show_cmd, tmp_flags)
     prefix = _UICMD_MODULE_NAME + ':\n'
-    flag_str = tmp_flags.ModuleHelp(str(_UICMD_MODULE_NAME) if six.PY2 else _UICMD_MODULE_NAME)
+    flag_str = tmp_flags.module_help(str(_UICMD_MODULE_NAME) if six.PY2 else _UICMD_MODULE_NAME)
     flag_str = flag_str.lstrip()
     if flag_str.startswith(prefix):
       flag_str = flag_str[len(prefix):]
@@ -98,13 +99,13 @@ def _DeleteSpecialFlagHelp(help_str):
       # ui.uicmd:
       # -R,--[no]recursive: Additionally lists subdirectories recursively
       continue
-    if line.strip() == 'gflags:':
+    if line.strip() == 'absl.flags:':
       while rv.endswith('\n'):
         rv = rv[:-1]
       return rv
     rv += line
     rv += '\n'
-  raise AssertionError('gflags help strings have changed. help=%s'
+  raise AssertionError('absl.flags help strings have changed. help=%s'
                        % help_str)
 
 
@@ -113,7 +114,7 @@ class Namespace(object):
 
   The command-line flags for these (the ones defined in __init__()) live
   in their own namespace, but during the execution of the command they
-  appear to be global flags (in gflags.FLAGS). In addition, there is a
+  appear to be global flags (in flags.FLAGS). In addition, there is a
   special flag called FLAGS.pyatdl_internal_state that points to a
   state.State.
   """
@@ -122,6 +123,9 @@ class Namespace(object):
     self._cmd_list = {}
     self._cmd_alias_list = {}
     self._flag_values_by_cmd = {}  # str: flags.FlagValues
+
+  def HasCmd(self, command_name: str) -> bool:
+    return command_name in self._flag_values_by_cmd
 
   def AddCmd(self, command_name, cmd_factory, **kargs):
     """See appcommands.AddCmd.
@@ -132,12 +136,13 @@ class Namespace(object):
     try:
       assert command_name not in self._flag_values_by_cmd, command_name
       self._flag_values_by_cmd[command_name] = flags.FlagValues()
+      self._flag_values_by_cmd[command_name].set_gnu_getopt(False)
       cmd = cmd_factory(command_name,
                         self._flag_values_by_cmd[command_name],
                         **kargs)
       self._AddCmdInstance(command_name, cmd, **kargs)
     except appcommands.AppCommandsError as e:
-      raise Error(e)
+      raise Error(e) from e
 
   def _AddCmdInstance(self, command_name, cmd, command_aliases=None):
     """Registers the command so that FindCmdAndExecute can find it."""
@@ -162,7 +167,7 @@ class Namespace(object):
       InvalidUsageError
     """
     flag_values = self._flag_values_by_cmd[argv[0]]
-    FLAGS.AppendFlagValues(flag_values)
+    FLAGS.append_flag_values(flag_values)
     # Prepare flags parsing, to redirect help, to show help for command
     orig_app_usage = app.usage
 
@@ -194,7 +199,7 @@ class Namespace(object):
             'the syntax that makes all following arguments positional. '
             'Detailed error: %s'
             % six.text_type(e))
-        except flags.FlagsError as e:
+        except flags.Error as e:
           raise app.UsageError(
             'Cannot parse arguments. Note the \'--\' syntax which makes all '
             'following arguments positional. Detailed error: %s'
@@ -204,8 +209,7 @@ class Namespace(object):
         except IncorrectUsageError as e:
           if FLAGS.pyatdl_give_full_help_for_uicmd:
             raise app.UsageError(six.text_type(e))
-          else:
-            raise
+          raise
         except Exception as e:
           msg = 'For the following error, note that argv=%s. Error: %s' % (argv, six.text_type(e))
           raise type(e)(msg) from e
@@ -214,11 +218,11 @@ class Namespace(object):
         app.usage(shorthelp=1, detailed_error=error, exitcode=error.exitcode)
         raise InvalidUsageError(six.text_type(error))
       finally:
-        flag_values.Reset()
+        flag_values.unparse_flags()
     finally:
       # Restore app.usage and remove this command's flags from the global flags.
       app.usage = orig_app_usage
-      FLAGS.RemoveFlagValues(flag_values)
+      FLAGS.remove_flag_values(flag_values)
 
   def FindCmdAndExecute(self, the_state, argv, generate_undo_info=True):
     """Looks up the appropriate command and executes it.
@@ -252,7 +256,7 @@ class Namespace(object):
         try:
           the_state.ToDoList().CheckIsWellFormed()
         except AssertionError as e:
-          raise AssertionError('precheck: argv=%s error=%s' % (argv, six.text_type(e)))
+          raise AssertionError('precheck: argv=%s error=%s' % (argv, six.text_type(e))) from e
       rv = self._RunCommand(the_state, cmd, argv)
       if rv is not None and generate_undo_info:
         the_state.RegisterUndoableCommand(rv)
@@ -260,7 +264,7 @@ class Namespace(object):
         try:
           the_state.ToDoList().CheckIsWellFormed()
         except AssertionError as e:
-          raise AssertionError('postcheck: %s' % six.text_type(e))
+          raise AssertionError('postcheck: %s' % six.text_type(e)) from e
     finally:
       if hasattr(FLAGS, 'pyatdl_internal_state'):  # see above about undo/redo
         delattr(FLAGS, 'pyatdl_internal_state')
@@ -289,10 +293,10 @@ class Namespace(object):
     if cmd.__doc__.strip():
       flags_help = ''
       cmd_flags = self._flag_values_by_cmd[canonical_name]
-      if cmd_flags.RegisteredFlags():
+      if dir(cmd_flags):
         prefix = '  '
         flags_help += '%s\nFlags for %s:\n' % (prefix, name)
-        flags_help += cmd_flags.GetHelp(prefix + '  ')
+        flags_help += cmd_flags.get_help(prefix + '  ')
         flags_help = _DeleteSpecialFlagHelp(flags_help)
         flags_help += '\n\n'
       return cmd.__doc__ + flags_help

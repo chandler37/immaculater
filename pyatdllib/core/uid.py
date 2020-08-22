@@ -16,7 +16,7 @@ collision.)
 import random
 import threading
 
-import gflags as flags
+from absl import flags  # type: ignore
 
 from . import errors
 

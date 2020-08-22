@@ -23,7 +23,7 @@ function die {
 
 IMPORTS="from google.apputils import app
 from google.apputils import appcommands
-import gflags as flags"
+from absl import flags"  # type: ignore
 
 # This should exit with error code because no main defined
 $PYTHON -c "${IMPORTS}

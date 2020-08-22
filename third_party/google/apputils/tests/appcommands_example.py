@@ -21,7 +21,7 @@ This tool shows how to use appcommands.py.
 
 
 from google.apputils import appcommands
-import gflags as flags
+from absl import flags  # type: ignore
 
 FLAGS = flags.FLAGS
 

@@ -15,9 +15,9 @@ import subprocess
 import sys
 
 from google.apputils import basetest
-import gflags
+from absl import flags  # type: ignore
 
-FLAGS = gflags.FLAGS
+FLAGS = flags.FLAGS
 
 
 class ShellScriptTests(basetest.TestCase):

@@ -8,7 +8,7 @@ import os
 import six
 import time
 
-import gflags as flags
+from absl import flags  # type: ignore
 
 from . import common
 from . import errors

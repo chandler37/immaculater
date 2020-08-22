@@ -27,7 +27,7 @@ from setuptools.command import test
 
 REQUIRE = [
     "python-dateutil>=1.4",
-    "python-gflags>=1.4",
+    "absl-py>=0.9",
     "pytz>=2010",
     ]
 

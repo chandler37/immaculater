@@ -10,7 +10,7 @@ from __future__ import print_function
 
 import pipes
 
-import gflags as flags  # https://github.com/gflags/python-gflags
+from absl import flags  # type: ignore
 
 from pyatdllib.ui import serialization
 from pyatdllib.ui import test_helper

@@ -32,7 +32,7 @@ Then run your program with --pdb.
 
 import sys
 
-import gflags as flags
+from absl import flags  # type: ignore
 
 flags.DEFINE_boolean('pdb', 0, 'Drop into pdb on uncaught exceptions')
 

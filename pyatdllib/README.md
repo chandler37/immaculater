@@ -7,17 +7,17 @@ Immaculater.
 ## Dependencies and Installation
 
 See [`README.md`](https://github.com/chandler37/immaculater/blob/master/README.md)
-in the parent directory regarding using `virtualenv` and `pip install -r
+in the parent directory regarding using `python -m venv venv` and `pip install -r
 requirements.txt` (inside an activated virtualenv). That will install some of
 the software below. You will still need to do `pip install pylint coverage`
 (inside an activated virtualenv).
 
 We depend on the following:
 
- - [protoc](https://developers.google.com/protocol-buffers/) -- It's what builds
+ - [protoc/protobuf](https://developers.google.com/protocol-buffers/) -- It's what builds
   `pyatdl_pb2.py` which you must check in whenever you modify `pyatdl.proto`.
- - [appcommands](https://github.com/google/google-apputils)
- - [gflags](https://github.com/gflags/python-gflags)
+ - [appcommands](https://github.com/google/google-apputils) (which we have vendored under //third_party)
+ - [absl.flags](https://abseil.io/docs/python/guides/flags)
  - python protobufs
 
 Optional installs include the following:

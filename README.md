@@ -383,13 +383,13 @@ https://github.com/ccampbell/mousetrap
 
 You'll find as dependencies the following:
 
-- https://github.com/google/google-apputils
+- https://github.com/google/google-apputils (vendored under //third_party)
 - https://github.com/sparksuite/simplemde-markdown-editor
-- https://github.com/google/python-gflags
-- https://github.com/abseil/abseil-py
-- https://github.com/google/protobuf
+- https://github.com/abseil/abseil-py (for absl.flags)
+- https://github.com/google/protobuf (which provides `protoc`)
 - https://github.com/pennersr/django-allauth
 - https://github.com/sklarsa/django-sendgrid-v5
+- Sentry
 
 ## Future Directions -- Help Wanted
 

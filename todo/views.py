@@ -16,7 +16,7 @@ import pipes
 import re
 import six
 
-import gflags as flags  # https://code.google.com/p/python-gflags/
+from absl import flags  # type: ignore
 
 from third_party.django_pjax import djpjax
 from pyatdllib.ui import immaculater

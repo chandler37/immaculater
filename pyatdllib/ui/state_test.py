@@ -6,7 +6,7 @@ from __future__ import print_function
 
 import time
 
-import gflags as flags  # https://code.google.com/p/python-gflags/
+from absl import flags  # type: ignore
 
 from pyatdllib.core import uid
 from pyatdllib.core import unitjest
@@ -310,6 +310,8 @@ class StateTestCase(unitjest.TestCase):
         self._Exec('ls \u2014help')
       except appcommandsutil.InvalidUsageError:
         pass
+      except Exception:
+        raise
       else:
         assert False
       try:

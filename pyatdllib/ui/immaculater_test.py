@@ -11,7 +11,7 @@ import six
 import time
 import zlib
 
-import gflags as flags  # https://github.com/gflags/python-gflags
+from absl import flags  # type: ignore
 
 from google.protobuf import message
 

@@ -7,7 +7,7 @@ run internal Python apps at Google.
 
 Features:
 
-  * Simple application startup integrated with python-gflags.
+  * Simple application startup integrated with absl.flags from absl-py.
   * Subcommands for command-line applications.
   * Option to drop into pdb on uncaught exceptions.
   * Helper functions for dealing with files.

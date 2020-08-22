@@ -7,7 +7,7 @@ from __future__ import unicode_literals
 
 import shlex
 
-import gflags as flags  # https://code.google.com/p/python-gflags/
+from absl import flags  # type: ignore
 
 
 FLAGS = flags.FLAGS

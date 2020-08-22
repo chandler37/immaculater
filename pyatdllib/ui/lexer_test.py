@@ -2,7 +2,7 @@
 
 from __future__ import unicode_literals
 
-import gflags as flags  # https://code.google.com/p/python-gflags/
+from absl import flags  # type: ignore
 
 from pyatdllib.core import unitjest
 from pyatdllib.ui import lexer

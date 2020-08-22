@@ -19,7 +19,7 @@ __author__ = 'dbentley@google.com (Dan Bentley)'
 
 from google.apputils import basetest
 
-import gflags as flags
+from absl import flags  # type: ignore
 from google.apputils import stopwatch
 
 FLAGS = flags.FLAGS

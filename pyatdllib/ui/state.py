@@ -10,7 +10,7 @@ from __future__ import print_function
 
 import six
 
-import gflags as flags  # https://code.google.com/p/python-gflags/
+from absl import flags  # type: ignore
 
 from ..core import common
 from ..core import container

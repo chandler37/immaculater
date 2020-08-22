@@ -20,7 +20,7 @@
 
 import sys
 
-import gflags as flags
+from absl import flags  # type: ignore
 from google.apputils import app
 
 FLAGS = flags.FLAGS

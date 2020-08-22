@@ -8,7 +8,7 @@ import hashlib
 import os
 import zlib
 
-import gflags as flags  # https://code.google.com/p/python-gflags/
+from absl import flags  # type: ignore
 from google.protobuf import message
 
 from ..core import pyatdl_pb2

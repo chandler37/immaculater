@@ -2,7 +2,7 @@
 
 import random
 
-import gflags as flags  # https://code.google.com/p/python-gflags/
+from absl import flags  # type: ignore
 
 from pyatdllib.core import errors
 from pyatdllib.core import uid

@@ -51,7 +51,7 @@ except ImportError:
   faulthandler = None
 
 from google.apputils import app  # pylint: disable=g-import-not-at-top
-import gflags as flags
+from absl import flags  # type: ignore
 from google.apputils import shellutil
 
 FLAGS = flags.FLAGS
@@ -1545,8 +1545,11 @@ def _RunInApp(function, args, kwargs):
   if _IsInAppMain():
     # Save command-line flags so the side effects of FLAGS(sys.argv) can be
     # undone.
-    saved_flags = dict((f.name, SavedFlag(f))
-                       for f in FLAGS.FlagDict().itervalues())
+    saved_flags = dict()
+    for flag_name in dir(FLAGS):
+      f = getattr(FLAGS, flag_name)
+      assert f.name == flag_name
+      saved_flags[f.name] = (f.name, SavedFlag(f))
 
     # Here we'd like to change the default of alsologtostderr from False to
     # True, so the test programs's stderr will contain all the log messages.
@@ -1592,7 +1595,7 @@ def _RunInApp(function, args, kwargs):
     # Send logging to stderr. Use --alsologtostderr instead of --logtostderr
     # in case tests are reading their own logs.
     if 'alsologtostderr' in FLAGS:
-      FLAGS.SetDefault('alsologtostderr', True)
+      FLAGS.set_default('alsologtostderr', True)
 
     def Main(argv):
       function(argv, args, kwargs)

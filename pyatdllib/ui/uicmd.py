@@ -21,7 +21,7 @@ import six
 from six.moves import xrange
 import time  # pylint: disable=wrong-import-order
 
-import gflags as flags  # https://github.com/gflags/python-gflags now called abseil-py
+from absl import flags  # type: ignore
 
 from third_party.google.apputils.google.apputils import app
 from third_party.google.apputils.google.apputils import appcommands
@@ -2376,7 +2376,9 @@ def _RunCmd(cmd, args):
   """Only works because FLAGS.pyatdl_internal_state is already defined. See
   also APP_NAMESPACE.FindCmdAndExecute.
   """
-  cmd(None, flags.FlagValues()).CommandRun([None] + args)
+  flag_values = flags.FlagValues()
+  flag_values.set_gnu_getopt(False)
+  cmd(None, flag_values).CommandRun([None] + args)
 
 
 class UICmdSeed(UICmd):
@@ -2678,6 +2680,8 @@ def RegisterAppcommands(cloud_only, appcommands_namespace):  # pylint: disable=t
                         backend
     appcommands_namespace: appcommandsutil.Namespace  # see APP_NAMESPACE
   """
+  if appcommands_namespace.HasCmd('?'):
+    return
   appcommands_namespace.AddCmd('?', UICmdHelp)
   appcommands_namespace.AddCmd('activatectx', UICmdActivatectx)
   appcommands_namespace.AddCmd('activateprj', UICmdActivateprj)

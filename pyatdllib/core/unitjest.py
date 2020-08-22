@@ -14,7 +14,7 @@ import six
 import tempfile
 import unittest
 
-import gflags as flags
+from absl import flags  # type: ignore
 
 from google.protobuf import text_format  # type: ignore
 
@@ -42,6 +42,8 @@ class TestCase(unittest.TestCase):
   """Even better than unittest.TestCase."""
 
   def setUp(self):
+    FLAGS(['required_program_name_arg'])
+    FLAGS.set_gnu_getopt(False)
     self._tempfilenames = []
 
   def tearDown(self):
@@ -121,7 +123,4 @@ class TestCase(unittest.TestCase):
 
 def main():
   """Serves the same purpose as unittest.main."""
-  # Let's avoid "RuntimeWarning: Trying to access flag pyatdl_show_uid before
-  # flags were parsed. This will raise an exception in the future.":
-  FLAGS([])
   unittest.main()

@@ -28,7 +28,7 @@ import mox
 from google.apputils import basetest
 
 from google.apputils import app
-import gflags as flags
+from absl import flags  # type: ignore
 
 FLAGS = flags.FLAGS
 

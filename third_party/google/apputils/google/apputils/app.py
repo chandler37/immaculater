@@ -38,7 +38,7 @@ import struct
 import sys
 import time
 import traceback
-import gflags as flags
+from absl import flags  # type: ignore
 
 from typing import List
 
@@ -77,7 +77,7 @@ class UsageError(Error):
   Raise this when the arguments supplied are invalid from the point of
   view of the application. For example when two mutually exclusive
   flags have been supplied or when there are not enough non-flag
-  arguments. It is distinct from flags.FlagsError which covers the lower
+  arguments. It is distinct from flags.Error which covers the lower
   level of parsing and validating individual flags.
   """
 
@@ -131,7 +131,7 @@ class HelpXMLFlag(flags.BooleanFlag):
 
   def Parse(self, arg):
     if arg:
-      flags.FLAGS.WriteHelpInXMLFormat(sys.stdout)
+      flags.FLAGS.write_help_in_xml_format(sys.stdout)
       sys.exit(1)
 
 
@@ -151,9 +151,9 @@ class BuildDataFlag(flags.BooleanFlag):
 def parse_flags_with_usage(args):
   """Try parsing the flags, printing usage and exiting if unparseable."""
   try:
-    argv = FLAGS(args)
-    return argv
-  except flags.FlagsError as error:
+    FLAGS.set_gnu_getopt(False)
+    return FLAGS(args)
+  except flags.Error as error:
     sys.stderr.write('FATAL Flags parsing error: %s\n' % error)
     sys.stderr.write('Pass --helpshort or --helpfull to see help on flags.\n')
     sys.exit(1)
@@ -307,7 +307,7 @@ def usage(shorthelp=0, writeto_stdout=0, detailed_error=None, exitcode=None):
   doc = sys.modules['__main__'].__doc__
   if not doc:
     doc = '\nUSAGE: %s [flags]\n' % sys.argv[0]
-    doc = flags.TextWrap(doc, indent='       ', firstline_indent='')
+    doc = flags.text_wrap(doc, indent='       ', firstline_indent='')
   else:
     # Replace all '%s' with sys.argv[0], and all '%%' with '%'.
     num_specifiers = doc.count('%') - 2 * doc.count('%%')
@@ -317,9 +317,9 @@ def usage(shorthelp=0, writeto_stdout=0, detailed_error=None, exitcode=None):
       # Just display the docstring as-is.
       pass
     if help_text_wrap:
-      doc = flags.TextWrap(flags.DocToHelp(doc))
+      doc = flags.text_wrap(flags.doc_to_help(doc))
   if shorthelp:
-    flag_str = FLAGS.MainModuleHelp()
+    flag_str = FLAGS.main_module_help()
   else:
     flag_str = str(FLAGS)
   try:

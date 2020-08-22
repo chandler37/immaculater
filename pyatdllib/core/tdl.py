@@ -14,7 +14,7 @@ import heapq
 import six
 import time
 
-import gflags as flags  # https://code.google.com/p/python-gflags/
+from absl import flags  # type: ignore
 
 from google.protobuf.pyext._message import SetAllowOversizeProtos  # type: ignore
 

@@ -6,7 +6,7 @@ from __future__ import print_function
 
 import six
 
-import gflags as flags
+from absl import flags  # type: ignore
 
 from . import common
 from . import container

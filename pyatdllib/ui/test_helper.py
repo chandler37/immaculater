@@ -10,8 +10,8 @@ import six
 import time
 import zlib
 
-import gflags as flags  # https://github.com/gflags/python-gflags
-from gflags import _helpers  # type: ignore
+from absl import flags  # type: ignore
+from absl.flags import _helpers  # type: ignore
 
 from pyatdllib.ui import immaculater
 from pyatdllib.core import tdl
@@ -31,17 +31,22 @@ class TestHelper(unitjest.TestCase):
 
     FLAGS.pyatdl_randomize_uids = False
 
-    assert _helpers.GetHelpWidth
-    _helpers.GetHelpWidth = lambda: 180
+    def mock_get_help_width():
+      return 186
+
+    assert _helpers.get_help_width
+    _helpers.get_help_width = mock_get_help_width
+    assert flags.get_help_width
+    flags.get_help_width = mock_get_help_width
     uid.ResetNotesOfExistingUIDs()
 
-    # There is a gflags.TextWrap glitch re: the line '-a,--[no]show_all:
+    # There is a gflags.text_wrap glitch re: the line '-a,--[no]show_all:
     # Additionally lists everything, even hidden objects, overriding the view
     # filter' so we replace TextWrap.
     def MyTextWrap(text, length=None, indent='', firstline_indent=None, tabs='    '):  # pylint: disable=unused-argument
       return text
 
-    flags.TextWrap = MyTextWrap
+    flags.text_wrap = MyTextWrap
     FLAGS.pyatdl_allow_exceptions_in_batch_mode = True
     FLAGS.pyatdl_separator = '/'
     FLAGS.pyatdl_break_glass_and_skip_wellformedness_check = False

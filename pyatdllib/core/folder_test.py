@@ -1,6 +1,6 @@
 """Unittests for module 'folder'."""
 
-import gflags as flags
+from absl import flags  # type: ignore
 
 from pyatdllib.core import folder
 from pyatdllib.core import uid

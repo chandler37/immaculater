@@ -129,7 +129,7 @@ import traceback
 
 from . import app
 from typing import Dict
-import gflags as flags
+from absl import flags  # type: ignore
 
 FLAGS = flags.FLAGS
 
@@ -280,7 +280,7 @@ class Cmd(object):
             all parsed flags removed).
     """
     # Register flags global when run normally
-    FLAGS.AppendFlagValues(self._command_flags)
+    FLAGS.append_flag_values(self._command_flags)
     # Prepare flags parsing, to redirect help, to show help for command
     orig_app_usage = app.usage
 
@@ -311,7 +311,7 @@ class Cmd(object):
     finally:
       # Restore app.usage and remove this command's flags from the global flags.
       app.usage = orig_app_usage
-      for flag_name in self._command_flags.FlagDict():
+      for flag_name in dir(self._command_flags):
         delattr(FLAGS, flag_name)
 
   def CommandGetHelp(self, unused_argv, cmd_names=None):
@@ -337,11 +337,11 @@ class Cmd(object):
     """
     if (type(cmd_names) is list and len(cmd_names) > 1 and
         self._all_commands_help is not None):
-      return flags.DocToHelp(self._all_commands_help)
+      return flags.doc_to_help(self._all_commands_help)
     elif self._help_full is not None:
-      return flags.DocToHelp(self._help_full)
+      return flags.doc_to_help(self._help_full)
     elif self.__doc__:
-      return flags.DocToHelp(self.__doc__)
+      return flags.doc_to_help(self.__doc__)
     else:
       return 'No help available'
 
@@ -614,12 +614,12 @@ def AppcommandsUsage(shorthelp=0, writeto_stdout=0, detailed_error=None,
   # Deal with header, containing general tool documentation
   doc = sys.modules['__main__'].__doc__
   if doc:
-    help_msg = flags.DocToHelp(doc.replace('%s', sys.argv[0]))
-    stdfile.write(flags.TextWrap(help_msg, flags.GetHelpWidth()))
+    help_msg = flags.doc_to_help(doc.replace('%s', sys.argv[0]))
+    stdfile.write(flags.text_wrap(help_msg, flags.get_help_width()))
     stdfile.write('\n\n\n')
   if not doc or doc.find('%s') == -1:
     synopsis = 'USAGE: ' + GetSynopsis()
-    stdfile.write(flags.TextWrap(synopsis, flags.GetHelpWidth(), '       ',
+    stdfile.write(flags.text_wrap(synopsis, flags.get_help_width(), '       ',
                                  ''))
     stdfile.write('\n\n\n')
   # Special case just 'help' registered, that means run as 'tool --help'.
@@ -631,7 +631,7 @@ def AppcommandsUsage(shorthelp=0, writeto_stdout=0, detailed_error=None,
       cmd_names = sorted(GetCommandList().keys())
       stdfile.write('Any of the following commands:\n')
       doc = ', '.join(cmd_names)
-      stdfile.write(flags.TextWrap(doc, flags.GetHelpWidth(), '  '))
+      stdfile.write(flags.text_wrap(doc, flags.get_help_width(), '  '))
       stdfile.write('\n\n\n')
     # Prepare list of commands to show help for
     if show_cmd is not None:
@@ -653,13 +653,13 @@ def AppcommandsUsage(shorthelp=0, writeto_stdout=0, detailed_error=None,
     if len(all_names) + 1 >= len(prefix) or not cmd_help:
       # If command/alias list would reach over help block-indent
       # start the help block on a new line.
-      stdfile.write(flags.TextWrap(all_names, flags.GetHelpWidth()))
+      stdfile.write(flags.text_wrap(all_names, flags.get_help_width()))
       stdfile.write('\n')
       prefix1 = prefix
     else:
       prefix1 = all_names.ljust(GetMaxCommandLength() + 2)
     if cmd_help:
-      stdfile.write(flags.TextWrap(cmd_help, flags.GetHelpWidth(), prefix,
+      stdfile.write(flags.text_wrap(cmd_help, flags.get_help_width(), prefix,
                                    prefix1))
       stdfile.write('\n\n')
     else:
@@ -679,7 +679,7 @@ def AppcommandsUsage(shorthelp=0, writeto_stdout=0, detailed_error=None,
   if show_global_flags:
     stdfile.write('Global flags:\n')
     if shorthelp:
-      stdfile.write(FLAGS.MainModuleHelp())
+      stdfile.write(FLAGS.main_module_help())
     else:
       stdfile.write(FLAGS.GetHelp())
     stdfile.write('\n')
@@ -704,9 +704,10 @@ def ParseFlagsWithUsage(argv):
   # pylint: disable=global-statement
   global _cmd_argv
   try:
+    FLAGS.set_gnu_getopt(False)
     _cmd_argv = FLAGS(argv)
     return _cmd_argv
-  except flags.FlagsError as error:
+  except flags.Error as error:
     ShortHelpAndExit('FATAL Flags parsing error: %s' % error)
 
 

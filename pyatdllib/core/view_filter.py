@@ -10,6 +10,8 @@ from __future__ import absolute_import
 from __future__ import unicode_literals
 from __future__ import print_function
 
+from typing import Callable, Dict, Tuple, Union
+
 from . import action
 from . import ctx
 from . import folder
@@ -22,7 +24,7 @@ class ViewFilter(object):
   __pychecker__ = 'unusednames=cls'
 
   @classmethod
-  def ViewFilterUINames(cls):
+  def ViewFilterUINames(cls) -> Tuple[str, ...]:
     """Returns all the different aliases of this view filter.
 
     Returns:
@@ -30,18 +32,20 @@ class ViewFilter(object):
     """
     raise NotImplementedError('ViewFilterUINames')
 
-  def __init__(self, action_to_project, action_to_context):
+  def __init__(self,
+               action_to_project: Callable[[action.Action], prj.Prj],
+               action_to_context: Callable[[action.Action], ctx.Ctx]) -> None:
     """Args:
-      action_to_project: a function (Action,)->Prj raising
+      action_to_project: a function raising
         ValueError if the given action does not exist.
 
-      action_to_context: a function (Action,)->Ctx raising ValueError if the
+      action_to_context: a function raising ValueError if the
         given action's context should exist but does not.
     """
     self.action_to_project = action_to_project
     self.action_to_context = action_to_context
 
-  def FolderContainsShownProject(self, a_folder):
+  def FolderContainsShownProject(self, a_folder: folder.Folder) -> bool:
     for item in a_folder.items:
       if isinstance(item, prj.Prj) and self.ShowProject(item):
         return True
@@ -49,13 +53,13 @@ class ViewFilter(object):
         return True
     return False
 
-  def ProjectContainsShownAction(self, project):
+  def ProjectContainsShownAction(self, project: prj.Prj) -> bool:
     for item in project.items:
       if self.ShowAction(item):
         return True
     return False
 
-  def Show(self, item):
+  def Show(self, item: Union[action.Action, ctx.Ctx, folder.Folder, prj.Prj]) -> bool:
     """Returns True iff item should be displayed.
 
     Args:
@@ -72,7 +76,7 @@ class ViewFilter(object):
     if isinstance(item, folder.Folder):
       return self.ShowFolder(item)
 
-  def ShowAction(self, an_action):
+  def ShowAction(self, an_action: action.Action) -> bool:
     """Returns True iff the Action should be displayed.
 
     Args:
@@ -82,7 +86,7 @@ class ViewFilter(object):
     """
     raise NotImplementedError
 
-  def ShowProject(self, project):
+  def ShowProject(self, project: prj.Prj) -> bool:
     """Returns True iff the Prj should be displayed.
 
     Args:
@@ -92,7 +96,7 @@ class ViewFilter(object):
     """
     raise NotImplementedError
 
-  def ShowFolder(self, a_folder):
+  def ShowFolder(self, a_folder: folder.Folder) -> bool:
     """Returns True iff the Folder should be displayed.
 
     Args:
@@ -102,7 +106,7 @@ class ViewFilter(object):
     """
     raise NotImplementedError
 
-  def ShowContext(self, context):
+  def ShowContext(self, context: ctx.Ctx) -> bool:
     """Returns True iff the Ctx should be displayed.
 
     Args:
@@ -121,47 +125,54 @@ class SearchFilter(ViewFilter):
   """
 
   @classmethod
-  def ViewFilterUINames(cls):
+  def ViewFilterUINames(cls) -> Tuple[str, ...]:
     return tuple()
 
-  def __init__(self, action_to_project, action_to_context, *, query, show_active, show_done):
+  def __init__(self,
+               action_to_project: Callable[[action.Action], prj.Prj],
+               action_to_context: Callable[[action.Action], ctx.Ctx],
+               *,
+               query: str,
+               show_active: bool,
+               show_done: bool) -> None:
     super().__init__(action_to_project, action_to_context)
     assert query
     self.query = query
     self.show_done = show_done
     self.show_active = show_active
 
-  def ShowAction(self, an_action):
+  def ShowAction(self, an_action: action.Action) -> bool:
     containing_context = self.action_to_context(an_action)
     if bool(self.show_active) is not bool(containing_context is None or containing_context.is_active):
       return False
     if bool(self.show_done) is not bool(an_action.IsDone()):
       return False
-    if self.query.lower() in an_action.name.lower():
+    if self.query.lower() in (an_action.name or '').lower():
       return True
-    return an_action.note and self.query.lower() in an_action.note.lower()
+    return bool(an_action.note and self.query.lower() in an_action.note.lower())
 
   # TODO(chandler37): needs ShowNote as well -- we should not show notes that do not match the query. Further TODO: For
   # 'hypertext' commands without a search query, we should do better UI to elide notes in HTML collapsed divs if they
   # are beyond 80 characters.
-  def ShowProject(self, project):
+  def ShowProject(self, project: prj.Prj) -> bool:
     if self.ProjectContainsShownAction(project):
       return True
     if bool(self.show_active) is not bool(project.is_active):
       return False
     if bool(self.show_done) is not bool(project.IsDone()):
       return False
-    if self.query.lower() in project.name.lower():
+    if self.query.lower() in (project.name or '').lower():
       return True
-    return project.note and self.query.lower() in project.note.lower()
+    return bool(project.note and self.query.lower() in project.note.lower())
 
-  def ShowFolder(self, a_folder):
+  def ShowFolder(self, a_folder: folder.Folder) -> bool:
     if bool(self.show_done) is not bool(a_folder.IsDone()):
       return False
-    return self.FolderContainsShownProject(a_folder) or self.query.lower() in folder.name.lower() or (
-      folder.note and self.query.lower() in folder.note.lower())
+    return bool(self.FolderContainsShownProject(a_folder)
+                or self.query.lower() in (a_folder.name or '').lower()
+                or (a_folder.note and self.query.lower() in a_folder.note.lower()))
 
-  def ShowContext(self, context):
+  def ShowContext(self, context: ctx.Ctx) -> bool:
     """Override. You could argue that we should show the context if any action
     within it matches but that doesn't matter for our AsTaskPaper view of things.
     """
@@ -169,27 +180,27 @@ class SearchFilter(ViewFilter):
       return False
     if bool(self.show_done) is not bool(context.IsDone()):
       return False
-    return self.query.lower() in context.name.lower() or (
-      context.note and self.query.lower() in context.note.lower())
+    return bool(self.query.lower() in context.name.lower()
+                or (context.note and self.query.lower() in context.note.lower()))
 
 
 class ShowAll(ViewFilter):
   """Shows all items -- doesn't filter any out."""
 
   @classmethod
-  def ViewFilterUINames(cls):
+  def ViewFilterUINames(cls) -> Tuple[str, ...]:
     return ('all_even_deleted',)
 
-  def ShowAction(self, an_action):
+  def ShowAction(self, an_action: action.Action) -> bool:
     return True
 
-  def ShowProject(self, project):
+  def ShowProject(self, project: prj.Prj) -> bool:
     return True
 
-  def ShowFolder(self, a_folder):
+  def ShowFolder(self, a_folder: folder.Folder) -> bool:
     return True
 
-  def ShowContext(self, context):
+  def ShowContext(self, context: ctx.Ctx) -> bool:
     return True
 
 
@@ -199,19 +210,19 @@ class ShowNotDeleted(ViewFilter):
   """
 
   @classmethod
-  def ViewFilterUINames(cls):
+  def ViewFilterUINames(cls) -> Tuple[str, ...]:
     return ('all', 'default')
 
-  def ShowAction(self, an_action):
+  def ShowAction(self, an_action: action.Action) -> bool:
     return not an_action.is_deleted
 
-  def ShowProject(self, project):
+  def ShowProject(self, project: prj.Prj) -> bool:
     return not project.is_deleted
 
-  def ShowFolder(self, a_folder):
+  def ShowFolder(self, a_folder: folder.Folder) -> bool:
     return not a_folder.is_deleted
 
-  def ShowContext(self, context):
+  def ShowContext(self, context: ctx.Ctx) -> bool:
     return not context.is_deleted
 
 
@@ -221,27 +232,27 @@ class ShowNotFinalized(ViewFilter):
   """
 
   @classmethod
-  def ViewFilterUINames(cls):
+  def ViewFilterUINames(cls) -> Tuple[str, ...]:
     return ('incomplete',)
 
-  def __init__(self, *args):
+  def __init__(self, *args) -> None:
     super().__init__(*args)
     self.deleted_viewfilter = ShowNotDeleted(*args)
 
-  def ShowAction(self, an_action):
+  def ShowAction(self, an_action: action.Action) -> bool:
     containing_project = self.action_to_project(an_action)
     return (self.deleted_viewfilter.ShowAction(an_action)
             and not an_action.is_complete
             and not containing_project.is_complete)
 
-  def ShowProject(self, project):
+  def ShowProject(self, project: prj.Prj) -> bool:
     return (self.deleted_viewfilter.ShowProject(project)
             and not project.is_complete)
 
-  def ShowFolder(self, a_folder):
+  def ShowFolder(self, a_folder: folder.Folder) -> bool:
     return self.deleted_viewfilter.ShowFolder(a_folder)
 
-  def ShowContext(self, context):
+  def ShowContext(self, context: ctx.Ctx) -> bool:
     return self.deleted_viewfilter.ShowContext(context)
 
 
@@ -249,27 +260,27 @@ class ShowActionable(ViewFilter):
   """Shows items that are not deleted, completed, or inactive."""
 
   @classmethod
-  def ViewFilterUINames(cls):
+  def ViewFilterUINames(cls) -> Tuple[str, ...]:
     return ('actionable',)
 
-  def __init__(self, *args):
+  def __init__(self, *args) -> None:
     super().__init__(*args)
     self.not_finalized_viewfilter = ShowNotFinalized(*args)
 
-  def ShowAction(self, an_action):
+  def ShowAction(self, an_action: action.Action) -> bool:
     containing_context = self.action_to_context(an_action)
     return (self.not_finalized_viewfilter.ShowAction(an_action)
             and (containing_context is None or containing_context.is_active)
             and self.action_to_project(an_action).is_active)
 
-  def ShowProject(self, project):
+  def ShowProject(self, project: prj.Prj) -> bool:
     return (self.not_finalized_viewfilter.ShowProject(project)
             and project.is_active)
 
-  def ShowFolder(self, a_folder):
+  def ShowFolder(self, a_folder: folder.Folder) -> bool:
     return self.not_finalized_viewfilter.ShowFolder(a_folder)
 
-  def ShowContext(self, context):
+  def ShowContext(self, context: ctx.Ctx) -> bool:
     return (self.not_finalized_viewfilter.ShowContext(context)
             and context.is_active)
 
@@ -281,24 +292,24 @@ class ShowNeedingReview(ViewFilter):
   """
 
   @classmethod
-  def ViewFilterUINames(cls):
+  def ViewFilterUINames(cls) -> Tuple[str, ...]:
     return ('needing_review',)
 
-  def __init__(self, *args):
+  def __init__(self, *args) -> None:
     super().__init__(*args)
     self.not_finalized_viewfilter = ShowNotFinalized(*args)
 
-  def ShowAction(self, an_action):
+  def ShowAction(self, an_action: action.Action) -> bool:
     return self.not_finalized_viewfilter.ShowAction(an_action)
 
-  def ShowProject(self, project):
+  def ShowProject(self, project: prj.Prj) -> bool:
     return (self.not_finalized_viewfilter.ShowProject(project)
             and project.NeedsReview() and project.is_active)
 
-  def ShowFolder(self, a_folder):
+  def ShowFolder(self, a_folder: folder.Folder) -> bool:
     return self.not_finalized_viewfilter.ShowFolder(a_folder)
 
-  def ShowContext(self, context):
+  def ShowContext(self, context: ctx.Ctx) -> bool:
     return self.not_finalized_viewfilter.ShowContext(context)
 
 
@@ -306,35 +317,35 @@ class ShowInactiveIncomplete(ViewFilter):
   """Shows undeleted, incomplete items that are in inactive Projects or Contexts."""
 
   @classmethod
-  def ViewFilterUINames(cls):
+  def ViewFilterUINames(cls) -> Tuple[str, ...]:
     return ('inactive_and_incomplete',)
 
-  def __init__(self, *args):
+  def __init__(self, *args) -> None:
     super().__init__(*args)
     self.not_finalized_viewfilter = ShowNotFinalized(*args)
 
-  def ShowAction(self, an_action):
+  def ShowAction(self, an_action: action.Action) -> bool:
     containing_project = self.action_to_project(an_action)
     containing_context = self.action_to_context(an_action)
     return self.not_finalized_viewfilter.ShowAction(an_action) and (
       not containing_project.is_active or (
         containing_context is not None and not containing_context.is_active))
 
-  def ShowProject(self, project):
+  def ShowProject(self, project: prj.Prj) -> bool:
     return (self.not_finalized_viewfilter.ShowProject(project)
             and (not project.is_active
                  or self.ProjectContainsShownAction(project)))
 
-  def ShowFolder(self, a_folder):
+  def ShowFolder(self, a_folder: folder.Folder) -> bool:
     # TODO(chandler): Show it only if a descendant is inactive and incomplete?
     return self.not_finalized_viewfilter.ShowFolder(a_folder)
 
-  def ShowContext(self, context):
+  def ShowContext(self, context: ctx.Ctx) -> bool:
     return self.not_finalized_viewfilter.ShowContext(context) and (
       not context.is_active)
 
 
-CLS_BY_UI_NAME = {}
+CLS_BY_UI_NAME: Dict[str, type] = {}
 
 _VIEW_FILTER_CLASSES = (
   ShowAll,
@@ -342,9 +353,11 @@ _VIEW_FILTER_CLASSES = (
   ShowNotFinalized,
   ShowActionable,
   ShowNeedingReview,
-  ShowInactiveIncomplete)  # type: ignore # SearchFilter need not be here
+  ShowInactiveIncomplete)  # SearchFilter need not be here
 
 for view_filter_cls in _VIEW_FILTER_CLASSES:
-  for name in view_filter_cls.ViewFilterUINames():  # type: ignore
+  if not issubclass(view_filter_cls, ViewFilter):
+    raise AssertionError
+  for name in view_filter_cls.ViewFilterUINames():
     assert name not in CLS_BY_UI_NAME, name
     CLS_BY_UI_NAME[name] = view_filter_cls

@@ -9,16 +9,19 @@ import six
 import time
 
 from absl import flags  # type: ignore
+from google.protobuf import message
+from typing import Any, Optional
 
 from . import common
 from . import errors
+from . import pyatdl_pb2
 from . import uid
 
 flags.DEFINE_bool('pyatdl_show_uid', True,
                   'When displaying objects, include unique identifiers?')
 
 
-def _Int64Timestamp(float_time):
+def _Int64Timestamp(float_time: Optional[float]) -> int:
   """Returns microseconds since the epoch given seconds since the epoch.
 
   Args:
@@ -58,10 +61,10 @@ class AuditableObject(object):
     2**63 > uid >= -(2**63)
   """
 
-  def __init__(self, the_uid=None):  # the_uid only for deserialization
+  def __init__(self, the_uid: int = None) -> None:  # the_uid only for deserialization
     self.ctime = time.time()
     self.mtime = self.ctime
-    self.dtime = None
+    self.dtime: Optional[float] = None
     self.is_deleted = False
     # If we are deserializing, we could call SetFieldsBasedOnProtobuf and overwrite this value. UIDs are inexpensive
     # and we don't care if we waste some during deserialization. But the DataError for mergeprotobufs' sake is
@@ -75,7 +78,7 @@ class AuditableObject(object):
       uid.singleton_factory.NoteExistingUID(the_uid)
       self.uid = the_uid
 
-  def NoteModification(self):
+  def NoteModification(self) -> None:
     """Updates mtime."""
     self.__dict__['mtime'] = time.time()
     if os.environ.get('DJANGO_DEBUG') == "True":
@@ -101,7 +104,7 @@ class AuditableObject(object):
   # (Or we could subclass 'list' and avoid use of bare lists.)
   #
   # E.g., if you add a project to self.items, you must call NoteModification.
-  def __setattr__(self, name, value):
+  def __setattr__(self, name: str, value: Any) -> None:
     if name == 'name':
       if value is not None and value.startswith('uid='):
         raise IllegalNameError('Names starting with "uid=" are prohibited.')
@@ -111,7 +114,7 @@ class AuditableObject(object):
     if name != 'mtime':
       self.NoteModification()
 
-  def AsProto(self, pb):
+  def AsProto(self, pb: message.Message) -> message.Message:
     """Serializes this object by mutating pb.
 
     Args:
@@ -121,23 +124,24 @@ class AuditableObject(object):
     Raises:
       errors.DataError
     """
+    if not isinstance(pb, pyatdl_pb2.Common):
+      raise TypeError
     pb.is_deleted = self.is_deleted
-    pb.timestamp.ctime = _Int64Timestamp(self.ctime)
-    pb.timestamp.dtime = _Int64Timestamp(self.dtime)
-    pb.timestamp.mtime = _Int64Timestamp(self.mtime)
+    did_set = False
+    for attr in ('ctime', 'dtime', 'mtime'):
+      val = getattr(self, attr)
+      if val is not None:
+        did_set = True
+        setattr(pb.timestamp, attr, _Int64Timestamp(val))
+    if did_set or self.dtime is not None:
+        pb.timestamp.dtime = _Int64Timestamp(self.dtime)
     pb.uid = self.uid
     return pb
 
-  def SetFieldsBasedOnProtobuf(self, pb):
+  def SetFieldsBasedOnProtobuf(self, pb: pyatdl_pb2.Common) -> None:
     """Overwrites fields based on the given protobuf. You must call this at the very last.
 
     At the very last because any manipulation of this object afterwards will overwrite mtime.
-
-    Args:
-      pb: pyatdl_pb2.Common
-    Returns:
-      None
-
     """
     self.__dict__['is_deleted'] = pb.is_deleted
     self.__dict__['ctime'] = common.FloatingPointTimestamp(pb.timestamp.ctime)
@@ -152,7 +156,7 @@ class AuditableObject(object):
     self.__dict__['mtime'] = common.FloatingPointTimestamp(pb.timestamp.mtime)  # because __setattr__ tramples mtime, this comes last
     if os.environ.get('DJANGO_DEBUG') == "True":
       # See comment above for why we don't run this in production.
-      assert self.__dict__['mtime'] >= self.__dict__['ctime'], str(self.__dict__)
+      assert self.__dict__['mtime'] is None or self.__dict__['ctime'] is None or self.__dict__['mtime'] >= self.__dict__['ctime'], f'mtime < ctime: {self.__dict__}'
 
   def __str__(self):
     return self.__unicode__().encode('utf-8') if six.PY2 else self.__unicode__()

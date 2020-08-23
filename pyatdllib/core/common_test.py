@@ -17,7 +17,7 @@ class CommonTestCase(unitjest.TestCase):
     self.assertAlmostEqual(
       common.FloatingPointTimestamp(-1 * 10**6), -1)
     self.assertEqual(
-      common.FloatingPointTimestamp(0), 0.0)
+      common.FloatingPointTimestamp(0), None)  # TODO(chandler37): or should this be 0.0?
     self.assertEqual(
       common.FloatingPointTimestamp(1419989796918906),
       1419989796.918906)

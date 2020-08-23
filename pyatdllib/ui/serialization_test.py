@@ -87,9 +87,6 @@ root {
       dtime: -1
       mtime: 1572755356647872
     }
-    metadata {
-      name: ""
-    }
     uid: 2
   }
   projects {

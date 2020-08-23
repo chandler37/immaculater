@@ -103,7 +103,7 @@ distclean:
 	rm -fr venv htmlcov .pytest_cache .mypy_cache
 	find . -name '*.pyc' -delete
 	find . -name '__pycache__' -delete
-	@echo "Print deactivate your virtualenv if you manually activated it (unlikely because the Makefile does it for you). Exit the shell if you do not know how."
+	@echo "Print deactivate your virtual environment if you manually activated it (unlikely because the Makefile does it for you). Exit the shell if you do not know how."
 
 PYTEST_MARK :=
 # TODO(chandler37): convert unittest tests to pytest
@@ -111,7 +111,7 @@ PYTEST_MARK :=
 # NOTE: The following runs just mypy: --mypy -m mypy
 PYTEST_MYPY := --mypy
 PYTEST_ARGS := todo/tests
-PYTESTLIB_ARGS := .
+PYTESTLIB_ARGS := pyatdllib/
 PYTEST_FLAGS := --cov=todo --cov-report=html -vv
 PYTEST_CMD := DJANGO_DEBUG=True python -m pytest $(PYTEST_MARK) $(PYTEST_MYPY) $(PYTEST_FLAGS)
 
@@ -131,7 +131,7 @@ pytest:
 .PHONY: pytestlib
 pytestlib: venv/requirements-test-installed-by-makefile
 	cd pyatdllib && $(MAKE) protoc_middleman
-	$(ACTIVATE_VENV) && cd pyatdllib && $(PYTEST_CMD) $(PYTESTLIB_ARGS)
+	$(ACTIVATE_VENV) && $(PYTEST_CMD) $(PYTESTLIB_ARGS)
 
 # test and run the flake8 linter
 .PHONY: test

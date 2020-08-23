@@ -1,6 +1,7 @@
 """Defines Prj, our notion of a "project", anything with two or more actions."""
 
 from __future__ import absolute_import
+from __future__ import annotations
 from __future__ import unicode_literals
 from __future__ import print_function
 
@@ -8,6 +9,8 @@ import six
 import time
 
 from absl import flags  # type: ignore
+from google.protobuf import message
+from typing import Callable, Iterator, List, Tuple, Type, TypeVar
 
 from . import action
 from . import common
@@ -17,6 +20,9 @@ from . import pyatdl_pb2
 
 FLAGS = flags.FLAGS
 DEFAULT_MAX_SECONDS_BEFORE_REVIEW = 3600 * 24 * 7.0
+
+
+T = TypeVar('T', bound='Prj')
 
 
 class Prj(container.Container):
@@ -43,14 +49,20 @@ class Prj(container.Container):
   __pychecker__ = 'unusednames=cls'
 
   @classmethod
-  def TypesContained(cls):
+  def TypesContained(cls) -> Tuple[Type[object]]:
     return (action.Action,)
 
   # pylint: disable=too-many-arguments
-  def __init__(self, the_uid=None, name=None, items=None,
-               max_seconds_before_review=None, is_complete=False,
-               is_active=True, last_review_epoch_sec=0.0, note='',
-               default_context_uid=None):
+  def __init__(self,
+               the_uid: int = None,
+               name: str = None,
+               items: List[action.Action] = None,
+               max_seconds_before_review: float = None,
+               is_complete: bool = False,
+               is_active: bool = True,
+               last_review_epoch_sec: float = 0.0,
+               note: str = '',
+               default_context_uid: int = None) -> None:
     super().__init__(the_uid=the_uid, items=items)
     self.name = name
     self.note = note
@@ -63,7 +75,7 @@ class Prj(container.Container):
     self.is_active = is_active
     self.default_context_uid = None if default_context_uid == 0 else default_context_uid
 
-  def __unicode__(self):
+  def __unicode__(self) -> str:
     uid_str = '' if not FLAGS.pyatdl_show_uid else ' uid=%s' % self.uid
     actions_strs = []
     for a in self.items:
@@ -79,14 +91,20 @@ class Prj(container.Container):
                maxstr, self.name,
                common.Indented('\n'.join(actions_strs)))
 
-  def __repr__(self):
+  def __repr__(self) -> str:
     return '<prj_proto>\n%s\n</prj_proto>' % str(self.AsProto())
 
-  def IsDone(self):
+  def IsDone(self) -> bool:
     return self.is_complete or self.is_deleted
 
-  def AsTaskPaper(self, lines, context_name=None, project_name_prefix='', show_action=lambda _: True,
-                  show_note=lambda _: True, hypertext_prefix=None, html_escaper=None):
+  def AsTaskPaper(self,
+                  lines: List[str],
+                  context_name: Callable[[int], str] = None,
+                  project_name_prefix: str = '',
+                  show_action: Callable[[action.Action], bool] = lambda _: True,
+                  show_note: Callable[[str], bool] = lambda _: True,
+                  hypertext_prefix: str = None,
+                  html_escaper: Callable[[str], str] = None) -> None:
     """Appends lines of text to lines.
 
     Args:
@@ -94,18 +112,24 @@ class Prj(container.Container):
       context_name: lambda int: unicode  # the integer is a UID
       project_name_prefix: unicode
       show_action: lambda Action: bool
+      show_note: lambda str: bool
       hypertext_prefix: None|unicode  # None means to output plain text
       html_escaper: lambda unicode: unicode
     Returns:
       None
     """
+    if context_name is None:
+      raise TypeError
+
     # TODO(chandler37): We might want to optionally display @without_context
     # when there is not a context for an action to easily find those actions so
     # you can assign them contexts?
-    def Escaped(txt):
+    def Escaped(txt: str) -> str:
       if hypertext_prefix is None:
         return txt
       else:
+        if html_escaper is None:
+          raise TypeError
         return html_escaper(txt)
 
     lines.append('')
@@ -163,11 +187,11 @@ class Prj(container.Container):
                         hypernote,
                         '</s>' if item.is_complete or item.is_deleted else ''))
 
-  def MarkAsNeedingReview(self):
+  def MarkAsNeedingReview(self) -> None:
     """Clears the reviewed status, if reviewed."""
     self._last_review_epoch_sec = 0.0
 
-  def MarkAsReviewed(self, when=None):
+  def MarkAsReviewed(self, when: float = None) -> None:
     """Note that the end user has reviewed this project.  By default, when is now.
 
     Args:
@@ -175,13 +199,13 @@ class Prj(container.Container):
     """
     self._last_review_epoch_sec = time.time() if when is None else when
 
-  def TimeOfLastReview(self):
+  def TimeOfLastReview(self) -> float:
     """Returns a float, seconds since the epoch, or zero if this
     project has never been reviewed.
     """
     return self._last_review_epoch_sec
 
-  def NeedsReview(self, now=None):
+  def NeedsReview(self, now: float = None) -> bool:
     """Returns true iff the project needs review.
 
     Args:
@@ -194,16 +218,19 @@ class Prj(container.Container):
     cutoff = now - self.max_seconds_before_review
     return self.TimeOfLastReview() < cutoff
 
-  def Projects(self):
+  def Projects(self) -> Iterator[Tuple[Prj, List[container.Container]]]:
     """Override."""
     yield (self, [])
 
-  def AsProto(self, pb=None):
+  def AsProto(self, pb: message.Message = None) -> pyatdl_pb2.Project:
     # pylint: disable=maybe-no-member
     if pb is None:
       pb = pyatdl_pb2.Project()
+    if not isinstance(pb, pyatdl_pb2.Project):
+      raise TypeError
     super().AsProto(pb.common)
-    pb.common.metadata.name = self.name
+    if self.name:
+      pb.common.metadata.name = self.name
     if self.note:
       pb.common.metadata.note = self.note
     pb.is_complete = self.is_complete
@@ -220,7 +247,7 @@ class Prj(container.Container):
     return pb
 
   @classmethod
-  def DeserializedProtobuf(cls, bytestring):
+  def DeserializedProtobuf(cls: Type[T], bytestring) -> T:
     """Deserializes a Prj from the given protocol buffer.
 
     Args:
@@ -236,7 +263,7 @@ class Prj(container.Container):
     if pb.HasField('max_seconds_before_review'):
       max_seconds_before_review = pb.max_seconds_before_review
     else:
-      max_seconds_before_review = None
+      max_seconds_before_review = DEFAULT_MAX_SECONDS_BEFORE_REVIEW
     p = cls(the_uid=pb.common.uid,
             name=pb.common.metadata.name,
             note=pb.common.metadata.note,

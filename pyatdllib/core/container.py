@@ -3,8 +3,19 @@
 Folders contain Containers (but not CtxLists).  Prj contains Actions.
 """
 
+from __future__ import annotations
+
 from . import auditable_object
 from . import errors
+from . import pyatdl_pb2
+
+from google.protobuf import message
+from typing import Any, Iterator, List, Tuple, Type
+from typing_extensions import Protocol
+
+
+class _SupportsDeletion(Protocol):
+    is_deleted: bool
 
 
 class Error(Exception):
@@ -15,7 +26,7 @@ class IllegalOperationError(Error):
   """The semantics don't allow what you're asking. Similar in spirit to ValueError."""
 
 
-def YieldDescendantsThatAreNotDeleted(root):
+def YieldDescendantsThatAreNotDeleted(root: Any) -> Iterator[object]:
   """Yields undeleted descendants.
 
   Args:
@@ -44,13 +55,13 @@ class Container(auditable_object.AuditableObject):
   """
 
   @classmethod
-  def TypesContained(cls):
+  def TypesContained(cls) -> Tuple[Type[object]]:
     """Returns [type].  self.items will be restricted to items of the
     types in this list.
     """
     raise NotImplementedError
 
-  def __init__(self, the_uid=None, items=None):  # items=[] is a python foible
+  def __init__(self, the_uid: int = None, items: list = None) -> None:
     super().__init__(the_uid=the_uid)
     if items is None:
       self.items = []
@@ -58,21 +69,21 @@ class Container(auditable_object.AuditableObject):
       self.items = items
 
   @classmethod
-  def HasLiveDescendant(cls, item):
+  def HasLiveDescendant(cls, item: Any) -> bool:
     if hasattr(item, 'items'):
       for subitem in item.items:
         if not subitem.is_deleted:
           return True
     return False
 
-  def PurgeDeleted(self):
+  def PurgeDeleted(self) -> None:
     self.items = [item for item in self.items
                   if not item.is_deleted or self.HasLiveDescendant(item)]
     for item in self.items:
       if hasattr(item, 'PurgeDeleted'):
         item.PurgeDeleted()
 
-  def DeleteCompleted(self):
+  def DeleteCompleted(self) -> None:
     for item in self.items:
       if hasattr(item, 'is_complete') and item.is_complete:
         incomplete_descendant = False
@@ -86,7 +97,7 @@ class Container(auditable_object.AuditableObject):
       if hasattr(item, 'DeleteCompleted'):
         item.DeleteCompleted()
 
-  def ContainersPreorder(self):
+  def ContainersPreorder(self) -> Iterator[Tuple[Container, List[Container]]]:
     """Yields all containers, including itself, in a preorder traversal (itself first).
 
     Yields:
@@ -98,10 +109,10 @@ class Container(auditable_object.AuditableObject):
         for f, path in item.ContainersPreorder():
           yield (f, list(path) + [self])
 
-  def Projects(self):
+  def Projects(self) -> Iterator[Tuple[Container, List[Container]]]:
     """Iterates recursively over all projects contained herein.
 
-    Each Prj is yeilded with its path (leaf first). If this container is itself
+    Each Prj is yielded with its path (leaf first). If this container is itself
     a project, it will be the only Prj yielded.
 
     Yields:
@@ -110,7 +121,7 @@ class Container(auditable_object.AuditableObject):
     raise NotImplementedError(
       'Projects() is not yet implemented in the subclass.')
 
-  def DeleteChild(self, child):
+  def DeleteChild(self, child: _SupportsDeletion) -> None:
     """Iff the child has no undeleted descendants, deletes the child.
 
     Deletion just means changing the 'is_deleted' bit. TODO(chandler): Update dtime?
@@ -135,7 +146,7 @@ class Container(auditable_object.AuditableObject):
         % str(descendant))
     child.is_deleted = True
 
-  def CheckIsWellFormed(self):
+  def CheckIsWellFormed(self) -> None:
     """A noop unless the programmer made an error.
 
     I.e., checks invariants.
@@ -149,8 +160,10 @@ class Container(auditable_object.AuditableObject):
           'An item is of type %s which is not an acceptable type (%s)'
           % (str(type(item)), ', '.join(str(t) for t in self.TypesContained())))
 
-  def AsProto(self, pb):
-    """Args: pb: pyatdl_pb2.Common.  Returns: pb."""
+  def AsProto(self, pb: message.Message) -> message.Message:
+    """Returns: pb."""
+    if not isinstance(pb, pyatdl_pb2.Common):
+      raise TypeError
     super().AsProto(pb)
     assert self.uid == pb.uid
     return pb

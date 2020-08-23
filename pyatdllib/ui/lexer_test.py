@@ -71,7 +71,7 @@ class LexerTestCase(unitjest.TestCase):
       self.assertEqual(str(e),
                        'Cannot parse command line. No escaped character')
     self.assertEqual(fut('chctx -- -Ca -2'),
-                     # We let gflags implement the '--' magic.
+                     # We let absl.flags implement the '--' magic.
                      ['chctx', '--', '-Ca', '-2'])
 
 

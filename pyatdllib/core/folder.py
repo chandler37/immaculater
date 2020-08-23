@@ -1,12 +1,15 @@
 """Defines Folder, an ordered list of projects or Folders -- i.e., [Prj|Folder]."""
 
 from __future__ import absolute_import
+from __future__ import annotations
 from __future__ import unicode_literals
 from __future__ import print_function
 
 import six
 
 from absl import flags  # type: ignore
+from google.protobuf import message
+from typing import Iterator, List, Tuple, Type, TypeVar, Union
 
 from . import common
 from . import container
@@ -15,6 +18,9 @@ from . import prj
 from . import pyatdl_pb2
 
 FLAGS = flags.FLAGS
+
+
+T = TypeVar('T', bound='Folder')
 
 
 class Folder(container.Container):
@@ -37,16 +43,15 @@ class Folder(container.Container):
   __pychecker__ = 'unusednames=cls'
 
   @classmethod
-  def TypesContained(cls):
+  def TypesContained(cls) -> Tuple[Type[object]]:
     return (container.Container,)
 
-  # items=[] is a python foible but strings are immutable:
-  def __init__(self, the_uid=None, name=None, note='', items=None):
+  def __init__(self, the_uid: int = None, name: str = None, note: str = '', items: List[Union[Folder, prj.Prj]] = None) -> None:
     super().__init__(the_uid=the_uid, items=items)
     self.name = name
     self.note = note
 
-  def __unicode__(self):
+  def __unicode__(self) -> str:
     uid_str = '' if not FLAGS.pyatdl_show_uid else ' uid=%s' % self.uid
     return """
 <folder%s is_deleted="%s" name="%s">
@@ -56,21 +61,23 @@ class Folder(container.Container):
       uid_str, self.is_deleted, self.name,
       common.Indented('\n'.join(six.text_type(a) for a in self.items)))
 
-  def IsDone(self):
+  def IsDone(self) -> bool:
     return self.is_deleted
 
-  def Projects(self):
+  def Projects(self) -> Iterator[Tuple[prj.Prj, List[container.Container]]]:
     """Override."""
     for c, path in self.ContainersPreorder():
       if isinstance(c, prj.Prj):
         yield (c, path)
 
-  def AsProto(self, pb=None):
+  def AsProto(self, pb: message.Message = None) -> message.Message:
     if pb is None:
       pb = pyatdl_pb2.Folder()
-    # pylint: disable=maybe-no-member
+    if not isinstance(pb, pyatdl_pb2.Folder):
+      raise TypeError
     super().AsProto(pb.common)
-    pb.common.metadata.name = self.name
+    if self.name:
+      pb.common.metadata.name = self.name
     if self.note:
       pb.common.metadata.note = self.note
     for i in self.items:
@@ -82,14 +89,8 @@ class Folder(container.Container):
     return pb
 
   @classmethod
-  def DeserializedProtobuf(cls, bytestring):
-    """Deserializes a Folder from the given protocol buffer.
-
-    Args:
-      bytestring: str
-    Returns:
-      Folder
-    """
+  def DeserializedProtobuf(cls: Type[T], bytestring: bytes) -> T:
+    """Deserializes a Folder from the given protocol buffer."""
     if not bytestring:
       raise errors.DataError("empty folder in the protocol buffer -- not even a UID is present")
     pb = pyatdl_pb2.Folder.FromString(bytestring)  # pylint: disable=no-member

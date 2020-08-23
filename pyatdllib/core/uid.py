@@ -17,6 +17,7 @@ import random
 import threading
 
 from absl import flags  # type: ignore
+from typing import NoReturn, Set
 
 from . import errors
 
@@ -46,17 +47,14 @@ UICMD_JSON_UID_VALUE_REPRESENTING_NONE = 0
 
 class Factory(object):
   """Generator of new UIDs."""
-  def __init__(self):
-    self._uids = set()
+  def __init__(self) -> None:
+    self._uids: Set[int] = set()
     self._lock = threading.RLock()
 
-  def NextUID(self):
+  def NextUID(self) -> int:
     """Creates and returns a new unique identifier.
 
-    If you deserialize in the future, you invalidate this UID.
-
-    Returns:
-      int
+    If FLAGS.pyatdl_randomize_uids is falsy and you deserialize in the future, you invalidate this UID.
     """
     with self._lock:
       if FLAGS.pyatdl_randomize_uids:
@@ -77,17 +75,13 @@ class Factory(object):
         n = max(self._uids) + 1
       else:
         n = INBOX_UID
-      # TODO(chandler37): https://github.com/grantjenks/python-sortedcontainers
-      # might be faster than doing this O(N) operation each time. But if it's
-      # only for tests then we don't care, so let's switch the classic django
-      # webapp to randomization.
       if n >= 2**63:
         raise errors.DataError("We ran out of UIDs at value 2**63")
       assert n not in self._uids, f'{n} is in self._uids'
       self._uids.add(n)
       return n
 
-  def NoteExistingUID(self, existing_uid):
+  def NoteExistingUID(self, existing_uid: int) -> None:
     """During deserialization, call this with each UID you encounter.
 
     Args:
@@ -102,13 +96,27 @@ class Factory(object):
 
 
 class FactoryThatRaisesDataErrorUponNextUID(Factory):
-  def NextUID(self):
+  def NextUID(self) -> NoReturn:
     raise errors.DataError("A UID is missing!")
 
 
-def ResetNotesOfExistingUIDs(raise_data_error_upon_next_uid=False):
+class FactoryThatRaisesDataErrorUponNextUIDAndAllowsDuplication(FactoryThatRaisesDataErrorUponNextUID):
+  def NoteExistingUID(self, existing_uid) -> None:
+    pass
+
+
+singleton_factory: Factory = FactoryThatRaisesDataErrorUponNextUID()
+
+
+def ResetNotesOfExistingUIDs(raise_data_error_upon_next_uid: bool = False, allow_duplication: bool = False) -> None:
   global singleton_factory
-  singleton_factory = FactoryThatRaisesDataErrorUponNextUID() if raise_data_error_upon_next_uid else Factory()
+  if raise_data_error_upon_next_uid:
+    if allow_duplication:
+      singleton_factory = FactoryThatRaisesDataErrorUponNextUIDAndAllowsDuplication()
+    else:
+      singleton_factory = FactoryThatRaisesDataErrorUponNextUID()
+  else:
+    singleton_factory = Factory()
 
 
 ResetNotesOfExistingUIDs()

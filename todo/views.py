@@ -59,7 +59,8 @@ from . import models
 
 import sys
 if not hasattr(sys.stdout, 'isatty'):
-  # TODO(chandler): Add isatty to class Tee. gflags uses sys.stdout.isatty().
+  # TODO(chandler): Add isatty to class Tee. absl.flags uses sys.stdout.isatty(). (python-gflags did; I assume
+  # absl.flags still does.)
   sys.stdout.isatty = lambda: False  # type: ignore
 
 immaculater.RegisterUICmds(cloud_only=True)

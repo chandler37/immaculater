@@ -2672,7 +2672,76 @@ class UICmdRedo(UICmd):
       raise NothingToUndoSlashRedoError(e)
 
 
-def RegisterAppcommands(cloud_only, appcommands_namespace):  # pylint: disable=too-many-statements
+def _RegisterCloudOnlyAppcommands(appcommands_namespace: appcommandsutil.Namespace) -> None:
+  d = {
+    '?': UICmdHelp,
+    'activatectx': UICmdActivatectx,
+    'activateprj': UICmdActivateprj,
+    'aspire': UICmdMaybe,
+    'astaskpaper': UICmdAsTaskPaper,
+    'cat': UICmdCat,
+    'cd': UICmdCd,
+    'chctx': UICmdChctx,
+    'chdefaultctx': UICmdChdefaultctx,
+    'clearreview': UICmdClearreview,
+    'complete': UICmdComplete,
+    'completereview': UICmdCompletereview,
+    'configurereview': UICmdConfigurereview,
+    'deactivatectx': UICmdDeactivatectx,
+    'deactivateprj': UICmdDeactivateprj,
+    'deletecompleted': UICmdDeletecompleted,
+    'do': UICmdDo,
+    'dump': UICmdDump,
+    'dumpprotobuf': UICmdDumpprotobuf,
+    'echo': UICmdEcho,
+    'echolines': UICmdEcholines,
+    'help': UICmdHelp,
+    'hypertext': UICmdHypertext,
+    'inctx': UICmdInctx,
+    'inprj': UICmdInprj,
+    'loadtest': UICmdLoadtest,
+    'ls': UICmdLs,
+    'lsact': UICmdLsact,
+    'lsctx': UICmdLsctx,
+    'lsprj': UICmdLsprj,
+    'maybe': UICmdMaybe,
+    'mkact': UICmdTouch,
+    'mkctx': UICmdMkctx,
+    'mkdir': UICmdMkdir,
+    'mkprj': UICmdMkprj,
+    'mv': UICmdMv,
+    'needsreview': UICmdNeedsreview,
+    'note': UICmdNote,
+    'prjify': UICmdPrjify,
+    'purgedeleted': UICmdPurgedeleted,
+    'almostpurgeallactionsincontext': UICmdAlmostPurgeAllActionsInContext,
+    'pwd': UICmdPwd,
+    'recent': UICmdRecent,
+    'rename': UICmdRename,
+    'renamectx': UICmdRenamectx,
+    'reset': UICmdReset,
+    'roll': UICmdRoll,
+    'rm': UICmdRmact,
+    'rmact': UICmdRmact,
+    'rmctx': UICmdRmctx,
+    'rmdir': UICmdRmdir,
+    'rmprj': UICmdRmprj,
+    'seed': UICmdSeed,
+    'sort': UICmdSort,
+    'todo': UICmdTodo,
+    'touch': UICmdTouch,
+    'txt': UICmdAsTaskPaper,
+    'uncomplete': UICmdUncomplete,
+    'unicorn': UICmdUnicorn,
+    'view': UICmdView,
+  }
+  if appcommands_namespace.HasCmd(next(k for k in d)):
+    return
+  for command_name, function in d.items():
+    appcommands_namespace.AddCmd(command_name, function)
+
+
+def RegisterAppcommands(cloud_only: bool, appcommands_namespace: appcommandsutil.Namespace) -> None:
   """Calls appcommandsutil.Namespace.AddCmd() for all UICmd subclasses.
 
   Args:
@@ -2680,82 +2749,22 @@ def RegisterAppcommands(cloud_only, appcommands_namespace):  # pylint: disable=t
                         backend
     appcommands_namespace: appcommandsutil.Namespace  # see APP_NAMESPACE
   """
-  if appcommands_namespace.HasCmd('?'):
+  _RegisterCloudOnlyAppcommands(appcommands_namespace)
+  if cloud_only:
     return
-  appcommands_namespace.AddCmd('?', UICmdHelp)
-  appcommands_namespace.AddCmd('activatectx', UICmdActivatectx)
-  appcommands_namespace.AddCmd('activateprj', UICmdActivateprj)
-  appcommands_namespace.AddCmd('aspire', UICmdMaybe)
-  appcommands_namespace.AddCmd('astaskpaper', UICmdAsTaskPaper)
-  appcommands_namespace.AddCmd('cat', UICmdCat)
-  appcommands_namespace.AddCmd('cd', UICmdCd)
-  if not cloud_only:
-    appcommands_namespace.AddCmd('chclock', UICmdChclock)
-  appcommands_namespace.AddCmd('chctx', UICmdChctx)
-  appcommands_namespace.AddCmd('chdefaultctx', UICmdChdefaultctx)
-  appcommands_namespace.AddCmd('clearreview', UICmdClearreview)
-  appcommands_namespace.AddCmd('complete', UICmdComplete)
-  appcommands_namespace.AddCmd('completereview', UICmdCompletereview)
-  appcommands_namespace.AddCmd('configurereview', UICmdConfigurereview)
-  appcommands_namespace.AddCmd('deactivatectx', UICmdDeactivatectx)
-  appcommands_namespace.AddCmd('deactivateprj', UICmdDeactivateprj)
-  appcommands_namespace.AddCmd('deletecompleted', UICmdDeletecompleted)
-  appcommands_namespace.AddCmd('do', UICmdDo)
-  appcommands_namespace.AddCmd('dump', UICmdDump)
-  appcommands_namespace.AddCmd('dumpprotobuf', UICmdDumpprotobuf)
-  appcommands_namespace.AddCmd('echo', UICmdEcho)
-  appcommands_namespace.AddCmd('echolines', UICmdEcholines)
-  if not cloud_only:
-    appcommands_namespace.AddCmd('exit', UICmdExit)
-  appcommands_namespace.AddCmd('help', UICmdHelp)
-  appcommands_namespace.AddCmd('hypertext', UICmdHypertext)
-  appcommands_namespace.AddCmd('inctx', UICmdInctx)
-  appcommands_namespace.AddCmd('inprj', UICmdInprj)
-  if not cloud_only:
-    appcommands_namespace.AddCmd('load', UICmdLoad)
-  appcommands_namespace.AddCmd('loadtest', UICmdLoadtest)
-  appcommands_namespace.AddCmd('ls', UICmdLs)
-  appcommands_namespace.AddCmd('lsact', UICmdLsact)
-  appcommands_namespace.AddCmd('lsctx', UICmdLsctx)
-  appcommands_namespace.AddCmd('lsprj', UICmdLsprj)
-  appcommands_namespace.AddCmd('maybe', UICmdMaybe)
-  appcommands_namespace.AddCmd('mkact', UICmdTouch)
-  appcommands_namespace.AddCmd('mkctx', UICmdMkctx)
-  appcommands_namespace.AddCmd('mkdir', UICmdMkdir)
-  appcommands_namespace.AddCmd('mkprj', UICmdMkprj)
-  appcommands_namespace.AddCmd('mv', UICmdMv)
-  appcommands_namespace.AddCmd('needsreview', UICmdNeedsreview)
-  appcommands_namespace.AddCmd('note', UICmdNote)
-  appcommands_namespace.AddCmd('prjify', UICmdPrjify)
-  appcommands_namespace.AddCmd('purgedeleted', UICmdPurgedeleted)
-  appcommands_namespace.AddCmd('almostpurgeallactionsincontext', UICmdAlmostPurgeAllActionsInContext)
-  appcommands_namespace.AddCmd('pwd', UICmdPwd)
-  if not cloud_only:
-    appcommands_namespace.AddCmd('quit', UICmdExit)
-  appcommands_namespace.AddCmd('recent', UICmdRecent)
-  if not cloud_only:
-    appcommands_namespace.AddCmd('redo', UICmdRedo)
-  appcommands_namespace.AddCmd('rename', UICmdRename)
-  appcommands_namespace.AddCmd('renamectx', UICmdRenamectx)
-  appcommands_namespace.AddCmd('reset', UICmdReset)
-  appcommands_namespace.AddCmd('roll', UICmdRoll)
-  appcommands_namespace.AddCmd('rm', UICmdRmact)
-  appcommands_namespace.AddCmd('rmact', UICmdRmact)
-  appcommands_namespace.AddCmd('rmctx', UICmdRmctx)
-  appcommands_namespace.AddCmd('rmdir', UICmdRmdir)
-  appcommands_namespace.AddCmd('rmprj', UICmdRmprj)
-  if not cloud_only:
-    appcommands_namespace.AddCmd('save', UICmdSave)
-  appcommands_namespace.AddCmd('seed', UICmdSeed)
-  appcommands_namespace.AddCmd('sort', UICmdSort)
-  appcommands_namespace.AddCmd('todo', UICmdTodo)
-  appcommands_namespace.AddCmd('touch', UICmdTouch)
-  appcommands_namespace.AddCmd('txt', UICmdAsTaskPaper)
-  appcommands_namespace.AddCmd('uncomplete', UICmdUncomplete)
-  if not cloud_only:
-    appcommands_namespace.AddCmd('undo', UICmdUndo)
-  appcommands_namespace.AddCmd('unicorn', UICmdUnicorn)
-  appcommands_namespace.AddCmd('view', UICmdView)
+  d = {
+    'chclock': UICmdChclock,
+    'exit': UICmdExit,
+    'load': UICmdLoad,
+    'quit': UICmdExit,
+    'redo': UICmdRedo,
+    'save': UICmdSave,
+    'undo': UICmdUndo,
+  }
+  if appcommands_namespace.HasCmd(next(k for k in d)):
+    return
+  for command_name, function in d.items():
+    appcommands_namespace.AddCmd(command_name, function)
 
 
 APP_NAMESPACE = appcommandsutil.Namespace()

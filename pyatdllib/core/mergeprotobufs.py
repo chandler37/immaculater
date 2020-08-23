@@ -9,23 +9,27 @@ result.
 from . import pyatdl_pb2
 from . import tdl
 
+from typing import Optional
 
-def Merge(db, remote):
-  """
-  Merges two pyatdl.ToDoList protobufs, one from our database and one
-  from another device or application.
 
-  db and remote have different types, but only trivially so. The
-  question then is whether it matters which one is which. The answer is
-  yes. db must be the one from django's database and remote must be the
-  one from the other device/app. The reason is because we do not trust
-  other devices/apps to preserve unknown fields in the protobuf (the official
-  Google javascript implementation, for example, fails in this regard). If we
-  add a new field, there will be a window where the django app fills it
-  in but other devices read it, drop it on the floor, and return to us a
-  protobuf without the new field. (We assume that you add new fields to this
-  django app first.) [TODO(chandler37): The `uid` module (`from . import uid`)
-  has a singleton, too, so manipulating two TDLs at once might be tricky.]
+def Merge(db: Optional[tdl.ToDoList], remote: Optional[pyatdl_pb2.ToDoList]) -> pyatdl_pb2.ToDoList:
+  """Merges two pyatdl.ToDoList protobufs, one from our database and one from another device or application.
+
+  db and remote have different types, but only trivially so. The question then is whether it matters which one is
+  which. The answer is yes. db must be the one from django's database and remote must be the one from the other
+  device/app. The reason is because we do not trust other devices/apps to preserve unknown fields in the protobuf (the
+  official Google javascript implementation, for example, fails in this regard). If we add a new field, there will be a
+  window where the django app fills it in but other devices read it, drop it on the floor, and return to us a protobuf
+  without the new field. (We assume that you add new fields to this django app first.) [TODO(chandler37): The `uid`
+  module (`from . import uid`) has a singleton, too, `singleton_factory`, so manipulating two TDLs at once might be
+  tricky.]
+
+  We merge global notes (i.e., those in the NoteList), contexts, projects, folders, actions, and their notes. Deletion
+  is accomplished by leaving a context, project, folder, or action in place with UID intact and common.is_deleted set
+  to True. If you try to delete an action by removing the pyatdl.Action message, it will be resurrected.
+
+  TODO(chandler37): Are pyatdl.Timestamp values ever used to determine the winner of a modification of an item? We
+  don't want to rely upon the various applications' clocks to be in sync in a perfect world...
 
   Args:
     db: tdl.ToDoList | None
@@ -34,6 +38,7 @@ def Merge(db, remote):
     pyatdl_pb2.ToDoList
   Raises:
     TypeError: one or both args is None
+
   """
   if db is None or remote is None:
     raise TypeError('both of the arguments must be present')

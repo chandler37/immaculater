@@ -213,14 +213,6 @@ to_do_list {
   inbox {
     common {
       is_deleted: false
-      timestamp {
-        ctime: 0
-        dtime: 0
-        mtime: 0
-      }
-      metadata {
-        name: ""
-      }
       uid: 1
     }
     is_complete: false
@@ -228,11 +220,6 @@ to_do_list {
     actions {
       common {
         is_deleted: false
-        timestamp {
-          ctime: 0
-          dtime: 0
-          mtime: 0
-        }
         metadata {
           name: "increase the tests\' branch coverage"
         }
@@ -244,14 +231,6 @@ to_do_list {
   root {
     common {
       is_deleted: false
-      timestamp {
-        ctime: 0
-        dtime: 0
-        mtime: 0
-      }
-      metadata {
-        name: ""
-      }
       uid: 2
     }
   }
@@ -350,7 +329,7 @@ sanity_check: 18369614221190021342
         assert response.status_code == 200, 'response.content is %s' % response.content
         pbresp = pyatdl_pb2.MergeToDoListResponse.FromString(response.content)
         assert text_format.MessageToString(pbresp) == r"""
-sha1_checksum: "b2f2761dc24359cace7809eaf7cb0e1cf9c3f05e"
+sha1_checksum: "9fec97c2c533844a33155bf4f321bbe1462c188e"
 to_do_list {
   inbox {
     common {
@@ -375,9 +354,6 @@ to_do_list {
         ctime: 37000037
         dtime: -1
         mtime: 37000037
-      }
-      metadata {
-        name: ""
       }
       uid: 2
     }

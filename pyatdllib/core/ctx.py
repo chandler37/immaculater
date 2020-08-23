@@ -10,6 +10,8 @@ from __future__ import print_function
 import six
 
 from absl import flags  # type: ignore
+from google.protobuf import message
+from typing import List, NoReturn, Optional, Tuple, Type, TypeVar
 
 from . import auditable_object
 from . import common
@@ -28,6 +30,9 @@ class NoSuchNameError(Error):
   """No Context by that name exists."""
 
 
+T = TypeVar('T', bound='Ctx')
+
+
 class Ctx(auditable_object.AuditableObject):
   """A context within which an action is possible.
 
@@ -44,7 +49,7 @@ class Ctx(auditable_object.AuditableObject):
     note: basestring
   """
 
-  def __init__(self, the_uid=None, name=None, is_active=True, note=''):
+  def __init__(self, the_uid: int = None, name: str = None, is_active: bool = True, note: str = '') -> None:
     super().__init__(the_uid=the_uid)
     if not name:
       raise errors.DataError("Every Context must have a name.")  # TODO(chandler37): why?
@@ -52,7 +57,7 @@ class Ctx(auditable_object.AuditableObject):
     self.note = note
     self.is_active = is_active
 
-  def __unicode__(self):
+  def __unicode__(self) -> str:
     uid_str = '' if not FLAGS.pyatdl_show_uid else ' uid=%s' % self.uid
     return '<context%s is_deleted="%s" is_active="%s" name="%s"/>' % (
       uid_str,
@@ -60,16 +65,18 @@ class Ctx(auditable_object.AuditableObject):
       self.is_active,
       self.name if self.name else 'uid=%s' % self.uid)
 
-  def __repr__(self):
+  def __repr__(self) -> str:
     return '<ctx_proto>\n%s\n</ctx_proto>' % str(self.AsProto())
 
-  def IsDone(self):
+  def IsDone(self) -> bool:
     return self.is_deleted
 
-  def AsProto(self, pb=None):
+  def AsProto(self, pb: message.Message = None) -> message.Message:
     # pylint: disable=maybe-no-member
     if pb is None:
       pb = pyatdl_pb2.Context()
+    if not isinstance(pb, pyatdl_pb2.Context):
+      raise TypeError
     super().AsProto(pb.common)
     pb.common.metadata.name = self.name if self.name else ""
     if self.note:
@@ -79,7 +86,7 @@ class Ctx(auditable_object.AuditableObject):
     return pb
 
   @classmethod
-  def DeserializedProtobuf(cls, bytestring):
+  def DeserializedProtobuf(cls: Type[T], bytestring: bytes) -> T:
     """Deserializes a Ctx from the given protocol buffer.
 
     Args:
@@ -115,14 +122,14 @@ class CtxList(container.Container):
   __pychecker__ = 'unusednames=cls'
 
   @classmethod
-  def TypesContained(cls):
+  def TypesContained(cls) -> Tuple[Type[object]]:
     return (Ctx,)
 
-  def __init__(self, the_uid=None, name=None, items=None):  # items=[] is a python foible
+  def __init__(self, the_uid: int = None, name: str = None, items: List[Ctx] = None) -> None:
     super().__init__(the_uid=the_uid, items=items)
-    self.name = name
+    self.name: Optional[str] = name
 
-  def __unicode__(self):
+  def __unicode__(self) -> str:
     uid_str = '' if not FLAGS.pyatdl_show_uid else ' uid=%s' % self.uid
     ctx_strs = []
     for c in self.items:
@@ -134,11 +141,11 @@ class CtxList(container.Container):
 """.strip() % (uid_str, self.is_deleted, self.name,
                common.Indented('\n'.join(ctx_strs)))
 
-  def Projects(self):
+  def Projects(self) -> NoReturn:
     """See Container.Projects."""
     raise AssertionError('Should this be an abstract method? I doubt it is called.')
 
-  def ContextUIDFromName(self, name):
+  def ContextUIDFromName(self, name: str) -> int:
     """Returns the UID of an arbitrary but deterministic Context with the given name.
 
     This module is ignorant of FLAGS.no_context_display_string.
@@ -155,10 +162,12 @@ class CtxList(container.Container):
         return c.uid
     raise NoSuchNameError('No Context is named "%s"' % name)
 
-  def AsProto(self, pb=None):
+  def AsProto(self, pb: message.Message = None) -> message.Message:
     # pylint: disable=maybe-no-member
     if pb is None:
       pb = pyatdl_pb2.ContextList()
+    if not isinstance(pb, pyatdl_pb2.ContextList):
+      raise TypeError
     super().AsProto(pb.common)
     assert self.uid == pb.common.uid
     pb.common.metadata.name = self.name if self.name else ""

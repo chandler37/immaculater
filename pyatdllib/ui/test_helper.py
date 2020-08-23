@@ -40,7 +40,7 @@ class TestHelper(unitjest.TestCase):
     flags.get_help_width = mock_get_help_width
     uid.ResetNotesOfExistingUIDs()
 
-    # There is a gflags.text_wrap glitch re: the line '-a,--[no]show_all:
+    # There is a absl.flags.text_wrap glitch re: the line '-a,--[no]show_all:
     # Additionally lists everything, even hidden objects, overriding the view
     # filter' so we replace TextWrap.
     def MyTextWrap(text, length=None, indent='', firstline_indent=None, tabs='    '):  # pylint: disable=unused-argument

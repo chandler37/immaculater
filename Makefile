@@ -152,7 +152,10 @@ unfreezeplus: venv/local-migrations-performed
 	@git diff-index --quiet HEAD || { echo "not in a clean git workspace; run 'git status'"; exit 1; }
 	rm -f venv/requirements-test-installed-by-makefile
 	# If this fails, `deactivate; make distclean` and try again:
-	$(ACTIVATE_VENV) && $(PIP) freeze | xargs $(PIP) uninstall -y
+	$(ACTIVATE_VENV) \
+		&& $(PIP) freeze \
+			| sed -e "s/ @.*//" \
+			| xargs $(PIP) uninstall -y
 	sed -i "" -e "s/=.*//" requirements.txt
 	sed -i "" -e "s/Django/Django<3.0.0/" requirements.txt
 	$(ACTIVATE_VENV) && $(PIP) install -r requirements.txt

@@ -234,11 +234,13 @@ const NoteList$json = const {
 const ContextList$json = const {
   '1': 'ContextList',
   '2': const [
-    const {'1': 'common', '3': 1, '4': 1, '5': 11, '6': '.pyatdl.Common', '10': 'common'},
     const {'1': 'contexts', '3': 2, '4': 3, '5': 11, '6': '.pyatdl.Context', '10': 'contexts'},
   ],
   '5': const [
     const {'1': 20000, '2': 536870912},
+  ],
+  '9': const [
+    const {'1': 1, '2': 2},
   ],
 };
 

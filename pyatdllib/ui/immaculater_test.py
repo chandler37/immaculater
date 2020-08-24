@@ -180,7 +180,7 @@ dump""")) as f:
         </project>
     </folder>
     <contexts>
-        <context_list is_deleted="False" name="Contexts">
+        <context_list>
             <context is_deleted="False" is_active="True" name="C0"/>
             <context is_deleted="False" is_active="False" name="C1"/>
         </context_list>
@@ -1540,18 +1540,6 @@ dump""")) as f:
                       '  }\n'
                       '}\n'
                       'ctx_list {\n'
-                      '  common {\n'
-                      '    is_deleted: false\n'
-                      '    timestamp {\n'
-                      '      ctime: 36000000\n'
-                      '      dtime: -1\n'
-                      '      mtime: 988000000\n'
-                      '    }\n'
-                      '    metadata {\n'
-                      '      name: "Contexts"\n'
-                      '    }\n'
-                      '    uid: 3\n'
-                      '  }\n'
                       '  contexts {\n'
                       '    common {\n'
                       '      is_deleted: false\n'
@@ -2049,7 +2037,7 @@ dump""")) as f:
       '        </project>',
       '    </folder>',
       '    <contexts>',
-      '        <context_list is_deleted="False" name="Contexts">',
+      '        <context_list>',
       '            <context is_deleted="True" is_active="True" name="wasC0-deleted-at-1112.0"/>',
       '            <context is_deleted="False" is_active="True" name="waswasC0"/>',
       '            <context is_deleted="False" is_active="True" name="wasC0"/>',
@@ -2217,7 +2205,7 @@ dump""")) as f:
         </folder>
     </folder>
     <contexts>
-        <context_list is_deleted="False" name="Contexts">
+        <context_list>
 """ + '        ' + r"""
         </context_list>
     </contexts>
@@ -2243,7 +2231,7 @@ dump""")) as f:
         </folder>
     </folder>
     <contexts>
-        <context_list is_deleted="False" name="Contexts">
+        <context_list>
 """ + '        ' + r"""
         </context_list>
     </contexts>
@@ -2763,7 +2751,7 @@ dump""")) as f:
         </project>
     </folder>
     <contexts>
-        <context_list is_deleted="False" name="Contexts">
+        <context_list>
 """ + '        ' + r"""
         </context_list>
     </contexts>
@@ -3083,7 +3071,7 @@ dump""")) as f:
         </folder>
     </folder>
     <contexts>
-        <context_list is_deleted="False" name="Contexts">
+        <context_list>
             <context is_deleted="False" is_active="True" name="Eternal"/>
             <context is_deleted="False" is_active="True" name="Ephemeral"/>
             <context is_deleted="True" is_active="True" name="Foo-deleted-at-122.0"/>
@@ -3119,7 +3107,7 @@ dump""")) as f:
         </folder>
     </folder>
     <contexts>
-        <context_list is_deleted="False" name="Contexts">
+        <context_list>
             <context is_deleted="False" is_active="True" name="Eternal"/>
             <context is_deleted="True" is_active="True" name="Ephemeral-deleted-at-122.0"/>
             <context is_deleted="True" is_active="True" name="Foo-deleted-at-122.0"/>
@@ -3398,7 +3386,7 @@ dump""")) as f:
       '        </folder>',
       '    </folder>',
       '    <contexts>',
-      '        <context_list uid=3 is_deleted="False" name="Contexts">',
+      '        <context_list>',
       '            <context uid=4 is_deleted="False" is_active="True" name="Ca"/>',
       '            <context uid=5 is_deleted="False" is_active="True" name="Cb"/>',
       '        </context_list>',
@@ -3469,7 +3457,7 @@ dump""")) as f:
       '        </folder>',
       '    </folder>',
       '    <contexts>',
-      '        <context_list uid=3 is_deleted="False" name="Contexts">',
+      '        <context_list>',
       '            <context uid=4 is_deleted="True" is_active="True" name="Ca-deleted-at-1137008.0"/>',
       '            <context uid=5 is_deleted="False" is_active="False" name="Cb"/>',
       '        </context_list>',
@@ -3781,7 +3769,7 @@ it and use this view filter. Note: this is ignored in --show_all mode""",
         </folder>
     </folder>
     <contexts>
-        <context_list is_deleted="False" name="Contexts">
+        <context_list>
             <context is_deleted="False" is_active="True" name="Ca"/>
         </context_list>
     </contexts>
@@ -3883,7 +3871,7 @@ it and use this view filter. Note: this is ignored in --show_all mode""",
         </project>
     </folder>
     <contexts>
-        <context_list is_deleted="False" name="Contexts">
+        <context_list>
 """ + '        ' + r"""
         </context_list>
     </contexts>
@@ -3906,7 +3894,7 @@ it and use this view filter. Note: this is ignored in --show_all mode""",
         </project>
     </folder>
     <contexts>
-        <context_list is_deleted="False" name="Contexts">
+        <context_list>
             <context is_deleted="False" is_active="True" name="Ca"/>
         </context_list>
     </contexts>
@@ -3943,7 +3931,7 @@ it and use this view filter. Note: this is ignored in --show_all mode""",
         </folder>
     </folder>
     <contexts>
-        <context_list is_deleted="False" name="Contexts">
+        <context_list>
             <context is_deleted="False" is_active="True" name="Ca"/>
         </context_list>
     </contexts>
@@ -4094,12 +4082,12 @@ it and use this view filter. Note: this is ignored in --show_all mode""",
       '        </project>',
       '    </inbox>',
       '    <folder uid=2 is_deleted="False" name="">',
-      '        <project uid=4 is_deleted="False" is_complete="False" is_active="True" name="Pa">',
+      '        <project uid=3 is_deleted="False" is_complete="False" is_active="True" name="Pa">',
       '        ',
       '        </project>',
       '    </folder>',
       '    <contexts>',
-      '        <context_list uid=3 is_deleted="False" name="Contexts">',
+      '        <context_list>',
       '        ',
       '        </context_list>',
       '    </contexts>',
@@ -4140,72 +4128,104 @@ it and use this view filter. Note: this is ignored in --show_all mode""",
               'echo failure:',
               'redo',
               ]
-    final_gist = [
-      '<todolist uid=2>',
-      '    <inbox uid=1>',
-      '        <project uid=1 is_deleted="False" is_complete="False" is_active="True" name="inbox">',
-      '        ',
-      '        </project>',
-      '    </inbox>',
-      '    <folder uid=2 is_deleted="False" name="">',
-      '        <project uid=5 is_deleted="False" is_complete="False" is_active="True" name="P">',
-      '            <action uid=6 is_deleted="False" is_complete="False" name="AwithoutContext" ctx=""/>',
-      '            <action uid=7 is_deleted="False" is_complete="False" name="AinContextC" ctx=""/>',
-      '        </project>',
-      '    </folder>',
-      '    <contexts>',
-      '        <context_list uid=3 is_deleted="False" name="Contexts">',
-      '            <context uid=4 is_deleted="True" is_active="True" name="C-deleted-at-77.0"/>',
-      '        </context_list>',
-      '    </contexts>',
-      '</todolist>',
-    ]
     golden_printed = [
       'after construction',
       '<todolist uid=2>',
       '    <inbox uid=1>',
-      '        <project uid=1 is_deleted="False" is_complete="False" is_active="True" name="inbox">',
+      '        <project uid=1 is_deleted="False" is_complete="False" '
+      'is_active="True" name="inbox">',
       '        ',
       '        </project>',
       '    </inbox>',
       '    <folder uid=2 is_deleted="False" name="">',
-      '        <project uid=5 is_deleted="False" is_complete="False" is_active="True" name="P">',
-      '            <action uid=6 is_deleted="False" is_complete="False" name="AwithoutContext" ctx=""/>',
-      '            <action uid=7 is_deleted="False" is_complete="False" name="AinContextC" ctx="uid=4"/>',
+      '        <project uid=5 is_deleted="False" is_complete="False" '
+      'is_active="True" name="P">',
+      '            <action uid=6 is_deleted="False" is_complete="False" '
+      'name="AwithoutContext" ctx=""/>',
+      '            <action uid=7 is_deleted="False" is_complete="False" '
+      'name="AinContextC" ctx="uid=4"/>',
       '        </project>',
       '    </folder>',
       '    <contexts>',
-      '        <context_list uid=3 is_deleted="False" name="Contexts">',
+      '        <context_list>',
       '            <context uid=4 is_deleted="False" is_active="True" name="C"/>',
       '        </context_list>',
       '    </contexts>',
       '</todolist>',
       'before rmctx C',
       'gist after rmctx:',
-    ] + final_gist + [
-      'before undo',
-      'after undo',
       '<todolist uid=2>',
       '    <inbox uid=1>',
-      '        <project uid=1 is_deleted="False" is_complete="False" is_active="True" name="inbox">',
+      '        <project uid=1 is_deleted="False" is_complete="False" '
+      'is_active="True" name="inbox">',
       '        ',
       '        </project>',
       '    </inbox>',
       '    <folder uid=2 is_deleted="False" name="">',
-      '        <project uid=5 is_deleted="False" is_complete="False" is_active="True" name="P">',
-      '            <action uid=6 is_deleted="False" is_complete="False" name="AwithoutContext" ctx=""/>',
-      '            <action uid=7 is_deleted="False" is_complete="False" name="AinContextC" ctx="uid=4"/>',
+      '        <project uid=5 is_deleted="False" is_complete="False" '
+      'is_active="True" name="P">',
+      '            <action uid=6 is_deleted="False" is_complete="False" '
+      'name="AwithoutContext" ctx=""/>',
+      '            <action uid=7 is_deleted="False" is_complete="False" '
+      'name="AinContextC" ctx=""/>',
       '        </project>',
       '    </folder>',
       '    <contexts>',
-      '        <context_list uid=3 is_deleted="False" name="Contexts">',
-      '            <context uid=4 is_deleted="False" is_active="True" name="C"/>',
+      '        <context_list>',
+      '            <context uid=4 is_deleted="True" is_active="True" '
+      'name="C-deleted-at-77.0"/>',
+      '        </context_list>',
+      '    </contexts>',
+      '</todolist>',
+      'before undo',
+      'after undo',
+      '<todolist uid=2>',
+      '    <inbox uid=1>',
+      '        <project uid=1 is_deleted="False" is_complete="False" '
+      'is_active="True" name="inbox">',
+      '        ',
+      '        </project>',
+      '    </inbox>',
+      '    <folder uid=2 is_deleted="False" name="">',
+      '        <project uid=4 is_deleted="False" is_complete="False" '
+      'is_active="True" name="P">',
+      '            <action uid=5 is_deleted="False" is_complete="False" '
+      'name="AwithoutContext" ctx=""/>',
+      '            <action uid=6 is_deleted="False" is_complete="False" '
+      'name="AinContextC" ctx="uid=3"/>',
+      '        </project>',
+      '    </folder>',
+      '    <contexts>',
+      '        <context_list>',
+      '            <context uid=3 is_deleted="False" is_active="True" name="C"/>',
       '        </context_list>',
       '    </contexts>',
       '</todolist>',
       'before successful redo:',
       'after that redo the gist is:',
-    ] + final_gist + [
+      '<todolist uid=2>',
+      '    <inbox uid=1>',
+      '        <project uid=1 is_deleted="False" is_complete="False" '
+      'is_active="True" name="inbox">',
+      '        ',
+      '        </project>',
+      '    </inbox>',
+      '    <folder uid=2 is_deleted="False" name="">',
+      '        <project uid=4 is_deleted="False" is_complete="False" '
+      'is_active="True" name="P">',
+      '            <action uid=5 is_deleted="False" is_complete="False" '
+      'name="AwithoutContext" ctx=""/>',
+      '            <action uid=6 is_deleted="False" is_complete="False" '
+      'name="AinContextC" ctx=""/>',
+      '        </project>',
+      '    </folder>',
+      '    <contexts>',
+      '        <context_list>',
+      '            <context uid=3 is_deleted="True" is_active="True" '
+      'name="C-deleted-at-77.0"/>',
+      '        </context_list>',
+      '    </contexts>',
+      '</todolist>',
       'failure:',
       'Nothing left to redo',
     ]
@@ -6178,18 +6198,6 @@ it and use this view filter. Note: this is ignored in --show_all mode""",
       '  }\n'
       '}\n'
       'ctx_list {\n'
-      '  common {\n'
-      '    is_deleted: false\n'
-      '    timestamp {\n'
-      '      ctime: 36000000\n'
-      '      dtime: -1\n'
-      '      mtime: 38000000\n'
-      '    }\n'
-      '    metadata {\n'
-      '      name: "Contexts"\n'
-      '    }\n'
-      '    uid: 3\n'
-      '  }\n'
       '  contexts {\n'
       '    common {\n'
       '      is_deleted: false\n'
@@ -6636,18 +6644,6 @@ it and use this view filter. Note: this is ignored in --show_all mode""",
       '  }\n'
       '}\n'
       'ctx_list {\n'
-      '  common {\n'
-      '    is_deleted: false\n'
-      '    timestamp {\n'
-      '      ctime: 1137000000\n'
-      '      dtime: -1\n'
-      '      mtime: 1137000000\n'
-      '    }\n'
-      '    metadata {\n'
-      '      name: "Contexts"\n'
-      '    }\n'
-      '    uid: 1987761140110186971\n'
-      '  }\n'
       '  contexts {\n'
       '    common {\n'
       '      is_deleted: false\n'
@@ -6704,24 +6700,12 @@ it and use this view filter. Note: this is ignored in --show_all mode""",
       '    timestamp {\n'
       '      ctime: 1137000000\n'
       '      dtime: -1\n'
-      '      mtime: 2222000000\n'
+      '      mtime: 1137000000\n'
       '    }\n'
       '    uid: 2\n'
       '  }\n'
       '}\n'
       'ctx_list {\n'
-      '  common {\n'
-      '    is_deleted: false\n'
-      '    timestamp {\n'
-      '      ctime: 1137000000\n'
-      '      dtime: -1\n'
-      '      mtime: 2222000000\n'
-      '    }\n'
-      '    metadata {\n'
-      '      name: "Contexts"\n'
-      '    }\n'
-      '    uid: 1987761140110186971\n'
-      '  }\n'
       '  contexts {\n'
       '    common {\n'
       '      is_deleted: false\n'

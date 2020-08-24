@@ -310,18 +310,6 @@ root {
   }
 }
 ctx_list {
-  common {
-    is_deleted: false
-    timestamp {
-      ctime: 1563772295098732
-      dtime: -1
-      mtime: 1563772295098751
-    }
-    metadata {
-      name: "Contexts"
-    }
-    uid: 3
-  }
   contexts {
     common {
       is_deleted: false

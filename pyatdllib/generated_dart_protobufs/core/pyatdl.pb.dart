@@ -756,7 +756,6 @@ class NoteList extends $pb.GeneratedMessage {
 
 class ContextList extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo('ContextList', package: const $pb.PackageName('pyatdl'), createEmptyInstance: create)
-    ..aOM<Common>(1, 'common', subBuilder: Common.create)
     ..pc<Context>(2, 'contexts', $pb.PbFieldType.PM, subBuilder: Context.create)
     ..hasExtensions = true
   ;
@@ -776,19 +775,8 @@ class ContextList extends $pb.GeneratedMessage {
   static ContextList getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ContextList>(create);
   static ContextList _defaultInstance;
 
-  @$pb.TagNumber(1)
-  Common get common => $_getN(0);
-  @$pb.TagNumber(1)
-  set common(Common v) { setField(1, v); }
-  @$pb.TagNumber(1)
-  $core.bool hasCommon() => $_has(0);
-  @$pb.TagNumber(1)
-  void clearCommon() => clearField(1);
-  @$pb.TagNumber(1)
-  Common ensureCommon() => $_ensure(0);
-
   @$pb.TagNumber(2)
-  $core.List<Context> get contexts => $_getList(1);
+  $core.List<Context> get contexts => $_getList(0);
 }
 
 class Folder extends $pb.GeneratedMessage {

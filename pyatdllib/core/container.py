@@ -1,6 +1,6 @@
 """Defines Container, the superclass of Folder and Prj.
 
-Folders contain Containers (but not CtxLists).  Prj contains Actions.
+Folders contain Containers.  Prj contains Actions.
 """
 
 from __future__ import annotations
@@ -61,12 +61,13 @@ class Container(auditable_object.AuditableObject):
     """
     raise NotImplementedError
 
-  def __init__(self, the_uid: int = None, items: list = None) -> None:
+  def __init__(self, *, the_uid: int = None, items: list = None, name: str = None) -> None:
     super().__init__(the_uid=the_uid)
     if items is None:
       self.items = []
     else:
-      self.items = items
+      self.items = list(items)
+    self.name = name
 
   @classmethod
   def HasLiveDescendant(cls, item: Any) -> bool:
@@ -77,8 +78,7 @@ class Container(auditable_object.AuditableObject):
     return False
 
   def PurgeDeleted(self) -> None:
-    self.items = [item for item in self.items
-                  if not item.is_deleted or self.HasLiveDescendant(item)]
+    self.items[:] = [item for item in self.items if not item.is_deleted or self.HasLiveDescendant(item)]
     for item in self.items:
       if hasattr(item, 'PurgeDeleted'):
         item.PurgeDeleted()
@@ -166,4 +166,6 @@ class Container(auditable_object.AuditableObject):
       raise TypeError
     super().AsProto(pb)
     assert self.uid == pb.uid
+    if self.name:
+      pb.metadata.name = self.name
     return pb

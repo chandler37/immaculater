@@ -119,6 +119,14 @@ PYTEST_CMD := DJANGO_DEBUG=True python -m pytest $(PYTEST_MARK) $(PYTEST_MYPY) $
 flake8:
 	$(ACTIVATE_VENV) && python -m flake8 immaculater todo pyatdllib
 
+.PHONY: lint
+lint:
+	$(MAKE) flake8
+
+.PHONY: mypy
+mypy:
+	$(MAKE) -k pytest pytestlib PYTEST_MYPY="--mypy -m mypy"
+
 .PHONY: pytest
 pytest:
 	cd pyatdllib && $(MAKE) protoc_middleman

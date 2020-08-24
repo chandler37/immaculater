@@ -53,11 +53,6 @@ class Mergeprotobufs(TestCase):
 
     def _existing_todolist_protobuf(self):
         pb = pyatdl_pb2.ToDoList()
-        pb.ctx_list.common.uid = -1
-        pb.ctx_list.common.metadata.name = "We ❤ Contexts"
-        pb.ctx_list.common.timestamp.ctime = 1500000000000000
-        pb.ctx_list.common.timestamp.dtime = -1
-        pb.ctx_list.common.timestamp.mtime = 1500000000000000
         pb.root.common.uid = 2
         pb.inbox.common.uid = 1
         a = pb.inbox.actions.add()
@@ -80,19 +75,6 @@ inbox {
 root {
   common {
     uid: 2
-  }
-}
-ctx_list {
-  common {
-    timestamp {
-      ctime: 1500000000000000
-      dtime: -1
-      mtime: 1500000000000000
-    }
-    metadata {
-      name: "We \342\235\244 Contexts"
-    }
-    uid: -1
   }
 }
 """.lstrip()
@@ -208,7 +190,7 @@ ctx_list {
         pbresp = pyatdl_pb2.MergeToDoListResponse.FromString(response.content)
         assert not pbresp.starter_template
         assert text_format.MessageToString(pbresp) == r"""
-sha1_checksum: "32d20be5b6e144d5b665e5690310a0e92ddd70e3"
+sha1_checksum: "ce6da1f9cd9409412059ae500356a442a5e9cbb3"
 to_do_list {
   inbox {
     common {
@@ -234,20 +216,6 @@ to_do_list {
       uid: 2
     }
   }
-  ctx_list {
-    common {
-      is_deleted: false
-      timestamp {
-        ctime: 1500000000000000
-        dtime: -1
-        mtime: 1500000000000000
-      }
-      metadata {
-        name: "We \342\235\244 Contexts"
-      }
-      uid: -1
-    }
-  }
 }
 sanity_check: 18369614221190021342
 """.lstrip()
@@ -264,7 +232,7 @@ sanity_check: 18369614221190021342
         req.previous_sha1_checksum = "37" * 20
         response = self._happy_post(req.SerializeToString())
         assert response.status_code == 500
-        assert response.content == b'{"error": "The server does not yet implement merging, but merging is required because the sha1_checksum of the todolist prior to your input is \'3737373737373737373737373737373737373737\' and the sha1_checksum of the database is \'32d20be5b6e144d5b665e5690310a0e92ddd70e3\'"}'
+        assert response.content == b'{"error": "The server does not yet implement merging, but merging is required because the sha1_checksum of the todolist prior to your input is \'3737373737373737373737373737373737373737\' and the sha1_checksum of the database is \'ce6da1f9cd9409412059ae500356a442a5e9cbb3\'"}'
 
     @modify_settings(MIDDLEWARE={
         'prepend': 'todo.middleware.exception_middleware.ExceptionMiddleware',
@@ -329,7 +297,7 @@ sanity_check: 18369614221190021342
         assert response.status_code == 200, 'response.content is %s' % response.content
         pbresp = pyatdl_pb2.MergeToDoListResponse.FromString(response.content)
         assert text_format.MessageToString(pbresp) == r"""
-sha1_checksum: "9fec97c2c533844a33155bf4f321bbe1462c188e"
+sha1_checksum: "174011bb4fe5bd4d1f05e59c25dd0a82cc36e1e5"
 to_do_list {
   inbox {
     common {
@@ -436,18 +404,6 @@ to_do_list {
     }
   }
   ctx_list {
-    common {
-      is_deleted: false
-      timestamp {
-        ctime: 37000037
-        dtime: -1
-        mtime: 37000037
-      }
-      metadata {
-        name: "Contexts"
-      }
-      uid: 1987761140110186971
-    }
     contexts {
       common {
         is_deleted: false

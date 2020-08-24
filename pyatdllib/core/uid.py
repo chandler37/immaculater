@@ -36,7 +36,6 @@ INBOX_UID = 1
 # Similarly with the root Folder:
 ROOT_FOLDER_UID = INBOX_UID + 1
 assert ROOT_FOLDER_UID == 2
-# TODO(chandler37): Change pyatdl.proto so that ContextList has no 'common' field.
 
 # pyatdl.proto can say 'int64 uid = 1 [default = 37]' but it is zero by default:
 DEFAULT_PROTOBUF_VALUE_FOR_ABSENT_UID = 0

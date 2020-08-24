@@ -45,7 +45,7 @@ class TdlTestCase(unitjest.TestCase):
    \x20
     </folder>
     <contexts>
-        <context_list is_deleted="False" name="Contexts">
+        <context_list>
        \x20
         </context_list>
     </contexts>
@@ -335,18 +335,6 @@ root {
   }
 }
 ctx_list {
-  common {
-    is_deleted: false
-    timestamp {
-      ctime: 1558073894998551
-      dtime: -1
-      mtime: 1558073894998567
-    }
-    metadata {
-      name: "Contexts"
-    }
-    uid: 3
-  }
   contexts {
     common {
       is_deleted: false

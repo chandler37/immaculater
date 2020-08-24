@@ -4487,7 +4487,6 @@ proto.pyatdl.ContextList.prototype.toObject = function(opt_includeInstance) {
  */
 proto.pyatdl.ContextList.toObject = function(includeInstance, msg) {
   var f, obj = {
-    common: (f = msg.getCommon()) && proto.pyatdl.Common.toObject(includeInstance, f),
     contextsList: jspb.Message.toObjectList(msg.getContextsList(),
     proto.pyatdl.Context.toObject, includeInstance)
   };
@@ -4529,11 +4528,6 @@ proto.pyatdl.ContextList.deserializeBinaryFromReader = function(msg, reader) {
     }
     var field = reader.getFieldNumber();
     switch (field) {
-    case 1:
-      var value = new proto.pyatdl.Common;
-      reader.readMessage(value,proto.pyatdl.Common.deserializeBinaryFromReader);
-      msg.setCommon(value);
-      break;
     case 2:
       var value = new proto.pyatdl.Context;
       reader.readMessage(value,proto.pyatdl.Context.deserializeBinaryFromReader);
@@ -4571,14 +4565,6 @@ proto.pyatdl.ContextList.prototype.serializeBinary = function() {
  */
 proto.pyatdl.ContextList.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = message.getCommon();
-  if (f != null) {
-    writer.writeMessage(
-      1,
-      f,
-      proto.pyatdl.Common.serializeBinaryToWriter
-    );
-  }
   f = message.getContextsList();
   if (f.length > 0) {
     writer.writeRepeatedMessage(
@@ -4589,43 +4575,6 @@ proto.pyatdl.ContextList.serializeBinaryToWriter = function(message, writer) {
   }
   jspb.Message.serializeBinaryExtensions(message, writer,
     proto.pyatdl.ContextList.extensionsBinary, proto.pyatdl.ContextList.prototype.getExtension);
-};
-
-
-/**
- * optional Common common = 1;
- * @return {?proto.pyatdl.Common}
- */
-proto.pyatdl.ContextList.prototype.getCommon = function() {
-  return /** @type{?proto.pyatdl.Common} */ (
-    jspb.Message.getWrapperField(this, proto.pyatdl.Common, 1));
-};
-
-
-/**
- * @param {?proto.pyatdl.Common|undefined} value
- * @return {!proto.pyatdl.ContextList} returns this
-*/
-proto.pyatdl.ContextList.prototype.setCommon = function(value) {
-  return jspb.Message.setWrapperField(this, 1, value);
-};
-
-
-/**
- * Clears the message field making it undefined.
- * @return {!proto.pyatdl.ContextList} returns this
- */
-proto.pyatdl.ContextList.prototype.clearCommon = function() {
-  return this.setCommon(undefined);
-};
-
-
-/**
- * Returns whether this field is set.
- * @return {boolean}
- */
-proto.pyatdl.ContextList.prototype.hasCommon = function() {
-  return jspb.Message.getField(this, 1) != null;
 };
 
 

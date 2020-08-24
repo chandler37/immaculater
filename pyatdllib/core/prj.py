@@ -63,8 +63,7 @@ class Prj(container.Container):
                last_review_epoch_sec: float = 0.0,
                note: str = '',
                default_context_uid: int = None) -> None:
-    super().__init__(the_uid=the_uid, items=items)
-    self.name = name
+    super().__init__(the_uid=the_uid, items=items, name=name)
     self.note = note
     if max_seconds_before_review is not None:
       self.max_seconds_before_review = max_seconds_before_review
@@ -229,8 +228,6 @@ class Prj(container.Container):
     if not isinstance(pb, pyatdl_pb2.Project):
       raise TypeError
     super().AsProto(pb.common)
-    if self.name:
-      pb.common.metadata.name = self.name
     if self.note:
       pb.common.metadata.note = self.note
     pb.is_complete = self.is_complete

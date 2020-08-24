@@ -86,7 +86,7 @@ class ToDoList(object):
     self.root = root if root is not None else folder.Folder(name='', the_uid=uid.ROOT_FOLDER_UID)
     if self.root.uid != uid.ROOT_FOLDER_UID:
       raise errors.DataError(f"Root folder UID is not {uid.ROOT_FOLDER_UID}, it is {self.root.uid}")
-    self.ctx_list = ctx_list if ctx_list is not None else ctx.CtxList(name='Contexts')
+    self.ctx_list = ctx_list if ctx_list is not None else ctx.CtxList()
     self.note_list = note_list if note_list is not None else note.NoteList()
 
   def __str__(self):
@@ -132,7 +132,7 @@ class ToDoList(object):
     Returns:
       None
     """
-    def ContextName(context_uid) -> str:
+    def ContextName(context_uid: int) -> str:
       for i in self.ctx_list.items:
         if i.uid == context_uid:
           return six.text_type(i.name)
@@ -179,7 +179,6 @@ class ToDoList(object):
   def DeleteCompleted(self) -> None:
     self.inbox.DeleteCompleted()
     self.root.DeleteCompleted()
-    self.ctx_list.DeleteCompleted()  # a nop for now; contexts cannot be completed
 
   def Projects(self) -> Iterator[Tuple[prj.Prj, List[folder.Folder]]]:
     """Returns all projects, including the /inbox project.
@@ -247,19 +246,14 @@ class ToDoList(object):
         if a.ctx_uid is not None and a.ctx_uid == ctx_uid:
           yield a, p
 
-  def Items(self) -> Iterator[Union[action.Action, prj.Prj, ctx.Ctx, folder.Folder, ctx.CtxList]]:
-    """Iterates through all CtxLists, Actions, Projects, Contexts, and Folders.
-
-    Yields:
-      Action/Ctx/Folder/Prj/CtxList
-    """
-    yield self.ctx_list
-    for i in self.ctx_list.items:
-      yield i
-    for i, unused_path in self.ContainersPreorder():
-      yield i
-    for i, unused_prj in self.Actions():
-      yield i
+  def Items(self) -> Iterator[Union[action.Action, container.Container, ctx.Ctx]]:
+    """Iterates through all Actions, Projects, Contexts, and Folders."""
+    for c in self.ctx_list.items:
+      yield c
+    for co, unused_path in self.ContainersPreorder():
+      yield co
+    for a, unused_prj in self.Actions():
+      yield a
 
   def RemoveReferencesToContext(self, ctx_uid: int) -> None:
     """Ensures that nothing references the specified context.
@@ -333,16 +327,12 @@ class ToDoList(object):
         return (f, path)
     return None
 
-  def ParentContainerOf(self, item: object) -> container.Container:
-    """Returns the Container that contains the given Action/Ctx/Container.
+  def ParentContainerOf(self, item: Union[action.Action, container.Container]) -> container.Container:
+    """Returns the Container that contains the given Action/Container.
 
-    Returns:
-      Container
     Raises:
       NoSuchParentFolderError
     """
-    if isinstance(item, ctx.Ctx):
-      return self.ctx_list
     if item is self.root:
       raise NoSuchParentFolderError('The root Folder has no parent Folder.')
     if item is self.inbox:
@@ -371,7 +361,6 @@ class ToDoList(object):
         'A Context named "%s" already exists.' % context_name)
     new_ctx = ctx.Ctx(name=context_name)
     self.ctx_list.items.append(new_ctx)
-    self.ctx_list.NoteModification()
     return new_ctx.uid
 
   def AddProjectOrFolder(self, project_or_folder: Union[prj.Prj, folder.Folder], parent_folder_uid: int = None) -> None:
@@ -437,7 +426,6 @@ class ToDoList(object):
       finally:
         FLAGS.pyatdl_show_uid = saved_value
 
-    self.ctx_list.CheckIsWellFormed()
     for f, unused_path in self.root.ContainersPreorder():
       f.CheckIsWellFormed()
     # Verify that UIDs are unique globally (not just within Actions or Contexts):
@@ -470,13 +458,10 @@ class ToDoList(object):
     """
     if pb is None:
       pb = pyatdl_pb2.ToDoList()
-    # pylint: disable=maybe-no-member
     self.inbox.AsProto(pb.inbox)
     self.root.AsProto(pb.root)
     self.ctx_list.AsProto(pb.ctx_list)
     self.note_list.AsProto(pb.note_list)
-    assert self.ctx_list.uid == pb.ctx_list.common.uid
-    assert pb.ctx_list.common.metadata.name, 'X23 %s' % str(pb.ctx_list)
     return pb
 
   @classmethod
@@ -499,18 +484,15 @@ class ToDoList(object):
       raise errors.DataError(f"protocol buffer error: the Inbox project, with UID={uid.INBOX_UID}, is required")
     if not pb.HasField('root'):
       raise errors.DataError(f"protocol buffer error: the root folder, with UID={uid.ROOT_FOLDER_UID}, is required")
-    if not pb.HasField('ctx_list'):
-      raise errors.DataError("protocol buffer error: the ctx_list is required")
-    inbox = prj.Prj.DeserializedProtobuf(
-      pb.inbox.SerializeToString())
-    root = folder.Folder.DeserializedProtobuf(
-      pb.root.SerializeToString())
+    inbox = prj.Prj.DeserializedProtobuf(pb.inbox.SerializeToString())
+    root = folder.Folder.DeserializedProtobuf(pb.root.SerializeToString())
     serialized_ctx_list = pb.ctx_list.SerializeToString()
-    ctx_list = ctx.CtxList.DeserializedProtobuf(
-      serialized_ctx_list)
+    if len(pb.ctx_list.contexts) > 0:
+      ctx_list = ctx.CtxList.DeserializedProtobuf(serialized_ctx_list)
+    else:
+      ctx_list = ctx.CtxList(deserializing=True)
     serialized_note_list = pb.note_list.SerializeToString()
-    note_list = note.NoteList.DeserializedProtobuf(
-      serialized_note_list)
+    note_list = note.NoteList.DeserializedProtobuf(serialized_note_list)
     rv = cls(inbox=inbox, root=root, ctx_list=ctx_list, note_list=note_list)
     rv.CheckIsWellFormed()
     return rv

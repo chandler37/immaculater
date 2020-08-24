@@ -168,18 +168,6 @@ root {
   }
 }
 ctx_list {
-  common {
-    is_deleted: false
-    timestamp {
-      ctime: 1572755356644341
-      dtime: -1
-      mtime: 1572755356646974
-    }
-    metadata {
-      name: "Contexts"
-    }
-    uid: -1831325979230752603
-  }
   contexts {
     common {
       is_deleted: false

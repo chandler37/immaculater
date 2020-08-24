@@ -53,7 +53,6 @@ def FloatingPointTimestamp(microseconds_since_the_epoch: int, zero_value: Option
 TypeHavingCommon = Union[
   pyatdl_pb2.Action,
   pyatdl_pb2.Context,
-  pyatdl_pb2.ContextList,
   pyatdl_pb2.Folder,
   pyatdl_pb2.Project,
 ]

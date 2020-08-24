@@ -22,10 +22,10 @@ from six.moves import xrange
 import time  # pylint: disable=wrong-import-order
 
 from absl import flags  # type: ignore
-
+from google.protobuf import text_format  # type: ignore
 from third_party.google.apputils.google.apputils import app
 from third_party.google.apputils.google.apputils import appcommands
-from google.protobuf import text_format  # type: ignore
+from typing import List, Union
 
 from ..core import action
 from ..core import auditable_object
@@ -82,17 +82,17 @@ class NoSuchContainerError(Error):
   """The folder/project was not found."""
 
 
-def _ProjectString(project, path):  # pylint:disable=missing-docstring
+def _ProjectString(project: prj.Prj, path: List[folder.Folder]):  # pylint:disable=missing-docstring
   ps = FLAGS.pyatdl_separator.join(
     state_module.State.SlashEscaped(x.name) for x in reversed(path))
   return FLAGS.pyatdl_separator.join([ps, project.name])
 
 
-def _CompleteStr(is_complete):  # pylint:disable=missing-docstring
+def _CompleteStr(is_complete: bool) -> str:  # pylint:disable=missing-docstring
   return '---COMPLETE---' if is_complete else '--incomplete--'
 
 
-def _ActiveStr(is_active):  # pylint:disable=missing-docstring
+def _ActiveStr(is_active: bool) -> str:  # pylint:disable=missing-docstring
   return '---active---' if is_active else '--INACTIVE--'
 
 
@@ -2119,7 +2119,9 @@ class UICmdTouch(UndoableUICmd):  # 'mkact', 'touch'
       state.Print(a.uid)
 
 
-def _Reparent(moving_item, new_container, todolist):
+def _Reparent(moving_item: Union[action.Action, prj.Prj, folder.Folder],
+              new_container: container.Container,
+              todolist: tdl.ToDoList) -> None:
   """Moves moving_item from its parent Container to new_container.
 
   Args:
@@ -2155,7 +2157,7 @@ def _Reparent(moving_item, new_container, todolist):
     else:
       raise AssertionError('Cannot find the first arg within its old '
                            'parent Container. arg=%s' % moving_item)
-    if not moving_item.is_deleted and hasattr(moving_item, 'is_complete') and not moving_item.is_complete:
+    if not moving_item.is_deleted and not isinstance(moving_item, folder.Folder) and not moving_item.is_complete:
       new_container.is_complete = False
     new_container.items.append(moving_item)
     new_container.NoteModification()
@@ -2431,7 +2433,7 @@ class UICmdRmctx(UndoableUICmd):
 
 class UICmdRmdir(UndoableUICmd):
   """Deletes the given Folder.  See also "view all_even_deleted"."""
-  def Run(self, args):  # pylint: disable=missing-docstring,no-self-use
+  def Run(self, args: List[str]) -> None:
     state = FLAGS.pyatdl_internal_state
     self.RaiseUnlessNArgumentsGiven(1, args)
     try:

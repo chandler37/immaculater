@@ -198,7 +198,7 @@ message NoteList {
 }
 
 message ContextList {
-  optional Common common = 1;
+  reserved 1;  // obsolete optional Common common
   repeated Context contexts = 2;
   extensions 20000 to max;
 }

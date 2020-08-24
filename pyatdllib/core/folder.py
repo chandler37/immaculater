@@ -47,8 +47,7 @@ class Folder(container.Container):
     return (container.Container,)
 
   def __init__(self, the_uid: int = None, name: str = None, note: str = '', items: List[Union[Folder, prj.Prj]] = None) -> None:
-    super().__init__(the_uid=the_uid, items=items)
-    self.name = name
+    super().__init__(the_uid=the_uid, items=items, name=name)
     self.note = note
 
   def __unicode__(self) -> str:
@@ -76,8 +75,6 @@ class Folder(container.Container):
     if not isinstance(pb, pyatdl_pb2.Folder):
       raise TypeError
     super().AsProto(pb.common)
-    if self.name:
-      pb.common.metadata.name = self.name
     if self.note:
       pb.common.metadata.note = self.note
     for i in self.items:

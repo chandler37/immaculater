@@ -11,13 +11,13 @@ import six
 
 from absl import flags  # type: ignore
 from google.protobuf import message
-from typing import List, NoReturn, Optional, Tuple, Type, TypeVar
+from typing import Sequence, Type, TypeVar
 
 from . import auditable_object
 from . import common
-from . import container
 from . import errors
 from . import pyatdl_pb2
+from . import uid
 
 FLAGS = flags.FLAGS
 
@@ -106,54 +106,35 @@ class Ctx(auditable_object.AuditableObject):
     return c
 
 
-class CtxList(container.Container):
+U = TypeVar('U', bound='CtxList')
+
+
+class CtxList(object):
   """A list of Contexts.
 
   Fields:
-    uid: int
-    ctime: float  # seconds since the epoch
-    dtime: float|None  # seconds since the epoch, or None if not deleted.
-    mtime: float  # seconds since the epoch
-    is_deleted: bool
-    name: None|str|unicode
     items: [Ctx]
   """
 
-  __pychecker__ = 'unusednames=cls'
+  def __init__(self, items: Sequence[Ctx] = None, *, deserializing: bool = False) -> None:
+    # this just simplifies the unittests because, once upon a time, a pyatdl_pb2.ContextList had a 'Common' message that had a UID:
+    if not deserializing:
+      uid.singleton_factory.NextUID()
 
-  @classmethod
-  def TypesContained(cls) -> Tuple[Type[object]]:
-    return (Ctx,)
-
-  def __init__(self, the_uid: int = None, name: str = None, items: List[Ctx] = None) -> None:
-    super().__init__(the_uid=the_uid, items=items)
-    self.name: Optional[str] = name
+    self.items = list(items) if items is not None else []
 
   def __unicode__(self) -> str:
-    uid_str = '' if not FLAGS.pyatdl_show_uid else ' uid=%s' % self.uid
-    ctx_strs = []
-    for c in self.items:
-      ctx_strs.append(six.text_type(c))
-    return """
-<context_list%s is_deleted="%s" name="%s">
-%s
-</context_list>
-""".strip() % (uid_str, self.is_deleted, self.name,
-               common.Indented('\n'.join(ctx_strs)))
+    indented = common.Indented('\n'.join(six.text_type(c) for c in self.items))
+    return f"<context_list>\n{indented}\n</context_list>"
 
-  def Projects(self) -> NoReturn:
-    """See Container.Projects."""
-    raise AssertionError('Should this be an abstract method? I doubt it is called.')
+  def __repr__(self) -> str:
+    return self.__unicode__()
 
   def ContextUIDFromName(self, name: str) -> int:
     """Returns the UID of an arbitrary but deterministic Context with the given name.
 
     This module is ignorant of FLAGS.no_context_display_string.
 
-    Args:
-      name: str
-    Returns:
-      int
     Raises:
       NoSuchNameError
     """
@@ -162,37 +143,25 @@ class CtxList(container.Container):
         return c.uid
     raise NoSuchNameError('No Context is named "%s"' % name)
 
-  def AsProto(self, pb: message.Message = None) -> message.Message:
-    # pylint: disable=maybe-no-member
+  def PurgeDeleted(self) -> None:
+    self.items[:] = [item for item in self.items if not item.is_deleted]
+
+  def AsProto(self, pb: pyatdl_pb2.ContextList = None) -> pyatdl_pb2.ContextList:
     if pb is None:
       pb = pyatdl_pb2.ContextList()
     if not isinstance(pb, pyatdl_pb2.ContextList):
       raise TypeError
-    super().AsProto(pb.common)
-    assert self.uid == pb.common.uid
-    pb.common.metadata.name = self.name if self.name else ""
     for c in self.items:
       c.AsProto(pb.contexts.add())
     return pb
 
   @classmethod
-  def DeserializedProtobuf(cls, bytestring):
-    """Deserializes a CtxList from the given protocol buffer.
-
-    Args:
-      bytestring: str
-    Returns:
-      CtxList
-    """
+  def DeserializedProtobuf(cls: Type[U], bytestring: bytes) -> U:
+    """Deserializes a CtxList from the given protocol buffer."""
     if not bytestring:
       raise errors.DataError("A ContextList must be nonempty -- add a UID.")
-    pb = pyatdl_pb2.ContextList.FromString(bytestring)  # pylint: disable=no-member
-    assert pb.common.metadata.name, (
-      'No name for ContextList. pb=<%s> len(bytestring)=%s'  # TODO(chandler37): why require it?
-      % (str(pb), len(bytestring)))
-    cl = cls(the_uid=pb.common.uid, name=pb.common.metadata.name)
+    pb = pyatdl_pb2.ContextList.FromString(bytestring)
+    cl = cls(deserializing=True)
     for pbc in pb.contexts:
       cl.items.append(Ctx.DeserializedProtobuf(pbc.SerializeToString()))
-    cl.SetFieldsBasedOnProtobuf(pb.common)  # must be last mutation
-    cl.CheckIsWellFormed()
     return cl

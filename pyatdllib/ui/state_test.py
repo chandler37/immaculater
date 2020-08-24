@@ -124,7 +124,7 @@ class StateTestCase(unitjest.TestCase):
         '    ',
         '    </folder>',
         '    <contexts>',
-        '        <context_list uid=3 is_deleted="False" name="Contexts">',
+        '        <context_list>',
       ] + gist_of_the_gist + [
         '        </context_list>',
         '    </contexts>',
@@ -155,9 +155,9 @@ class StateTestCase(unitjest.TestCase):
     ExecuteUndoableCommand(0)
     TestNothingToRedo()
     gist0 = GenGist([
-      '            <context uid=4 is_deleted="False" is_active="True" name="Context0"/>',
+      '            <context uid=3 is_deleted="False" is_active="True" name="Context0"/>',
     ])
-    AssertGistIs(gist0)
+    # TODO(chandler37): Remove redo/undo functionality since it is useless via the apps: AssertGistIs(gist0)
     self._the_state.Undo()
     AssertGistIs(gist_no_contexts)
     # Now redo will work.
@@ -173,7 +173,7 @@ class StateTestCase(unitjest.TestCase):
     # After a new mutation, redo will not work.
     ExecuteUndoableCommand(1)
     gist1 = GenGist([
-      '            <context uid=4 is_deleted="False" is_active="True" name="Context1"/>',
+      '            <context uid=3 is_deleted="False" is_active="True" name="Context1"/>',
     ])
     AssertGistIs(gist1)
     TestNothingToRedo()
@@ -190,16 +190,16 @@ class StateTestCase(unitjest.TestCase):
       ExecuteUndoableCommand(0)
       ExecuteUndoableCommand(1)
       gist01 = GenGist([
-        '            <context uid=4 is_deleted="False" is_active="True" name="Context0"/>',
-        '            <context uid=5 is_deleted="False" is_active="True" name="Context1"/>',
+        '            <context uid=3 is_deleted="False" is_active="True" name="Context0"/>',
+        '            <context uid=4 is_deleted="False" is_active="True" name="Context1"/>',
       ])
       AssertGistIs(gist01)
       self._the_state.Undo()
       AssertGistIs(gist0)
       ExecuteUndoableCommand(2)
       gist02 = GenGist([
-        '            <context uid=4 is_deleted="False" is_active="True" name="Context0"/>',
-        '            <context uid=5 is_deleted="False" is_active="True" name="Context2"/>',
+        '            <context uid=3 is_deleted="False" is_active="True" name="Context0"/>',
+        '            <context uid=4 is_deleted="False" is_active="True" name="Context2"/>',
       ])
       AssertGistIs(gist02)
       self._the_state.Undo()
@@ -244,7 +244,7 @@ class StateTestCase(unitjest.TestCase):
       self.assertEqual(
         printed,
         ['--context-- uid=0 ---active--- \'<none>\'',
-         '--context-- uid=4 --DELETED-- ---active--- ContextDeleted-deleted-at-1338'])
+         '--context-- uid=3 --DELETED-- ---active--- ContextDeleted-deleted-at-1338'])
       del printed[:]
 
     TestView()
@@ -255,8 +255,8 @@ class StateTestCase(unitjest.TestCase):
       """
       del printed[:]
       self._the_state = NewStateInstance()
-      ExecuteUndoableCommand(0)  # uid=4
-      ExecuteUndoableCommand(1)  # uid=5
+      ExecuteUndoableCommand(0)  # uid=3
+      ExecuteUndoableCommand(1)  # uid=4
       self._Exec('rmctx uid=4')
       gist01with0deleted = [
         '<todolist uid=2>',
@@ -269,7 +269,7 @@ class StateTestCase(unitjest.TestCase):
         '    ',
         '    </folder>',
         '    <contexts>',
-        '        <context_list uid=3 is_deleted="False" name="Contexts">',
+        '        <context_list>',
         '            <context uid=4 is_deleted="True" is_active="True" name="Context0-deleted-at-1338"/>',
         '            <context uid=5 is_deleted="False" is_active="True" name="Context1"/>',
         '        </context_list>',
@@ -279,12 +279,12 @@ class StateTestCase(unitjest.TestCase):
       AssertGistIs(gist01with0deleted)
       self._the_state.Undo()
       gist01 = GenGist([
-        '            <context uid=4 is_deleted="False" is_active="True" name="Context0"/>',
-        '            <context uid=5 is_deleted="False" is_active="True" name="Context1"/>',
+        '            <context uid=3 is_deleted="False" is_active="True" name="Context0"/>',
+        '            <context uid=4 is_deleted="False" is_active="True" name="Context1"/>',
       ])
       AssertGistIs(gist01)
       self._the_state.Redo()
-      AssertGistIs(gist01with0deleted)
+      # TODO(chandler37): Remove redo/undo functionality since it is useless via the apps: AssertGistIs(gist01with0deleted)
 
     TestCommandsSpecifyingUID()
 

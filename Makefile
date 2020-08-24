@@ -24,7 +24,7 @@ install_tools:
 PYTHON := python3
 PYTHON_INSTALLED := $(shell command -v $(PYTHON) 2> /dev/null)
 
-PIP := pip --use-feature=2020-resolver
+PIP := pip -q --use-feature=2020-resolver
 
 venv:
 ifndef PYTHON_INSTALLED
@@ -33,9 +33,9 @@ endif
 	cat runtime.txt | grep --silent "\\b3\\.7\\.9\\b" || { echo "You changed the heroku python runtime version and you must now edit the Makefile to match it."; exit 1; }
 	$(PYTHON) --version | grep --silent "\\b3\\.7\\.9\\b" || { echo "You must use python 3.7.9; you might want Homebrew or pyenv to install that."; exit 1; }
 	$(PYTHON) -m venv venv
-	$(ACTIVATE_VENV) && pip install --upgrade pip
-	$(ACTIVATE_VENV) && cd venv && git clone --depth 1 --recurse-submodules "https://github.com/chandler37/pytest-mypy.git" && cd pytest-mypy && pip install -c ../../requirements.txt -c ../../requirements-test.txt --upgrade .
-	$(ACTIVATE_VENV) && cd venv && git clone --depth 1 --recurse-submodules "https://github.com/chandler37/django-stubs.git" && cd django-stubs && pip install -c ../../requirements.txt -c ../../requirements-test.txt --upgrade .
+	$(ACTIVATE_VENV) && pip -q install --upgrade pip
+	$(ACTIVATE_VENV) && cd venv && git clone --quiet --depth 1 --recurse-submodules "https://github.com/chandler37/pytest-mypy.git" && cd pytest-mypy && $(PIP) install -c ../../requirements.txt -c ../../requirements-test.txt --upgrade .
+	$(ACTIVATE_VENV) && cd venv && git clone --quiet --depth 1 --recurse-submodules "https://github.com/chandler37/django-stubs.git" && cd django-stubs && $(PIP) install -c ../../requirements.txt -c ../../requirements-test.txt --upgrade .
 	@echo "The virtualenv is not active unless you run the following:"
 	@echo "$(ACTIVATE_VENV)"
 	@echo ""
@@ -47,12 +47,12 @@ pipinstall: venv/requirements-test-installed-by-makefile
 venv/requirements-test-installed-by-makefile: requirements-test.txt requirements.txt | venv
 	$(ACTIVATE_VENV) && $(PIP) install -r $<
 	echo "Now let's make sure that every dependency, transitive or direct, has a version pinned in" $^
-	$(ACTIVATE_VENV) \
-		&& diff <(cat $^ | grep -v -e '^-r requirements.txt$$' | sort -f) \
-			<($(PIP) freeze \
-				| grep -v '^django-stubs @ file://.*/django-stubs$$' \
-				| grep -v '^pytest-mypy @ file://.*/pytest-mypy$$' \
-				| sort -f)
+	diff <(cat $^ | grep -v -e '^-r requirements.txt$$' | sort -f) \
+	     <($(ACTIVATE_VENV) \
+	       && $(PIP) freeze \
+			| grep -v '^django-stubs @ file://.*/django-stubs$$' \
+			| grep -v '^pytest-mypy @ file://.*/pytest-mypy$$' \
+			| sort -f)
 	touch $@
 
 .PHONY: pipdeptree
@@ -147,6 +147,7 @@ test: venv/requirements-test-installed-by-makefile
 upgrade: unfreezeplus pipinstall test
 	@echo "See the 'Upgrading Third-Party Dependencies' section of ./README.md"
 
+# It's a best practice to run 'make clean' before 'make unfreezeplus'.
 .PHONY: unfreezeplus
 unfreezeplus: venv/local-migrations-performed
 	@git diff-index --quiet HEAD || { echo "not in a clean git workspace; run 'git status'"; exit 1; }
@@ -156,11 +157,15 @@ unfreezeplus: venv/local-migrations-performed
 		&& $(PIP) freeze \
 			| sed -e "s/ @.*//" \
 			| xargs $(PIP) uninstall -y
+	sed -i "" -e "s/=.*//" requirements-test.txt
 	sed -i "" -e "s/=.*//" requirements.txt
 	sed -i "" -e "s/Django/Django<3.0.0/" requirements.txt
 	$(ACTIVATE_VENV) && $(PIP) install -r requirements.txt
 	$(ACTIVATE_VENV) && $(PIP) freeze > requirements.txt
-
+	$(ACTIVATE_VENV) && $(PIP) install -r requirements-test.txt
+	comm -i -3 requirements.txt <($(ACTIVATE_VENV) && $(PIP) freeze) | sed -e 's/^[[:blank:]]*//' > requirements-test.txt
+	cat <(echo "-r requirements.txt") requirements-test.txt > requirements-test.txt.tmp && mv requirements-test.txt.tmp requirements-test.txt
+	git diff-index --quiet HEAD || { echo "Let us try these versions..."; $(MAKE) clean test; echo ""; echo "Tests pass. Be wary of major version bumps."; }
 
 .PHONY: cov
 cov: venv

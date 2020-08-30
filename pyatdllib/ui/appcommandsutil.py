@@ -17,8 +17,12 @@ from absl import flags  # type: ignore
 
 from third_party.google.apputils.google.apputils import app
 from third_party.google.apputils.google.apputils import appcommands
+from typing import List, TYPE_CHECKING
 
-from . import undoutil
+from . import state
+
+if TYPE_CHECKING:
+  from . import uicmd
 
 
 flags.DEFINE_bool('pyatdl_paranoia',
@@ -150,7 +154,7 @@ class Namespace(object):
       self._cmd_alias_list[name] = command_name
     self._cmd_list[command_name] = cmd
 
-  def _RunCommand(self, the_state, cmd, argv):
+  def _RunCommand(self, the_state: state.State, cmd: 'uicmd.UICmd', argv: List[str]) -> None:
     """Executes the given command.
 
     Makes the right thing happen when the appcommand raises
@@ -161,8 +165,6 @@ class Namespace(object):
       the_state: state.State
       cmd: uicmd.UICmd
       argv: [str]
-    Returns:
-      UndoableCommand|None
     Raises:
       InvalidUsageError
     """
@@ -171,8 +173,8 @@ class Namespace(object):
     # Prepare flags parsing, to redirect help, to show help for command
     orig_app_usage = app.usage
 
-    def ReplacementAppUsage(shorthelp=0, writeto_stdout=1,
-                            detailed_error=None, exitcode=None):
+    def ReplacementAppUsage(shorthelp: int = 0, writeto_stdout: int = 1,
+                            detailed_error: Exception = None, exitcode: int = None) -> None:
       """Replaces app.usage."""
       func = _GenAppcommandsUsage(
         cmd,
@@ -187,9 +189,6 @@ class Namespace(object):
     # Parse flags and restore app.usage afterwards
     try:
       try:
-        uc = None
-        if cmd.IsUndoable():
-          uc = undoutil.UndoableCommand(argv)  # unparsed argv
         try:
           argv = flag_values(argv)
         except flags.UnrecognizedFlagError as e:
@@ -213,7 +212,6 @@ class Namespace(object):
         except Exception as e:
           msg = 'For the following error, note that argv=%s. Error: %s' % (argv, six.text_type(e))
           raise type(e)(msg) from e
-        return uc
       except app.UsageError as error:
         app.usage(shorthelp=1, detailed_error=error, exitcode=error.exitcode)
         raise InvalidUsageError(six.text_type(error))
@@ -224,13 +222,9 @@ class Namespace(object):
       app.usage = orig_app_usage
       FLAGS.remove_flag_values(flag_values)
 
-  def FindCmdAndExecute(self, the_state, argv, generate_undo_info=True):
+  def FindCmdAndExecute(self, the_state: state.State, argv: List[str]) -> None:
     """Looks up the appropriate command and executes it.
 
-    Args:
-      the_state: state.State
-      argv: [basestring]
-      generate_undo_info: bool
     Raises:
       CmdNotFoundError
       InvalidUsageError
@@ -243,11 +237,6 @@ class Namespace(object):
                           'INTERNAL USE ONLY cmd=%s time=%s' % (argv[0], time.time()),
                           'FOR INTERNAL USE ONLY',
                           flag_values=FLAGS)
-    # If the above flag already existed, it was first set when UICmdUndo or
-    # UICmdRedo ran. Actually, that command is still running. The undo/redo
-    # UICmd has already grabbed the value it needs, which will be a different
-    # value because a new State is constructed as part of undo/redo. So we now
-    # set the flag to point to the new rewound State, the one being replayed.
     FLAGS.pyatdl_internal_state = the_state
     saved_usage = appcommands.AppcommandsUsage
     appcommands.AppcommandsUsage = _GenAppcommandsUsage(cmd, the_state.Print)
@@ -257,16 +246,14 @@ class Namespace(object):
           the_state.ToDoList().CheckIsWellFormed()
         except AssertionError as e:
           raise AssertionError('precheck: argv=%s error=%s' % (argv, six.text_type(e))) from e
-      rv = self._RunCommand(the_state, cmd, argv)
-      if rv is not None and generate_undo_info:
-        the_state.RegisterUndoableCommand(rv)
+      self._RunCommand(the_state, cmd, argv)
       if FLAGS.pyatdl_paranoia:
         try:
           the_state.ToDoList().CheckIsWellFormed()
         except AssertionError as e:
           raise AssertionError('postcheck: %s' % six.text_type(e)) from e
     finally:
-      if hasattr(FLAGS, 'pyatdl_internal_state'):  # see above about undo/redo
+      if hasattr(FLAGS, 'pyatdl_internal_state'):
         delattr(FLAGS, 'pyatdl_internal_state')
       appcommands.AppcommandsUsage = saved_usage
 

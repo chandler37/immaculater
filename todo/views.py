@@ -77,11 +77,6 @@ MERGETODOLISTREQUEST_CONTENT_TYPE = 'application/x-protobuf; messageType="pyatdl
 MERGETODOLISTREQUEST_SANITY_CHECK = 18369614221190020847
 
 
-# TODO(chandler37): Support redo/undo. Put the commands in the protobuf. Be aware of the mergeprotobufs API if you do
-# this. But probably don't do this; do it on the client in such a way that you cannot undo the action done on another
-# device.
-
-
 def _encrypted_todolist_protobuf(some_bytes):
   return _protobuf_fernet().encrypt(some_bytes).decode('utf-8')
 

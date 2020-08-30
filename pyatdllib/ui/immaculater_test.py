@@ -345,7 +345,7 @@ dump""")) as f:
   def testLsctxJsonUnicode(self):
     inputs = ['lsctx --json \u2019til 1']
     golden_printed = [
-      'Takes zero or one arguments; found these arguments: [u\'%stil\', u\'1\']' % ('\u2019' if six.PY3 else '\\u2019')
+      'Takes zero or one arguments; found these arguments: [\'%stil\', \'1\']' % ('\u2019' if six.PY3 else '\\u2019')
     ]
     self.helpTest(inputs, golden_printed)
 
@@ -383,7 +383,7 @@ dump""")) as f:
       'Load complete.',
       '[{"ctime":0,"dtime":null,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":0,"name":"<none>","number_of_items":0,"uid":"0"},{"ctime":1137.0,"dtime":null,"has_note":false,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"653","number_of_items":0,"uid":"4"},{"ctime":1137.0,"dtime":null,"has_note":false,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"at 654}]","number_of_items":0,"uid":"5"}]',
       'after len==2',
-      'Takes zero or one arguments; found these arguments: [u\'0\', u\'1\']',
+      'Takes zero or one arguments; found these arguments: [\'0\', \'1\']',
       'after too many args',
       '{"ctime":1137.0,"dtime":null,"has_note":false,"is_active":true,"is_complete":false,"is_deleted":false,"mtime":1137.0,"name":"653","number_of_items":0,"uid":"4"}',
       'after --json 653',
@@ -664,7 +664,7 @@ dump""")) as f:
       '/p1',
       '/dir0/p2_in_dir0',
       'after several --nojson',
-      'Takes zero or one arguments; found these arguments: [u\'a\', u\'b\']',
+      'Takes zero or one arguments; found these arguments: [\'a\', \'b\']',
       'after two args',
       'With an argument, --json is required',
       'after uid=1',
@@ -1916,7 +1916,7 @@ dump""")) as f:
       '--project-- mtime=1969/12/31-19:00:39 ctime=1969/12/31-19:00:36 --incomplete-- ---active--- .',
       '--folder--- mtime=1969/12/31-19:00:36 ctime=1969/12/31-19:00:36 ..',
       '--action--- mtime=1969/12/31-19:00:39 ctime=1969/12/31-19:00:39 --incomplete-- ZZ --in-context-- \'<none>\'',
-      'Needs 2 positional arguments; found these: [u\'ZZ TOP\']',
+      'Needs 2 positional arguments; found these: [\'ZZ TOP\']',
       'ls:',
       '--action--- --incomplete-- ZZ --in-context-- \'<none>\'',
       'ls2:',
@@ -2077,12 +2077,12 @@ dump""")) as f:
       '--action--- mtime=1969/12/31-19:00:52 ctime=1969/12/31-19:00:52 --incomplete-- C --in-context-- \'<none>\'',
       '--action--- mtime=2014/09/02-22:54:07 ctime=2014/09/02-22:54:07 --incomplete-- E --in-context-- \'<none>\'',
       '199j',
-      'Needs a numeric argument, seconds since the epoch (1970 CE). To move the clock relative to the old clock, prepend the argument with \'+\'. The argument: u\'199j\'',
-      'Needs a numeric argument, seconds since the epoch (1970 CE). To move the clock relative to the old clock, prepend the argument with \'+\'. The argument: u\'\\u0fff\'',
+      'Needs a numeric argument, seconds since the epoch (1970 CE). To move the clock relative to the old clock, prepend the argument with \'+\'. The argument: \'199j\'',
+      'Needs a numeric argument, seconds since the epoch (1970 CE). To move the clock relative to the old clock, prepend the argument with \'+\'. The argument: \'\\u0fff\'',
       'Before too-many-args error',
-      'Needs a single positional argument; found these: [u\'200j,\', u\'100j\']',
+      'Needs a single positional argument; found these: [\'200j,\', \'100j\']',
       'Before too-many-args error take 2',
-      'Needs a single positional argument; found these: [u\'200j\', u\'100j\']',
+      'Needs a single positional argument; found these: [\'200j\', \'100j\']',
       'Before too-few-args error',
       'Needs a single positional argument; found none',
       'before chclock -997 without --',
@@ -2900,11 +2900,11 @@ dump""")) as f:
     ..
 """,
       'e2',
-      'Takes no arguments; found these arguments: [u\'$\']',
+      'Takes no arguments; found these arguments: [\'$\']',
       'e3.1',
-      'Takes no arguments; found these arguments: [u\'$\']',
+      'Takes no arguments; found these arguments: [\'$\']',
       'e3.2',
-      'Takes no arguments; found these arguments: [u\'$\']',
+      'Takes no arguments; found these arguments: [\'$\']',
       'e4',
       'No such Context "Z"',
       'e5',
@@ -2926,7 +2926,7 @@ dump""")) as f:
       'e11',
       'No such Project "AB". There are no Projects in the current Folder.',
       'e12',
-      'Takes no arguments; found these arguments: [u\'$\']',
+      'Takes no arguments; found these arguments: [\'$\']',
       'e13',
       'No such context "foo"',
       'e14',
@@ -2934,7 +2934,7 @@ dump""")) as f:
       'e15',
       'e16',
       'e18',
-      'Takes no arguments; found these arguments: [u\'$\']',
+      'Takes no arguments; found these arguments: [\'$\']',
       'e19',
       'No such context "$".  Your choices: C0',
       'e20',
@@ -2948,7 +2948,7 @@ dump""")) as f:
       'e24',
       'No such Action "$". Choices: A0',
       'e25',
-      'Takes no arguments; found these arguments: [u\'$\']',
+      'Takes no arguments; found these arguments: [\'$\']',
       'e27',
       'No such Project "nonexistentProject". There are no Projects in the current Folder.',
       'e28',
@@ -3540,7 +3540,6 @@ dump""")) as f:
   * pwd
   * quit
   * recent
-  * redo
   * rename
   * renamectx
   * reset
@@ -3557,7 +3556,6 @@ dump""")) as f:
   * touch
   * txt
   * uncomplete
-  * undo
   * unicorn
   * view""",
       '',
@@ -4055,179 +4053,6 @@ it and use this view filter. Note: this is ignored in --show_all mode""",
       'lsctx2:',
       '--context-- uid=0 ---active--- \'<none>\'',
       '--context-- uid=4 --DELETED-- ---active--- c-deleted-at-1000.0',
-    ]
-    self.helpTest(inputs, golden_printed)
-
-  def testUndoRedo1(self):
-    # See state_test.py for the majority of test cases. Here we just test that
-    # the plumbing works.
-    FLAGS.pyatdl_show_uid = True
-    inputs = ['mkprj Pa',
-              'undo',
-              'mkprj Pa',
-              'dump -m',
-              'echo redo:',
-              'redo',
-              'reset --annihilate',
-              'mkprj Pa',
-              'undo',
-              'echo undo fail:',
-              'undo',
-              ]
-    golden_printed = [
-      '<todolist uid=2>',
-      '    <inbox uid=1>',
-      '        <project uid=1 is_deleted="False" is_complete="False" is_active="True" name="inbox">',
-      '        ',
-      '        </project>',
-      '    </inbox>',
-      '    <folder uid=2 is_deleted="False" name="">',
-      '        <project uid=3 is_deleted="False" is_complete="False" is_active="True" name="Pa">',
-      '        ',
-      '        </project>',
-      '    </folder>',
-      '    <contexts>',
-      '        <context_list>',
-      '        ',
-      '        </context_list>',
-      '    </contexts>',
-      '</todolist>',
-      'redo:',
-      'Nothing left to redo',
-      'Reset complete.',
-      'undo fail:',
-      'There are no more operations to undo',
-    ]
-    self.helpTest(inputs, golden_printed)
-
-  def testUndoRedo2(self):
-    # Inspired by RemoveReferencesToContext, part of 'rmctx'. rmctx C touches
-    # the actions in context C.
-    FLAGS.pyatdl_show_uid = True
-    inputs = ['chclock 77',
-              'mkctx C',
-              'mkprj P',
-              'cd P',
-              'touch -c uid=0 AwithoutContext',
-              'touch -c uid=0 AinContextC',
-              'chctx C AinContextC',
-              'echo after construction',
-              'dump -m',
-              'echo before rmctx C',
-              'rmctx C',
-              'echo gist after rmctx:',
-              'dump -m',
-              'echo before undo',
-              'undo',
-              'echo after undo',
-              'dump -m',
-              'echo before successful redo:',
-              'redo',
-              'echo after that redo the gist is:',
-              'dump -m',
-              'echo failure:',
-              'redo',
-              ]
-    golden_printed = [
-      'after construction',
-      '<todolist uid=2>',
-      '    <inbox uid=1>',
-      '        <project uid=1 is_deleted="False" is_complete="False" '
-      'is_active="True" name="inbox">',
-      '        ',
-      '        </project>',
-      '    </inbox>',
-      '    <folder uid=2 is_deleted="False" name="">',
-      '        <project uid=5 is_deleted="False" is_complete="False" '
-      'is_active="True" name="P">',
-      '            <action uid=6 is_deleted="False" is_complete="False" '
-      'name="AwithoutContext" ctx=""/>',
-      '            <action uid=7 is_deleted="False" is_complete="False" '
-      'name="AinContextC" ctx="uid=4"/>',
-      '        </project>',
-      '    </folder>',
-      '    <contexts>',
-      '        <context_list>',
-      '            <context uid=4 is_deleted="False" is_active="True" name="C"/>',
-      '        </context_list>',
-      '    </contexts>',
-      '</todolist>',
-      'before rmctx C',
-      'gist after rmctx:',
-      '<todolist uid=2>',
-      '    <inbox uid=1>',
-      '        <project uid=1 is_deleted="False" is_complete="False" '
-      'is_active="True" name="inbox">',
-      '        ',
-      '        </project>',
-      '    </inbox>',
-      '    <folder uid=2 is_deleted="False" name="">',
-      '        <project uid=5 is_deleted="False" is_complete="False" '
-      'is_active="True" name="P">',
-      '            <action uid=6 is_deleted="False" is_complete="False" '
-      'name="AwithoutContext" ctx=""/>',
-      '            <action uid=7 is_deleted="False" is_complete="False" '
-      'name="AinContextC" ctx=""/>',
-      '        </project>',
-      '    </folder>',
-      '    <contexts>',
-      '        <context_list>',
-      '            <context uid=4 is_deleted="True" is_active="True" '
-      'name="C-deleted-at-77.0"/>',
-      '        </context_list>',
-      '    </contexts>',
-      '</todolist>',
-      'before undo',
-      'after undo',
-      '<todolist uid=2>',
-      '    <inbox uid=1>',
-      '        <project uid=1 is_deleted="False" is_complete="False" '
-      'is_active="True" name="inbox">',
-      '        ',
-      '        </project>',
-      '    </inbox>',
-      '    <folder uid=2 is_deleted="False" name="">',
-      '        <project uid=4 is_deleted="False" is_complete="False" '
-      'is_active="True" name="P">',
-      '            <action uid=5 is_deleted="False" is_complete="False" '
-      'name="AwithoutContext" ctx=""/>',
-      '            <action uid=6 is_deleted="False" is_complete="False" '
-      'name="AinContextC" ctx="uid=3"/>',
-      '        </project>',
-      '    </folder>',
-      '    <contexts>',
-      '        <context_list>',
-      '            <context uid=3 is_deleted="False" is_active="True" name="C"/>',
-      '        </context_list>',
-      '    </contexts>',
-      '</todolist>',
-      'before successful redo:',
-      'after that redo the gist is:',
-      '<todolist uid=2>',
-      '    <inbox uid=1>',
-      '        <project uid=1 is_deleted="False" is_complete="False" '
-      'is_active="True" name="inbox">',
-      '        ',
-      '        </project>',
-      '    </inbox>',
-      '    <folder uid=2 is_deleted="False" name="">',
-      '        <project uid=4 is_deleted="False" is_complete="False" '
-      'is_active="True" name="P">',
-      '            <action uid=5 is_deleted="False" is_complete="False" '
-      'name="AwithoutContext" ctx=""/>',
-      '            <action uid=6 is_deleted="False" is_complete="False" '
-      'name="AinContextC" ctx=""/>',
-      '        </project>',
-      '    </folder>',
-      '    <contexts>',
-      '        <context_list>',
-      '            <context uid=3 is_deleted="True" is_active="True" '
-      'name="C-deleted-at-77.0"/>',
-      '        </context_list>',
-      '    </contexts>',
-      '</todolist>',
-      'failure:',
-      'Nothing left to redo',
     ]
     self.helpTest(inputs, golden_printed)
 
@@ -4831,7 +4656,7 @@ it and use this view filter. Note: this is ignored in --show_all mode""",
       'error 0:',
       'Needs a single positional argument; found none',
       'error 2:',
-      'Needs a single positional argument; found these: [u\'0\', u\'1\']',
+      'Needs a single positional argument; found these: [\'0\', \'1\']',
     ]
     self.helpTest(inputs, golden_printed)
 
@@ -4907,7 +4732,7 @@ it and use this view filter. Note: this is ignored in --show_all mode""",
     golden_printed = [
       'wrong args:',
       'Needs 2 positional arguments; found none',
-      'Needs 2 positional arguments; found these: [u\'0\', u\'1\', u\'2\']',
+      'Needs 2 positional arguments; found these: [\'0\', \'1\', \'2\']',
       'nop:',
       'after nop',
       'i am an inbox:',
@@ -4932,7 +4757,7 @@ it and use this view filter. Note: this is ignored in --show_all mode""",
       'dirbaz',
       'nop:',
       'error2:',
-      'Needs 2 positional arguments; found these: [u\'/inbox/action\', u\'-r\', u\'wow2\']',
+      'Needs 2 positional arguments; found these: [\'/inbox/action\', \'-r\', \'wow2\']',
       'wow2:',
       'wow2',
       'now serialization',

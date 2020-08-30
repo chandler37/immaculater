@@ -14,10 +14,8 @@ from absl import flags  # type: ignore
 
 from ..core import common
 from ..core import container
-from ..core import uid
 from ..core import view_filter
 from . import lexer
-from . import undoutil
 
 FLAGS = flags.FLAGS
 
@@ -28,10 +26,6 @@ class Error(Exception):
 
 class InvalidPathError(Error):
   """A path specifying a Container is invalid syntax or not found."""
-
-
-class NothingToUndoSlashRedoError(Error):
-  """See undoutil.NothingToUndoSlashRedoError."""
 
 
 class State(object):  # pylint: disable=too-many-instance-attributes,too-many-public-methods
@@ -57,11 +51,11 @@ class State(object):  # pylint: disable=too-many-instance-attributes,too-many-pu
     self._todolist = None
     self._view_filter = None
     self._class_to_deserialize_into = None
-    self._serialized_tdl_we_rewind_to = None
-    self._undo_helper = None
     self._html_escaper = html_escaper
     self.SetToDoList(todolist)
-    self.ResetUndoStack()
+
+  def __str__(self) -> str:
+    return f'State(_todolist={self._todolist!r} _current_working_container={self._current_working_container})'
 
   def HTMLEscaper(self):
     return self._html_escaper
@@ -97,20 +91,7 @@ class State(object):  # pylint: disable=too-many-instance-attributes,too-many-pu
     self._todolist = td
     self._current_working_container = self._todolist.root
     self._view_filter = self.NewViewFilter(view_filter.CLS_BY_UI_NAME['default'])
-    # TODO(chandler37): Perhaps we need to raise TooBigToSaveError if this is
-    # too big? But really it'd be better to just delete the original undo/redo
-    # code (see RewindForUndoRedo e.g.) which only worked in the command-line
-    # interface before the django webapp and certainly doesn't work for mobile
-    # apps, single-page webapps, or desktop apps. To undo/redo we must alter
-    # pyatdl.proto itself.
-    self._serialized_tdl_we_rewind_to = td.AsProto().SerializeToString()
     self._class_to_deserialize_into = td.__class__
-
-  def ResetUndoStack(self):
-    """After calling SetToDoList, call this to clear out the info used during
-    undo/redo.
-    """
-    self._undo_helper = undoutil.UndoStack(self)
 
   def ToDoList(self):
     """Returns the to-do list.
@@ -447,65 +428,3 @@ class State(object):  # pylint: disable=too-many-instance-attributes,too-many-pu
       None
     """
     self._printer(six.text_type(s))
-
-  def RegisterUndoableCommand(self, undoable_cmd):
-    """Notes the successful execution of an undoable command.
-
-    Args:
-      undoable_cmd: undoutil.UndoableCommand
-    """
-    assert isinstance(undoable_cmd, undoutil.UndoableCommand), repr(undoable_cmd)
-    self._undo_helper.RegisterUndoableCommand(undoable_cmd)
-
-  def Undo(self):
-    """Undoes the last undoable command.
-
-    Raises:
-      NothingToUndoSlashRedoError
-    """
-    try:
-      self._undo_helper.Undo()
-    except undoutil.NothingToUndoSlashRedoError as e:
-      raise NothingToUndoSlashRedoError(e)
-
-  def Redo(self):
-    """Redoes the last undone command.
-
-    Raises:
-      NothingToUndoSlashRedoError
-    """
-    try:
-      self._undo_helper.Redo()
-    except undoutil.NothingToUndoSlashRedoError as e:
-      raise NothingToUndoSlashRedoError(e)
-
-  def RewindForUndoRedo(self):
-    """UndoState calls this function as part of the RewindableSupportingReplay
-    interface. It rewinds things so that we are in the same place we were
-    when the to-do list was last deserialized/created.
-    """
-    uid.ResetNotesOfExistingUIDs()
-    old_view_filter_name = None
-    if self._view_filter is not None:
-      old_view_filter_name = self._view_filter.ViewFilterUINames()[0]
-    t = self._class_to_deserialize_into.DeserializedProtobuf(
-      self._serialized_tdl_we_rewind_to)
-    self._serialized_tdl_we_rewind_to = None
-    self.SetToDoList(t)
-    if old_view_filter_name is not None:
-      self.SetViewFilter(self.NewViewFilter(
-        view_filter.CLS_BY_UI_NAME[old_view_filter_name]))
-
-  def ReplayCommandForUndoRedo(self, cmd):
-    """UndoState calls this function as part of the RewindableSupportingReplay
-    interface. It executes the given command.
-
-    Args:
-      cmd: undoutil.UndoableCommand
-    """
-    if cmd.CommandName() in self._app_namespace.CmdList():
-      self._app_namespace.FindCmdAndExecute(
-        self, cmd.CommandArgsIncludingName(), generate_undo_info=False)
-    else:
-      raise AssertionError('How did this command ever get registered? cmd=%s'
-                           % cmd.CommandName())

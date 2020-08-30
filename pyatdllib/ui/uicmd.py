@@ -25,7 +25,7 @@ from absl import flags  # type: ignore
 from google.protobuf import text_format  # type: ignore
 from third_party.google.apputils.google.apputils import app
 from third_party.google.apputils.google.apputils import appcommands
-from typing import List, Union
+from typing import Any, Dict, List, Optional, Union
 
 from ..core import action
 from ..core import auditable_object
@@ -68,21 +68,11 @@ class BadArgsError(Error, appcommandsutil.IncorrectUsageError):
   """Invalid arguments."""
 
 
-class NothingToUndoSlashRedoError(BadArgsError):
-  """Undo/redo is impossible because, e.g., no undoable commands have yet
-  happened.
-
-  TODO(chandler): This is a BadArgsError, but maybe it's worth it to
-  separate these errors into 'bad args' vs. 'illegal state for the given
-  cmd' vs. 'cannot undo/redo'.
-  """
-
-
 class NoSuchContainerError(Error):
   """The folder/project was not found."""
 
 
-def _ProjectString(project: prj.Prj, path: List[folder.Folder]):  # pylint:disable=missing-docstring
+def _ProjectString(project: prj.Prj, path: List[folder.Folder]) -> str:  # pylint:disable=missing-docstring
   ps = FLAGS.pyatdl_separator.join(
     state_module.State.SlashEscaped(x.name) for x in reversed(path))
   return FLAGS.pyatdl_separator.join([ps, project.name])
@@ -96,15 +86,13 @@ def _ActiveStr(is_active: bool) -> str:  # pylint:disable=missing-docstring
   return '---active---' if is_active else '--INACTIVE--'
 
 
-def _ListingForContext(show_uid, show_timestamps, context):
+def _ListingForContext(show_uid: bool, show_timestamps: bool, context: Optional[ctx.Ctx]) -> str:
   """Returns the human-readble, one-line string representation of context.
 
   Args:
     show_uid: bool
     show_timestamps: bool  # include ctime, dtime, mtime
     context: Context|None
-  Returns:
-    str
   """
   if context is None:
     uid_str = 'uid=0 ' if show_uid else ''
@@ -119,8 +107,8 @@ def _ListingForContext(show_uid, show_timestamps, context):
                   else FLAGS.no_context_display_string))
 
 
-def _ListingForOneItem(show_uid, show_timestamps, item, to_do_list, name_override=None,
-                       in_context_override=None):
+def _ListingForOneItem(show_uid: bool, show_timestamps: bool, item: Union[folder.Folder, prj.Prj, action.Action],
+                       to_do_list: tdl.ToDoList, name_override: str = None, in_context_override: str = None) -> str:
   """Returns the human-readble, one-line string representation of item.
 
   Args:
@@ -130,8 +118,6 @@ def _ListingForOneItem(show_uid, show_timestamps, item, to_do_list, name_overrid
     to_do_list: ToDoList
     name_override: str  # overrides item.name if not None
     in_context_override: str
-  Returns:
-    str
   """
   by_type = {folder.Folder: '--folder--- ',
              prj.Prj: '--project-- ',
@@ -142,13 +128,13 @@ def _ListingForOneItem(show_uid, show_timestamps, item, to_do_list, name_overrid
   lead = '%s%s%s' % (
     type_str, deleted_str, _ConcatenatedTimestampStr(item, show_timestamps))
   completed_str = ''
-  if hasattr(item, 'is_complete'):
+  if isinstance(item, (action.Action, prj.Prj)):
     completed_str = '%s ' % _CompleteStr(item.is_complete)
   active_str = ''
-  if hasattr(item, 'is_active'):
+  if isinstance(item, (prj.Prj, ctx.Ctx)):
     active_str = '%s ' % _ActiveStr(item.is_active)
   in_context = ''
-  if hasattr(item, 'ctx_uid'):
+  if isinstance(item, action.Action):
     if item.ctx_uid is None:
       in_context = ' --in-context-- %s' % pipes.quote(
         FLAGS.no_context_display_string)
@@ -159,25 +145,32 @@ def _ListingForOneItem(show_uid, show_timestamps, item, to_do_list, name_overrid
           "The protobuf has a bad Context association with an Action. item.ctx_uid=%s item.uid=%s"
           % (item.ctx_uid, item.uid))
       in_context = ' --in-context-- %s' % pipes.quote(context.name)
+  effective_name = item.name or ''
+  if name_override is not None:
+    effective_name = name_override
   return '%s%s%s%s%s%s' % (
     lead,
     'uid=%s ' % item.uid if show_uid else '',
     completed_str,
     active_str,
-    pipes.quote(name_override if name_override is not None else item.name),
+    pipes.quote(effective_name),
     in_context_override if in_context_override is not None else in_context)
 
 
-def _JsonForOneItem(item, to_do_list, number_of_items,
-                    name_override=None, in_context_override=None,
-                    path_leaf_first=None, in_prj=None):
+def _JsonForOneItem(item: Optional[Union[folder.Folder, prj.Prj, action.Action, ctx.Ctx]],
+                    to_do_list: tdl.ToDoList,
+                    number_of_items: int,
+                    *,
+                    name_override: str = None,
+                    in_context_override: str = None,
+                    path_leaf_first: List[container.Container] = None,
+                    in_prj: str = None) -> Dict[str, Any]:
   """Returns a JSON-friendly object representing the given item.
 
   Args:
     item: Folder|Prj|Action|Ctx|None  # None is 'Actions Without Context'
     name_override: str  # overrides item.name if not None
     in_context_override: str
-    path_leaf_first: [str]
     in_prj: str
   Returns:
     dict  # not JSON, but ready to be
@@ -188,22 +181,21 @@ def _JsonForOneItem(item, to_do_list, number_of_items,
     'ctime': 0 if item is None else item.ctime,
     'dtime': None if item is None or not item.is_deleted else item.dtime,
     'mtime': 0 if item is None else item.mtime,
-    'is_complete': item.is_complete if hasattr(item, 'is_complete') else False,
+    'is_complete': item.is_complete if isinstance(item, (prj.Prj, action.Action)) else False,
     'uid': str(0 if item is None else item.uid),  # javascript cannot handle 64-bit integers
     'name': name_override if name_override is not None else name,
     'number_of_items': number_of_items
   }
   if in_prj is not None:
     rv['in_prj'] = in_prj
-  if hasattr(item, 'NeedsReview'):
+  if isinstance(item, prj.Prj):
     rv['needsreview'] = bool(item.NeedsReview())
-  if hasattr(item, 'default_context_uid'):
     # Why a string instead of an integer? JSON doesn't have 64-bit
     # integers. javascript has only one numeric type and it is floating point
     # and therefore unable to represent all UIDs in our range. See
     # https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/MAX_SAFE_INTEGER
     rv['default_context_uid'] = str(0 if item.default_context_uid is None else item.default_context_uid)
-  if hasattr(item, 'ctx_uid'):
+  if isinstance(item, action.Action):
     if item.ctx_uid is None:
       in_context = FLAGS.no_context_display_string
     else:
@@ -218,9 +210,9 @@ def _JsonForOneItem(item, to_do_list, number_of_items,
     rv['in_context_uid'] = str(item.ctx_uid) if item.ctx_uid is not None else None
   if item is None:
     rv['is_active'] = True
-  if hasattr(item, 'is_active'):
+  if isinstance(item, (prj.Prj, ctx.Ctx)):
     rv['is_active'] = item.is_active
-  if hasattr(item, 'note'):
+  if item is not None:
     rv['has_note'] = bool(item.note)
   if path_leaf_first is not None:
     rv['path'] = FLAGS.pyatdl_separator.join(
@@ -230,7 +222,7 @@ def _JsonForOneItem(item, to_do_list, number_of_items,
   return rv
 
 
-def _TimestampStr(epoch_sec_or_none):  # pylint:disable=missing-docstring
+def _TimestampStr(epoch_sec_or_none: Optional[float]) -> str:  # pylint:disable=missing-docstring
   if epoch_sec_or_none is None:
     # not yet deleted.
     return ''
@@ -508,22 +500,18 @@ def _LookupContext(state, argument):
   return state.ToDoList().ContextByName(argument)
 
 
-def _ExecuteUICmd(the_state, argv, generate_undo_info=True):
+def _ExecuteUICmd(the_state: state_module.State, argv: List[str]) -> None:
   """Executes a UICmd. Assumes it will not have an error.
 
   Args:
     the_state: State
     argv: [str]
-    generate_undo_info: bool
-  Returns:
-    None
   Raises:
     Error
   """
   try:
     try:
-      APP_NAMESPACE.FindCmdAndExecute(
-        the_state, argv, generate_undo_info=generate_undo_info)
+      APP_NAMESPACE.FindCmdAndExecute(the_state, argv)
     except AssertionError as e:
       raise AssertionError('argv=%s err=%s' % (argv, str(e)))
   except (appcommandsutil.CmdNotFoundError,
@@ -535,7 +523,7 @@ def _ExecuteUICmd(the_state, argv, generate_undo_info=True):
 class UICmd(appcommands.Cmd):  # pylint: disable=too-few-public-methods
   """Superclass for all UI commands."""
   @staticmethod
-  def RaiseUnlessNArgumentsGiven(n, args):
+  def RaiseUnlessNArgumentsGiven(n: int, args: List[str]) -> None:
     """Raises an exception unless the correct number of arguments was given.
 
     Args:
@@ -572,26 +560,8 @@ class UICmd(appcommands.Cmd):  # pylint: disable=too-few-public-methods
       raise BadArgsError(
         'Takes no arguments; found these arguments: %s' % repr(args[1:]))
 
-  def IsUndoable(self):  # pylint: disable=no-self-use
-    """Returns True iff this command is a mutation.
-
-    Returns:
-      bool
-    """
-    return False
-
   # def Run(self, args):
   #   """Override."""
-
-
-class UndoableUICmd(UICmd):  # pylint: disable=too-few-public-methods
-  """A command that mutates the to-do list.
-
-  It would confuse the User if we undid a read-only command like 'ls';
-  nothing would happen.
-  """
-  def IsUndoable(self):
-    return True
 
 
 class UICmdEcho(UICmd):
@@ -1018,10 +988,9 @@ class UICmdLoadtest(UICmd):
     finally:
       state.SetCurrentWorkingContainer(saved_cwd)
       state.SetPrinter(saved_printer)
-    # TODO(chandler): Test undo. 'cd /inbox;mkctx a;mkctx b;loadtest;undo'
 
 
-class UICmdConfigurereview(UndoableUICmd):
+class UICmdConfigurereview(UICmd):
   """Changes how a Project is treated during a Review.
 
   Usage: configurereview --max_seconds_before_review=86400 ProjectName
@@ -1072,7 +1041,7 @@ class UICmdDump(UICmd):
       state.Print(text)
 
 
-class UICmdDo(UICmd):  # TODO(chandler): UndoableUICmd, correct?
+class UICmdDo(UICmd):
   """Creates an action in the Inbox, allowing forward slashes.
 
   If a context name appears in the action, that context will be assigned.
@@ -1103,7 +1072,7 @@ class UICmdDo(UICmd):  # TODO(chandler): UndoableUICmd, correct?
       state.SetCurrentWorkingContainer(cwc)
 
 
-class UICmdMaybe(UICmd):  # aspire, maybe TODO(chandler): UndoableUICmd, correct?
+class UICmdMaybe(UICmd):  # aspire, maybe
   """Creates an action in the Inbox, allowing forward slashes, in the
   @someday/maybe context.
 
@@ -1224,7 +1193,7 @@ class UICmdDumpprotobuf(UICmd):
     state.Print(text_format.MessageToString(state.ToDoList().AsProto()))
 
 
-class UICmdChctx(UndoableUICmd):
+class UICmdChctx(UICmd):
   """Given a context's name and an action's name, changes the action's context.
 
   E.g., chctx @home /inbox/play
@@ -1260,7 +1229,7 @@ class UICmdChctx(UndoableUICmd):
         an_action.name)
 
 
-class UICmdChdefaultctx(UndoableUICmd):
+class UICmdChdefaultctx(UICmd):
   """Given a context's name and an action's name, changes the action's context.
 
   E.g., chdefaultctx @home /packingchecklist
@@ -1287,7 +1256,7 @@ class UICmdChdefaultctx(UndoableUICmd):
         item.ctx_uid = context.uid
 
 
-class UICmdLsact(UndoableUICmd):
+class UICmdLsact(UICmd):
   """Displays all data regarding an Action.
 
   Ignores the view filter.
@@ -1365,7 +1334,7 @@ def _PerformComplete(state, item_name, mark_complete, force):
   item.is_complete = mark_complete
 
 
-class UICmdComplete(UndoableUICmd):
+class UICmdComplete(UICmd):
   """Marks as "complete" an Action or Prj."""
   def __init__(self, name, flag_values, **kargs):
     super().__init__(name, flag_values, **kargs)
@@ -1381,7 +1350,7 @@ class UICmdComplete(UndoableUICmd):
     _PerformComplete(state, args[-1], mark_complete=True, force=FLAGS.force)
 
 
-class UICmdUncomplete(UndoableUICmd):
+class UICmdUncomplete(UICmd):
   """Marks as "incomplete" an Action or Prj."""
   def Run(self, args):  # pylint: disable=missing-docstring,no-self-use
     state = FLAGS.pyatdl_internal_state
@@ -1593,7 +1562,7 @@ class UICmdInprj(UICmd):
       state.Print(json.dumps(to_be_json, sort_keys=True, separators=(',', ':')))
 
 
-class UICmdCd(UndoableUICmd):  # undoable because 'mkact A' must know its CWD
+class UICmdCd(UICmd):
   """Changes current working directory to the named directory. See cd(1).
   Special locations include ".." (parent directory), "/" (root directory).
 
@@ -1663,7 +1632,7 @@ class UICmdCd(UndoableUICmd):  # undoable because 'mkact A' must know its CWD
           raise BadArgsError(e)
 
 
-class UICmdCompletereview(UndoableUICmd):
+class UICmdCompletereview(UICmd):
   """Marks the sole named project as having completed its review."""
   def Run(self, args):  # pylint: disable=missing-docstring,no-self-use
     state = FLAGS.pyatdl_internal_state
@@ -1675,7 +1644,7 @@ class UICmdCompletereview(UndoableUICmd):
     the_project.MarkAsReviewed()
 
 
-class UICmdClearreview(UndoableUICmd):
+class UICmdClearreview(UICmd):
   """Without arguments, marks all projects as needing review.
 
   With a sole argument, marks the named project as requiring review.
@@ -1729,7 +1698,7 @@ def _PerformMkprjOrMkdir(prj_or_folder, state, name, allow_slashes, verbose):
     raise BadArgsError(e)
 
 
-class UICmdMkdir(UndoableUICmd):
+class UICmdMkdir(UICmd):
   """Makes a Folder with the given name."""
   def Run(self, args):  # pylint: disable=missing-docstring,no-self-use
     state = FLAGS.pyatdl_internal_state
@@ -1737,7 +1706,7 @@ class UICmdMkdir(UndoableUICmd):
     _PerformMkprjOrMkdir(folder.Folder, state, args[-1], False, False)
 
 
-class UICmdMkprj(UndoableUICmd):
+class UICmdMkprj(UICmd):
   """Makes a Project with the given name."""
   def __init__(self, name, flag_values, **kargs):
     super().__init__(name, flag_values, **kargs)
@@ -1752,7 +1721,7 @@ class UICmdMkprj(UndoableUICmd):
     _PerformMkprjOrMkdir(prj.Prj, state, args[-1], FLAGS.allow_slashes, FLAGS.verbose)
 
 
-class UICmdMkctx(UndoableUICmd):
+class UICmdMkctx(UICmd):
   """Makes a Context with the given name."""
   def __init__(self, name, flag_values, **kargs):
     super().__init__(name, flag_values, **kargs)
@@ -1920,7 +1889,7 @@ def _PerformActivatectx(state, ctx_name, is_active):
   context.is_active = is_active
 
 
-class UICmdActivatectx(UndoableUICmd):
+class UICmdActivatectx(UICmd):
   """Makes the sole named Context active, which affects view filters."""
   def Run(self, args):  # pylint: disable=missing-docstring,no-self-use
     state = FLAGS.pyatdl_internal_state
@@ -1928,7 +1897,7 @@ class UICmdActivatectx(UndoableUICmd):
     _PerformActivatectx(state, args[-1], is_active=True)
 
 
-class UICmdDeactivatectx(UndoableUICmd):
+class UICmdDeactivatectx(UICmd):
   """Makes the sole named Context inactive, which affects view filters."""
   def Run(self, args):  # pylint: disable=missing-docstring,no-self-use
     state = FLAGS.pyatdl_internal_state
@@ -1945,7 +1914,7 @@ def _PerformActivateprj(state, prj_name, is_active):
   the_project.is_active = is_active
 
 
-class UICmdActivateprj(UndoableUICmd):
+class UICmdActivateprj(UICmd):
   """Makes the sole named Project active, which affects view filters.
 
   An inactive project does not appear (e.g., with "ls") under the "actionable"
@@ -1958,7 +1927,7 @@ class UICmdActivateprj(UndoableUICmd):
     _PerformActivateprj(state, args[-1], is_active=True)
 
 
-class UICmdDeactivateprj(UndoableUICmd):
+class UICmdDeactivateprj(UICmd):
   """Makes the sole named Project inactive, which affects view filters and
   'needsreview'. See also the opposite command 'activateprj'.
   """
@@ -1984,7 +1953,7 @@ def _ContextFromActionName(state, action_name):
   return None
 
 
-class UICmdUnicorn(UndoableUICmd):
+class UICmdUnicorn(UICmd):
   """Takes no arguments."""
   def Run(self, args):  # pylint: disable=missing-docstring,no-self-use
     self.RaiseIfAnyArgumentsGiven(args)
@@ -2046,7 +2015,7 @@ def _ContainerFromActionName(state, basename):
   return None, basename
 
 
-class UICmdTouch(UndoableUICmd):  # 'mkact', 'touch'
+class UICmdTouch(UICmd):  # 'mkact', 'touch'
   """Creates an Action.  Only works inside of a Project.
 
   Takes one argument, the name of the Action.
@@ -2163,7 +2132,7 @@ def _Reparent(moving_item: Union[action.Action, prj.Prj, folder.Folder],
     new_container.NoteModification()
 
 
-class UICmdMv(UndoableUICmd):
+class UICmdMv(UICmd):
   """Moves an Action to a different Project (relative to the current working
   Folder/Project, or absolute), or a Project to a different Folder, or a Folder
   to a different Folder. See also 'rename'.
@@ -2197,7 +2166,7 @@ class UICmdMv(UndoableUICmd):
     state.ToDoList().CheckIsWellFormed()
 
 
-class UICmdRename(UndoableUICmd):
+class UICmdRename(UICmd):
   """Renames a Project/Folder/Action in the current working Folder/Project.
 
   Usage: rename "old name" "new name"
@@ -2284,7 +2253,7 @@ class UICmdRename(UndoableUICmd):
           % (old, choices))
 
 
-class UICmdRenamectx(UndoableUICmd):
+class UICmdRenamectx(UICmd):
   """Renames a Context.
 
   Usage: renamectx "old name" "new name"
@@ -2310,8 +2279,7 @@ class UICmdRenamectx(UndoableUICmd):
 
 class UICmdReset(UICmd):
   """Discards the current to-do list and associated state, i.e. current
-  working directory. Starts over. Obliterates all your precious data! Cannot
-  be undone (all information about undo/redo is obliterated).
+  working directory. Starts over. Obliterates all your precious data!
 
   Usage: Takes no arguments.
   """
@@ -2330,14 +2298,11 @@ class UICmdReset(UICmd):
           ' want to lose all your data.')
     uid.ResetNotesOfExistingUIDs()
     state.SetToDoList(NewToDoList())
-    state.ResetUndoStack()
     state.Print('Reset complete.')
 
 
 class UICmdLoad(UICmd):
   """Discards the current to-do list -- obliterates all your precious data!
-
-  Cannot be undone (all information about undo/redo is obliterated).
 
   The next autosave will save the newly loaded data to the file specified
   by --database_filename.
@@ -2354,7 +2319,6 @@ class UICmdLoad(UICmd):
     except serialization.DeserializationError as e:
       raise app.UsageError(str(e))
     state.SetToDoList(todolist)
-    state.ResetUndoStack()
     state.Print('Load complete.')
 
 
@@ -2412,7 +2376,7 @@ class UICmdSeed(UICmd):
                          + ' "Other" drop-down'])
 
 
-class UICmdRmctx(UndoableUICmd):
+class UICmdRmctx(UICmd):
   """Deletes the given Context after doctoring all associated Actions.
   See also "view all_even_deleted".
   """
@@ -2431,7 +2395,7 @@ class UICmdRmctx(UndoableUICmd):
       context.name += '-deleted-at-%s' % time.time()
 
 
-class UICmdRmdir(UndoableUICmd):
+class UICmdRmdir(UICmd):
   """Deletes the given Folder.  See also "view all_even_deleted"."""
   def Run(self, args: List[str]) -> None:
     state = FLAGS.pyatdl_internal_state
@@ -2446,7 +2410,7 @@ class UICmdRmdir(UndoableUICmd):
       raise BadArgsError(str(e))
 
 
-class UICmdRmprj(UndoableUICmd):
+class UICmdRmprj(UICmd):
   """Deletes the given Project.  See also "view all_even_deleted"."""
   def __init__(self, name, flag_values, **kargs):
     super().__init__(name, flag_values, **kargs)
@@ -2478,7 +2442,7 @@ class UICmdRmprj(UndoableUICmd):
       raise BadArgsError(str(e))
 
 
-class UICmdRmact(UndoableUICmd):  # 'rm', 'rmact'
+class UICmdRmact(UICmd):  # 'rm', 'rmact'
   """Deletes the given Action.  See also "complete" and
   "view all_even_deleted".
   """
@@ -2632,21 +2596,6 @@ class UICmdPwd(UICmd):
     state.Print(q)
 
 
-class UICmdUndo(UICmd):
-  """Undoes the last undoable command. All mutations are undoable; read-only
-  commands like 'ls' aren't.
-
-  Takes no arguments.
-  """
-  def Run(self, args):  # pylint: disable=missing-docstring,no-self-use
-    state = FLAGS.pyatdl_internal_state
-    self.RaiseIfAnyArgumentsGiven(args)
-    try:
-      state.Undo()
-    except state_module.NothingToUndoSlashRedoError as e:
-      raise NothingToUndoSlashRedoError(e)
-
-
 class UICmdRecent(UICmd):
   """Displays recent activity.
 
@@ -2657,21 +2606,6 @@ class UICmdRecent(UICmd):
     self.RaiseIfAnyArgumentsGiven(args)
     latest = state.ToDoList().RecentActivity()
     state.Print(json.dumps(latest, sort_keys=True, separators=(',', ':')))
-
-
-class UICmdRedo(UICmd):
-  """Undoes the last 'undo' operation so long as no undoable commands have
-  been executed since the last 'undo'.
-
-  Takes no arguments.
-  """
-  def Run(self, args):  # pylint: disable=missing-docstring,no-self-use
-    state = FLAGS.pyatdl_internal_state
-    self.RaiseIfAnyArgumentsGiven(args)
-    try:
-      state.Redo()
-    except state_module.NothingToUndoSlashRedoError as e:
-      raise NothingToUndoSlashRedoError(e)
 
 
 def _RegisterCloudOnlyAppcommands(appcommands_namespace: appcommandsutil.Namespace) -> None:
@@ -2759,9 +2693,7 @@ def RegisterAppcommands(cloud_only: bool, appcommands_namespace: appcommandsutil
     'exit': UICmdExit,
     'load': UICmdLoad,
     'quit': UICmdExit,
-    'redo': UICmdRedo,
     'save': UICmdSave,
-    'undo': UICmdUndo,
   }
   if appcommands_namespace.HasCmd(next(k for k in d)):
     return

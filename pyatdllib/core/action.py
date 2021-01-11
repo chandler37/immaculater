@@ -11,6 +11,7 @@ from google.protobuf import message
 from typing import Type, TypeVar
 
 from . import auditable_object
+from . import common
 from . import pyatdl_pb2
 
 FLAGS = flags.FLAGS
@@ -57,6 +58,17 @@ class Action(auditable_object.AuditableObject):
 
   def IsDone(self) -> bool:
     return self.is_complete or self.is_deleted
+
+  def MergeFromProto(self, other: pyatdl_pb2.Action) -> None:
+    if not isinstance(other, pyatdl_pb2.Action):
+      raise TypeError
+    if common.MaxTimeOfPb(other) <= common.MaxTime(self):
+      return
+    self.name = other.common.metadata.name
+    self.note = other.common.metadata.note
+    self.is_complete = other.is_complete if other.HasField('is_complete') else False
+    self.ctx_uid = other.ctx_uid if other.HasField('ctx_uid') else None
+    self.MergeCommonFrom(other)
 
   def AlmostPurge(self) -> None:
     """Almost purges. A complete removal would be disastrous if you are using multiple devices. The next time some other

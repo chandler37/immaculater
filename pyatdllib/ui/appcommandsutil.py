@@ -138,7 +138,8 @@ class Namespace(object):
       Error
     """
     try:
-      assert command_name not in self._flag_values_by_cmd, f'command_name={command_name!r} value is {self._flag_values_by_cmd[command_name]}'
+      assert command_name not in self._flag_values_by_cmd, (
+        f'command_name={command_name!r} value is {self._flag_values_by_cmd[command_name]}')
       self._flag_values_by_cmd[command_name] = flags.FlagValues()
       self._flag_values_by_cmd[command_name].set_gnu_getopt(False)
       cmd = cmd_factory(command_name,

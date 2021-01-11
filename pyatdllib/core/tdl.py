@@ -81,11 +81,15 @@ class ToDoList(object):
                ctx_list: ctx.CtxList = None,
                note_list: note.NoteList = None) -> None:
     self.inbox = inbox if inbox is not None else prj.Prj(name=FLAGS.inbox_project_name, the_uid=uid.INBOX_UID)
+    if self.inbox.ctime is None or self.inbox.mtime is None:
+      raise errors.DataError("ctime and mtime are required")
     if self.inbox.uid != uid.INBOX_UID:
       raise errors.DataError(f"Inbox UID is not {uid.INBOX_UID}, it is {self.inbox.uid}")
     self.root = root if root is not None else folder.Folder(name='', the_uid=uid.ROOT_FOLDER_UID)
     if self.root.uid != uid.ROOT_FOLDER_UID:
       raise errors.DataError(f"Root folder UID is not {uid.ROOT_FOLDER_UID}, it is {self.root.uid}")
+    if self.inbox.ctime is None or self.inbox.mtime is None:
+      raise errors.DataError("ctime and mtime are required")
     self.ctx_list = ctx_list if ctx_list is not None else ctx.CtxList()
     self.note_list = note_list if note_list is not None else note.NoteList()
 
@@ -448,6 +452,111 @@ class ToDoList(object):
           raise errors.DataError(
             "UID %s is an action's context UID but that context does not exist." % item.ctx_uid)
 
+  def MergeNoteList(self, other: pyatdl_pb2.NoteList) -> None:
+    """repeated Note notes = 2;
+
+    message Note {
+      optional string name = 1;
+      optional string note = 2;
+    }
+    """
+    if not isinstance(other, pyatdl_pb2.NoteList):
+      raise TypeError
+    for other_name_and_note in other.notes:
+      our_note = self.note_list.notes.get(other_name_and_note.name)
+      if our_note is not None and our_note != other_name_and_note.note and other_name_and_note.note not in our_note:
+        # TODO(chandler): put ctime and mtime on these notes in pyatdl.proto so that we can merge intelligently.
+        self.note_list.notes[other_name_and_note.name] = f"""
+<<<<<<< DB
+{our_note}
+=======
+{other_name_and_note.note}
+>>>>>>> device
+""".lstrip().replace('\n', '\\n')
+      else:
+        self.note_list.notes[other_name_and_note.name] = other_name_and_note.note
+
+  def MergeCtxList(self, other: pyatdl_pb2.ContextList) -> None:
+    if not isinstance(other, pyatdl_pb2.ContextList):
+      raise TypeError
+    for context in other.contexts:
+      for existing_context in self.ctx_list.items:
+        assert existing_context.uid
+        if existing_context.uid == context.common.uid:
+          existing_context.MergeFromProto(context)
+          break
+      else:
+        # TODO(chandler): check if the UID is in use by some non-Context entity. Duplicate if you must, but then the
+        # duplication will happen again each time the mergeprotobufs API is used.
+        self.ctx_list.items.append(
+          ctx.Ctx.DeserializedProtobuf(
+            context.SerializeToString()))
+
+  def _FindExistingFolderByUid(self, uid: int) -> Optional[folder.Folder]:
+    result = self.FolderByUID(uid)
+    if result is None:
+      return None
+    folder, _ = result
+    return folder
+
+  def _FindExistingProjectByUid(self, uid: int) -> Optional[prj.Prj]:
+    result = self.ProjectByUID(uid)
+    if result is None:
+      return None
+    project, _ = result
+    return project
+
+  def _FindExistingActionByUid(self, uid: int) -> Optional[action.Action]:
+    result = self.ActionByUID(uid)
+    if result is None:
+      return None
+    action, _ = result
+    return action
+
+  def MergeRoot(self, other: pyatdl_pb2.Folder) -> None:
+    self.root.MergeFromProto(
+      other,
+      find_existing_folder_by_uid=self._FindExistingFolderByUid,
+      find_existing_project_by_uid=self._FindExistingProjectByUid,
+      find_existing_action_by_uid=self._FindExistingActionByUid)
+
+  def MergeInbox(self, other: pyatdl_pb2.Project) -> None:
+    """Add things in other but not in self (anywhere, not just self.inbox) to self.inbox.
+
+    Change things in self to match what are in other for existing things that are more recent according to
+    max(ctime,mtime,dtime).
+
+    (TODO(chandler): Make the flutter app (a client of the mergeprotobufs API) look at max(ctime,mtime,dtime) to
+    determine a floor for its timestamps.)
+
+    Existing things may not be in self.inbox and one must move them there if they are more recent in other. (Existence
+    is determined by UID.)
+    """
+    assert isinstance(other, pyatdl_pb2.Project)
+    assert other.common.uid == uid.INBOX_UID
+    if common.MaxTimeOfPb(other) > common.MaxTime(self.inbox):
+      self.inbox.MergeCommonFrom(other)
+    for an_action in other.actions:
+      if an_action.common.uid in (uid.DEFAULT_PROTOBUF_VALUE_FOR_ABSENT_UID, uid.ROOT_FOLDER_UID, uid.INBOX_UID):
+        raise AssertionError("merge error: illegal or missing UID")  # TODO(chandler37): do this in more places, too
+      tup = self.ActionByUID(an_action.common.uid)
+      if tup is None:
+        # You might wonder, what if this used to exist here and the most recent thing we did was purge it? You are not
+        # supposed to purge without syncing 100% of devices.
+        self.inbox.items.append(
+          action.Action.DeserializedProtobuf(
+            an_action.SerializeToString()))
+      else:
+        existing_action, existing_project = tup
+        they_are_authority = common.MaxTimeOfPb(an_action) > common.MaxTime(existing_action)
+        if they_are_authority:
+          existing_action.MergeFromProto(an_action)
+          if existing_project.uid != self.inbox.uid:
+            self.inbox.items.append(
+              action.Action.DeserializedProtobuf(
+                existing_action.AsProto().SerializeToString()))
+            existing_project.DeleteItemByUid(an_action.common.uid)
+
   def AsProto(self, pb: Optional[pyatdl_pb2.ToDoList] = None) -> pyatdl_pb2.ToDoList:
     """Serializes this object to a protocol buffer.
 
@@ -477,8 +586,9 @@ class ToDoList(object):
     #
     # Internal Server Error: /todo/action/7812977415892969734
     # AttributeError: pyatdl_internal_state
-    # gflags.exceptions.DuplicateFlagError: The flag 'json' is defined twice. First from <unknown>, Second from pyatdllib.ui.appcommandsutil.  Description from first occurrence: Output JSON
-
+    #
+    # gflags.exceptions.DuplicateFlagError: The flag 'json' is defined twice. First from <unknown>, Second from
+    # pyatdllib.ui.appcommandsutil.  Description from first occurrence: Output JSON
     pb = pyatdl_pb2.ToDoList.FromString(bytestring)  # pylint: disable=no-member
     if not pb.HasField('inbox'):
       raise errors.DataError(f"protocol buffer error: the Inbox project, with UID={uid.INBOX_UID}, is required")

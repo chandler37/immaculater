@@ -71,6 +71,19 @@ class Ctx(auditable_object.AuditableObject):
   def IsDone(self) -> bool:
     return self.is_deleted
 
+  def MergeFromProto(self, other: pyatdl_pb2.Context) -> None:
+    """
+    optional Common common = 1;
+    optional bool is_active = 2;
+    """
+    if not isinstance(other, pyatdl_pb2.Context):
+      raise TypeError
+    if common.MaxTimeOfPb(other) > common.MaxTime(self):
+      self.__dict__['is_active'] = other.is_active
+      self.MergeCommonFrom(other)
+      self.__dict__['name'] = other.common.metadata.name
+      self.__dict__['note'] = other.common.metadata.note
+
   def AsProto(self, pb: message.Message = None) -> message.Message:
     # pylint: disable=maybe-no-member
     if pb is None:
@@ -119,7 +132,7 @@ class CtxList(object):
   def __init__(self, items: Sequence[Ctx] = None, *, deserializing: bool = False) -> None:
     # this just simplifies the unittests because, once upon a time, a pyatdl_pb2.ContextList had a 'Common' message that had a UID:
     if not deserializing:
-      uid.singleton_factory.NextUID()
+      uid.singleton_factory.NextUID(discarding=True)
 
     self.items = list(items) if items is not None else []
 

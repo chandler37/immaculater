@@ -112,7 +112,8 @@ PYTEST_MARK :=
 PYTEST_MYPY := --mypy
 PYTEST_ARGS := todo/tests
 PYTESTLIB_ARGS := pyatdllib/
-PYTEST_FLAGS := --cov=todo --cov-report=html -vv
+PYTEST_FLAGS := --cov=todo --cov-report=html -s -vv
+# Usually useful PYTEST_FLAGS additions are `-vv -s`, which make things verbose.
 PYTEST_CMD := DJANGO_DEBUG=True python -m pytest $(PYTEST_MARK) $(PYTEST_MYPY) $(PYTEST_FLAGS)
 
 .PHONY: flake8
@@ -150,6 +151,10 @@ test: venv/requirements-test-installed-by-makefile
 	$(MAKE) flake8
 	@echo ""
 	@echo "Tests and linters passed".
+
+.PHONY: testlib
+testlib: venv/requirements-installed-by-makefile venv/requirements-test-installed-by-makefile
+	cd pyatdllib/ && $(MAKE) protoc_middleman && PYTHONPATH=$$(pwd) ../venv/bin/py.test $(PYTEST_MARK) $(PYTEST_FLAGS) $(PYTEST_ARGS)
 
 .PHONY: upgrade
 upgrade: unfreezeplus pipinstall test

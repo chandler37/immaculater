@@ -17,14 +17,14 @@ import random
 import threading
 
 from absl import flags  # type: ignore
-from typing import NoReturn, Set
+from typing import Set
 
 from . import errors
 
 
 FLAGS = flags.FLAGS
 
-flags.DEFINE_bool('pyatdl_randomize_uids', True,
+flags.DEFINE_bool('pyatdl_randomize_uids', False,
                   'Randomize the UIDs (unique identifiers) of objects (e.g., '
                   'Actions) in the protobuf? (This is only for easier testing. '
                   'The tests make more sense with UIDs 1,2,3,... than huge '
@@ -50,7 +50,7 @@ class Factory(object):
     self._uids: Set[int] = set()
     self._lock = threading.RLock()
 
-  def NextUID(self) -> int:
+  def NextUID(self, discarding: bool = False) -> int:
     """Creates and returns a new unique identifier.
 
     If FLAGS.pyatdl_randomize_uids is falsy and you deserialize in the future, you invalidate this UID.
@@ -95,8 +95,10 @@ class Factory(object):
 
 
 class FactoryThatRaisesDataErrorUponNextUID(Factory):
-  def NextUID(self) -> NoReturn:
-    raise errors.DataError("A UID is missing!")
+  def NextUID(self, discarding: bool = False) -> int:
+    if not discarding:
+      raise errors.DataError("A UID is missing!")
+    return -42
 
 
 class FactoryThatRaisesDataErrorUponNextUIDAndAllowsDuplication(FactoryThatRaisesDataErrorUponNextUID):

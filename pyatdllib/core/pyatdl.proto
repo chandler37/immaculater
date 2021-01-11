@@ -101,6 +101,7 @@ message UserInfoAndToDoList {
 }
 
 message Timestamp {
+  // All *time fields are in microseconds since the Unix epoch:
   optional int64 ctime = 1 [jstype = JS_STRING];
   optional int64 dtime = 2 [jstype = JS_STRING];
   optional int64 mtime = 3 [jstype = JS_STRING];

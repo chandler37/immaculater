@@ -6,6 +6,7 @@ Folders contain Containers.  Prj contains Actions.
 from __future__ import annotations
 
 from . import auditable_object
+from . import common
 from . import errors
 from . import pyatdl_pb2
 
@@ -51,6 +52,8 @@ class Container(auditable_object.AuditableObject):
     dtime: float|None  # seconds since the epoch, or None if not deleted.
     mtime: float  # seconds since the epoch
     is_deleted: bool
+    name: str|None
+    note: str|None
     items: [object]
   """
 
@@ -61,13 +64,18 @@ class Container(auditable_object.AuditableObject):
     """
     raise NotImplementedError
 
-  def __init__(self, *, the_uid: int = None, items: list = None, name: str = None) -> None:
+  def __init__(self, *, the_uid: int = None, items: list = None, name: str = None, note: str = '') -> None:
     super().__init__(the_uid=the_uid)
-    if items is None:
-      self.items = []
-    else:
-      self.items = list(items)
+    self.items = list() if items is None else list(items)
     self.name = name
+    self.note = note
+
+  def MergeCommonFrom(self, pb: common.TypeHavingCommon) -> None:
+    if not hasattr(self, 'name') and hasattr(self, 'note'):
+      raise AssertionError("All Containers have a name and note.")
+    self.__dict__['name'] = pb.common.metadata.name
+    self.__dict__['note'] = pb.common.metadata.note
+    super().MergeCommonFrom(pb)  # comes last to preserve mtime
 
   @classmethod
   def HasLiveDescendant(cls, item: Any) -> bool:
@@ -76,6 +84,12 @@ class Container(auditable_object.AuditableObject):
         if not subitem.is_deleted:
           return True
     return False
+
+  def DeleteItemByUid(self, the_uid: int) -> None:
+    old_length = len(self.items)
+    self.items = [item for item in self.items if item.uid != the_uid]
+    if old_length - 1 != len(self.items):
+      raise AssertionError(f"Cannot find the item with UID {the_uid} to delete.")
 
   def PurgeDeleted(self) -> None:
     self.items[:] = [item for item in self.items if not item.is_deleted or self.HasLiveDescendant(item)]

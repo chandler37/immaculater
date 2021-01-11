@@ -73,3 +73,7 @@ class SupportsTimestamps(Protocol):
     ctime: float
     mtime: float
     dtime: Optional[float]
+
+
+def MaxTime(auditable_obj: SupportsTimestamps) -> float:
+  return max(0.0 if t is None else t for t in [auditable_obj.ctime, auditable_obj.mtime, auditable_obj.dtime])

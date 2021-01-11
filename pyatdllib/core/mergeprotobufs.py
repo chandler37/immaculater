@@ -9,10 +9,8 @@ result.
 from . import pyatdl_pb2
 from . import tdl
 
-from typing import Optional
 
-
-def Merge(db: Optional[tdl.ToDoList], remote: Optional[pyatdl_pb2.ToDoList]) -> pyatdl_pb2.ToDoList:
+def Merge(db: tdl.ToDoList, remote: pyatdl_pb2.ToDoList) -> pyatdl_pb2.ToDoList:
   """Merges two pyatdl.ToDoList protobufs, one from our database and one from another device or application.
 
   db and remote have different types, but only trivially so. The question then is whether it matters which one is
@@ -46,4 +44,12 @@ def Merge(db: Optional[tdl.ToDoList], remote: Optional[pyatdl_pb2.ToDoList]) -> 
     raise TypeError('db must be tdl.ToDoList')
   if not isinstance(remote, pyatdl_pb2.ToDoList):
     raise TypeError('arguments must be None|pyatdl_pb2.ToDoList')
-  raise NotImplementedError("❤❤❤ TODO(chandler37): impelmetn merging nad spellign checks! ❤❤❤")
+  if remote.HasField('inbox'):
+    db.MergeInbox(remote.inbox)
+  if remote.HasField('root'):
+    db.MergeRoot(remote.root)
+  if remote.HasField('ctx_list'):
+    db.MergeCtxList(remote.ctx_list)
+  if remote.HasField('note_list'):
+    db.MergeNoteList(remote.note_list)
+  return db.AsProto()

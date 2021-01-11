@@ -243,6 +243,33 @@ class Prj(container.Container):
       a.AsProto(pba)
     return pb
 
+  def MergeFromProto(self,
+                     other: pyatdl_pb2.Project,
+                     *,
+                     find_existing_action_by_uid) -> None:
+    if not isinstance(other, pyatdl_pb2.Project):
+      raise TypeError
+    if common.MaxTimeOfPb(other) > common.MaxTime(self):
+      self.__dict__['default_context_uid'] = None if other.default_context_uid == 0 else other.default_context_uid
+      self.__dict__['is_complete'] = other.is_complete
+      self.__dict__['is_active'] = other.is_active
+      self.__dict__['last_review_epoch_sec'] = other.last_review_epoch_seconds
+      self.__dict__['max_seconds_before_review'] = (
+        other.max_seconds_before_review if other.HasField('max_seconds_before_review') else DEFAULT_MAX_SECONDS_BEFORE_REVIEW)
+      self.MergeCommonFrom(other)  # this alters mtime
+
+    for other_action in other.actions:
+      existing_action = find_existing_action_by_uid(other_action.common.uid)
+      if existing_action is None:
+        # TODO(chandler): this should check if the UID is already in use elsewhere and ?generate a new idea, preserving
+        # both?, if so:
+        self.items.append(
+          action.Action.DeserializedProtobuf(
+            other_action.SerializeToString()))
+        # But do not self.NoteModification() because we called MergeCommonFrom() above.
+      else:
+        existing_action.MergeFromProto(other_action)
+
   @classmethod
   def DeserializedProtobuf(cls: Type[T], bytestring) -> T:
     """Deserializes a Prj from the given protocol buffer.

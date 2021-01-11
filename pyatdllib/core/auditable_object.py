@@ -138,6 +138,14 @@ class AuditableObject(object):
     pb.uid = self.uid
     return pb
 
+  def MergeCommonFrom(self, pb: common.TypeHavingCommon) -> None:
+    """NB: You must handle pb.metadata (name and note) yourself."""
+    assert pb.common.uid == self.uid, (pb.common.uid, self.uid)
+    # TODO(chandler37): Make ctime and mtime optional:
+    assert pb.common.timestamp.HasField('ctime')
+    assert pb.common.timestamp.HasField('mtime')
+    self.SetFieldsBasedOnProtobuf(pb.common)
+
   def SetFieldsBasedOnProtobuf(self, pb: pyatdl_pb2.Common) -> None:
     """Overwrites fields based on the given protobuf. You must call this at the very last.
 
@@ -156,7 +164,9 @@ class AuditableObject(object):
     self.__dict__['mtime'] = common.FloatingPointTimestamp(pb.timestamp.mtime)  # because __setattr__ tramples mtime, this comes last
     if os.environ.get('DJANGO_DEBUG') == "True":
       # See comment above for why we don't run this in production.
-      assert self.__dict__['mtime'] is None or self.__dict__['ctime'] is None or self.__dict__['mtime'] >= self.__dict__['ctime'], f'mtime < ctime: {self.__dict__}'
+      assert (self.__dict__['mtime'] is None
+              or self.__dict__['ctime'] is None
+              or self.__dict__['mtime'] >= self.__dict__['ctime']), f'mtime < ctime: {self.__dict__}'
 
   def __str__(self):
     return self.__unicode__().encode('utf-8') if six.PY2 else self.__unicode__()

@@ -16,6 +16,7 @@ from . import container
 from . import errors
 from . import prj
 from . import pyatdl_pb2
+from . import uid
 
 FLAGS = flags.FLAGS
 
@@ -84,6 +85,44 @@ class Folder(container.Container):
         assert isinstance(i, Folder), (type(i), str(i))
         i.AsProto(pb.folders.add())
     return pb
+
+  def MergeFromProto(self,
+                     other: pyatdl_pb2.Folder,
+                     *,
+                     find_existing_folder_by_uid,
+                     find_existing_project_by_uid,
+                     find_existing_action_by_uid) -> None:
+    if not isinstance(other, pyatdl_pb2.Folder):
+      raise TypeError
+    if other.common.uid != uid.ROOT_FOLDER_UID:
+      raise ValueError("needs a root Folder")
+
+    if common.MaxTimeOfPb(other) > common.MaxTime(self):
+      self.MergeCommonFrom(other)
+    for other_subfolder in other.folders:
+      existing_folder = find_existing_folder_by_uid(other_subfolder.common.uid)
+      if existing_folder is None:
+        # TODO(chandler37): this should check if the UID is already in use elsewhere:
+        self.items.append(
+          type(self).DeserializedProtobuf(
+            other_subfolder.SerializeToString()))
+        self.NoteModification()
+      else:
+        existing_folder.MergeFromProto(other_subfolder)
+
+    for other_project in other.projects:
+      # If it is new, add it; if it is old, merge it.
+      existing_project = find_existing_project_by_uid(other_project.common.uid)
+      if existing_project is None:
+        # TODO(chandler37): this should check if the UID is already in use elsewhere:
+        self.items.append(
+          prj.Prj.DeserializedProtobuf(
+            other_project.SerializeToString()))
+        # Do not call self.NoteModification() because we call MergeCommonFrom above.
+      else:
+        existing_project.MergeFromProto(
+          other_project,
+          find_existing_action_by_uid=find_existing_action_by_uid)
 
   @classmethod
   def DeserializedProtobuf(cls: Type[T], bytestring: bytes) -> T:

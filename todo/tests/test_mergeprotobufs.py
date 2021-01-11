@@ -7,18 +7,23 @@ import time
 
 import pytest
 
-from google.protobuf import text_format  # type: ignore
-from django.test import TestCase, modify_settings
-from django.test.client import Client
+from _pytest import monkeypatch as mp
+from absl import flags  # type: ignore
 from django.contrib.auth.models import User
+from django.test import TestCase
+from django.test.client import Client
+from google.protobuf import text_format  # type: ignore
 from pyatdllib.core import pyatdl_pb2
 from pyatdllib.ui import serialization
 from todo import models
 from todo import views
 
+FLAGS = flags.FLAGS
+
 # TODO(chandler37): test admin_client, client, invalid password, unknown user, ...
 
 
+@pytest.mark.usefixtures("golden_pbs")
 @pytest.mark.django_db
 class Mergeprotobufs(TestCase):
     def setUp(self):
@@ -38,8 +43,13 @@ class Mergeprotobufs(TestCase):
             'HTTP_AUTHORIZATION': 'Basic %s' % b64.decode('utf-8')
         }
 
+        # UIDs are easier to understand if they are 1,2,3,4,...
+        self.mp = mp.MonkeyPatch()
+        self.mp.setattr(FLAGS, 'pyatdl_randomize_uids', False)
+
     def tearDown(self):
         time.time = self._saved_time
+        self.mp.undo()
 
     def _populate_todolist(self):
         self.tdl_model = models.ToDoList(user=self.user,
@@ -51,20 +61,34 @@ class Mergeprotobufs(TestCase):
         self.tdl_model.contents = b''
         self.tdl_model.save()
 
+    def _fill_in_timestamps(self, obj) -> None:
+      obj.common.timestamp.ctime = obj.common.timestamp.mtime = 1_500_000_000_000_000
+
     def _existing_todolist_protobuf(self):
         pb = pyatdl_pb2.ToDoList()
         pb.root.common.uid = 2
+        self._fill_in_timestamps(pb.root)
         pb.inbox.common.uid = 1
+        self._fill_in_timestamps(pb.inbox)
         a = pb.inbox.actions.add()
         a.common.metadata.name = "increase the tests' branch coverage"
         a.common.uid = -42
+        self._fill_in_timestamps(a)
         assert text_format.MessageToString(pb) == r"""
 inbox {
   common {
+    timestamp {
+      ctime: 1500000000000000
+      mtime: 1500000000000000
+    }
     uid: 1
   }
   actions {
     common {
+      timestamp {
+        ctime: 1500000000000000
+        mtime: 1500000000000000
+      }
       metadata {
         name: "increase the tests\' branch coverage"
       }
@@ -74,6 +98,10 @@ inbox {
 }
 root {
   common {
+    timestamp {
+      ctime: 1500000000000000
+      mtime: 1500000000000000
+    }
     uid: 2
   }
 }
@@ -158,7 +186,9 @@ root {
     def test_post_existing_user_bad_contenttype(self):
         self._populate_todolist()
         response = self.client.post('/todo/mergeprotobufs', **self.auth_headers)
-        assert response.content == rb'''{"error": "Content type provided is multipart/form-data instead of application/x-protobuf; messageType=\"pyatdl.MergeToDoListRequest\""}'''
+        x = (rb'{"error": "Content type provided is multipart/form-data instead of application/x-protobuf; '
+             rb'messageType=\"pyatdl.MergeToDoListRequest\""}')
+        assert response.content == x
         assert response.status_code == 415
 
     def test_post_existing_user_insane(self):
@@ -179,7 +209,9 @@ root {
         req.sanity_check = views.MERGETODOLISTREQUEST_SANITY_CHECK
         response = self._happy_post(req.SerializeToString())
         assert response.status_code == 403
-        assert response.content == b'<h1>403 Forbidden</h1>\n\n  <p>The properly formatted &quot;Authorization&quot; header has an invalid username or password.</p>\n\n'
+        x = (b'<h1>403 Forbidden</h1>\n\n  <p>The properly formatted &quot;Authorization&quot; header has an invalid '
+             b'username or password.</p>\n\n')
+        assert response.content == x
 
     def test_post_existing_user(self):
         self._populate_todolist()
@@ -189,36 +221,7 @@ root {
         assert response.status_code == 200
         pbresp = pyatdl_pb2.MergeToDoListResponse.FromString(response.content)
         assert not pbresp.starter_template
-        assert text_format.MessageToString(pbresp) == r"""
-sha1_checksum: "ce6da1f9cd9409412059ae500356a442a5e9cbb3"
-to_do_list {
-  inbox {
-    common {
-      is_deleted: false
-      uid: 1
-    }
-    is_complete: false
-    is_active: false
-    actions {
-      common {
-        is_deleted: false
-        metadata {
-          name: "increase the tests\' branch coverage"
-        }
-        uid: -42
-      }
-      is_complete: false
-    }
-  }
-  root {
-    common {
-      is_deleted: false
-      uid: 2
-    }
-  }
-}
-sanity_check: 18369614221190021342
-""".lstrip()
+        assert text_format.MessageToString(pbresp) == type(self).golden_pb_b
 
     def test_post_existing_user_but_requires_merge(self):
         self._populate_todolist()
@@ -227,16 +230,26 @@ sanity_check: 18369614221190021342
         pb = self._existing_todolist_protobuf()
         a = pb.inbox.actions.add()
         a.common.metadata.name = "testing10013"
+        a.common.timestamp.mtime = a.common.timestamp.ctime = 1_600_000_000_000_000
+        time.time = lambda: a.common.timestamp.mtime / 1e6 + 42.0
         a.common.uid = 373737
         req.latest.CopyFrom(self._cksum(pb))
         req.previous_sha1_checksum = "37" * 20
         response = self._happy_post(req.SerializeToString())
-        assert response.status_code == 500
-        assert response.content == b'{"error": "The server does not yet implement merging, but merging is required because the sha1_checksum of the todolist prior to your input is \'3737373737373737373737373737373737373737\' and the sha1_checksum of the database is \'ce6da1f9cd9409412059ae500356a442a5e9cbb3\'"}'
+        assert response.status_code == 200
+        assert response.content == (b'\n(69aad0d4c9059f1bfdac46f639929cbc2d87e925\x12\xe7\x01\n\xbd\x01\n#\x08\x00'
+                                    b'\x12\x1d\x08\x80\x80\xa7\xb9\xdf\x87\xd5\x02\x10\xff\xff\xff\xff'
+                                    b'\xff\xff\xff\xff\xff\x01\x18\x80\x80\xa7\xb9\xdf\x87\xd5\x02 '
+                                    b'\x01\x10\x00\x18\x00"W\nS\x08\x00\x12\x1d\x08\x80\x80\xa7\xb9\xdf\x87'
+                                    b'\xd5\x02\x10\xff\xff\xff\xff\xff\xff\xff\xff\xff\x01\x18\x80\x80'
+                                    b"\xa7\xb9\xdf\x87\xd5\x02\x1a%\n#increase the tests' branch coverage \xd6\xff"
+                                    b'\xff\xff\xff\xff\xff\xff\xff\x01\x18\x00"9\n5\x08\x00\x12\x1d\x08\x80'
+                                    b'\x80\x90\xbd\x90\xe6\xeb\x02\x10\xff\xff\xff\xff\xff\xff\xff\xff'
+                                    b'\xff\x01\x18\x80\x80\x90\xbd\x90\xe6\xeb\x02\x1a\x0e\n\x0ctesting10013 '
+                                    b'\xe9\xe7\x16\x18\x00\x12%\n#\x08\x00\x12\x1d\x08\x80\x80\xa7\xb9\xdf\x87'
+                                    b'\xd5\x02\x10\xff\xff\xff\xff\xff\xff\xff\xff\xff\x01\x18\x80\x80'
+                                    b'\xa7\xb9\xdf\x87\xd5\x02 \x02y\xde\xc0\xfe\xca\xce\xfa\xed\xfe')
 
-    @modify_settings(MIDDLEWARE={
-        'prepend': 'todo.middleware.exception_middleware.ExceptionMiddleware',
-    })
     def test_ill_formed_input(self):
         self._populate_todolist()
         req = pyatdl_pb2.MergeToDoListRequest()
@@ -249,7 +262,9 @@ sanity_check: 18369614221190021342
         req.previous_sha1_checksum = self._cksum().sha1_checksum
         response = self._happy_post(req.SerializeToString())
         assert response.status_code == 422
-        assert response.content == b'{"error": "The given to-do list is ill-formed: A UID is missing from or explicitly zero in the protocol buffer!"}'
+        assert response.content == (
+          b'{"error": "The given to-do list is ill-formed: A UID is missing from or explicitly zero in the protocol '
+          b'buffer!"}')
 
     def test_post_previous_sha1_given_for_existing_user(self):
         self._populate_todolist()
@@ -287,7 +302,10 @@ sanity_check: 18369614221190021342
         req.latest.CopyFrom(self._cksum())
         response = self._happy_post(req.SerializeToString())
         assert response.status_code == 409
-        assert response.content == b'{"error": "This backend has no to-do list. You passed one in but did not set the \'new_data\' boolean to true. We are aborting out of an abundance of caution. You might wish to call this API once with different arguments to trigger the creation of the default to-do list for new users."}'
+        x = (b'{"error": "This backend has no to-do list. You passed one in but did not set the \'new_data\' boolean '
+             b'to true. We are aborting out of an abundance of caution. You might wish to call this API once with different '
+             b'arguments to trigger the creation of the default to-do list for new users."}')
+        assert response.content == x
 
     def test_post_new_user_setting_new_data(self):
         # The database has no to-do list yet.
@@ -296,221 +314,4 @@ sanity_check: 18369614221190021342
         response = self._happy_post(req.SerializeToString())
         assert response.status_code == 200, 'response.content is %s' % response.content
         pbresp = pyatdl_pb2.MergeToDoListResponse.FromString(response.content)
-        assert text_format.MessageToString(pbresp) == r"""
-sha1_checksum: "174011bb4fe5bd4d1f05e59c25dd0a82cc36e1e5"
-to_do_list {
-  inbox {
-    common {
-      is_deleted: false
-      timestamp {
-        ctime: 37000037
-        dtime: -1
-        mtime: 37000037
-      }
-      metadata {
-        name: "inbox"
-      }
-      uid: 1
-    }
-    is_complete: false
-    is_active: true
-  }
-  root {
-    common {
-      is_deleted: false
-      timestamp {
-        ctime: 37000037
-        dtime: -1
-        mtime: 37000037
-      }
-      uid: 2
-    }
-    projects {
-      common {
-        is_deleted: false
-        timestamp {
-          ctime: 37000037
-          dtime: -1
-          mtime: 37000037
-        }
-        metadata {
-          name: "miscellaneous"
-        }
-        uid: 8677894846078606063
-      }
-      is_complete: false
-      is_active: true
-    }
-    projects {
-      common {
-        is_deleted: false
-        timestamp {
-          ctime: 37000037
-          dtime: -1
-          mtime: 37000037
-        }
-        metadata {
-          name: "learn how to use this to-do list"
-        }
-        uid: 95864267963049347
-      }
-      is_complete: false
-      is_active: true
-      actions {
-        common {
-          is_deleted: false
-          timestamp {
-            ctime: 37000037
-            dtime: -1
-            mtime: 37000037
-          }
-          metadata {
-            name: "Watch the video on the \"Help\" page -- find it on the top navigation bar"
-          }
-          uid: -9061335006543989703
-        }
-        is_complete: false
-      }
-      actions {
-        common {
-          is_deleted: false
-          timestamp {
-            ctime: 37000037
-            dtime: -1
-            mtime: 37000037
-          }
-          metadata {
-            name: "Read the book \"Getting Things Done\" by David Allen"
-          }
-          uid: -5075438498450816768
-        }
-        is_complete: false
-      }
-      actions {
-        common {
-          is_deleted: false
-          timestamp {
-            ctime: 37000037
-            dtime: -1
-            mtime: 37000037
-          }
-          metadata {
-            name: "After reading the book, try out a Weekly Review -- on the top navigation bar, find it underneath the \"Other\" drop-down"
-          }
-          uid: 4206351632466587494
-        }
-        is_complete: false
-      }
-    }
-  }
-  ctx_list {
-    contexts {
-      common {
-        is_deleted: false
-        timestamp {
-          ctime: 37000037
-          dtime: -1
-          mtime: 37000037
-        }
-        metadata {
-          name: "@computer"
-        }
-        uid: 277028180750618930
-      }
-      is_active: true
-    }
-    contexts {
-      common {
-        is_deleted: false
-        timestamp {
-          ctime: 37000037
-          dtime: -1
-          mtime: 37000037
-        }
-        metadata {
-          name: "@phone"
-        }
-        uid: 8923216991658685487
-      }
-      is_active: true
-    }
-    contexts {
-      common {
-        is_deleted: false
-        timestamp {
-          ctime: 37000037
-          dtime: -1
-          mtime: 37000037
-        }
-        metadata {
-          name: "@home"
-        }
-        uid: 7844860928174339221
-      }
-      is_active: true
-    }
-    contexts {
-      common {
-        is_deleted: false
-        timestamp {
-          ctime: 37000037
-          dtime: -1
-          mtime: 37000037
-        }
-        metadata {
-          name: "@work"
-        }
-        uid: 4355858073736897916
-      }
-      is_active: true
-    }
-    contexts {
-      common {
-        is_deleted: false
-        timestamp {
-          ctime: 37000037
-          dtime: -1
-          mtime: 37000037
-        }
-        metadata {
-          name: "@the store"
-        }
-        uid: -8310047117500551536
-      }
-      is_active: true
-    }
-    contexts {
-      common {
-        is_deleted: false
-        timestamp {
-          ctime: 37000037
-          dtime: -1
-          mtime: 37000037
-        }
-        metadata {
-          name: "@someday/maybe"
-        }
-        uid: 7926615695106819409
-      }
-      is_active: false
-    }
-    contexts {
-      common {
-        is_deleted: false
-        timestamp {
-          ctime: 37000037
-          dtime: -1
-          mtime: 37000037
-        }
-        metadata {
-          name: "@waiting for"
-        }
-        uid: 3780713555715847339
-      }
-      is_active: false
-    }
-  }
-}
-starter_template: true
-sanity_check: 18369614221190021342
-""".lstrip()
+        assert type(self).golden_pb_a == text_format.MessageToString(pbresp)

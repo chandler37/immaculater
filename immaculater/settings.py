@@ -32,7 +32,9 @@ PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 # See https://docs.djangoproject.com/en/1.10/howto/deployment/checklist/ TODO(chandler)
 
 # SECURITY WARNING: keep the secret key used in production secret!
-# Create a line DJANGO_SECRET_KEY=mysecretkey in your ../.env file for 'heroku local web' to see this. Use 'heroku config:set DJANGO_SECRET_KEY=secretkey' to affect it in production.
+#
+# Create a line DJANGO_SECRET_KEY=mysecretkey in your ../.env file for 'heroku local web' to see this. Use 'heroku
+# config:set DJANGO_SECRET_KEY=secretkey' to affect it in production.
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY',
                             "9!41(_jh5evq2br6^&w6rx+-8g((c-a!p%1s9uk_usu8nq&&a7")
 
@@ -226,7 +228,8 @@ if os.environ.get('MEMCACHEDCLOUD_SERVERS'):
     }
 else:
     if not DEBUG and SLACK_CLIENT_ID is not None:
-        raise Exception('You must use memcached/redis or the Slack OAuth integration will break (deny sign ups/sign ins) because its state machine uses the django cache.')
+        raise Exception('You must use memcached/redis or the Slack OAuth integration will break (deny '
+                        'sign ups/sign ins) because its state machine uses the django cache.')
 
 if DEBUG:
     LOGGING = {

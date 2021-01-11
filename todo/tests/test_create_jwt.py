@@ -75,7 +75,8 @@ class CreateJwt(TestCase):
       '/todo/v1/create_jwt', **self.bad_password_auth_headers
     )
     self.assertEqual(response.status_code, 403)
-    assert response.content == b'<h1>403 Forbidden</h1>\n\n  <p>The properly formatted &quot;Authorization&quot; header has an invalid username or password.</p>\n\n'
+    assert response.content == (b"<h1>403 Forbidden</h1>\n\n  <p>The properly formatted &quot;Authorization&quot; "
+                                b"header has an invalid username or password.</p>\n\n")
 
   @freezegun.freeze_time("1988-02-14")
   def test_403_bad_username(self):
@@ -83,7 +84,8 @@ class CreateJwt(TestCase):
       '/todo/v1/create_jwt', **self.bad_username_auth_headers
     )
     self.assertEqual(response.status_code, 403)
-    assert response.content == b'<h1>403 Forbidden</h1>\n\n  <p>The properly formatted &quot;Authorization&quot; header has an invalid username or password.</p>\n\n'
+    assert response.content == (b"<h1>403 Forbidden</h1>\n\n  <p>The properly formatted &quot;Authorization&quot; "
+                                b"header has an invalid username or password.</p>\n\n")
 
   @freezegun.freeze_time("1988-02-14")
   def test_403_inactive_user(self):
@@ -97,4 +99,5 @@ class CreateJwt(TestCase):
       '/todo/v1/create_jwt', **self.auth_headers
     )
     self.assertEqual(response.status_code, 403)
-    assert response.content == b'<h1>403 Forbidden</h1>\n\n  <p>The properly formatted &quot;Authorization&quot; header has an invalid username or password.</p>\n\n'
+    assert response.content == (b"<h1>403 Forbidden</h1>\n\n  <p>The properly formatted &quot;Authorization&quot; "
+                                b"header has an invalid username or password.</p>\n\n")

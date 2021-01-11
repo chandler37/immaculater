@@ -322,7 +322,8 @@ def _execute_cmd(request, uid, template_dict, cookie_value=None):
            % ("complete" if cmd == "togglecomplete" else "uncomplete",
               target_uid)],
           read_only=False)
-      template_dict["Flash"] = "<strong>Marked Action %s %s.</strong>" % (target_uid, "Complete" if cmd == "togglecomplete" else "Incomplete")
+      template_dict["Flash"] = "<strong>Marked Action %s %s.</strong>" % (
+        target_uid, "Complete" if cmd == "togglecomplete" else "Incomplete")
     elif cmd == 'chdefaultctx':
       new_default_uid = _get_uid(request, 'new_default_uid')
       if new_default_uid is None:
@@ -334,7 +335,8 @@ def _execute_cmd(request, uid, template_dict, cookie_value=None):
       if new_default_uid == 0:
         template_dict["Flash"] = "<strong>Default context removed; new actions will be without context.</strong>"
       else:
-        template_dict["Flash"] = "<strong>Default context changed; new actions will be assigned your chosen context. All actions without context assigned the new context.</strong>"
+        template_dict["Flash"] = ("<strong>Default context changed; new actions will be assigned your chosen context. "
+                                  "All actions without context assigned the new context.</strong>")
     elif cmd in ('chctx', 'mv'):
       new_uid = _get_uid(request, 'new_uid')
       if new_uid is None:
@@ -413,7 +415,8 @@ def _execute_cmd(request, uid, template_dict, cookie_value=None):
       elif cmd == 'deactivatectx' or cmd == 'deactivateprj':
         template_dict["Flash"] = "<strong>Deactivated.</strong>"
       elif cmd == 'prjify':
-        template_dict["Flash"] = '<strong><a href="/todo/project/%s">Converted to a new project. Projects contain actions.</a></strong>' % cmd_result['printed'][0]
+        template_dict["Flash"] = ('<strong><a href="/todo/project/%s">Converted to a new project. Projects contain '
+                                  'actions.</a></strong>' % cmd_result['printed'][0])
     saved_read = cmd_result['saved_read']
     assert saved_read is not None
   except immaculater.Error as e:
@@ -703,7 +706,14 @@ def update_todolist(request):  # /todo/cli
     subcommand = subcommand.strip()
     batch.append(subcommand)
   batch.append('echo "<End of command line output, if any>"')
-  if subcommand is None or (not subcommand.startswith('dump') and not subcommand.startswith('help') and not subcommand.startswith('ls') and not subcommand.startswith('astaskpaper') and not subcommand.startswith('todo')):
+  if (
+      subcommand is None
+      or (not subcommand.startswith('dump')
+          and not subcommand.startswith('help')
+          and not subcommand.startswith('ls')
+          and not subcommand.startswith('astaskpaper')
+          and not subcommand.startswith('todo'))
+  ):
     batch.append('echo')
     batch.append('echo The result of running \\"todo\\" is as follows:')
     batch.append('echo')
@@ -792,7 +802,8 @@ def context(request, uid):
       assert saved_read is not None
       assert len(mkact['printed']) == 1, mkact['printed']
       new_uid = mkact['printed'][0].strip()
-      template_dict["Flash"] = '<strong><a href="/todo/action/%s">Action %s created.</a></strong> (Expecting to see it? Change your view filter.)' % (new_uid, new_uid)
+      template_dict["Flash"] = ('<strong><a href="/todo/action/%s">Action %s created.</a></strong> (Expecting to see '
+                                'it? Change your view filter.)' % (new_uid, new_uid))
     except immaculater.Error as e:
       return _error_page(request, six.text_type(e))
   if saved_read is not None and not _using_pjax(request):  # https://en.wikipedia.org/wiki/Post/Redirect/Get
@@ -939,7 +950,8 @@ def project(request, uid):
       assert saved_read is not None
       assert len(mkact['printed']) == 1, mkact['printed']
       new_uid = mkact['printed'][0]
-      template_dict["Flash"] = '<strong><a href="/todo/action/%s">Action %s created.</a></strong> (Expecting to see it? Change your view filter.)' % (new_uid, new_uid)
+      template_dict["Flash"] = ('<strong><a href="/todo/action/%s">Action %s created.</a></strong> (Expecting to see '
+                                'it? Change your view filter.)' % (new_uid, new_uid))
     except immaculater.Error as e:
       return _error_page(request, six.text_type(e))
   if saved_read is not None and not _using_pjax(request):  # https://en.wikipedia.org/wiki/Post/Redirect/Get
@@ -1034,7 +1046,8 @@ def action(request, uid):
   saved_read, error_page = _execute_cmd(request, uid, template_dict)
   if error_page is not None:
     return error_page
-  if saved_read is not None and not _using_pjax(request):  # https://en.wikipedia.org/wiki/Post/Redirect/Get unless it's an AJAX form submission
+  # https://en.wikipedia.org/wiki/Post/Redirect/Get unless it's an AJAX form submission:
+  if saved_read is not None and not _using_pjax(request):
     return redirect('action', uid=uid)
   return _action_get(request, uid, template_dict)
 
@@ -1083,7 +1096,8 @@ def _create_new_action(request, template_dict, var_name='new_action'):
            read_only=False)
        assert len(result['printed']) == 1, result['printed']
        uid = result['printed'][0].strip()
-       template_dict['Flash'] = '<a href="/todo/action/%s"><strong>Action %s created.</strong></a> (Expecting to see it? Refresh this page or change the view filter.)' % (uid, uid)
+       template_dict['Flash'] = ('<a href="/todo/action/%s"><strong>Action %s created.</strong></a> (Expecting to see '
+                                 'it? Refresh this page or change the view filter.)' % (uid, uid))
        return True, None
     except immaculater.Error as e:
       return False, _error_page(request, six.text_type(e))
@@ -1175,7 +1189,8 @@ def dl(request):
           read_only=False)
       if not _using_pjax(request):  # https://en.wikipedia.org/wiki/Post/Redirect/Get
         return redirect('/todo/dl')  # TODO(chandler): Don't hard-code the link
-      flash = "<strong>Are you sure?</strong> Just kidding! Already obliterated everything that was deleted, including contexts, actions, and projects."  # and folders.
+      flash = ("<strong>Are you sure?</strong> Just kidding! Already obliterated everything that was deleted, "
+               "including contexts, actions, and projects.")  # and folders.
     elif request.POST.get('command') == 'deletecompleted':
       _apply_batch_of_commands(  # will not throw an exception
           request.user,
@@ -1183,7 +1198,9 @@ def dl(request):
           read_only=False)
       if not _using_pjax(request):  # https://en.wikipedia.org/wiki/Post/Redirect/Get
         return redirect('/todo/dl')  # TODO(chandler): Don't hard-code the link
-      flash = "Deleted everything that was completed. You may now use the &quot;<strong>Purge Deleted</strong>&quot; command to remove deleted items. You can see deleted items using the &quot;<strong>Truly all, even deleted</strong>&quot; view filter."
+      flash = ("Deleted everything that was completed. You may now use the &quot;<strong>Purge Deleted</strong>&quot; "
+               "command to remove deleted items. You can see deleted items using the &quot;<strong>Truly all, even "
+               "deleted</strong>&quot; view filter.")
     else:
       return _error_page(request, 'invalid command')
   latest_activity = _apply_batch_of_commands(
@@ -1524,7 +1541,10 @@ def _is_valid_sha1_checksum(s):
 
 def _parse_mergeprotobufs_request(request):
   """mergeprotobufs helper returning a 2-tuple (None|pyatdl_pb2.MergeToDoListRequest, None|HttpResponse)."""
-  if request.content_type != MERGETODOLISTREQUEST_CONTENT_TYPE and request.content_type != MERGETODOLISTREQUEST_CONTENT_TYPE.split(';', 1)[0]:
+  if (
+      request.content_type != MERGETODOLISTREQUEST_CONTENT_TYPE
+      and request.content_type != MERGETODOLISTREQUEST_CONTENT_TYPE.split(';', 1)[0]
+  ):
     msg = "Content type provided is %s instead of %s" % (
         request.content_type,
         MERGETODOLISTREQUEST_CONTENT_TYPE)
@@ -1545,11 +1565,19 @@ def _parse_mergeprotobufs_request(request):
     return None, JsonResponse({"error": "new data should come with req.latest.sha1_checksum"},
                               status=422)
   if req.previous_sha1_checksum and req.previous_sha1_checksum == req.latest.sha1_checksum:
-    return None, JsonResponse({"error": "req.previous_sha1_checksum equals req.latest.sha1_checksum which means you are just asking for changes from other devices, I presume, since nothing changed on your end. The only way to ask for that is to omit the 'latest' field which saves network bandwidth."},
-                              status=409)
+    return None, JsonResponse(
+      {
+        "error": ("req.previous_sha1_checksum equals req.latest.sha1_checksum which means you are just asking for "
+                  "changes from other devices, I presume, since nothing changed on your end. The only way to ask for "
+                  "that is to omit the 'latest' field which saves network bandwidth.")
+      },
+      status=409)
   if req.latest.payload_is_zlib_compressed:
-    return None, JsonResponse({"error": "req.latest.payload_is_zlib_compressed is true which is unsupported because we have HTTP compression available to us."},
-                              status=409)
+    return None, JsonResponse(
+      {
+        "error": "req.latest.payload_is_zlib_compressed is true which is unsupported because we have HTTP compression available to us."
+      },
+      status=409)
   sha1_format_error = "is the wrong length or not hexadecimal"
   if req.previous_sha1_checksum and not _is_valid_sha1_checksum(req.previous_sha1_checksum):
     return None, JsonResponse({"error": "previous_sha1 %s" % sha1_format_error},
@@ -1561,17 +1589,26 @@ def _parse_mergeprotobufs_request(request):
     return None, JsonResponse({"error": "latest.payload given but latest.sha1_checksum absent"},
                               status=422)
   if len(req.latest.payload) != req.latest.payload_length:
-    return None, JsonResponse({"error": "len(latest.payload)=%s but latest.payload_length=%s" % (len(req.latest.payload), req.latest.payload_length)},
-                              status=422)
+    return None, JsonResponse(
+      {
+        "error": "len(latest.payload)=%s but latest.payload_length=%s" % (len(req.latest.payload), req.latest.payload_length)
+      },
+      status=422)
   if req.latest.sha1_checksum:
     if not req.latest.payload:
-      return None, JsonResponse({"error": "req.latest.sha1_checksum given but req.latest.payload is missing"},
-                                status=422)
+      return None, JsonResponse(
+        {
+          "error": "req.latest.sha1_checksum given but req.latest.payload is missing"
+        },
+        status=422)
     # TODO(chandler37): verify req.latest.sha1_checksum optionally to save a few CPU cycles?
     real_sum = serialization.Sha1Checksum(req.latest.payload)
     if real_sum != req.latest.sha1_checksum:
-      return None, JsonResponse({"error": "SHA1(latest.payload)=%s mismatches with latest.sha1_checksum=%s" % (real_sum, req.latest.sha1_checksum)},
-                                status=422)
+      return None, JsonResponse(
+        {
+          "error": "SHA1(latest.payload)=%s mismatches with latest.sha1_checksum=%s" % (real_sum, req.latest.sha1_checksum)
+        },
+        status=422)
   return req, None
 
 
@@ -1764,7 +1801,11 @@ def mergeprotobufs(request):
 
   if read_result["tdl"] is not None and pbreq.new_data:
     return JsonResponse(
-        {"error": "You set the new_data bit, but there is already a to-do list in the database. Maybe we should overwrite it? Maybe we should do a potentially ugly merge (ugly because two or more applications are competing to get the user started)? For now we abort and await your pull request."},
+        {
+          "error": ("You set the new_data bit, but there is already a to-do list in the database. Maybe we should "
+                    "overwrite it? Maybe we should do a potentially ugly merge (ugly because two or more applications "
+                    "are competing to get the user started)? For now we abort and await your pull request.")
+        },
         status=409)  # CONFLICT
 
   pbresponse = pyatdl_pb2.MergeToDoListResponse()
@@ -1801,14 +1842,22 @@ def mergeprotobufs(request):
     if pbreq.HasField('latest'):  # We must merge with nothing. We write latest to the DB.
       if pbreq.new_data:
         cksum = write_db(pbreq.latest.payload)
-        assert pbreq.latest.sha1_checksum == cksum, f'Checksum mismatch after writing to the database; this is not terrible thanks to ATOMIC_REQUESTS which will roll back the so-called write: req.sha1={pbreq.latest.sha1_checksum} db={cksum}'
+        assert pbreq.latest.sha1_checksum == cksum, ("Checksum mismatch after writing to the database; this is not "
+                                                     "terrible thanks to ATOMIC_REQUESTS which will roll back the "
+                                                     f"so-called write: req.sha1={pbreq.latest.sha1_checksum} "
+                                                     f"db={cksum}")
         pbresponse.sha1_checksum = pbreq.latest.sha1_checksum
         # Leave pbresponse.to_do_list unset for performance reasons. (If this
         # complicates some apps, then we can add a boolean to
         # MergeToDoListRequest to be verbose.)
         return protobuf_response()
-      return JsonResponse({"error": "This backend has no to-do list. You passed one in but did not set the 'new_data' boolean to true. We are aborting out of an abundance of caution. You might wish to call this API once with different arguments to trigger the creation of the default to-do list for new users."},
-                          status=409)
+      return JsonResponse(
+        {
+          "error": ("This backend has no to-do list. You passed one in but did not set the 'new_data' boolean to true. "
+                    "We are aborting out of an abundance of caution. You might wish to call this API once with "
+                    "different arguments to trigger the creation of the default to-do list for new users.")
+        },
+        status=409)
     assert not pbreq.new_data
     new_tdl = uicmd.NewToDoList()
     new_tdl.CheckIsWellFormed()
@@ -1834,17 +1883,23 @@ def mergeprotobufs(request):
     if pbreq.previous_sha1_checksum or pbreq.overwrite_instead_of_merge:
       # TODO(chandler37): See comments in _write_database regarding performance optimizations from storing SHA1
       # checksums in the database.
-      if pbreq.overwrite_instead_of_merge or pbreq.previous_sha1_checksum == read_result["sha1"]:  # yes, read_result["sha1"] is for the uncompressed pyatdl.ToDoList
+      if pbreq.overwrite_instead_of_merge or pbreq.previous_sha1_checksum == read_result["sha1"]:
+        # yes, read_result["sha1"] is for the uncompressed pyatdl.ToDoList
         cksum = write_db(pbreq.latest.payload)
         pbresponse.sha1_checksum = pbreq.latest.sha1_checksum
-        assert pbreq.latest.sha1_checksum == cksum, f'Checksum mismatch after writing to the database; this is not terrible thanks to ATOMIC_REQUESTS which will roll back the so-called write: req.sha1={pbreq.latest.sha1_checksum} db={cksum}'
+        assert pbreq.latest.sha1_checksum == cksum, (f"Checksum mismatch after writing to the database; this is not "
+                                                     "terrible thanks to ATOMIC_REQUESTS which will roll back the "
+                                                     f"so-called write: req.sha1={pbreq.latest.sha1_checksum} "
+                                                     f"db={cksum}")
         assert not pbresponse.HasField('to_do_list')
         assert not pbresponse.HasField('starter_template')
         return protobuf_response()
       else:
         pass  # we must merge, fall through...
+
     # It does not match what is in the db; we must merge. If a client has a very old to-do list, merging could
-    # resurrect anything that has been purged. TODO(chandler37): Think about Lamport clocks and vector clocks and design a truly paranoid system, perhaps one that worked like 'git rebase'.
+    # resurrect anything that has been purged. TODO(chandler37): Think about Lamport clocks and vector clocks and
+    # design a truly paranoid system, perhaps one that worked like 'git rebase'.
     if pbreq.abort_if_merge_is_required:
       errmsg = ''.join(f"""
 The server needs to merge, but you set abort_if_merge_is_required to true, so we are aborting.
@@ -1853,16 +1908,11 @@ The server needs to merge, but you set abort_if_merge_is_required to true, so we
  {read_result["sha1"]!r}
 """.split('\n')).strip()
       return JsonResponse({"error": errmsg}, status=409)
-    error_quickly = True
-    if error_quickly:
-      errmsg = ''.join(f"""
-The server does not yet implement merging, but merging is
- required because the sha1_checksum of the todolist prior to your input is
- {pbreq.previous_sha1_checksum!r} and the sha1_checksum of the database is
- {read_result["sha1"]!r}
-""".split('\n')).strip()
-      return JsonResponse({"error": errmsg}, status=500)
-    # DEAD CODE... until we implement Merge:
+
+    # Merging is required because the sha1_checksum of the todolist prior to user input is pbreq.previous_sha1_checksum
+    # and the sha1_checksum of the database is read_result["sha1"].
+
+    # TODO(chandler37): run code coverage for mergeprotobufs.
     merged_tdl_pb = Merge(read_result["tdl"], deserialized_latest)
     pbresponse.sha1_checksum = write_db(merged_tdl_pb.SerializeToString())
     assert pbresponse.sha1_checksum and len(pbresponse.sha1_checksum) == 40, f'pbresponse.sha1_checksum={pbresponse.sha1_checksum}'

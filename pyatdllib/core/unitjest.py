@@ -84,7 +84,7 @@ class TestCase(unittest.TestCase):
         text_format.MessageToString(pb2))
 
   def assertProtoTextuallyEquals(self, pb: message.Message, text: str) -> None:
-    self.assertEqual(text_format.MessageToString(pb).strip(), text.strip())
+    self.assertEqual(text.strip(), text_format.MessageToString(pb).strip())
 
   def _Python3Munging(self, list_of_strings: List[str]) -> List[str]:
     def Munge(string: str) -> str:

@@ -108,7 +108,11 @@ class Folder(container.Container):
             other_subfolder.SerializeToString()))
         self.NoteModification()
       else:
-        existing_folder.MergeFromProto(other_subfolder)
+        existing_folder.MergeFromProto(
+          other_subfolder,
+          find_existing_folder_by_uid=find_existing_folder_by_uid,
+          find_existing_project_by_uid=find_existing_project_by_uid,
+          find_existing_action_by_uid=find_existing_action_by_uid)
 
     for other_project in other.projects:
       # If it is new, add it; if it is old, merge it.

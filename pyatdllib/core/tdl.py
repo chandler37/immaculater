@@ -514,6 +514,8 @@ class ToDoList(object):
     return action
 
   def MergeRoot(self, other: pyatdl_pb2.Folder) -> None:
+    if other.common.uid != uid.ROOT_FOLDER_UID:
+      raise ValueError("needs a root Folder")
     self.root.MergeFromProto(
       other,
       find_existing_folder_by_uid=self._FindExistingFolderByUid,

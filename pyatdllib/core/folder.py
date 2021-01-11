@@ -16,7 +16,6 @@ from . import container
 from . import errors
 from . import prj
 from . import pyatdl_pb2
-from . import uid
 
 FLAGS = flags.FLAGS
 
@@ -94,11 +93,10 @@ class Folder(container.Container):
                      find_existing_action_by_uid) -> None:
     if not isinstance(other, pyatdl_pb2.Folder):
       raise TypeError
-    if other.common.uid != uid.ROOT_FOLDER_UID:
-      raise ValueError("needs a root Folder")
 
     if common.MaxTimeOfPb(other) > common.MaxTime(self):
       self.MergeCommonFrom(other)
+
     for other_subfolder in other.folders:
       existing_folder = find_existing_folder_by_uid(other_subfolder.common.uid)
       if existing_folder is None:

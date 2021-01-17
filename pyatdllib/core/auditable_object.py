@@ -145,7 +145,7 @@ class AuditableObject(object):
     # ctime and mtime might be missing when an app "obliterates" an item:
     for field in ['ctime', 'mtime']:
       if not ts.HasField(field):  # type: ignore
-        setattr(ts, field, max(ts.ctime, ts.mtime, ts.dtime, _Int64Timestamp(time.time())))
+        setattr(ts, field, max(ts.ctime, ts.mtime, ts.dtime) or _Int64Timestamp(time.time()))
     self.SetFieldsBasedOnProtobuf(pb.common)
 
   def SetFieldsBasedOnProtobuf(self, pb: pyatdl_pb2.Common) -> None:

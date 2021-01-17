@@ -141,9 +141,11 @@ class AuditableObject(object):
   def MergeCommonFrom(self, pb: common.TypeHavingCommon) -> None:
     """NB: You must handle pb.metadata (name and note) yourself."""
     assert pb.common.uid == self.uid, (pb.common.uid, self.uid)
-    # TODO(chandler37): Make ctime and mtime optional:
-    assert pb.common.timestamp.HasField('ctime')
-    assert pb.common.timestamp.HasField('mtime')
+    ts = pb.common.timestamp
+    # ctime and mtime might be missing when an app "obliterates" an item:
+    for field in ['ctime', 'mtime']:
+      if not ts.HasField(field):  # type: ignore
+        setattr(ts, field, max(ts.ctime, ts.mtime, ts.dtime, _Int64Timestamp(time.time())))
     self.SetFieldsBasedOnProtobuf(pb.common)
 
   def SetFieldsBasedOnProtobuf(self, pb: pyatdl_pb2.Common) -> None:

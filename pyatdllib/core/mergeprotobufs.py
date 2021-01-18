@@ -26,8 +26,9 @@ def Merge(db: tdl.ToDoList, remote: pyatdl_pb2.ToDoList) -> pyatdl_pb2.ToDoList:
   is accomplished by leaving a context, project, folder, or action in place with UID intact and common.is_deleted set
   to True. If you try to delete an action by removing the pyatdl.Action message, it will be resurrected.
 
-  TODO(chandler37): Are pyatdl.Timestamp values ever used to determine the winner of a modification of an item? We
-  don't want to rely upon the various applications' clocks to be in sync in a perfect world...
+  pyatdl.Timestamp values are used to determine the winner of a modification of an item. We don't want to rely upon the
+  various applications' clocks to be in sync in a perfect world, but that's what you've got for now. (A paranoid
+  application might wish to take into account time on the server.)
 
   Args:
     db: tdl.ToDoList | None

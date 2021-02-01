@@ -1917,6 +1917,10 @@ The server needs to merge, but you set abort_if_merge_is_required to true, so we
     pbresponse.sha1_checksum = write_db(merged_tdl_pb.SerializeToString())
     assert pbresponse.sha1_checksum and len(pbresponse.sha1_checksum) == 40, f'pbresponse.sha1_checksum={pbresponse.sha1_checksum}'
     assert len(pbresponse.sha1_checksum) == 40, pbresponse.sha1_checksum
+    # TODO(chandler37): DLC:
+    #   if checksums match, then we must preserve their version of the checksum because we don't serialize the same
+    #   necessarily across Dart (or some other hypothetical, future langauge) and python. Also, we should say
+    #   'pbresponse.to_do_list.CopyFrom(merged_tdl_pb)' only if it differs.
     pbresponse.to_do_list.CopyFrom(merged_tdl_pb)
     return protobuf_response()
   assert len(read_result["sha1"]) == 40, read_result["sha1"]

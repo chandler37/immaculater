@@ -24,7 +24,7 @@ install_tools:
 PYTHON := python3
 PYTHON_INSTALLED := $(shell command -v $(PYTHON) 2> /dev/null)
 
-PIP := pip -q --use-feature=2020-resolver
+PIP := pip -q
 
 venv:
 ifndef PYTHON_INSTALLED

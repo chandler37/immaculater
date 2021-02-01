@@ -2,8 +2,8 @@
 //  Generated code. Do not modify.
 //  source: core/pyatdl.proto
 //
-// @dart = 2.3
-// ignore_for_file: camel_case_types,non_constant_identifier_names,library_prefixes,unused_import,unused_shown_name,return_of_invalid_type
+// @dart = 2.7
+// ignore_for_file: annotate_overrides,camel_case_types,unnecessary_const,non_constant_identifier_names,library_prefixes,unused_import,unused_shown_name,return_of_invalid_type,unnecessary_this,prefer_final_fields
 
 import 'dart:core' as $core;
 
@@ -11,21 +11,53 @@ import 'package:fixnum/fixnum.dart' as $fixnum;
 import 'package:protobuf/protobuf.dart' as $pb;
 
 class VisitorInfo0 extends $pb.GeneratedMessage {
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo('VisitorInfo0', package: const $pb.PackageName('pyatdl'), createEmptyInstance: create)
-    ..a<$core.int>(1, 'sanityCheck', $pb.PbFieldType.O3)
-    ..aOS(3, 'view')
-    ..a<$core.String>(5, 'sort', $pb.PbFieldType.OS, defaultOrMaker: 'alpha')
-    ..a<$core.List<$core.int>>(6, 'usernameHash', $pb.PbFieldType.OY)
-    ..aInt64(7, 'cwcUid')
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'VisitorInfo0', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'pyatdl'), createEmptyInstance: create)
+    ..a<$core.int>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'sanityCheck', $pb.PbFieldType.O3)
+    ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'view')
+    ..a<$core.String>(5, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'sort', $pb.PbFieldType.OS, defaultOrMaker: 'alpha')
+    ..a<$core.List<$core.int>>(6, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'usernameHash', $pb.PbFieldType.OY)
+    ..aInt64(7, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'cwcUid')
     ..hasExtensions = true
   ;
 
   VisitorInfo0._() : super();
-  factory VisitorInfo0() => create();
+  factory VisitorInfo0({
+    $core.int sanityCheck,
+    $core.String view,
+    $core.String sort,
+    $core.List<$core.int> usernameHash,
+    $fixnum.Int64 cwcUid,
+  }) {
+    final _result = create();
+    if (sanityCheck != null) {
+      _result.sanityCheck = sanityCheck;
+    }
+    if (view != null) {
+      _result.view = view;
+    }
+    if (sort != null) {
+      _result.sort = sort;
+    }
+    if (usernameHash != null) {
+      _result.usernameHash = usernameHash;
+    }
+    if (cwcUid != null) {
+      _result.cwcUid = cwcUid;
+    }
+    return _result;
+  }
   factory VisitorInfo0.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
   factory VisitorInfo0.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
   VisitorInfo0 clone() => VisitorInfo0()..mergeFromMessage(this);
-  VisitorInfo0 copyWith(void Function(VisitorInfo0) updates) => super.copyWith((message) => updates(message as VisitorInfo0));
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  VisitorInfo0 copyWith(void Function(VisitorInfo0) updates) => super.copyWith((message) => updates(message as VisitorInfo0)); // ignore: deprecated_member_use
   $pb.BuilderInfo get info_ => _i;
   @$core.pragma('dart2js:noInline')
   static VisitorInfo0 create() => VisitorInfo0._();
@@ -82,21 +114,57 @@ class VisitorInfo0 extends $pb.GeneratedMessage {
 }
 
 class MergeToDoListRequest extends $pb.GeneratedMessage {
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo('MergeToDoListRequest', package: const $pb.PackageName('pyatdl'), createEmptyInstance: create)
-    ..aOS(2, 'previousSha1Checksum')
-    ..aOB(3, 'newData')
-    ..aOB(4, 'overwriteInsteadOfMerge')
-    ..aOB(5, 'abortIfMergeIsRequired')
-    ..a<$fixnum.Int64>(15, 'sanityCheck', $pb.PbFieldType.OF6, defaultOrMaker: $fixnum.Int64.ZERO)
-    ..aOM<ChecksumAndData>(16, 'latest', subBuilder: ChecksumAndData.create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'MergeToDoListRequest', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'pyatdl'), createEmptyInstance: create)
+    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'previousSha1Checksum')
+    ..aOB(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'newData')
+    ..aOB(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'overwriteInsteadOfMerge')
+    ..aOB(5, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'abortIfMergeIsRequired')
+    ..a<$fixnum.Int64>(15, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'sanityCheck', $pb.PbFieldType.OF6, defaultOrMaker: $fixnum.Int64.ZERO)
+    ..aOM<ChecksumAndData>(16, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'latest', subBuilder: ChecksumAndData.create)
   ;
 
   MergeToDoListRequest._() : super();
-  factory MergeToDoListRequest() => create();
+  factory MergeToDoListRequest({
+    $core.String previousSha1Checksum,
+    $core.bool newData,
+    $core.bool overwriteInsteadOfMerge,
+    $core.bool abortIfMergeIsRequired,
+    $fixnum.Int64 sanityCheck,
+    ChecksumAndData latest,
+  }) {
+    final _result = create();
+    if (previousSha1Checksum != null) {
+      _result.previousSha1Checksum = previousSha1Checksum;
+    }
+    if (newData != null) {
+      _result.newData = newData;
+    }
+    if (overwriteInsteadOfMerge != null) {
+      _result.overwriteInsteadOfMerge = overwriteInsteadOfMerge;
+    }
+    if (abortIfMergeIsRequired != null) {
+      _result.abortIfMergeIsRequired = abortIfMergeIsRequired;
+    }
+    if (sanityCheck != null) {
+      _result.sanityCheck = sanityCheck;
+    }
+    if (latest != null) {
+      _result.latest = latest;
+    }
+    return _result;
+  }
   factory MergeToDoListRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
   factory MergeToDoListRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
   MergeToDoListRequest clone() => MergeToDoListRequest()..mergeFromMessage(this);
-  MergeToDoListRequest copyWith(void Function(MergeToDoListRequest) updates) => super.copyWith((message) => updates(message as MergeToDoListRequest));
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  MergeToDoListRequest copyWith(void Function(MergeToDoListRequest) updates) => super.copyWith((message) => updates(message as MergeToDoListRequest)); // ignore: deprecated_member_use
   $pb.BuilderInfo get info_ => _i;
   @$core.pragma('dart2js:noInline')
   static MergeToDoListRequest create() => MergeToDoListRequest._();
@@ -164,19 +232,47 @@ class MergeToDoListRequest extends $pb.GeneratedMessage {
 }
 
 class MergeToDoListResponse extends $pb.GeneratedMessage {
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo('MergeToDoListResponse', package: const $pb.PackageName('pyatdl'), createEmptyInstance: create)
-    ..aOS(1, 'sha1Checksum')
-    ..aOM<ToDoList>(2, 'toDoList', subBuilder: ToDoList.create)
-    ..aOB(3, 'starterTemplate')
-    ..a<$fixnum.Int64>(15, 'sanityCheck', $pb.PbFieldType.OF6, defaultOrMaker: $fixnum.Int64.ZERO)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'MergeToDoListResponse', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'pyatdl'), createEmptyInstance: create)
+    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'sha1Checksum')
+    ..aOM<ToDoList>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'toDoList', subBuilder: ToDoList.create)
+    ..aOB(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'starterTemplate')
+    ..a<$fixnum.Int64>(15, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'sanityCheck', $pb.PbFieldType.OF6, defaultOrMaker: $fixnum.Int64.ZERO)
   ;
 
   MergeToDoListResponse._() : super();
-  factory MergeToDoListResponse() => create();
+  factory MergeToDoListResponse({
+    $core.String sha1Checksum,
+    ToDoList toDoList,
+    $core.bool starterTemplate,
+    $fixnum.Int64 sanityCheck,
+  }) {
+    final _result = create();
+    if (sha1Checksum != null) {
+      _result.sha1Checksum = sha1Checksum;
+    }
+    if (toDoList != null) {
+      _result.toDoList = toDoList;
+    }
+    if (starterTemplate != null) {
+      _result.starterTemplate = starterTemplate;
+    }
+    if (sanityCheck != null) {
+      _result.sanityCheck = sanityCheck;
+    }
+    return _result;
+  }
   factory MergeToDoListResponse.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
   factory MergeToDoListResponse.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
   MergeToDoListResponse clone() => MergeToDoListResponse()..mergeFromMessage(this);
-  MergeToDoListResponse copyWith(void Function(MergeToDoListResponse) updates) => super.copyWith((message) => updates(message as MergeToDoListResponse));
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  MergeToDoListResponse copyWith(void Function(MergeToDoListResponse) updates) => super.copyWith((message) => updates(message as MergeToDoListResponse)); // ignore: deprecated_member_use
   $pb.BuilderInfo get info_ => _i;
   @$core.pragma('dart2js:noInline')
   static MergeToDoListResponse create() => MergeToDoListResponse._();
@@ -226,20 +322,48 @@ class MergeToDoListResponse extends $pb.GeneratedMessage {
 }
 
 class ChecksumAndData extends $pb.GeneratedMessage {
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo('ChecksumAndData', package: const $pb.PackageName('pyatdl'), createEmptyInstance: create)
-    ..a<$fixnum.Int64>(1, 'payloadLength', $pb.PbFieldType.Q6, defaultOrMaker: $fixnum.Int64.ZERO)
-    ..aOS(2, 'sha1Checksum')
-    ..aOB(3, 'payloadIsZlibCompressed')
-    ..a<$core.List<$core.int>>(10123, 'payload', $pb.PbFieldType.QY)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'ChecksumAndData', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'pyatdl'), createEmptyInstance: create)
+    ..a<$fixnum.Int64>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'payloadLength', $pb.PbFieldType.Q6, defaultOrMaker: $fixnum.Int64.ZERO)
+    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'sha1Checksum')
+    ..aOB(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'payloadIsZlibCompressed')
+    ..a<$core.List<$core.int>>(10123, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'payload', $pb.PbFieldType.QY)
     ..hasExtensions = true
   ;
 
   ChecksumAndData._() : super();
-  factory ChecksumAndData() => create();
+  factory ChecksumAndData({
+    $fixnum.Int64 payloadLength,
+    $core.String sha1Checksum,
+    $core.bool payloadIsZlibCompressed,
+    $core.List<$core.int> payload,
+  }) {
+    final _result = create();
+    if (payloadLength != null) {
+      _result.payloadLength = payloadLength;
+    }
+    if (sha1Checksum != null) {
+      _result.sha1Checksum = sha1Checksum;
+    }
+    if (payloadIsZlibCompressed != null) {
+      _result.payloadIsZlibCompressed = payloadIsZlibCompressed;
+    }
+    if (payload != null) {
+      _result.payload = payload;
+    }
+    return _result;
+  }
   factory ChecksumAndData.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
   factory ChecksumAndData.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
   ChecksumAndData clone() => ChecksumAndData()..mergeFromMessage(this);
-  ChecksumAndData copyWith(void Function(ChecksumAndData) updates) => super.copyWith((message) => updates(message as ChecksumAndData));
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  ChecksumAndData copyWith(void Function(ChecksumAndData) updates) => super.copyWith((message) => updates(message as ChecksumAndData)); // ignore: deprecated_member_use
   $pb.BuilderInfo get info_ => _i;
   @$core.pragma('dart2js:noInline')
   static ChecksumAndData create() => ChecksumAndData._();
@@ -287,19 +411,47 @@ class ChecksumAndData extends $pb.GeneratedMessage {
 }
 
 class UserInfoAndToDoList extends $pb.GeneratedMessage {
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo('UserInfoAndToDoList', package: const $pb.PackageName('pyatdl'), createEmptyInstance: create)
-    ..aOS(1, 'personaName')
-    ..aOS(2, 'username')
-    ..aOS(3, 'jsonWebToken')
-    ..aOM<ChecksumAndData>(10123, 'checksumAndData', subBuilder: ChecksumAndData.create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'UserInfoAndToDoList', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'pyatdl'), createEmptyInstance: create)
+    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'personaName')
+    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'username')
+    ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'jsonWebToken')
+    ..aOM<ChecksumAndData>(10123, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'checksumAndData', subBuilder: ChecksumAndData.create)
   ;
 
   UserInfoAndToDoList._() : super();
-  factory UserInfoAndToDoList() => create();
+  factory UserInfoAndToDoList({
+    $core.String personaName,
+    $core.String username,
+    $core.String jsonWebToken,
+    ChecksumAndData checksumAndData,
+  }) {
+    final _result = create();
+    if (personaName != null) {
+      _result.personaName = personaName;
+    }
+    if (username != null) {
+      _result.username = username;
+    }
+    if (jsonWebToken != null) {
+      _result.jsonWebToken = jsonWebToken;
+    }
+    if (checksumAndData != null) {
+      _result.checksumAndData = checksumAndData;
+    }
+    return _result;
+  }
   factory UserInfoAndToDoList.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
   factory UserInfoAndToDoList.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
   UserInfoAndToDoList clone() => UserInfoAndToDoList()..mergeFromMessage(this);
-  UserInfoAndToDoList copyWith(void Function(UserInfoAndToDoList) updates) => super.copyWith((message) => updates(message as UserInfoAndToDoList));
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  UserInfoAndToDoList copyWith(void Function(UserInfoAndToDoList) updates) => super.copyWith((message) => updates(message as UserInfoAndToDoList)); // ignore: deprecated_member_use
   $pb.BuilderInfo get info_ => _i;
   @$core.pragma('dart2js:noInline')
   static UserInfoAndToDoList create() => UserInfoAndToDoList._();
@@ -349,19 +501,43 @@ class UserInfoAndToDoList extends $pb.GeneratedMessage {
 }
 
 class Timestamp extends $pb.GeneratedMessage {
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo('Timestamp', package: const $pb.PackageName('pyatdl'), createEmptyInstance: create)
-    ..aInt64(1, 'ctime')
-    ..aInt64(2, 'dtime')
-    ..aInt64(3, 'mtime')
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'Timestamp', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'pyatdl'), createEmptyInstance: create)
+    ..aInt64(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'ctime')
+    ..aInt64(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'dtime')
+    ..aInt64(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'mtime')
     ..hasRequiredFields = false
   ;
 
   Timestamp._() : super();
-  factory Timestamp() => create();
+  factory Timestamp({
+    $fixnum.Int64 ctime,
+    $fixnum.Int64 dtime,
+    $fixnum.Int64 mtime,
+  }) {
+    final _result = create();
+    if (ctime != null) {
+      _result.ctime = ctime;
+    }
+    if (dtime != null) {
+      _result.dtime = dtime;
+    }
+    if (mtime != null) {
+      _result.mtime = mtime;
+    }
+    return _result;
+  }
   factory Timestamp.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
   factory Timestamp.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
   Timestamp clone() => Timestamp()..mergeFromMessage(this);
-  Timestamp copyWith(void Function(Timestamp) updates) => super.copyWith((message) => updates(message as Timestamp));
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  Timestamp copyWith(void Function(Timestamp) updates) => super.copyWith((message) => updates(message as Timestamp)); // ignore: deprecated_member_use
   $pb.BuilderInfo get info_ => _i;
   @$core.pragma('dart2js:noInline')
   static Timestamp create() => Timestamp._();
@@ -400,18 +576,38 @@ class Timestamp extends $pb.GeneratedMessage {
 }
 
 class Metadata extends $pb.GeneratedMessage {
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo('Metadata', package: const $pb.PackageName('pyatdl'), createEmptyInstance: create)
-    ..aOS(1, 'name')
-    ..aOS(2, 'note')
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'Metadata', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'pyatdl'), createEmptyInstance: create)
+    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'name')
+    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'note')
     ..hasExtensions = true
   ;
 
   Metadata._() : super();
-  factory Metadata() => create();
+  factory Metadata({
+    $core.String name,
+    $core.String note,
+  }) {
+    final _result = create();
+    if (name != null) {
+      _result.name = name;
+    }
+    if (note != null) {
+      _result.note = note;
+    }
+    return _result;
+  }
   factory Metadata.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
   factory Metadata.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
   Metadata clone() => Metadata()..mergeFromMessage(this);
-  Metadata copyWith(void Function(Metadata) updates) => super.copyWith((message) => updates(message as Metadata));
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  Metadata copyWith(void Function(Metadata) updates) => super.copyWith((message) => updates(message as Metadata)); // ignore: deprecated_member_use
   $pb.BuilderInfo get info_ => _i;
   @$core.pragma('dart2js:noInline')
   static Metadata create() => Metadata._();
@@ -441,20 +637,48 @@ class Metadata extends $pb.GeneratedMessage {
 }
 
 class Common extends $pb.GeneratedMessage {
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo('Common', package: const $pb.PackageName('pyatdl'), createEmptyInstance: create)
-    ..aOB(1, 'isDeleted')
-    ..aOM<Timestamp>(2, 'timestamp', subBuilder: Timestamp.create)
-    ..aOM<Metadata>(3, 'metadata', subBuilder: Metadata.create)
-    ..aInt64(4, 'uid')
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'Common', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'pyatdl'), createEmptyInstance: create)
+    ..aOB(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'isDeleted')
+    ..aOM<Timestamp>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'timestamp', subBuilder: Timestamp.create)
+    ..aOM<Metadata>(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'metadata', subBuilder: Metadata.create)
+    ..aInt64(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'uid')
     ..hasExtensions = true
   ;
 
   Common._() : super();
-  factory Common() => create();
+  factory Common({
+    $core.bool isDeleted,
+    Timestamp timestamp,
+    Metadata metadata,
+    $fixnum.Int64 uid,
+  }) {
+    final _result = create();
+    if (isDeleted != null) {
+      _result.isDeleted = isDeleted;
+    }
+    if (timestamp != null) {
+      _result.timestamp = timestamp;
+    }
+    if (metadata != null) {
+      _result.metadata = metadata;
+    }
+    if (uid != null) {
+      _result.uid = uid;
+    }
+    return _result;
+  }
   factory Common.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
   factory Common.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
   Common clone() => Common()..mergeFromMessage(this);
-  Common copyWith(void Function(Common) updates) => super.copyWith((message) => updates(message as Common));
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  Common copyWith(void Function(Common) updates) => super.copyWith((message) => updates(message as Common)); // ignore: deprecated_member_use
   $pb.BuilderInfo get info_ => _i;
   @$core.pragma('dart2js:noInline')
   static Common create() => Common._();
@@ -506,18 +730,38 @@ class Common extends $pb.GeneratedMessage {
 }
 
 class Context extends $pb.GeneratedMessage {
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo('Context', package: const $pb.PackageName('pyatdl'), createEmptyInstance: create)
-    ..aOM<Common>(1, 'common', subBuilder: Common.create)
-    ..aOB(2, 'isActive')
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'Context', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'pyatdl'), createEmptyInstance: create)
+    ..aOM<Common>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'common', subBuilder: Common.create)
+    ..aOB(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'isActive')
     ..hasExtensions = true
   ;
 
   Context._() : super();
-  factory Context() => create();
+  factory Context({
+    Common common,
+    $core.bool isActive,
+  }) {
+    final _result = create();
+    if (common != null) {
+      _result.common = common;
+    }
+    if (isActive != null) {
+      _result.isActive = isActive;
+    }
+    return _result;
+  }
   factory Context.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
   factory Context.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
   Context clone() => Context()..mergeFromMessage(this);
-  Context copyWith(void Function(Context) updates) => super.copyWith((message) => updates(message as Context));
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  Context copyWith(void Function(Context) updates) => super.copyWith((message) => updates(message as Context)); // ignore: deprecated_member_use
   $pb.BuilderInfo get info_ => _i;
   @$core.pragma('dart2js:noInline')
   static Context create() => Context._();
@@ -549,19 +793,43 @@ class Context extends $pb.GeneratedMessage {
 }
 
 class Action extends $pb.GeneratedMessage {
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo('Action', package: const $pb.PackageName('pyatdl'), createEmptyInstance: create)
-    ..aOM<Common>(1, 'common', subBuilder: Common.create)
-    ..aOB(3, 'isComplete')
-    ..aInt64(5, 'ctxUid')
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'Action', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'pyatdl'), createEmptyInstance: create)
+    ..aOM<Common>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'common', subBuilder: Common.create)
+    ..aOB(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'isComplete')
+    ..aInt64(5, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'ctxUid')
     ..hasExtensions = true
   ;
 
   Action._() : super();
-  factory Action() => create();
+  factory Action({
+    Common common,
+    $core.bool isComplete,
+    $fixnum.Int64 ctxUid,
+  }) {
+    final _result = create();
+    if (common != null) {
+      _result.common = common;
+    }
+    if (isComplete != null) {
+      _result.isComplete = isComplete;
+    }
+    if (ctxUid != null) {
+      _result.ctxUid = ctxUid;
+    }
+    return _result;
+  }
   factory Action.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
   factory Action.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
   Action clone() => Action()..mergeFromMessage(this);
-  Action copyWith(void Function(Action) updates) => super.copyWith((message) => updates(message as Action));
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  Action copyWith(void Function(Action) updates) => super.copyWith((message) => updates(message as Action)); // ignore: deprecated_member_use
   $pb.BuilderInfo get info_ => _i;
   @$core.pragma('dart2js:noInline')
   static Action create() => Action._();
@@ -602,23 +870,63 @@ class Action extends $pb.GeneratedMessage {
 }
 
 class Project extends $pb.GeneratedMessage {
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo('Project', package: const $pb.PackageName('pyatdl'), createEmptyInstance: create)
-    ..aOM<Common>(1, 'common', subBuilder: Common.create)
-    ..aOB(2, 'isComplete')
-    ..aOB(3, 'isActive')
-    ..pc<Action>(4, 'actions', $pb.PbFieldType.PM, subBuilder: Action.create)
-    ..a<$core.double>(5, 'maxSecondsBeforeReview', $pb.PbFieldType.OF)
-    ..a<$core.double>(6, 'lastReviewEpochSeconds', $pb.PbFieldType.OF)
-    ..aInt64(7, 'defaultContextUid')
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'Project', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'pyatdl'), createEmptyInstance: create)
+    ..aOM<Common>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'common', subBuilder: Common.create)
+    ..aOB(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'isComplete')
+    ..aOB(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'isActive')
+    ..pc<Action>(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'actions', $pb.PbFieldType.PM, subBuilder: Action.create)
+    ..a<$core.double>(5, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'maxSecondsBeforeReview', $pb.PbFieldType.OF)
+    ..a<$core.double>(6, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'lastReviewEpochSeconds', $pb.PbFieldType.OF)
+    ..aInt64(7, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'defaultContextUid')
     ..hasExtensions = true
   ;
 
   Project._() : super();
-  factory Project() => create();
+  factory Project({
+    Common common,
+    $core.bool isComplete,
+    $core.bool isActive,
+    $core.Iterable<Action> actions,
+    $core.double maxSecondsBeforeReview,
+    $core.double lastReviewEpochSeconds,
+    $fixnum.Int64 defaultContextUid,
+  }) {
+    final _result = create();
+    if (common != null) {
+      _result.common = common;
+    }
+    if (isComplete != null) {
+      _result.isComplete = isComplete;
+    }
+    if (isActive != null) {
+      _result.isActive = isActive;
+    }
+    if (actions != null) {
+      _result.actions.addAll(actions);
+    }
+    if (maxSecondsBeforeReview != null) {
+      _result.maxSecondsBeforeReview = maxSecondsBeforeReview;
+    }
+    if (lastReviewEpochSeconds != null) {
+      _result.lastReviewEpochSeconds = lastReviewEpochSeconds;
+    }
+    if (defaultContextUid != null) {
+      _result.defaultContextUid = defaultContextUid;
+    }
+    return _result;
+  }
   factory Project.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
   factory Project.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
   Project clone() => Project()..mergeFromMessage(this);
-  Project copyWith(void Function(Project) updates) => super.copyWith((message) => updates(message as Project));
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  Project copyWith(void Function(Project) updates) => super.copyWith((message) => updates(message as Project)); // ignore: deprecated_member_use
   $pb.BuilderInfo get info_ => _i;
   @$core.pragma('dart2js:noInline')
   static Project create() => Project._();
@@ -689,18 +997,38 @@ class Project extends $pb.GeneratedMessage {
 }
 
 class Note extends $pb.GeneratedMessage {
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo('Note', package: const $pb.PackageName('pyatdl'), createEmptyInstance: create)
-    ..aOS(1, 'name')
-    ..aOS(2, 'note')
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'Note', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'pyatdl'), createEmptyInstance: create)
+    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'name')
+    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'note')
     ..hasExtensions = true
   ;
 
   Note._() : super();
-  factory Note() => create();
+  factory Note({
+    $core.String name,
+    $core.String note,
+  }) {
+    final _result = create();
+    if (name != null) {
+      _result.name = name;
+    }
+    if (note != null) {
+      _result.note = note;
+    }
+    return _result;
+  }
   factory Note.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
   factory Note.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
   Note clone() => Note()..mergeFromMessage(this);
-  Note copyWith(void Function(Note) updates) => super.copyWith((message) => updates(message as Note));
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  Note copyWith(void Function(Note) updates) => super.copyWith((message) => updates(message as Note)); // ignore: deprecated_member_use
   $pb.BuilderInfo get info_ => _i;
   @$core.pragma('dart2js:noInline')
   static Note create() => Note._();
@@ -730,17 +1058,33 @@ class Note extends $pb.GeneratedMessage {
 }
 
 class NoteList extends $pb.GeneratedMessage {
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo('NoteList', package: const $pb.PackageName('pyatdl'), createEmptyInstance: create)
-    ..pc<Note>(2, 'notes', $pb.PbFieldType.PM, subBuilder: Note.create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'NoteList', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'pyatdl'), createEmptyInstance: create)
+    ..pc<Note>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'notes', $pb.PbFieldType.PM, subBuilder: Note.create)
     ..hasExtensions = true
   ;
 
   NoteList._() : super();
-  factory NoteList() => create();
+  factory NoteList({
+    $core.Iterable<Note> notes,
+  }) {
+    final _result = create();
+    if (notes != null) {
+      _result.notes.addAll(notes);
+    }
+    return _result;
+  }
   factory NoteList.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
   factory NoteList.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
   NoteList clone() => NoteList()..mergeFromMessage(this);
-  NoteList copyWith(void Function(NoteList) updates) => super.copyWith((message) => updates(message as NoteList));
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  NoteList copyWith(void Function(NoteList) updates) => super.copyWith((message) => updates(message as NoteList)); // ignore: deprecated_member_use
   $pb.BuilderInfo get info_ => _i;
   @$core.pragma('dart2js:noInline')
   static NoteList create() => NoteList._();
@@ -755,17 +1099,33 @@ class NoteList extends $pb.GeneratedMessage {
 }
 
 class ContextList extends $pb.GeneratedMessage {
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo('ContextList', package: const $pb.PackageName('pyatdl'), createEmptyInstance: create)
-    ..pc<Context>(2, 'contexts', $pb.PbFieldType.PM, subBuilder: Context.create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'ContextList', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'pyatdl'), createEmptyInstance: create)
+    ..pc<Context>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'contexts', $pb.PbFieldType.PM, subBuilder: Context.create)
     ..hasExtensions = true
   ;
 
   ContextList._() : super();
-  factory ContextList() => create();
+  factory ContextList({
+    $core.Iterable<Context> contexts,
+  }) {
+    final _result = create();
+    if (contexts != null) {
+      _result.contexts.addAll(contexts);
+    }
+    return _result;
+  }
   factory ContextList.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
   factory ContextList.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
   ContextList clone() => ContextList()..mergeFromMessage(this);
-  ContextList copyWith(void Function(ContextList) updates) => super.copyWith((message) => updates(message as ContextList));
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  ContextList copyWith(void Function(ContextList) updates) => super.copyWith((message) => updates(message as ContextList)); // ignore: deprecated_member_use
   $pb.BuilderInfo get info_ => _i;
   @$core.pragma('dart2js:noInline')
   static ContextList create() => ContextList._();
@@ -780,19 +1140,43 @@ class ContextList extends $pb.GeneratedMessage {
 }
 
 class Folder extends $pb.GeneratedMessage {
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo('Folder', package: const $pb.PackageName('pyatdl'), createEmptyInstance: create)
-    ..aOM<Common>(1, 'common', subBuilder: Common.create)
-    ..pc<Folder>(2, 'folders', $pb.PbFieldType.PM, subBuilder: Folder.create)
-    ..pc<Project>(3, 'projects', $pb.PbFieldType.PM, subBuilder: Project.create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'Folder', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'pyatdl'), createEmptyInstance: create)
+    ..aOM<Common>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'common', subBuilder: Common.create)
+    ..pc<Folder>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'folders', $pb.PbFieldType.PM, subBuilder: Folder.create)
+    ..pc<Project>(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'projects', $pb.PbFieldType.PM, subBuilder: Project.create)
     ..hasExtensions = true
   ;
 
   Folder._() : super();
-  factory Folder() => create();
+  factory Folder({
+    Common common,
+    $core.Iterable<Folder> folders,
+    $core.Iterable<Project> projects,
+  }) {
+    final _result = create();
+    if (common != null) {
+      _result.common = common;
+    }
+    if (folders != null) {
+      _result.folders.addAll(folders);
+    }
+    if (projects != null) {
+      _result.projects.addAll(projects);
+    }
+    return _result;
+  }
   factory Folder.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
   factory Folder.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
   Folder clone() => Folder()..mergeFromMessage(this);
-  Folder copyWith(void Function(Folder) updates) => super.copyWith((message) => updates(message as Folder));
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  Folder copyWith(void Function(Folder) updates) => super.copyWith((message) => updates(message as Folder)); // ignore: deprecated_member_use
   $pb.BuilderInfo get info_ => _i;
   @$core.pragma('dart2js:noInline')
   static Folder create() => Folder._();
@@ -821,20 +1205,48 @@ class Folder extends $pb.GeneratedMessage {
 }
 
 class ToDoList extends $pb.GeneratedMessage {
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo('ToDoList', package: const $pb.PackageName('pyatdl'), createEmptyInstance: create)
-    ..aOM<Project>(1, 'inbox', subBuilder: Project.create)
-    ..aOM<Folder>(2, 'root', subBuilder: Folder.create)
-    ..aOM<ContextList>(3, 'ctxList', subBuilder: ContextList.create)
-    ..aOM<NoteList>(5, 'noteList', subBuilder: NoteList.create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'ToDoList', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'pyatdl'), createEmptyInstance: create)
+    ..aOM<Project>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'inbox', subBuilder: Project.create)
+    ..aOM<Folder>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'root', subBuilder: Folder.create)
+    ..aOM<ContextList>(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'ctxList', subBuilder: ContextList.create)
+    ..aOM<NoteList>(5, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'noteList', subBuilder: NoteList.create)
     ..hasExtensions = true
   ;
 
   ToDoList._() : super();
-  factory ToDoList() => create();
+  factory ToDoList({
+    Project inbox,
+    Folder root,
+    ContextList ctxList,
+    NoteList noteList,
+  }) {
+    final _result = create();
+    if (inbox != null) {
+      _result.inbox = inbox;
+    }
+    if (root != null) {
+      _result.root = root;
+    }
+    if (ctxList != null) {
+      _result.ctxList = ctxList;
+    }
+    if (noteList != null) {
+      _result.noteList = noteList;
+    }
+    return _result;
+  }
   factory ToDoList.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
   factory ToDoList.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
   ToDoList clone() => ToDoList()..mergeFromMessage(this);
-  ToDoList copyWith(void Function(ToDoList) updates) => super.copyWith((message) => updates(message as ToDoList));
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  ToDoList copyWith(void Function(ToDoList) updates) => super.copyWith((message) => updates(message as ToDoList)); // ignore: deprecated_member_use
   $pb.BuilderInfo get info_ => _i;
   @$core.pragma('dart2js:noInline')
   static ToDoList create() => ToDoList._();

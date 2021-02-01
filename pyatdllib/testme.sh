@@ -11,6 +11,7 @@ function die() {
 }
 
 function testone() {
+    echo "Executing tests in $1"
     PYTHONPATH="$TOP/.." python "$1"
 }
 

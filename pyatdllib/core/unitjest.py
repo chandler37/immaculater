@@ -77,11 +77,20 @@ class TestCase(unittest.TestCase):
       f.write(contents.encode('utf-8'))
     return tempfilename
 
-  def assertProtosEqual(self, pb1: message.Message, pb2: message.Message) -> None:
-    if pb1.SerializeToString() != pb2.SerializeToString():
+  def assertProtosEqual(self, actual: message.Message, expected: message.Message, *, hint=None) -> None:
+    if actual.SerializeToString() != expected.SerializeToString():
+      actuals = text_format.MessageToString(actual)
+      expecteds = text_format.MessageToString(expected)
+      if actuals != expecteds:
+        print(f'assertProtosEqual(hint={hint}): actual is the following:\n<actual>')
+        print(actuals)
+        print('</actual>')
+        print(f'assertProtosEqual(hint={hint}): expected is the following:\n<expected>')
+        print(expecteds)
+        print('</expected>')
       self.assertEqual(
-        text_format.MessageToString(pb1),
-        text_format.MessageToString(pb2))
+        actuals,
+        expecteds)
 
   def assertProtoTextuallyEquals(self, pb: message.Message, text: str) -> None:
     self.assertEqual(text.strip(), text_format.MessageToString(pb).strip())

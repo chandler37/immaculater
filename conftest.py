@@ -1,10 +1,15 @@
-from icecream import ic
+import icecream
+import os
 
-ic.configureOutput(includeContext=True)
+
+_MARKER = os.environ.get('IC_MARKER', 'D' 'LC')
+
+icecream.ic = icecream.IceCreamDebugger(prefix=f"\n{_MARKER} ic|", outputFunction=icecream.stderrPrint)  # no colorization
+icecream.ic.configureOutput(includeContext=os.environ.get('IC') != '0')
 
 try:
-    builtins = __import__('__builtin__')
+  builtins = __import__('__builtin__')
 except ImportError:
-    builtins = __import__('builtins')
+  builtins = __import__('builtins')
 
-setattr(builtins, 'ic', ic)
+setattr(builtins, _MARKER, icecream.ic)

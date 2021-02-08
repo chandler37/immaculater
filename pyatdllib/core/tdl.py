@@ -407,7 +407,7 @@ class ToDoList(object):
             for item in heapq.nlargest(num_items, self.Items(), key=Key)]
     return [Val(time.time(), "current time")] + vals
 
-  def CheckIsWellFormed(self) -> None:
+  def CheckIsWellFormed(self) -> Set[int]:
     """A noop unless the programmer made an error.
 
     I.e., checks invariants.  We could do this better if we stopped
@@ -418,9 +418,16 @@ class ToDoList(object):
 
     Raises:
       errors.DataError: A "foreign key" does not exists; a UID is missing/duplicated; etc.
+    Returns:
+      a set of all UIDs
     """
     if FLAGS.pyatdl_break_glass_and_skip_wellformedness_check:
-      return
+      uu: Set[int] = set()
+      for item in self.Items():
+        if not item.uid:
+          continue
+        uu.add(item.uid)
+      return uu
 
     def SelfStr() -> str:  # pylint: disable=missing-docstring
       saved_value = FLAGS.pyatdl_show_uid
@@ -451,6 +458,7 @@ class ToDoList(object):
         if item.ctx_uid is not None and item.ctx_uid not in uids:
           raise errors.DataError(
             "UID %s is an action's context UID but that context does not exist." % item.ctx_uid)
+    return uids
 
   def MergeNoteList(self, other: pyatdl_pb2.NoteList) -> None:
     """repeated Note notes = 2;
@@ -492,37 +500,38 @@ class ToDoList(object):
           ctx.Ctx.DeserializedProtobuf(
             context.SerializeToString()))
 
-  def _FindExistingFolderByUid(self, uid: int) -> Optional[folder.Folder]:
-    result = self.FolderByUID(uid)
-    if result is None:
-      return None
-    folder, _ = result
-    return folder
+  @staticmethod
+  def _FindExistingProjectByUidInRemote(*, root: pyatdl_pb2.Folder, uid: int, path: List[pyatdl_pb2.Folder]) -> List[pyatdl_pb2.Folder]:
+    new_path = [root] + path
+    for p in root.projects:
+      if uid == p.common.uid:
+        return new_path
+    for f in root.folders:
+      return ToDoList._FindExistingProjectByUidInRemote(root=f, uid=uid, path=new_path)
+    return []
 
-  def _FindExistingProjectByUid(self, uid: int) -> Optional[prj.Prj]:
-    result = self.ProjectByUID(uid)
-    if result is None:
-      return None
-    project, _ = result
-    return project
-
-  def _FindExistingActionByUid(self, uid: int) -> Optional[action.Action]:
-    result = self.ActionByUID(uid)
-    if result is None:
-      return None
-    action, _ = result
-    return action
+  def TrulyDeleteByUid(self, *, uid: int) -> bool:
+    """Returns True iff the true deletion happened."""
+    for cc in [self.inbox, self.root]:
+      result = getattr(cc, 'TrulyDeleteByUid')(uid=uid)
+      if not isinstance(result, bool):
+        raise TypeError
+      if result:
+        return True
+    return False
 
   def MergeRoot(self, other: pyatdl_pb2.Folder) -> None:
     if other.common.uid != uid.ROOT_FOLDER_UID:
       raise ValueError("needs a root Folder")
     self.root.MergeFromProto(
       other,
-      find_existing_folder_by_uid=self._FindExistingFolderByUid,
-      find_existing_project_by_uid=self._FindExistingProjectByUid,
-      find_existing_action_by_uid=self._FindExistingActionByUid)
+      find_existing_folder_by_uid=self.FolderByUID,
+      find_existing_project_by_uid=self.ProjectByUID,
+      find_existing_action_by_uid=self.ActionByUID,
+      find_existing_project_by_uid_in_remote=lambda uid: self._FindExistingProjectByUidInRemote(root=other, uid=uid, path=[]),
+      truly_delete_by_uid=self.TrulyDeleteByUid)
 
-  def MergeInbox(self, other: pyatdl_pb2.Project) -> None:
+  def MergeInbox(self, other: pyatdl_pb2.Project, *, all_uids_in_remote_to_do_list: Set[int]) -> None:
     """Add things in other but not in self (anywhere, not just self.inbox) to self.inbox.
 
     Change things in self to match what are in other for existing things that are more recent according to
@@ -538,9 +547,11 @@ class ToDoList(object):
     assert other.common.uid == uid.INBOX_UID
     if common.MaxTimeOfPb(other) > common.MaxTime(self.inbox):
       self.inbox.MergeCommonFrom(other)
+    other_uids = set()
     for an_action in other.actions:
       if an_action.common.uid in (uid.DEFAULT_PROTOBUF_VALUE_FOR_ABSENT_UID, uid.ROOT_FOLDER_UID, uid.INBOX_UID):
         raise AssertionError("merge error: illegal or missing UID")  # TODO(chandler37): do this in more places, too
+      other_uids.add(an_action.common.uid)
       tup = self.ActionByUID(an_action.common.uid)
       if tup is None:
         # You might wonder, what if this used to exist here and the most recent thing we did was purge it? You are not
@@ -550,7 +561,9 @@ class ToDoList(object):
             an_action.SerializeToString()))
       else:
         existing_action, existing_project = tup
-        they_are_authority = common.MaxTimeOfPb(an_action) > common.MaxTime(existing_action)
+        they_are_authority = common.MaxTimeOfPb(an_action) >= common.MaxTime(existing_action)
+        # TODO(chandler37): we need a test case where they moved an action into the inbox but we renamed it so both
+        # actions need to exist (one with a new UID, either one...)
         if they_are_authority:
           existing_action.MergeFromProto(an_action)
           if existing_project.uid != self.inbox.uid:
@@ -558,6 +571,15 @@ class ToDoList(object):
               action.Action.DeserializedProtobuf(
                 existing_action.AsProto().SerializeToString()))
             existing_project.DeleteItemByUid(an_action.common.uid)
+    uids_to_delete = set()
+    for our_action in self.inbox.items:
+      if our_action.uid in other_uids:
+        continue
+      if our_action.uid in all_uids_in_remote_to_do_list:
+        uids_to_delete.add(our_action.uid)
+    if uids_to_delete:
+      self.inbox.items = [i for i in self.inbox.items if i.uid not in uids_to_delete]
+      self.inbox.NoteModification()
 
   def AsProto(self, pb: Optional[pyatdl_pb2.ToDoList] = None) -> pyatdl_pb2.ToDoList:
     """Serializes this object to a protocol buffer.

@@ -112,7 +112,7 @@ PYTEST_MARK :=
 PYTEST_MYPY := --mypy
 PYTEST_ARGS := todo/tests
 PYTESTLIB_ARGS := pyatdllib/
-PYTEST_FLAGS := --cov=todo --cov-report=html -s -vv
+PYTEST_FLAGS := --cov=todo --cov=pyatdllib --cov-report=html -s -vv
 # Usually useful PYTEST_FLAGS additions are `-vv -s`, which make things verbose.
 PYTEST_CMD := DJANGO_DEBUG=True python -m pytest $(PYTEST_MARK) $(PYTEST_MYPY) $(PYTEST_FLAGS)
 

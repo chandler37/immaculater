@@ -6,8 +6,22 @@ result.
 """
 
 
+from typing import Set
+
 from . import pyatdl_pb2
 from . import tdl
+from . import uid
+
+
+def _AllUidsInProtobufToDoList(remote: pyatdl_pb2.ToDoList) -> Set[int]:
+  # TODO(chandler): converting to a tdl.ToDoList is a waste of memory and CPU:
+  saved_fac = uid.singleton_factory
+  uid.singleton_factory = uid.FactoryThatRaisesDataErrorUponNextUID()
+  try:
+    remote_tdl = tdl.ToDoList.DeserializedProtobuf(remote.SerializeToString())
+    return remote_tdl.CheckIsWellFormed()
+  finally:
+    uid.singleton_factory = saved_fac
 
 
 def Merge(db: tdl.ToDoList, remote: pyatdl_pb2.ToDoList) -> pyatdl_pb2.ToDoList:
@@ -46,7 +60,8 @@ def Merge(db: tdl.ToDoList, remote: pyatdl_pb2.ToDoList) -> pyatdl_pb2.ToDoList:
   if not isinstance(remote, pyatdl_pb2.ToDoList):
     raise TypeError('arguments must be None|pyatdl_pb2.ToDoList')
   if remote.HasField('inbox'):
-    db.MergeInbox(remote.inbox)
+    # TODO(chandler37): DRY up MergeInbox and prj.Prj.MergeFromProto
+    db.MergeInbox(remote.inbox, all_uids_in_remote_to_do_list=_AllUidsInProtobufToDoList(remote))
   if remote.HasField('root'):
     db.MergeRoot(remote.root)
   if remote.HasField('ctx_list'):

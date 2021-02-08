@@ -10,7 +10,7 @@ import time
 
 from absl import flags  # type: ignore
 from google.protobuf import message
-from typing import Callable, Iterator, List, Tuple, Type, TypeVar
+from typing import Callable, Iterator, List, Optional, Tuple, Type, TypeVar
 
 from . import action
 from . import common
@@ -246,7 +246,7 @@ class Prj(container.Container):
   def MergeFromProto(self,
                      other: pyatdl_pb2.Project,
                      *,
-                     find_existing_action_by_uid) -> None:
+                     find_existing_action_by_uid: Callable[[int], Optional[Tuple[action.Action, Prj]]]) -> None:
     if not isinstance(other, pyatdl_pb2.Project):
       raise TypeError
     if common.MaxTimeOfPb(other) > common.MaxTime(self):
@@ -259,15 +259,19 @@ class Prj(container.Container):
       self.MergeCommonFrom(other)  # this alters mtime
 
     for other_action in other.actions:
-      existing_action = find_existing_action_by_uid(other_action.common.uid)
-      if existing_action is None:
-        # TODO(chandler): this should check if the UID is already in use elsewhere and ?generate a new idea, preserving
-        # both?, if so:
+      # DLC TrulyDeleteByUid
+      existing_action_and_prj = find_existing_action_by_uid(other_action.common.uid)  # DLC self or other?
+      if existing_action_and_prj is None:
+        # TODO(chandler): this should check if the UID is already in use elsewhere and ?generate a new thing,
+        # preserving both?, if so:
         self.items.append(
           action.Action.DeserializedProtobuf(
             other_action.SerializeToString()))
         # But do not self.NoteModification() because we called MergeCommonFrom() above.
       else:
+        existing_action, existing_parent_prj = existing_action_and_prj
+        # from google.protobuf import text_format # type: ignore DLC DLC('existing_action_and_prj is not None',
+        # existing_parent_prj, self.uid, existing_parent_prj.uid, other.common.uid, text_format.MessageToString(other))
         existing_action.MergeFromProto(other_action)
 
   @classmethod

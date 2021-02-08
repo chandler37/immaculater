@@ -123,6 +123,26 @@ class Container(auditable_object.AuditableObject):
         for f, path in item.ContainersPreorder():
           yield (f, list(path) + [self])
 
+  def TrulyDeleteByUid(self, *, uid: int) -> bool:
+    for i, item in enumerate(self.items):
+      if item.uid != uid:
+        if hasattr(item, 'TrulyDeleteByUid'):
+          if getattr(item, 'TrulyDeleteByUid')(uid=uid):
+            return True
+        continue
+      del self.items[i]
+      return True
+    return False
+
+  def ForEachUidRecursively(self) -> Iterator[int]:
+    for cc, _ in self.ContainersPreorder():
+      yield cc.uid
+      if cc is self:
+        continue
+      func = getattr(cc, 'ForEachUidRecursively', None)
+      if func is not None:
+        yield from func()
+
   def Projects(self) -> Iterator[Tuple[Container, List[Container]]]:
     """Iterates recursively over all projects contained herein.
 

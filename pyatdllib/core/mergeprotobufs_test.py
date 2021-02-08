@@ -3,6 +3,8 @@
 import random
 import time
 
+from typing import Dict, List, Tuple
+
 from google.protobuf import text_format  # type: ignore
 
 from pyatdllib.core import action
@@ -17,6 +19,54 @@ _MICROS = 10**6
 year1970microsec = 10**6 * _MICROS  # 1970-01-12 05:46:40
 year5454microsec = 109951162777 * _MICROS  # 5454-03-19 14:39:37 PST8PDT
 
+
+_OLDPRJ = """
+  projects {
+    common {
+      is_deleted: false
+      timestamp {
+        ctime: 38000000
+        dtime: -1
+        mtime: 39000000
+      }
+      metadata {
+        name: "oldprj"
+      }
+      uid: -15
+    }
+    is_complete: false
+    is_active: true
+    actions {
+      common {
+        is_deleted: false
+        timestamp {
+          ctime: 39000000
+          dtime: -1
+          mtime: 39000000
+        }
+        metadata {
+          name: "old_action_in_oldprj"
+        }
+        uid: -29
+      }
+      is_complete: false
+    }
+  }
+"""
+
+_OLDPRJ_IN_NEW_FOLDER = """
+  common {
+    is_deleted: false
+    timestamp {
+      ctime: 38000000
+      dtime: -1
+      mtime: 38000000
+    }
+    metadata {
+      name: "newfolder"
+    }
+    uid: -6279119140261074202
+  }""" + _OLDPRJ
 
 text_formatted_protobuf_well_known = """
 inbox {
@@ -256,6 +306,1118 @@ root {
 }
 """
 
+text_formatted_protobuf_dicts: List[Tuple[str, Dict[str, str]]] = []
+text_formatted_protobuf_dicts.append(
+  ('0',
+   {
+     'database': """
+inbox {
+  common {
+    is_deleted: false
+    timestamp {
+      ctime: 1000000001000000
+      dtime: -1
+      mtime: 1000000001000000
+    }
+    metadata {
+      name: "inbox"
+    }
+    uid: 1
+  }
+  is_complete: false
+  is_active: true
+  actions {
+    common {
+      is_deleted: false
+      timestamp {
+        ctime: 1000000000001
+        dtime: -1
+        mtime: 1000000001000000
+      }
+      metadata {
+        name: "buy light bulbs"
+        note: "60w"
+      }
+      uid: -5
+    }
+    is_complete: false
+  }
+}
+root {
+  common {
+    is_deleted: false
+    timestamp {
+      ctime: 38000000
+      dtime: -1
+      mtime: 1000000001000000
+    }
+    uid: 2
+  }
+  folders {
+    common {
+      is_deleted: false
+      timestamp {
+        ctime: 38000000
+        dtime: -1
+        mtime: 1000000001000000
+      }
+      metadata {
+        name: "folder9"
+      }
+      uid: -109
+    }
+    projects {
+      common {
+        is_deleted: false
+        timestamp {
+          ctime: 38000000
+          dtime: -1
+          mtime: 39000000
+        }
+        metadata {
+          name: "prj9"
+        }
+        uid: -110
+      }
+      is_complete: false
+      is_active: true
+      actions {
+        common {
+          is_deleted: false
+          timestamp {
+            ctime: 39000000
+            dtime: -1
+            mtime: 39000000
+          }
+          metadata {
+            name: "action_in_prj9"
+          }
+          uid: -111
+        }
+        is_complete: false
+      }
+    }
+  }
+  projects {
+    common {
+      is_deleted: false
+      timestamp {
+        ctime: 1000000000000
+        dtime: -1
+        mtime: 1000000001000000
+      }
+      metadata {
+        name: "P1"
+      }
+      uid: -6
+    }
+    is_complete: false
+    is_active: false
+  }
+}
+ctx_list {
+  contexts {
+    common {
+      is_deleted: false
+      timestamp {
+        ctime: 1558072527256254
+        dtime: -1
+        mtime: 1558072527256359
+      }
+      metadata {
+        name: "@computer"
+      }
+      uid: -48
+    }
+    is_active: true
+  }
+}
+note_list {
+  notes {
+    name: ":__home"
+    note: "this is the note on the home page"
+  }
+}
+""",
+     'remote': """
+inbox {
+  common {
+    is_deleted: false
+    timestamp {
+      ctime: 1000000001000000
+      dtime: -1
+      mtime: 1000000001000000
+    }
+    metadata {
+      name: "inbox"
+    }
+    uid: 1
+  }
+  is_complete: false
+  is_active: true
+  actions {
+    common {
+      is_deleted: false
+      timestamp {
+        ctime: 1000000000001
+        dtime: -1
+        mtime: 1000000001000000
+      }
+      metadata {
+        name: "buy light bulbs"
+        note: "60w"
+      }
+      uid: -5
+    }
+    is_complete: false
+  }
+}
+root {
+  common {
+    is_deleted: false
+    timestamp {
+      ctime: 38000000
+      dtime: -1
+      mtime: 1000000001000000
+    }
+    uid: 2
+  }
+  folders {
+    common {
+      is_deleted: false
+      timestamp {
+        ctime: 38000000
+        dtime: -1
+        mtime: 1000000001000000
+      }
+      metadata {
+        name: "folder9"
+      }
+      uid: -109
+    }
+  }
+  projects {
+    common {
+      is_deleted: false
+      timestamp {
+        ctime: 38000000
+        dtime: -1
+        mtime: 39000000
+      }
+      metadata {
+        name: "prj9"
+      }
+      uid: -110
+    }
+    is_complete: false
+    is_active: true
+    actions {
+      common {
+        is_deleted: false
+        timestamp {
+          ctime: 39000000
+          dtime: -1
+          mtime: 39000000
+        }
+        metadata {
+          name: "action_in_prj9"
+        }
+        uid: -111
+      }
+      is_complete: false
+    }
+  }
+  projects {
+    common {
+      is_deleted: false
+      timestamp {
+        ctime: 1000000000000
+        dtime: -1
+        mtime: 1000000001000000
+      }
+      metadata {
+        name: "P1"
+      }
+      uid: -6
+    }
+    is_complete: false
+    is_active: false
+  }
+}
+ctx_list {
+  contexts {
+    common {
+      is_deleted: false
+      timestamp {
+        ctime: 1558072527256254
+        dtime: -1
+        mtime: 1558072527256359
+      }
+      metadata {
+        name: "@computer"
+      }
+      uid: -48
+    }
+    is_active: true
+  }
+}
+note_list {
+  notes {
+    name: ":__home"
+    note: "this is the note on the home page"
+  }
+}
+"""
+   }))
+
+# The following test case, when 'remote' and 'database' are swapped, revealed a bug. The diff between database and
+# remote is as follows:
+#
+# *** /tmp/db	2021-02-06 13:29:36.000000000 -0500
+# --- /tmp/remote	2021-02-06 13:29:39.000000000 -0500
+# ***************
+# *** 49,101 ****
+#           mtime: 1000000001000000
+#         }
+#         metadata {
+# !         name: "folder10"
+#         }
+# !       uid: -209
+#       }
+# !     folders {
+#         common {
+#           is_deleted: false
+#           timestamp {
+#             ctime: 38000000
+#             dtime: -1
+# !           mtime: 1000000001000000
+#           }
+#           metadata {
+# !           name: "folder9"
+#           }
+# !         uid: -109
+#         }
+# !       projects {
+#           common {
+#             is_deleted: false
+#             timestamp {
+# !             ctime: 38000000
+#               dtime: -1
+#               mtime: 39000000
+#             }
+#             metadata {
+# !             name: "prj9"
+#             }
+# !           uid: -110
+#           }
+#           is_complete: false
+# -         is_active: true
+# -         actions {
+# -           common {
+# -             is_deleted: false
+# -             timestamp {
+# -               ctime: 39000000
+# -               dtime: -1
+# -               mtime: 39000000
+# -             }
+# -             metadata {
+# -               name: "action_in_prj9"
+# -             }
+# -             uid: -111
+# -           }
+# -           is_complete: false
+# -         }
+#         }
+#       }
+#     }
+# --- 49,87 ----
+#           mtime: 1000000001000000
+#         }
+#         metadata {
+# !         name: "folder9"
+#         }
+# !       uid: -109
+#       }
+# !     projects {
+#         common {
+#           is_deleted: false
+#           timestamp {
+#             ctime: 38000000
+#             dtime: -1
+# !           mtime: 39000000
+#           }
+#           metadata {
+# !           name: "prj9"
+#           }
+# !         uid: -110
+#         }
+# !       is_complete: false
+# !       is_active: true
+# !       actions {
+#           common {
+#             is_deleted: false
+#             timestamp {
+# !             ctime: 39000000
+#               dtime: -1
+#               mtime: 39000000
+#             }
+#             metadata {
+# !             name: "action_in_prj9"
+#             }
+# !           uid: -111
+#           }
+#           is_complete: false
+#         }
+#       }
+#     }
+#
+#     In words, what has happened is that folder10 has disappeared. This is unrealistic behavior on the part of an
+#     application because the correct merged form "resurrects" folder10. But the merged form should have an empty
+#     folder10 with folder9 having parent Folder 'root'. prj9 remains underneath folder9 (which means that it too moves).
+text_formatted_protobuf_dicts.append(
+  ('folder10 disappears in a way that it would not in a well-written app',
+   {
+     'database': """
+inbox {
+  common {
+    is_deleted: false
+    timestamp {
+      ctime: 1000000001000000
+      dtime: -1
+      mtime: 1000000001000000
+    }
+    metadata {
+      name: "inbox"
+    }
+    uid: 1
+  }
+  is_complete: false
+  is_active: true
+  actions {
+    common {
+      is_deleted: false
+      timestamp {
+        ctime: 1000000000001
+        dtime: -1
+        mtime: 1000000001000000
+      }
+      metadata {
+        name: "buy light bulbs"
+        note: "60w"
+      }
+      uid: -5
+    }
+    is_complete: false
+  }
+}
+root {
+  common {
+    is_deleted: false
+    timestamp {
+      ctime: 38000000
+      dtime: -1
+      mtime: 1000000001000000
+    }
+    uid: 2
+  }
+  folders {
+    common {
+      is_deleted: false
+      timestamp {
+        ctime: 38000000
+        dtime: -1
+        mtime: 1000000001000000
+      }
+      metadata {
+        name: "folder9"
+      }
+      uid: -109
+    }
+    projects {
+      common {
+        is_deleted: false
+        timestamp {
+          ctime: 38000000
+          dtime: -1
+          mtime: 39000000
+        }
+        metadata {
+          name: "prj9"
+        }
+        uid: -110
+      }
+      is_complete: false
+      is_active: true
+      actions {
+        common {
+          is_deleted: false
+          timestamp {
+            ctime: 39000000
+            dtime: -1
+            mtime: 39000000
+          }
+          metadata {
+            name: "action_in_prj9"
+          }
+          uid: -111
+        }
+        is_complete: false
+      }
+    }
+  }
+  projects {
+    common {
+      is_deleted: false
+      timestamp {
+        ctime: 1000000000000
+        dtime: -1
+        mtime: 1000000001000000
+      }
+      metadata {
+        name: "P1"
+      }
+      uid: -6
+    }
+    is_complete: false
+    is_active: false
+  }
+}
+ctx_list {
+  contexts {
+    common {
+      is_deleted: false
+      timestamp {
+        ctime: 1558072527256254
+        dtime: -1
+        mtime: 1558072527256359
+      }
+      metadata {
+        name: "@computer"
+      }
+      uid: -48
+    }
+    is_active: true
+  }
+}
+note_list {
+  notes {
+    name: ":__home"
+    note: "this is the note on the home page"
+  }
+}
+""",
+     'remote': """
+inbox {
+  common {
+    is_deleted: false
+    timestamp {
+      ctime: 1000000001000000
+      dtime: -1
+      mtime: 1000000001000000
+    }
+    metadata {
+      name: "inbox"
+    }
+    uid: 1
+  }
+  is_complete: false
+  is_active: true
+  actions {
+    common {
+      is_deleted: false
+      timestamp {
+        ctime: 1000000000001
+        dtime: -1
+        mtime: 1000000001000000
+      }
+      metadata {
+        name: "buy light bulbs"
+        note: "60w"
+      }
+      uid: -5
+    }
+    is_complete: false
+  }
+}
+root {
+  common {
+    is_deleted: false
+    timestamp {
+      ctime: 38000000
+      dtime: -1
+      mtime: 1000000001000000
+    }
+    uid: 2
+  }
+  folders {
+    common {
+      is_deleted: false
+      timestamp {
+        ctime: 38000000
+        dtime: -1
+        mtime: 1000000001000000
+      }
+      metadata {
+        name: "folder10"
+      }
+      uid: -209
+    }
+    folders {
+      common {
+        is_deleted: false
+        timestamp {
+          ctime: 38000000
+          dtime: -1
+          mtime: 1000000001000000
+        }
+        metadata {
+          name: "folder9"
+        }
+        uid: -109
+      }
+      projects {
+        common {
+          is_deleted: false
+          timestamp {
+            ctime: 38000000
+            dtime: -1
+            mtime: 39000000
+          }
+          metadata {
+            name: "prj9"
+          }
+          uid: -110
+        }
+        is_complete: false
+        is_active: true
+        actions {
+          common {
+            is_deleted: false
+            timestamp {
+              ctime: 39000000
+              dtime: -1
+              mtime: 39000000
+            }
+            metadata {
+              name: "action_in_prj9"
+            }
+            uid: -111
+          }
+          is_complete: false
+        }
+      }
+    }
+  }
+  projects {
+    common {
+      is_deleted: false
+      timestamp {
+        ctime: 1000000000000
+        dtime: -1
+        mtime: 1000000001000000
+      }
+      metadata {
+        name: "P1"
+      }
+      uid: -6
+    }
+    is_complete: false
+    is_active: false
+  }
+}
+ctx_list {
+  contexts {
+    common {
+      is_deleted: false
+      timestamp {
+        ctime: 1558072527256254
+        dtime: -1
+        mtime: 1558072527256359
+      }
+      metadata {
+        name: "@computer"
+      }
+      uid: -48
+    }
+    is_active: true
+  }
+}
+note_list {
+  notes {
+    name: ":__home"
+    note: "this is the note on the home page"
+  }
+}
+"""
+   }))
+
+text_formatted_protobuf_dicts.append(
+  ('2',
+   {
+     'database': """
+inbox {
+  common {
+    is_deleted: false
+    timestamp {
+      ctime: 1000000001000000
+      dtime: -1
+      mtime: 1000000001000000
+    }
+    metadata {
+      name: "inbox"
+    }
+    uid: 1
+  }
+  is_complete: false
+  is_active: true
+}
+root {
+  common {
+    is_deleted: false
+    timestamp {
+      ctime: 38000000
+      dtime: -1
+      mtime: 1000000001000000
+    }
+    uid: 2
+  }
+  folders {
+    common {
+      is_deleted: false
+      timestamp {
+        ctime: 38000000
+        dtime: -1
+        mtime: 1000000001000000
+      }
+      metadata {
+        name: "folder9"
+      }
+      uid: -109
+    }
+    projects {
+      common {
+        is_deleted: false
+        timestamp {
+          ctime: 38000000
+          dtime: -1
+          mtime: 39000000
+        }
+        metadata {
+          name: "prj9"
+        }
+        uid: -110
+      }
+      is_complete: false
+      is_active: true
+      actions {
+        common {
+          is_deleted: false
+          timestamp {
+            ctime: 39000000
+            dtime: -1
+            mtime: 39000000
+          }
+          metadata {
+            name: "action_in_prj9"
+          }
+          uid: -111
+        }
+        is_complete: false
+      }
+    }
+  }
+  projects {
+    common {
+      is_deleted: false
+      timestamp {
+        ctime: 1000000000000
+        dtime: -1
+        mtime: 1000000001000000
+      }
+      metadata {
+        name: "P1"
+      }
+      uid: -6
+    }
+    is_complete: false
+    is_active: false
+  }
+}
+ctx_list {
+  contexts {
+    common {
+      is_deleted: false
+      timestamp {
+        ctime: 1558072527256254
+        dtime: -1
+        mtime: 1558072527256359
+      }
+      metadata {
+        name: "@computer"
+      }
+      uid: -48
+    }
+    is_active: true
+  }
+}
+note_list {
+  notes {
+    name: ":__home"
+    note: "this is the note on the home page"
+  }
+}
+""",
+     'remote': """
+inbox {
+  common {
+    is_deleted: false
+    timestamp {
+      ctime: 1000000001000000
+      dtime: -1
+      mtime: 1000000001000000
+    }
+    metadata {
+      name: "inbox"
+    }
+    uid: 1
+  }
+  is_complete: false
+  is_active: true
+}
+root {
+  common {
+    is_deleted: false
+    timestamp {
+      ctime: 38000000
+      dtime: -1
+      mtime: 1000000001000000
+    }
+    uid: 2
+  }
+  folders {
+    common {
+      is_deleted: false
+      timestamp {
+        ctime: 38000000
+        dtime: -1
+        mtime: 1000000001000000
+      }
+      metadata {
+        name: "folder9"
+      }
+      uid: -109
+    }
+    projects {
+      common {
+        is_deleted: false
+        timestamp {
+          ctime: 38000000
+          dtime: -1
+          mtime: 39000000
+        }
+        metadata {
+          name: "prj9"
+        }
+        uid: -110
+      }
+      is_complete: false
+      is_active: true
+    }
+  }
+  projects {
+    common {
+      is_deleted: false
+      timestamp {
+        ctime: 1000000000000
+        dtime: -1
+        mtime: 1000000001000000
+      }
+      metadata {
+        name: "P1"
+      }
+      uid: -6
+    }
+    is_complete: false
+    is_active: false
+    actions {
+      common {
+        is_deleted: false
+        timestamp {
+          ctime: 39000000
+          dtime: -1
+          mtime: 39000001
+        }
+        metadata {
+          name: "action_in_prj9 but with a new name"
+        }
+        uid: -111
+      }
+      is_complete: false
+    }
+  }
+}
+ctx_list {
+  contexts {
+    common {
+      is_deleted: false
+      timestamp {
+        ctime: 1558072527256254
+        dtime: -1
+        mtime: 1558072527256359
+      }
+      metadata {
+        name: "@computer"
+      }
+      uid: -48
+    }
+    is_active: true
+  }
+}
+note_list {
+  notes {
+    name: ":__home"
+    note: "this is the note on the home page"
+  }
+}
+"""
+   }))
+
+# DLC now move an action out of the inbox and (2) from one prj to another
+text_formatted_protobuf_dicts.append(
+  ('move an action into the inbox',
+   {
+     'database': """
+inbox {
+  common {
+    is_deleted: false
+    timestamp {
+      ctime: 1000000001000000
+      dtime: -1
+      mtime: 1000000001000000
+    }
+    metadata {
+      name: "inbox"
+    }
+    uid: 1
+  }
+  is_complete: false
+  is_active: true
+}
+root {
+  common {
+    is_deleted: false
+    timestamp {
+      ctime: 38000000
+      dtime: -1
+      mtime: 1000000001000000
+    }
+    uid: 2
+  }
+  folders {
+    common {
+      is_deleted: false
+      timestamp {
+        ctime: 38000000
+        dtime: -1
+        mtime: 1000000001000000
+      }
+      metadata {
+        name: "folder9"
+      }
+      uid: -109
+    }
+    projects {
+      common {
+        is_deleted: false
+        timestamp {
+          ctime: 38000000
+          dtime: -1
+          mtime: 39000000
+        }
+        metadata {
+          name: "prj9"
+        }
+        uid: -110
+      }
+      is_complete: false
+      is_active: true
+      actions {
+        common {
+          is_deleted: false
+          timestamp {
+            ctime: 39000000
+            dtime: -1
+            mtime: 39000000
+          }
+          metadata {
+            name: "action_in_prj9"
+          }
+          uid: -111
+        }
+        is_complete: false
+      }
+    }
+  }
+  projects {
+    common {
+      is_deleted: false
+      timestamp {
+        ctime: 1000000000000
+        dtime: -1
+        mtime: 1000000001000000
+      }
+      metadata {
+        name: "P1"
+      }
+      uid: -6
+    }
+    is_complete: false
+    is_active: false
+  }
+}
+ctx_list {
+  contexts {
+    common {
+      is_deleted: false
+      timestamp {
+        ctime: 1558072527256254
+        dtime: -1
+        mtime: 1558072527256359
+      }
+      metadata {
+        name: "@computer"
+      }
+      uid: -48
+    }
+    is_active: true
+  }
+}
+note_list {
+  notes {
+    name: ":__home"
+    note: "this is the note on the home page"
+  }
+}
+""",
+     'remote': """
+inbox {
+  common {
+    is_deleted: false
+    timestamp {
+      ctime: 1000000001000000
+      dtime: -1
+      mtime: 1000000001000000
+    }
+    metadata {
+      name: "inbox"
+    }
+    uid: 1
+  }
+  is_complete: false
+  is_active: true
+  actions {
+    common {
+      is_deleted: false
+      timestamp {
+        ctime: 39000000
+        dtime: -1
+        mtime: 39000000
+      }
+      metadata {
+        name: "action_in_prj9"
+      }
+      uid: -111
+    }
+    is_complete: false
+  }
+}
+root {
+  common {
+    is_deleted: false
+    timestamp {
+      ctime: 38000000
+      dtime: -1
+      mtime: 1000000001000000
+    }
+    uid: 2
+  }
+  folders {
+    common {
+      is_deleted: false
+      timestamp {
+        ctime: 38000000
+        dtime: -1
+        mtime: 1000000001000000
+      }
+      metadata {
+        name: "folder9"
+      }
+      uid: -109
+    }
+    projects {
+      common {
+        is_deleted: false
+        timestamp {
+          ctime: 38000000
+          dtime: -1
+          mtime: 39000000
+        }
+        metadata {
+          name: "prj9"
+        }
+        uid: -110
+      }
+      is_complete: false
+      is_active: true
+    }
+  }
+  projects {
+    common {
+      is_deleted: false
+      timestamp {
+        ctime: 1000000000000
+        dtime: -1
+        mtime: 1000000001000000
+      }
+      metadata {
+        name: "P1"
+      }
+      uid: -6
+    }
+    is_complete: false
+    is_active: false
+  }
+}
+ctx_list {
+  contexts {
+    common {
+      is_deleted: false
+      timestamp {
+        ctime: 1558072527256254
+        dtime: -1
+        mtime: 1558072527256359
+      }
+      metadata {
+        name: "@computer"
+      }
+      uid: -48
+    }
+    is_active: true
+  }
+}
+note_list {
+  notes {
+    name: ":__home"
+    note: "this is the note on the home page"
+  }
+}
+"""
+   }))
+
+
+def _pb2str(pb):
+  return text_format.MessageToString(pb)
+
 
 def _well_known_tdl() -> pyatdl_pb2.ToDoList:
   return text_format.Merge(text_formatted_protobuf_well_known, pyatdl_pb2.ToDoList())
@@ -307,7 +1469,7 @@ class MergeprotobufsTestCase(unitjest.TestCase):
     self.assertProtosEqual(mergeprotobufs.Merge(todos_in_db, remote_pb), todos_in_db.AsProto())
 
   def testMerge1Right(self) -> None:
-    todos_in_db, remote_pb = tdl.ToDoList(), pyatdl_pb2.ToDoList()
+    todos_in_db, remote_pb = tdl.ToDoList(), _FreshToDoListProto()
     p = prj.Prj(name="new name for what was once the inbox", the_uid=uid.INBOX_UID).AsProto()
     p.common.timestamp.ctime = year5454microsec
     p.common.timestamp.mtime = year5454microsec
@@ -317,7 +1479,7 @@ class MergeprotobufsTestCase(unitjest.TestCase):
       text_formatted_protobuf_1)
 
   def testMerge1RightNewAction(self) -> None:
-    todos_in_db, remote_pb = tdl.ToDoList(), pyatdl_pb2.ToDoList()
+    todos_in_db, remote_pb = tdl.ToDoList(), _FreshToDoListProto()
     p = prj.Prj(name="old name (as dictated by ctime and mtime) for what was once the inbox", the_uid=uid.INBOX_UID)
     p.mtime = p.ctime = 9.0
     a = action.Action(name="buy light bulbs", note="60w", the_uid=5)
@@ -467,10 +1629,11 @@ root {
   def testMergeInboxNameChangedWithTimestampDifferenceLeft(self) -> None:
     todos_in_db = tdl.ToDoList(
       inbox=prj.Prj(the_uid=uid.INBOX_UID, name="my password is hunter2"))
-    remote_pb = pyatdl_pb2.ToDoList()
+    remote_pb = _FreshToDoListProto()
     remote_pb.CopyFrom(todos_in_db.AsProto())
     remote_pb.inbox.common.metadata.name = "my password is *******"
     remote_pb.inbox.common.timestamp.mtime -= 1000
+    remote_pb.inbox.common.timestamp.ctime -= 1000
     self.assertProtosEqual(
       mergeprotobufs.Merge(
         todos_in_db,
@@ -742,6 +1905,65 @@ page\\\\n>>>>>>> device\\\\n"
         RemoteToDoList(_well_known_tdl())),
       golden)
 
+  def testChangeFolderOfProjectAlsoKnownAsMovingTheProject1(self) -> None:
+    for xx, yy in [('database', 'remote'), ('remote', 'database')]:
+      i_seen = set()
+      for i, dd in text_formatted_protobuf_dicts:
+        assert i not in i_seen
+        i_seen.add(i)
+        todos_in_db = _ProtobufToTdl(text_format.Merge(dd[xx], pyatdl_pb2.ToDoList()))
+        remote_pb = text_format.Merge(dd[yy], pyatdl_pb2.ToDoList())
+        merged = mergeprotobufs.Merge(todos_in_db, remote_pb)
+        if (i, xx, yy) != ('folder10 disappears in a way that it would not in a well-written app', 'remote', 'database'):
+          self.assertProtosEqual(actual=merged, expected=remote_pb, hint=(i, xx, yy))
+          continue
+        tt = pyatdl_pb2.ToDoList()
+        text_format.Merge(r"""
+        root {
+          folders {
+            common {
+              is_deleted: false
+              timestamp {
+                ctime: 38000000
+                dtime: -1
+                mtime: 1000000001000000
+              }
+              metadata {
+                name: "folder10"
+              }
+              uid: -209
+            }
+          }
+        }
+        """, tt)
+        tt.MergeFrom(remote_pb)
+        self.assertProtosEqual(actual=merged, expected=tt, hint=(i, xx, yy))
+
+  def testChangeFolderOfProjectAlsoKnownAsMovingTheProject2(self) -> None:
+    # TODO(chandler37): test moving to root, from root, from non-root to non-root, and also into a new folder
+
+    def DatabaseToDoList(start: pyatdl_pb2.ToDoList) -> pyatdl_pb2.ToDoList:
+      db_pb = pyatdl_pb2.ToDoList()
+      db_pb.CopyFrom(start)
+      text_format.Merge(_OLDPRJ, db_pb.root)
+      return db_pb
+
+    def RemoteToDoList(start: pyatdl_pb2.ToDoList) -> pyatdl_pb2.ToDoList:
+      remote_pb = pyatdl_pb2.ToDoList()
+      remote_pb.CopyFrom(start)
+      new_folder = remote_pb.root.folders.add()
+      text_format.Merge(_OLDPRJ_IN_NEW_FOLDER, new_folder)
+      return remote_pb
+
+    base_tdl = text_format.Merge(text_formatted_protobuf_well_known, pyatdl_pb2.ToDoList())
+    todos_in_db = _ProtobufToTdl(DatabaseToDoList(base_tdl))
+    remote_pb = RemoteToDoList(base_tdl)
+    self.assertProtosEqual(
+      mergeprotobufs.Merge(
+        todos_in_db,
+        remote_pb),
+      remote_pb)
+
 
 if __name__ == '__main__':
   unitjest.main()
@@ -867,4 +2089,11 @@ git repository. what we do is to leave git conflict markers like so:
 
 // TODO(chandler37): a test case where the database is non-empty but semantically empty so that we make sure we can add every single
 // thing in the ToDoList message (and Action et al.)
+
+TODO(chandler37): test moving an action from one prj to another
+
+TODO(chandler37): test moving a folder from one folder to another
+
+TODO(chandler37): test moving a prj from one subfolder to another subfolder (parametrized by a destination subfolder
+that is {earlier, later} in the protobuf)
 """

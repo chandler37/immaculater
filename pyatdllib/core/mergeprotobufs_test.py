@@ -2156,6 +2156,163 @@ root {
 """
    }))
 
+text_formatted_protobuf_dicts.append(
+  ('moves an action -111 from one prj -6 into another prj -7 that is a sibling',
+   {
+     'database': """
+inbox {
+  common {
+    is_deleted: false
+    timestamp {
+      ctime: 1000000001000000
+      dtime: -1
+      mtime: 1000000001000000
+    }
+    metadata {
+      name: "inbox"
+    }
+    uid: 1
+  }
+  is_complete: false
+  is_active: true
+}
+root {
+  common {
+    is_deleted: false
+    timestamp {
+      ctime: 38000000
+      dtime: -1
+      mtime: 1000000001000000
+    }
+    uid: 2
+  }
+  projects {
+    common {
+      is_deleted: false
+      timestamp {
+        ctime: 1000000000000
+        dtime: -1
+        mtime: 1000000001000000
+      }
+      metadata {
+        name: "P-6"
+      }
+      uid: -6
+    }
+    is_complete: false
+    is_active: true
+    actions {
+      common {
+        is_deleted: false
+        timestamp {
+          ctime: 39000000
+          dtime: -1
+          mtime: 39000000
+        }
+        metadata {
+          name: "action_in_prj9"
+        }
+        uid: -111
+      }
+      is_complete: false
+    }
+  }
+  projects {
+    common {
+      is_deleted: false
+      timestamp {
+        ctime: 1000000000000
+        dtime: -1
+        mtime: 1000000001000000
+      }
+      metadata {
+        name: "P-7"
+      }
+      uid: -7
+    }
+    is_complete: false
+    is_active: true
+  }
+}
+""",
+     'remote': """
+inbox {
+  common {
+    is_deleted: false
+    timestamp {
+      ctime: 1000000001000000
+      dtime: -1
+      mtime: 1000000001000000
+    }
+    metadata {
+      name: "inbox"
+    }
+    uid: 1
+  }
+  is_complete: false
+  is_active: true
+}
+root {
+  common {
+    is_deleted: false
+    timestamp {
+      ctime: 38000000
+      dtime: -1
+      mtime: 1000000001000000
+    }
+    uid: 2
+  }
+  projects {
+    common {
+      is_deleted: false
+      timestamp {
+        ctime: 1000000000000
+        dtime: -1
+        mtime: 1000000001000000
+      }
+      metadata {
+        name: "P-6"
+      }
+      uid: -6
+    }
+    is_complete: false
+    is_active: true
+  }
+  projects {
+    common {
+      is_deleted: false
+      timestamp {
+        ctime: 1000000000000
+        dtime: -1
+        mtime: 1000000001000000
+      }
+      metadata {
+        name: "P-7"
+      }
+      uid: -7
+    }
+    is_complete: false
+    is_active: true
+    actions {
+      common {
+        is_deleted: false
+        timestamp {
+          ctime: 39000000
+          dtime: -1
+          mtime: 39000000
+        }
+        metadata {
+          name: "action_in_prj9"
+        }
+        uid: -111
+      }
+      is_complete: false
+    }
+  }
+}
+"""
+   }))
+
 
 def _pb2str(pb):
   return text_format.MessageToString(pb)

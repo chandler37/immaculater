@@ -126,7 +126,7 @@ class Folder(container.Container):
           if parent_folder.uid != other.common.uid:
             for i, item in enumerate(parent_folder.items):
               if isinstance(item, Folder) and item.uid == existing_folder.uid:
-                del parent_folder.items[i]
+                del parent_folder.items[i]  # TODO(chandler37): DRY up using truly_delete_by_uid?
                 parent_folder.NoteModification()
                 break
             else:
@@ -151,32 +151,33 @@ class Folder(container.Container):
             truly_delete_by_uid(uid=uu)
           self.items.append(new_prj_item)
           self.NoteModification()
-        else:
-          assert isinstance(path, list)
-          old_folder_in_db = path[0]  # The path is leaf first.
-          old_folder_path = find_existing_project_by_uid_in_remote(other_project.common.uid)
-          assert isinstance(old_folder_path, list)
-          moved = old_folder_path and path and old_folder_path[0].common.uid != path[0]
-          if not isinstance(existing_project, prj.Prj):
-            raise AssertionError(
-              "mergeprotobufs: Either there is a bug here on the server, or the client reused a project's UID for a folder")
-          existing_project.MergeFromProto(
-            other_project,
-            find_existing_action_by_uid=find_existing_action_by_uid)
-          if moved:
-            # remove from the old folder: TODO(chandler): DRY up with a new method DeleteItemByUid()
-            for i, item in enumerate(old_folder_in_db.items):
-              if isinstance(item, prj.Prj) and item.uid == other_project.common.uid:
-                del old_folder_in_db.items[i]
-                old_folder_in_db.NoteModification()
-                break
-            else:
-              raise AssertionError(f"error moving a project(uid={other_project.common.uid}) during mergeprotobufs")
-            # add here:
-            self.items.append(
-              prj.Prj.DeserializedProtobuf(
-                other_project.SerializeToString()))
-            self.NoteModification()
+          continue
+        assert isinstance(path, list)
+        old_folder_in_db = path[0]  # The path is leaf first.
+        old_folder_path = find_existing_project_by_uid_in_remote(other_project.common.uid)
+        assert isinstance(old_folder_path, list)
+        moved = old_folder_path and path and old_folder_path[0].common.uid != path[0]
+        if not isinstance(existing_project, prj.Prj):
+          raise AssertionError(
+            "mergeprotobufs: Either there is a bug here on the server, or the client reused a project's UID for a folder")
+        existing_project.MergeFromProto(
+          other_project,
+          find_existing_action_by_uid=find_existing_action_by_uid)
+        if moved:
+          # remove from the old folder: TODO(chandler): DRY up with a new method DeleteItemByUid() (or can we use
+          # TrulyDeleteByUid?)
+          for i, item in enumerate(old_folder_in_db.items):
+            if isinstance(item, prj.Prj) and item.uid == other_project.common.uid:
+              del old_folder_in_db.items[i]
+              old_folder_in_db.NoteModification()
+              break
+          else:
+            raise AssertionError(f"error moving a project(uid={other_project.common.uid}) during mergeprotobufs")
+          # add here:
+          self.items.append(
+            prj.Prj.DeserializedProtobuf(
+              other_project.SerializeToString()))
+          self.NoteModification()
 
     # The order of these calls shouldn't matter:
     HandleFolders()

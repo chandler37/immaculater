@@ -259,8 +259,8 @@ class Prj(container.Container):
       self.MergeCommonFrom(other)  # this alters mtime
 
     for other_action in other.actions:
-      # DLC TrulyDeleteByUid
-      existing_action_and_prj = find_existing_action_by_uid(other_action.common.uid)  # DLC self or other?
+      # TODO(chandler): TrulyDeleteByUid?
+      existing_action_and_prj = find_existing_action_by_uid(other_action.common.uid)
       if existing_action_and_prj is None:
         # TODO(chandler): this should check if the UID is already in use elsewhere and ?generate a new thing,
         # preserving both?, if so:
@@ -270,8 +270,6 @@ class Prj(container.Container):
         # But do not self.NoteModification() because we called MergeCommonFrom() above.
       else:
         existing_action, existing_parent_prj = existing_action_and_prj
-        # from google.protobuf import text_format # type: ignore DLC DLC('existing_action_and_prj is not None',
-        # existing_parent_prj, self.uid, existing_parent_prj.uid, other.common.uid, text_format.MessageToString(other))
         existing_action.MergeFromProto(other_action)
 
   @classmethod

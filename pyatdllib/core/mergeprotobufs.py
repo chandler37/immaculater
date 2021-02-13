@@ -68,4 +68,5 @@ def Merge(db: tdl.ToDoList, remote: pyatdl_pb2.ToDoList) -> pyatdl_pb2.ToDoList:
     db.MergeCtxList(remote.ctx_list)
   if remote.HasField('note_list'):
     db.MergeNoteList(remote.note_list)
+  db.CheckIsWellFormed()
   return db.AsProto()

@@ -2329,19 +2329,22 @@ def _ProtobufToTdl(proto: pyatdl_pb2.ToDoList) -> tdl.ToDoList:
 
 def _FreshToDoListProto() -> pyatdl_pb2.ToDoList:
   """Returns a semantically empty, well-formed protobuf."""
+  uid.ResetNotesOfExistingUIDs(raise_data_error_upon_next_uid=True, allow_duplication=True)
   return pyatdl_pb2.ToDoList.FromString(
     tdl.ToDoList().AsProto().SerializeToString())
 
 
 class MergeprotobufsTestCase(unitjest.TestCase):
+  def helpSetUp(self) -> None:
+    random.seed(3737123)
+    uid.ResetNotesOfExistingUIDs(raise_data_error_upon_next_uid=True, allow_duplication=True)
+
   def setUp(self) -> None:
     super().setUp()
-    uid.ResetNotesOfExistingUIDs()
     self.maxDiff = None
     self.saved_time = time.time
     time.time = lambda: 1000000001  # 2001-09-08 18:46:41 PST8PDT, which is 1000000001000000 in microseconds since the epoch
-    random.seed(3737123)
-    uid.ResetNotesOfExistingUIDs(raise_data_error_upon_next_uid=True, allow_duplication=True)
+    self.helpSetUp()
 
   def tearDown(self) -> None:
     time.time = self.saved_time
@@ -2810,6 +2813,7 @@ page\\\\n>>>>>>> device\\\\n"
       for i, dd in text_formatted_protobuf_dicts:
         assert i not in i_seen
         i_seen.add(i)
+        self.helpSetUp()
         todos_in_db = _ProtobufToTdl(text_format.Merge(dd[xx], pyatdl_pb2.ToDoList()))
         remote_pb = text_format.Merge(dd[yy], pyatdl_pb2.ToDoList())
         merged = mergeprotobufs.Merge(todos_in_db, remote_pb)

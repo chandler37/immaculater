@@ -68,5 +68,8 @@ def Merge(db: tdl.ToDoList, remote: pyatdl_pb2.ToDoList) -> pyatdl_pb2.ToDoList:
     db.MergeCtxList(remote.ctx_list)
   if remote.HasField('note_list'):
     db.MergeNoteList(remote.note_list)
+  uid.ResetNotesOfExistingUIDs(
+    raise_data_error_upon_next_uid=True,
+    allow_duplication=False)
   db.CheckIsWellFormed()
   return db.AsProto()

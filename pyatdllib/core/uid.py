@@ -46,15 +46,21 @@ UICMD_JSON_UID_VALUE_REPRESENTING_NONE = 0
 
 class Factory(object):
   """Generator of new UIDs."""
-  def __init__(self) -> None:
+  def __init__(self, *, raise_data_error_upon_next_uid: bool = False, allow_duplication: bool = False) -> None:
     self._uids: Set[int] = set()
     self._lock = threading.RLock()
+    self.raise_data_error_upon_next_uid = raise_data_error_upon_next_uid
+    self.allow_duplication = allow_duplication
 
   def NextUID(self, discarding: bool = False) -> int:
     """Creates and returns a new unique identifier.
 
     If FLAGS.pyatdl_randomize_uids is falsy and you deserialize in the future, you invalidate this UID.
     """
+    if self.raise_data_error_upon_next_uid:
+      if not discarding:
+        raise errors.DataError("A UID is missing!")
+      return -42
     with self._lock:
       if FLAGS.pyatdl_randomize_uids:
         reserved = (
@@ -86,6 +92,8 @@ class Factory(object):
     Args:
       existing_uid: int
     """
+    if self.allow_duplication:
+      return
     with self._lock:
       if existing_uid == DEFAULT_PROTOBUF_VALUE_FOR_ABSENT_UID:
         raise errors.DataError("A UID is missing from or explicitly zero in the protocol buffer!")
@@ -94,30 +102,12 @@ class Factory(object):
       self._uids.add(existing_uid)
 
 
-class FactoryThatRaisesDataErrorUponNextUID(Factory):
-  def NextUID(self, discarding: bool = False) -> int:
-    if not discarding:
-      raise errors.DataError("A UID is missing!")
-    return -42
+singleton_factory: Factory = Factory(raise_data_error_upon_next_uid=True)
 
 
-class FactoryThatRaisesDataErrorUponNextUIDAndAllowsDuplication(FactoryThatRaisesDataErrorUponNextUID):
-  def NoteExistingUID(self, existing_uid) -> None:
-    pass
-
-
-singleton_factory: Factory = FactoryThatRaisesDataErrorUponNextUID()
-
-
-def ResetNotesOfExistingUIDs(raise_data_error_upon_next_uid: bool = False, allow_duplication: bool = False) -> None:
+def ResetNotesOfExistingUIDs(**kwargs) -> None:
   global singleton_factory
-  if raise_data_error_upon_next_uid:
-    if allow_duplication:
-      singleton_factory = FactoryThatRaisesDataErrorUponNextUIDAndAllowsDuplication()
-    else:
-      singleton_factory = FactoryThatRaisesDataErrorUponNextUID()
-  else:
-    singleton_factory = Factory()
+  singleton_factory = Factory(**kwargs)
 
 
 ResetNotesOfExistingUIDs()

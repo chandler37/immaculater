@@ -16,7 +16,7 @@ from . import uid
 def _AllUidsInProtobufToDoList(remote: pyatdl_pb2.ToDoList) -> Set[int]:
   # TODO(chandler): converting to a tdl.ToDoList is a waste of memory and CPU:
   saved_fac = uid.singleton_factory
-  uid.singleton_factory = uid.FactoryThatRaisesDataErrorUponNextUID()
+  uid.singleton_factory = uid.Factory(raise_data_error_upon_next_uid=True)
   try:
     remote_tdl = tdl.ToDoList.DeserializedProtobuf(remote.SerializeToString())
     return remote_tdl.CheckIsWellFormed()
@@ -59,6 +59,9 @@ def Merge(db: tdl.ToDoList, remote: pyatdl_pb2.ToDoList) -> pyatdl_pb2.ToDoList:
     raise TypeError('db must be tdl.ToDoList')
   if not isinstance(remote, pyatdl_pb2.ToDoList):
     raise TypeError('arguments must be None|pyatdl_pb2.ToDoList')
+  uid.ResetNotesOfExistingUIDs(
+    raise_data_error_upon_next_uid=False,  # in the future we will need to duplicate items changed on two devices.
+    allow_duplication=True)
   if remote.HasField('inbox'):
     # TODO(chandler37): DRY up MergeInbox and prj.Prj.MergeFromProto
     db.MergeInbox(remote.inbox, all_uids_in_remote_to_do_list=_AllUidsInProtobufToDoList(remote))

@@ -2815,6 +2815,7 @@ page\\\\n>>>>>>> device\\\\n"
         i_seen.add(i)
         self.helpSetUp()
         todos_in_db = _ProtobufToTdl(text_format.Merge(dd[xx], pyatdl_pb2.ToDoList()))
+        self.helpSetUp()
         remote_pb = text_format.Merge(dd[yy], pyatdl_pb2.ToDoList())
         merged = mergeprotobufs.Merge(todos_in_db, remote_pb)
         if (i, xx, yy) != ('folder10 disappears in a way that it would not in a well-written app', 'remote', 'database'):

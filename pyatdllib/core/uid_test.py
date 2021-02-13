@@ -53,14 +53,14 @@ class UIDTestCase(unitjest.TestCase):
   def testRaisingUponNextUID(self):
     FLAGS.pyatdl_randomize_uids = True
     random.seed(37)
-    uid.ResetNotesOfExistingUIDs(True)
+    uid.ResetNotesOfExistingUIDs(raise_data_error_upon_next_uid=True)
     raised = False
     try:
       uid.singleton_factory.NextUID()
     except errors.DataError:
       raised = True
     self.assertTrue(raised)
-    uid.ResetNotesOfExistingUIDs(False)
+    uid.ResetNotesOfExistingUIDs(raise_data_error_upon_next_uid=False)
     uid.singleton_factory.NextUID()
 
   def testRandomizedUIDs(self):

@@ -9,7 +9,7 @@ import six
 
 from absl import flags  # type: ignore
 from google.protobuf import message
-from typing import Callable, Iterator, List, Optional, Tuple, Type, TypeVar, Union
+from typing import Callable, Dict, Iterator, List, Optional, Tuple, Type, TypeVar, Union
 
 from . import action
 from . import common
@@ -89,6 +89,7 @@ class Folder(container.Container):
   def MergeFromProto(self,
                      other: pyatdl_pb2.Folder,
                      *,
+                     mtimes_by_uid_in_remote_to_do_list: Dict[int, float],
                      truly_delete_by_uid,
                      find_existing_folder_by_uid: Callable[[int], Optional[Tuple[Folder, List[Folder]]]],
                      find_existing_project_by_uid: Callable[[int], Optional[Tuple[container.Container, List[Folder]]]],
@@ -117,6 +118,7 @@ class Folder(container.Container):
           existing_folder, existing_path = existing_folder_and_path
           existing_folder.MergeFromProto(
             other_subfolder,
+            mtimes_by_uid_in_remote_to_do_list=mtimes_by_uid_in_remote_to_do_list,
             truly_delete_by_uid=truly_delete_by_uid,
             find_existing_folder_by_uid=find_existing_folder_by_uid,
             find_existing_project_by_uid=find_existing_project_by_uid,
@@ -156,28 +158,34 @@ class Folder(container.Container):
         old_folder_in_db = path[0]  # The path is leaf first.
         old_folder_path = find_existing_project_by_uid_in_remote(other_project.common.uid)
         assert isinstance(old_folder_path, list)
-        moved = old_folder_path and path and old_folder_path[0].common.uid != path[0]
+
+        # TODO(chandler): Should mtime inform the following decision?
+        moved = old_folder_path and path and old_folder_path[0].common.uid != path[0].uid
+
         if not isinstance(existing_project, prj.Prj):
           raise AssertionError(
             "mergeprotobufs: Either there is a bug here on the server, or the client reused a project's UID for a folder")
+
         existing_project.MergeFromProto(
           other_project,
+          mtimes_by_uid_in_remote_to_do_list=mtimes_by_uid_in_remote_to_do_list,
           find_existing_action_by_uid=find_existing_action_by_uid)
+
         if moved:
-          # remove from the old folder: TODO(chandler): DRY up with a new method DeleteItemByUid() (or can we use
-          # TrulyDeleteByUid?)
-          for i, item in enumerate(old_folder_in_db.items):
-            if isinstance(item, prj.Prj) and item.uid == other_project.common.uid:
-              del old_folder_in_db.items[i]
-              old_folder_in_db.NoteModification()
-              break
-          else:
-            raise AssertionError(f"error moving a project(uid={other_project.common.uid}) during mergeprotobufs")
+          # remove from the old folder:
+          old_folder_in_db.DeleteItemByUid(other_project.common.uid)
+          # No, do not old_folder_in_db.NoteModification() because the folder's mtime should ignore its items
+
           # add here:
-          self.items.append(
-            prj.Prj.DeserializedProtobuf(
-              other_project.SerializeToString()))
-          self.NoteModification()
+          moved_prj = prj.Prj.DeserializedProtobuf(
+            other_project.SerializeToString())
+          moved_prj.MergeFromProto(
+            existing_project.AsProto(),
+            mtimes_by_uid_in_remote_to_do_list=mtimes_by_uid_in_remote_to_do_list,
+            find_existing_action_by_uid=find_existing_action_by_uid)
+          self.items.append(moved_prj)
+          # self.NoteModification() is tempting but let's have a container's mtime relate to the container's metadata,
+          # not contained items.
 
     # The order of these calls shouldn't matter:
     HandleFolders()

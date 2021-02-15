@@ -10,13 +10,14 @@ import time
 
 from absl import flags  # type: ignore
 from google.protobuf import message
-from typing import Callable, Iterator, List, Optional, Tuple, Type, TypeVar
+from typing import Callable, Dict, Iterator, List, Optional, Tuple, Type, TypeVar
 
 from . import action
 from . import common
 from . import container
 from . import errors
 from . import pyatdl_pb2
+from . import uid
 
 FLAGS = flags.FLAGS
 DEFAULT_MAX_SECONDS_BEFORE_REVIEW = 3600 * 24 * 7.0
@@ -246,7 +247,16 @@ class Prj(container.Container):
   def MergeFromProto(self,
                      other: pyatdl_pb2.Project,
                      *,
+                     mtimes_by_uid_in_remote_to_do_list: Dict[int, float],
                      find_existing_action_by_uid: Callable[[int], Optional[Tuple[action.Action, Prj]]]) -> None:
+    """Add things in other but not in self (anywhere, not just self) to self.
+
+    Change things in self to match what are in other for existing things (judged by UID) that are more recent according
+    to max(ctime,mtime,dtime).
+
+    (TODO(chandler): Make the flutter app (a client of the mergeprotobufs API) look at max(ctime,mtime,dtime) to
+    determine a floor for its timestamps.)
+    """
     if not isinstance(other, pyatdl_pb2.Project):
       raise TypeError
     if common.MaxTimeOfPb(other) > common.MaxTime(self):
@@ -256,21 +266,36 @@ class Prj(container.Container):
       self.__dict__['last_review_epoch_sec'] = other.last_review_epoch_seconds
       self.__dict__['max_seconds_before_review'] = (
         other.max_seconds_before_review if other.HasField('max_seconds_before_review') else DEFAULT_MAX_SECONDS_BEFORE_REVIEW)
-      self.MergeCommonFrom(other)  # this alters mtime
-
+      self.MergeCommonFrom(other)
+    uids_to_delete = set()
+    for ii in self.items:
+      remote_mtime = mtimes_by_uid_in_remote_to_do_list.get(ii.uid, float('-inf'))
+      # we should only delete if we're going to make the move, and the move depends on the mtime (TODO(DLC): not mtime but
+      # MaxTime):
+      if ii.mtime <= remote_mtime:
+        uids_to_delete.add(ii.uid)
+    if uids_to_delete:
+      # No, do not self.NoteModification() because the mtime of the project proper should not have to do with the
+      # actions contained. 'self.items =' would trigger __setattr__ which triggers NoteModification:
+      self.items[:] = [i for i in self.items if i.uid not in uids_to_delete]
     for other_action in other.actions:
-      # TODO(chandler): TrulyDeleteByUid?
-      existing_action_and_prj = find_existing_action_by_uid(other_action.common.uid)
-      if existing_action_and_prj is None:
-        # TODO(chandler): this should check if the UID is already in use elsewhere and ?generate a new thing,
-        # preserving both?, if so:
+      if other_action.common.uid in (uid.DEFAULT_PROTOBUF_VALUE_FOR_ABSENT_UID, uid.ROOT_FOLDER_UID, uid.INBOX_UID):
+        raise AssertionError("merge error: illegal or missing UID")  # TODO(chandler37): do this in more places, too
+      tup = find_existing_action_by_uid(other_action.common.uid)
+      if tup is None:
+        # You might wonder, what if this used to exist here and the most recent thing we did was purge it? You are not
+        # supposed to purge without syncing 100% of devices.
         self.items.append(
           action.Action.DeserializedProtobuf(
             other_action.SerializeToString()))
-        # But do not self.NoteModification() because we called MergeCommonFrom() above.
       else:
-        existing_action, existing_parent_prj = existing_action_and_prj
-        existing_action.MergeFromProto(other_action)
+        existing_action, existing_project = tup
+        they_are_authority = common.MaxTimeOfPb(other_action) >= common.MaxTime(existing_action)
+        if they_are_authority:
+          existing_action.MergeFromProto(other_action)
+          if existing_project.uid != self.uid:
+            self.items.append(existing_action)
+            existing_project.DeleteItemByUid(other_action.common.uid)
 
   @classmethod
   def DeserializedProtobuf(cls: Type[T], bytestring) -> T:

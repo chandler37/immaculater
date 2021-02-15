@@ -87,7 +87,7 @@ class Container(auditable_object.AuditableObject):
 
   def DeleteItemByUid(self, the_uid: int) -> None:
     old_length = len(self.items)
-    self.items = [item for item in self.items if item.uid != the_uid]
+    self.items[:] = [item for item in self.items if item.uid != the_uid]  # avoids NoteModification via __setattr__
     if old_length - 1 != len(self.items):
       raise AssertionError(f"Cannot find the item with UID {the_uid} to delete.")
 

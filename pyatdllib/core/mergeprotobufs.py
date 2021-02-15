@@ -6,19 +6,22 @@ result.
 """
 
 
-from typing import Set
+from typing import Dict
 
 from . import pyatdl_pb2
 from . import tdl
 from . import uid
 
 
-def _AllUidsInProtobufToDoList(remote: pyatdl_pb2.ToDoList) -> Set[int]:
+def _MtimesByUidInProtobufToDoList(remote: pyatdl_pb2.ToDoList) -> Dict[int, float]:
+  remote_serialized = remote.SerializeToString()
+  if not remote_serialized:
+    return dict()
   # TODO(chandler): converting to a tdl.ToDoList is a waste of memory and CPU:
   saved_fac = uid.singleton_factory
   uid.singleton_factory = uid.Factory(raise_data_error_upon_next_uid=True)
   try:
-    remote_tdl = tdl.ToDoList.DeserializedProtobuf(remote.SerializeToString())
+    remote_tdl = tdl.ToDoList.DeserializedProtobuf(remote_serialized)
     return remote_tdl.CheckIsWellFormed()
   finally:
     uid.singleton_factory = saved_fac
@@ -51,7 +54,7 @@ def Merge(db: tdl.ToDoList, remote: pyatdl_pb2.ToDoList) -> pyatdl_pb2.ToDoList:
     pyatdl_pb2.ToDoList
   Raises:
     TypeError: one or both args is None
-
+    ValueError: bad remote
   """
   if db is None or remote is None:
     raise TypeError('both of the arguments must be present')
@@ -59,14 +62,21 @@ def Merge(db: tdl.ToDoList, remote: pyatdl_pb2.ToDoList) -> pyatdl_pb2.ToDoList:
     raise TypeError('db must be tdl.ToDoList')
   if not isinstance(remote, pyatdl_pb2.ToDoList):
     raise TypeError('arguments must be None|pyatdl_pb2.ToDoList')
+  all_uids_in_local_to_do_list = db.CheckIsWellFormed()
   uid.ResetNotesOfExistingUIDs(
     raise_data_error_upon_next_uid=False,  # in the future we will need to duplicate items changed on two devices.
     allow_duplication=True)
+  mtimes_by_uid_in_remote_to_do_list = _MtimesByUidInProtobufToDoList(remote)
   if remote.HasField('inbox'):
     # TODO(chandler37): DRY up MergeInbox and prj.Prj.MergeFromProto
-    db.MergeInbox(remote.inbox, all_uids_in_remote_to_do_list=_AllUidsInProtobufToDoList(remote))
+    if remote.inbox.common.uid != uid.INBOX_UID:
+      raise ValueError(f"inbox has incorrect UID {remote.inbox.common.uid}")
+    db.inbox.MergeFromProto(
+      remote.inbox,
+      mtimes_by_uid_in_remote_to_do_list=mtimes_by_uid_in_remote_to_do_list,
+      find_existing_action_by_uid=db.ActionByUID)
   if remote.HasField('root'):
-    db.MergeRoot(remote.root)
+    db.MergeRoot(remote.root, mtimes_by_uid_in_remote_to_do_list=mtimes_by_uid_in_remote_to_do_list)
   if remote.HasField('ctx_list'):
     db.MergeCtxList(remote.ctx_list)
   if remote.HasField('note_list'):
@@ -74,5 +84,11 @@ def Merge(db: tdl.ToDoList, remote: pyatdl_pb2.ToDoList) -> pyatdl_pb2.ToDoList:
   uid.ResetNotesOfExistingUIDs(
     raise_data_error_upon_next_uid=True,
     allow_duplication=False)
-  db.CheckIsWellFormed()
+  all_merged_uids = set(db.CheckIsWellFormed())
+  missing_remote_uids = set(mtimes_by_uid_in_remote_to_do_list) - all_merged_uids
+  if missing_remote_uids:
+    raise AssertionError(f'missing_remote_uids={missing_remote_uids}')
+  missing_local_uids = set(all_uids_in_local_to_do_list) - all_merged_uids
+  if missing_local_uids:
+    raise AssertionError(f'missing_local_uids={missing_local_uids}')
   return db.AsProto()

@@ -226,3 +226,16 @@ message ToDoList {
   // completed: 10, deleted: 1}}
   extensions 20000 to max;
 }
+
+
+// TODO(chandler37): write up the idea of having oneof[prj, action, ctx,
+// folder] (see
+// https://developers.google.com/protocol-buffers/docs/proto#oneof) and then
+// storing just an array of these such that you can easily change an action
+// into a prj (the extreme version of the idea) and easily assign a new
+// parent. Even if we don't do it, it helps when thinking about various
+// mergeprotobufs.Merge() scenarios. the item (an action in this case) was
+// changed on one device to have a different essence (defined as (type, name,
+// note) tuple) and differently on another device to have a different essence
+// and a new parent. Clearly we should create a new Item (with a new UID) and
+// keep both.

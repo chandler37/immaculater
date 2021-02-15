@@ -9,7 +9,7 @@ from __future__ import unicode_literals
 from __future__ import print_function
 
 from dateutil import tz
-from typing import Callable, Dict, Iterator, List, Optional, Set, Tuple, Type, TypeVar, Union, cast
+from typing import Callable, Dict, Iterator, List, Optional, Tuple, Type, TypeVar, Union, cast
 import datetime
 import heapq
 import six
@@ -407,7 +407,7 @@ class ToDoList(object):
             for item in heapq.nlargest(num_items, self.Items(), key=Key)]
     return [Val(time.time(), "current time")] + vals
 
-  def CheckIsWellFormed(self) -> Set[int]:
+  def CheckIsWellFormed(self) -> Dict[int, float]:
     """A noop unless the programmer made an error.
 
     I.e., checks invariants.  We could do this better if we stopped
@@ -421,13 +421,14 @@ class ToDoList(object):
     Returns:
       a set of all UIDs
     """
+    mtime_by_uid: Dict[int, float] = {}
+
     if FLAGS.pyatdl_break_glass_and_skip_wellformedness_check:
-      uu: Set[int] = set()
       for item in self.Items():
         if not item.uid:
           continue
-        uu.add(item.uid)
-      return uu
+        mtime_by_uid[item.uid] = item.mtime
+      return mtime_by_uid
 
     def SelfStr() -> str:  # pylint: disable=missing-docstring
       saved_value = FLAGS.pyatdl_show_uid
@@ -439,26 +440,27 @@ class ToDoList(object):
 
     for f, unused_path in self.root.ContainersPreorder():
       f.CheckIsWellFormed()
+
     # Verify that UIDs are unique globally (not just within Actions or Contexts):
-    uids: Set[int] = set()
     for item in self.Items():
       if not item.uid:
         raise errors.DataError(
           'Missing UID for item "%s". self=%s' % (str(item), SelfStr()))
-      if item.uid in uids:
+      if item.uid in mtime_by_uid:
         raise errors.DataError(
           'UID %s was used for two different objects' % item.uid)
-      uids.add(item.uid)
+      mtime_by_uid[item.uid] = item.mtime
+
     for item in self.Items():
       if isinstance(item, prj.Prj):
-        if item.default_context_uid is not None and item.default_context_uid not in uids:
+        if item.default_context_uid is not None and item.default_context_uid not in mtime_by_uid:
           raise errors.DataError(
             'UID %s is a default_context_uid but that UID does not exist.' % item.default_context_uid)
       if isinstance(item, action.Action):
-        if item.ctx_uid is not None and item.ctx_uid not in uids:
+        if item.ctx_uid is not None and item.ctx_uid not in mtime_by_uid:
           raise errors.DataError(
             "UID %s is an action's context UID but that context does not exist." % item.ctx_uid)
-    return uids
+    return mtime_by_uid
 
   def MergeNoteList(self, other: pyatdl_pb2.NoteList) -> None:
     """repeated Note notes = 2;
@@ -520,66 +522,17 @@ class ToDoList(object):
         return True
     return False
 
-  def MergeRoot(self, other: pyatdl_pb2.Folder) -> None:
+  def MergeRoot(self, other: pyatdl_pb2.Folder, *, mtimes_by_uid_in_remote_to_do_list: Dict[int, float]) -> None:
     if other.common.uid != uid.ROOT_FOLDER_UID:
       raise ValueError("needs a root Folder")
     self.root.MergeFromProto(
       other,
+      mtimes_by_uid_in_remote_to_do_list=mtimes_by_uid_in_remote_to_do_list,
       find_existing_folder_by_uid=self.FolderByUID,
       find_existing_project_by_uid=self.ProjectByUID,
       find_existing_action_by_uid=self.ActionByUID,
       find_existing_project_by_uid_in_remote=lambda uid: self._FindExistingProjectByUidInRemote(root=other, uid=uid, path=[]),
       truly_delete_by_uid=self.TrulyDeleteByUid)
-
-  def MergeInbox(self, other: pyatdl_pb2.Project, *, all_uids_in_remote_to_do_list: Set[int]) -> None:
-    """Add things in other but not in self (anywhere, not just self.inbox) to self.inbox.
-
-    Change things in self to match what are in other for existing things that are more recent according to
-    max(ctime,mtime,dtime).
-
-    (TODO(chandler): Make the flutter app (a client of the mergeprotobufs API) look at max(ctime,mtime,dtime) to
-    determine a floor for its timestamps.)
-
-    Existing things may not be in self.inbox and one must move them there if they are more recent in other. (Existence
-    is determined by UID.)
-    """
-    assert isinstance(other, pyatdl_pb2.Project)
-    assert other.common.uid == uid.INBOX_UID
-    if common.MaxTimeOfPb(other) > common.MaxTime(self.inbox):
-      self.inbox.MergeCommonFrom(other)
-    other_uids = set()
-    for an_action in other.actions:
-      if an_action.common.uid in (uid.DEFAULT_PROTOBUF_VALUE_FOR_ABSENT_UID, uid.ROOT_FOLDER_UID, uid.INBOX_UID):
-        raise AssertionError("merge error: illegal or missing UID")  # TODO(chandler37): do this in more places, too
-      other_uids.add(an_action.common.uid)
-      tup = self.ActionByUID(an_action.common.uid)
-      if tup is None:
-        # You might wonder, what if this used to exist here and the most recent thing we did was purge it? You are not
-        # supposed to purge without syncing 100% of devices.
-        self.inbox.items.append(
-          action.Action.DeserializedProtobuf(
-            an_action.SerializeToString()))
-      else:
-        existing_action, existing_project = tup
-        they_are_authority = common.MaxTimeOfPb(an_action) >= common.MaxTime(existing_action)
-        # TODO(chandler37): we need a test case where they moved an action into the inbox but we renamed it so both
-        # actions need to exist (one with a new UID, either one...)
-        if they_are_authority:
-          existing_action.MergeFromProto(an_action)
-          if existing_project.uid != self.inbox.uid:
-            self.inbox.items.append(
-              action.Action.DeserializedProtobuf(
-                existing_action.AsProto().SerializeToString()))
-            existing_project.DeleteItemByUid(an_action.common.uid)
-    uids_to_delete = set()
-    for our_action in self.inbox.items:
-      if our_action.uid in other_uids:
-        continue
-      if our_action.uid in all_uids_in_remote_to_do_list:
-        uids_to_delete.add(our_action.uid)
-    if uids_to_delete:
-      self.inbox.items = [i for i in self.inbox.items if i.uid not in uids_to_delete]
-      self.inbox.NoteModification()
 
   def AsProto(self, pb: Optional[pyatdl_pb2.ToDoList] = None) -> pyatdl_pb2.ToDoList:
     """Serializes this object to a protocol buffer.

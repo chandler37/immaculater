@@ -178,7 +178,7 @@ unfreezeplus: venv/local-migrations-performed
 	$(ACTIVATE_VENV) && $(PIP) install -r requirements-test.txt
 	comm -i -3 requirements.txt <($(ACTIVATE_VENV) && $(PIP) freeze) | sed -e 's/^[[:blank:]]*//' > requirements-test.txt
 	cat <(echo "-r requirements.txt") requirements-test.txt > requirements-test.txt.tmp && mv requirements-test.txt.tmp requirements-test.txt
-	git diff-index --quiet HEAD || { echo "Let us try these versions..."; $(MAKE) clean test; echo ""; echo "Tests pass. Be wary of major version bumps."; }
+	git diff-index --quiet HEAD || { echo "Let us try these versions..."; $(MAKE) clean test && echo "" && echo "Tests pass. Be wary of major version bumps."; }
 
 .PHONY: cov
 cov: venv

@@ -156,11 +156,11 @@ class Folder(container.Container):
           continue
         assert isinstance(path, list)
         old_folder_in_db = path[0]  # The path is leaf first.
-        old_folder_path = find_existing_project_by_uid_in_remote(other_project.common.uid)
-        assert isinstance(old_folder_path, list)
+        old_folder_path_in_other = find_existing_project_by_uid_in_remote(other_project.common.uid)
+        assert isinstance(old_folder_path_in_other, list)
 
         # TODO(chandler): Should mtime inform the following decision?
-        moved = old_folder_path and path and old_folder_path[0].common.uid != path[0].uid
+        moved = old_folder_path_in_other and path and old_folder_path_in_other[0].common.uid != path[0].uid
 
         if not isinstance(existing_project, prj.Prj):
           raise AssertionError(

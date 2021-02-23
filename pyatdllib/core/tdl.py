@@ -509,7 +509,9 @@ class ToDoList(object):
       if uid == p.common.uid:
         return new_path
     for f in root.folders:
-      return ToDoList._FindExistingProjectByUidInRemote(root=f, uid=uid, path=new_path)
+      result = ToDoList._FindExistingProjectByUidInRemote(root=f, uid=uid, path=new_path)
+      if result:
+        return result
     return []
 
   def TrulyDeleteByUid(self, *, uid: int) -> bool:

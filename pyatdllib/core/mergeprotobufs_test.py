@@ -1,5 +1,6 @@
 """Unittests for module 'mergeprotobufs'."""
 
+import os
 import random
 import time
 
@@ -184,6 +185,22 @@ root {
 """ % {'year5454microsec': year5454microsec}
 
 text_formatted_protobuf_dicts: List[Tuple[str, Dict[str, Union[str, bool]]]] = []
+with open(
+  os.path.join(os.path.dirname(__file__), 'mergeprotobufs_test_data3.pbtxt'),
+  mode='rt') as f:
+  _REAL_WORLD_EXAMPLE_DB = f.read()
+with open(
+  os.path.join(os.path.dirname(__file__), 'mergeprotobufs_test_data3_remote.pbtxt'),
+  mode='rt') as f:
+  _REAL_WORLD_EXAMPLE_REMOTE = f.read()
+text_formatted_protobuf_dicts.append(
+  ('A project "z fyi" in root moves into a folder "zz back burner" that already has a prj "T27" in it (reproducing a '
+   'real bug found in the field)',
+   {
+     'database': _REAL_WORLD_EXAMPLE_DB,
+     'remote': _REAL_WORLD_EXAMPLE_REMOTE
+   }))
+
 text_formatted_protobuf_dicts.append(
   ('Moves a prj out of a folder -109 into the root folder',
    {

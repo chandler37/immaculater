@@ -46,7 +46,6 @@ DEBUG = os.environ.get('DJANGO_DEBUG') == "True"
 
 INSTALLED_APPS = [
     'todo.apps.TodoConfig',
-    'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.sites',
     'django.contrib.contenttypes',
@@ -269,8 +268,12 @@ JWT_PAYLOAD_HANDLER = jwt.jwt_payload_handler
 
 JWT_EXPIRATION_DELTA = datetime.timedelta(seconds=60 * 60 * 24 * 14)
 
+ADMIN_ENABLED = os.environ.get("ADMIN_ENABLED", "True") == "True"
+if ADMIN_ENABLED:
+    INSTALLED_APPS.append('django.contrib.admin')
+
 if os.environ.get("SENTRY_DSN"):
-  sentry_sdk.init(
-      dsn=os.environ.get("SENTRY_DSN"),
-      integrations=[DjangoIntegration()]
-  )
+    sentry_sdk.init(
+        dsn=os.environ.get("SENTRY_DSN"),
+        integrations=[DjangoIntegration()]
+    )

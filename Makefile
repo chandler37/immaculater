@@ -35,7 +35,6 @@ endif
 	$(PYTHON) -m venv venv
 	$(ACTIVATE_VENV) && pip -q install --upgrade pip
 	$(ACTIVATE_VENV) && cd venv && git clone --quiet --depth 1 --recurse-submodules "https://github.com/chandler37/pytest-mypy.git" && cd pytest-mypy && $(PIP) install -c ../../requirements.txt -c ../../requirements-test.txt --upgrade .
-	$(ACTIVATE_VENV) && cd venv && git clone --quiet --depth 1 --recurse-submodules "https://github.com/chandler37/django-stubs.git" && cd django-stubs && $(PIP) install -c ../../requirements.txt -c ../../requirements-test.txt --upgrade .
 	@echo "The virtualenv is not active unless you run the following:"
 	@echo "$(ACTIVATE_VENV)"
 	@echo ""
@@ -50,7 +49,6 @@ venv/requirements-test-installed-by-makefile: requirements-test.txt requirements
 	diff <(cat $^ | grep -v -e '^-r requirements.txt$$' | sort -f) \
 	     <($(ACTIVATE_VENV) \
 	       && $(PIP) freeze \
-			| grep -v '^django-stubs @ file://.*/django-stubs$$' \
 			| grep -v '^pytest-mypy @ file://.*/pytest-mypy$$' \
 			| sort -f)
 	touch $@
